@@ -1,0 +1,12 @@
+  query GetViewerQuery($address: PublicKey!) {
+    wallet(address: $address) {
+      address
+      profile {
+        profileImageUrlHighres
+        handle
+      }
+    }
+    viewer @client {
+      balance
+    }
+  }

@@ -1,26 +1,23 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Domine&family=Merriweather&family=Noto+Serif&family=Playfair+Display&family=Roboto&family=Source+Sans+Pro&family=Work+Sans&family=Inter&family=Urbanist&family=Space+Mono&display=swap');
+@import "@solana/wallet-adapter-react-ui/styles.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+body, html {
+  @apply bg-gray-900;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.wallet-modal-theme .wallet-adapter-modal-wrapper {
+  @apply bg-gray-900 font-sans;
 }
 
-* {
-  box-sizing: border-box;
+.wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {
+  @apply bg-gray-800;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+.wallet-modal-theme .wallet-adapter-modal-button-close {
+  @apply bg-gray-800;
 }

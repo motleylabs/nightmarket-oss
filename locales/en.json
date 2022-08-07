@@ -1,0 +1,14 @@
+{
+  "App": {
+    "header": {
+      "title": "Holaplex"
+    },
+    "connect": "Connect"
+  },
+  "Home": {
+    "metadata": {
+      "title": "Holaplex",
+      "description": "This is the home page of the DAO marketplace"
+    }
+  }
+}
