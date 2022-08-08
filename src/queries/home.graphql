@@ -1,0 +1,38 @@
+query HomePageQuery(
+  $startDate: DateTimeUtc!,
+  $endDate: DateTimeUtc!
+) {
+    collectionsFeaturedByVolume(
+    startDate: $startDate
+    endDate: $endDate
+    limit: 12
+    offset: 0
+    orderDirection: DESC
+  ) {
+    floorPrice
+    nftCount
+    nft {
+      address
+      mintAddress
+      name
+      image
+    }
+  }
+
+  collectionsFeaturedByMarketCap(
+    startDate: $startDate
+    endDate: $endDate
+    limit: 12
+    offset: 0
+    orderDirection: DESC
+  ) {
+    floorPrice
+    nftCount
+    nft {
+      address
+      mintAddress
+      name
+      image
+    }
+  }
+}

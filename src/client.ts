@@ -3,6 +3,7 @@ import { offsetLimitPagination } from '@apollo/client/utilities'
 import BN from 'bn.js'
 import { viewerVar } from './cache'
 import config from './app.config'
+import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 
 function asBN(value: string): BN {
   if (value === undefined || value === null) {
@@ -35,6 +36,17 @@ const client = new ApolloClient({
               return viewerVar()
             },
           },
+        },
+      },
+      Collection: {
+        fields: {
+          floorPrice: {
+            read: (value) => {
+              const lamports = asBN(value)
+
+              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1)
+            }
+          }
         },
       },
       MintStats: {

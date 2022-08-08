@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, ReactElement } from 'react'
 import { NextIntlProvider } from 'next-intl'
 import type { AppProps } from 'next/app'
+import { NextPage } from 'next'
 import clsx from 'clsx'
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react'
 import {
@@ -46,21 +47,22 @@ interface GetViewerData {
   viewer: Viewer
   wallet: Wallet
 }
+
 function App({ children, locales }: AppComponentProps) {
   const [showNav, setShowNav] = useNavigation()
   const onLogin = useLogin()
   const { connected, publicKey, disconnect, connecting } = useWallet()
-  const viewerQueryResult = useQuery<GetViewerData>(GetViewerQuery, { 
+  const viewerQueryResult = useQuery<GetViewerData>(GetViewerQuery, {
     variables: {
       address: publicKey?.toBase58(),
     }
   })
 
   const loading = viewerQueryResult.loading || connecting
-  
+
   return (
     <>
-      <header className="flex flex-row justify-between items-center px-4 py-2 md:px-6 md:py-4">
+      <header className="flex flex-row justify-between items-center px-4 py-2 md:px-8 md:py-4">
         <Link href="/" passHref>
           <a className="text-2xl font-bold flex flex-row gap-2">
             👋
@@ -70,15 +72,14 @@ function App({ children, locales }: AppComponentProps) {
         {loading ? (
           <div className="hidden md:inline-block rounded-full h-10 w-10 bg-gray-800" />
         ) : (
-          viewerQueryResult.data ? (
+          viewerQueryResult.data?.viewer ? (
             <img className="hidden md:inline-block rounded-full h-10 w-10 transition cursor-pointer" src={viewerQueryResult.data?.wallet.profile?.profileImageUrlHighres} />
           ) : (
             <Button onClick={onLogin} size={ButtonSize.Small} className="hidden md:inline-block">
-            {locales.App.connect}
+              {locales.App.connect}
             </Button>
           )
         )}
-        {}
         <button
           className="rounded-full p-3 bg-transparent shadow-lg transition md:hidden hover:bg-gray-800"
           onClick={useCallback(() => {
@@ -87,7 +88,7 @@ function App({ children, locales }: AppComponentProps) {
         >
           <MenuIcon color="#fff" width={16} height={16} />
         </button>
-        <div className={clsx('fixed left-0 right-0 top-0 bottom-0 px-4 py-2 bg-gray-900 md:hidden', showNav ? 'block' : 'hidden')}>
+        <div className={clsx('fixed left-0 right-0 top-0 bottom-0 z-50 px-4 py-2 bg-gray-900 md:hidden', showNav ? 'block' : 'hidden')}>
           <div className="w-full flex flex-row justify-between items-center md:hidden">
             <span className="text-2xl">👋</span>
             <button
@@ -109,7 +110,15 @@ function App({ children, locales }: AppComponentProps) {
   )
 }
 
-function AppPage({ Component, pageProps }: AppProps) {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (props: { children: ReactElement }) => ReactElement;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function AppPage({ Component, pageProps }: AppPropsWithLayout) {
   const network = WalletAdapterNetwork.Mainnet
 
   const endpoint = useMemo(() => clusterApiUrl(network), [])
@@ -127,6 +136,8 @@ function AppPage({ Component, pageProps }: AppProps) {
     [network]
   )
 
+  const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
+
   return (
     <NextIntlProvider messages={pageProps.locales}>
       <ApolloProvider client={client}>
@@ -139,7 +150,9 @@ function AppPage({ Component, pageProps }: AppProps) {
                 <App
                   locales={pageProps.locales}
                 >
-                  <Component {...pageProps} />
+                  <PageLayout {...pageProps}>
+                    <Component {...pageProps} />
+                  </PageLayout>
                 </App>
               </ViewerProvider>
             </WalletModalProvider>

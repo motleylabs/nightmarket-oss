@@ -298,3 +298,9 @@ export interface PriceChart {
   salesAverage: PricePoint[]
   totalVolume: PricePoint[]
 }
+
+export interface Collection {
+  floorPrice: number
+  nftCount: string
+  nft: Nft
+}
