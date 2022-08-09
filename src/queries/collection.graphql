@@ -1,0 +1,13 @@
+query CollectionQuery($address: String!) {
+  collection(address: $address) {
+    nft {
+      address
+      mintAddress
+      name
+      image
+      description
+    }
+    nftCount
+    floorPrice
+  }
+}

@@ -8,7 +8,7 @@ interface CollectionCardProps {
 }
 
 export default function CollectionCard({ collection }: CollectionCardProps) {
-  const { t } = useTranslation('collections')
+  const { t } = useTranslation('collection')
   
   return (
     <article className="relative flex flex-col justify-end aspect-square w-full rounded-lg overflow-hidden shadow-lg transition hover:scale-[1.02]">

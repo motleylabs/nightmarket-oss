@@ -303,4 +303,7 @@ export interface Collection {
   floorPrice: number
   nftCount: string
   nft: Nft
+  totalVolume: number
+  listedCount: number
+  holderCount: number
 }

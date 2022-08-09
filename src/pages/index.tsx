@@ -20,7 +20,7 @@ interface GetHomePageData {
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
   props: {
-    ...await serverSideTranslations(locale as string, ['common', 'home', 'collections']),
+    ...await serverSideTranslations(locale as string, ['common', 'home', 'collection']),
   },
 })
 

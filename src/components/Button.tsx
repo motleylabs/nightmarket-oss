@@ -26,6 +26,7 @@ interface ButtonProps {
   icon?: React.ReactElement
   className?: string
   onClick?: () => any
+  circle?: boolean
 }
 
 const Button = ({
@@ -38,6 +39,7 @@ const Button = ({
   type = ButtonType.Primary,
   className,
   block = false,
+  circle = false,
   onClick,
 }: ButtonProps) => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
@@ -58,12 +60,14 @@ const Button = ({
         {
           'w-full': block,
           'text-gray-900 bg-white': type === ButtonType.Primary,
-          'text-white bg-gray-900': type === ButtonType.Secondary,
+          'text-white bg-gray-800': type === ButtonType.Secondary,
           'text-gray-300 bg-gray-700': type === ButtonType.Tertiary,
           'text-xs md:text-sm p-2': size === ButtonSize.Small,
           'p-4': size === ButtonSize.Large,
           'opacity-75': disabled,
           'hover:scale-105': !disabled,
+          'rounded-full': circle,
+          'h-10 w-10': circle && ButtonSize.Small
         }
       )}
       disabled={disabled}

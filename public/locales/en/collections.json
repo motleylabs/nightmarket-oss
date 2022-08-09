@@ -1,6 +1,0 @@
-{
-  "card": {
-    "floor": "{{price}} SOL",
-    "count": "{{amount}} NFTs"
-  }
-}

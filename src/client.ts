@@ -6,11 +6,11 @@ import config from './app.config'
 import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 
 function asBN(value: string): BN {
-  if (value === undefined || value === null) {
+  try {
+    return new BN(value)
+  } catch {
     return new BN(0)
   }
-
-  return new BN(value)
 }
 const typeDefs = gql`
   type Viewer {

@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "title": "{{name}} Collection"
+  },
+  "card": {
+    "floor": "{{price}} SOL",
+    "count": "{{amount}} NFTs"
+  },
+  "supply": "Supply",
+  "listings": "Listings",
+  "holders": "Holders",
+  "floor": "Floor Price",
+  "volume": "Total Volume",
+  "nfts": "NFTs {{amount}}",
+  "activity": "Activity",
+  "analytics": "Analytics",
+  "about": "About"
+}
