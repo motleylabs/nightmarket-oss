@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "title": "Holaplex",
+    "description": "This is the home page of the DAO marketplace"
+  },
+  "hero": {
+    "title": "This is a community owned NFT marketplace.",
+    "subtitle": "100% of trading fees are given back to token holders, back into the ecosystem we love."
+  },
+  "topVolume": {
+    "title": "Top volume"
+  },
+  "topMarketCap": {
+    "title": "Top marketcap"
+  }
+}

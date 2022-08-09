@@ -1,5 +1,5 @@
 import { useCallback, useMemo, ReactElement } from 'react'
-import { NextIntlProvider } from 'next-intl'
+import { appWithTranslation } from 'next-i18next'
 import type { AppProps } from 'next/app'
 import { NextPage } from 'next'
 import clsx from 'clsx'
@@ -18,6 +18,7 @@ import {
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { useTranslation } from 'next-i18next'
 import { ApolloProvider, useQuery } from '@apollo/client'
 import Link from 'next/link'
 import useNavigation from './../hooks/nav'
@@ -40,7 +41,6 @@ function clusterApiUrl(network: WalletAdapterNetwork) {
 
 interface AppComponentProps {
   children: JSX.Element
-  locales: any
 }
 
 interface GetViewerData {
@@ -48,7 +48,7 @@ interface GetViewerData {
   wallet: Wallet
 }
 
-function App({ children, locales }: AppComponentProps) {
+function App({ children }: AppComponentProps) {
   const [showNav, setShowNav] = useNavigation()
   const onLogin = useLogin()
   const { connected, publicKey, disconnect, connecting } = useWallet()
@@ -58,6 +58,8 @@ function App({ children, locales }: AppComponentProps) {
     }
   })
 
+  const { t } = useTranslation('common')
+
   const loading = viewerQueryResult.loading || connecting
 
   return (
@@ -66,7 +68,7 @@ function App({ children, locales }: AppComponentProps) {
         <Link href="/" passHref>
           <a className="text-2xl font-bold flex flex-row gap-2">
             👋
-            <span className="hidden md:inline-block text-white">{locales.App.header.title}</span>
+            <span className="hidden md:inline-block text-white">{t('header.title')}</span>
           </a>
         </Link>
         {loading ? (
@@ -76,7 +78,7 @@ function App({ children, locales }: AppComponentProps) {
             <img className="hidden md:inline-block rounded-full h-10 w-10 transition cursor-pointer" src={viewerQueryResult.data?.wallet.profile?.profileImageUrlHighres} />
           ) : (
             <Button onClick={onLogin} size={ButtonSize.Small} className="hidden md:inline-block">
-              {locales.App.connect}
+              {t('connect')}
             </Button>
           )
         )}
@@ -139,28 +141,24 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout) {
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
 
   return (
-    <NextIntlProvider messages={pageProps.locales}>
-      <ApolloProvider client={client}>
-        <ConnectionProvider
-          endpoint={endpoint}
-        >
-          <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider className="wallet-modal-theme">
-              <ViewerProvider>
-                <App
-                  locales={pageProps.locales}
-                >
-                  <PageLayout {...pageProps}>
-                    <Component {...pageProps} />
-                  </PageLayout>
-                </App>
-              </ViewerProvider>
-            </WalletModalProvider>
-          </WalletProvider>
-        </ConnectionProvider>
-      </ApolloProvider>
-    </NextIntlProvider>
+    <ApolloProvider client={client}>
+      <ConnectionProvider
+        endpoint={endpoint}
+      >
+        <WalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider className="wallet-modal-theme">
+            <ViewerProvider>
+              <App>
+                <PageLayout {...pageProps}>
+                  <Component {...pageProps} />
+                </PageLayout>
+              </App>
+            </ViewerProvider>
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
+    </ApolloProvider>
   )
 }
 
-export default AppPage
+export default appWithTranslation(AppPage)

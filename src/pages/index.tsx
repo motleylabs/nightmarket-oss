@@ -1,10 +1,12 @@
 import type { NextPage, GetStaticPropsContext } from 'next'
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
+import { useTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
 import { SwiperSlide } from 'swiper/react'
 import GetHomeQuery from './../queries/home.graphql'
-import { useTranslations } from 'next-intl'
+
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import CollectionCard from '../components/CollectionCard'
@@ -15,16 +17,15 @@ interface GetHomePageData {
   collectionsFeaturedByVolume: Collection[]
   collectionsFeaturedByMarketCap: Collection[]
 }
-export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  return {
-    props: {
-      locales: (await import(`./../../locales/${locale}.json`)).default
-    }
-  };
-}
+
+export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
+  props: {
+    ...await serverSideTranslations(locale as string, ['common', 'home', 'collections']),
+  },
+})
 
 const Home: NextPage = () => {
-  const t = useTranslations('Home')
+  const { t } = useTranslation('home')
 
   const [startDate, endDate] = useMemo(() => {
     const now = DateTime.now();
@@ -55,11 +56,11 @@ const Home: NextPage = () => {
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
         <section className="mt-28">
-          <header className="flex w-full flex-row mb-6 justify-between border-b border-gray-800">
-            <h1 className="text-2xl mb-2">{t('topVolume.title')}</h1>
+          <header className="flex w-full flex-row mb-4 justify-between border-b border-gray-800">
+            <h1 className="text-2xl  mb-2">{t('topVolume.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-2">
               <CollectionCard.Skeleton />
               <CollectionCard.Skeleton className="hidden sm:inline-block" />
               <CollectionCard.Skeleton className="hidden md:inline-block" />
@@ -98,11 +99,11 @@ const Home: NextPage = () => {
           )}
         </section>
         <section className="mt-28">
-          <header className="flex w-full flex-row justify-between border-b border-gray-800 mb-6">
+          <header className="flex w-full flex-row justify-between border-b border-gray-800 mb-4">
             <h1 className="text-2xl mb-2">{t('topMarketCap.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-2">
               <CollectionCard.Skeleton />
               <CollectionCard.Skeleton className="hidden sm:inline-block" />
               <CollectionCard.Skeleton className="hidden md:inline-block" />

@@ -1,6 +1,14 @@
+import { ReactElement } from "react"
 
-function OverviewLayout() {
-
+interface OverviewLayoutProps {
+  children: ReactElement
+}
+function OverviewLayout({ children }: OverviewLayoutProps) {
+  return (
+    <main>
+      {children}
+    </main>
+  )
 }
 
 export default OverviewLayout

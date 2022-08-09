@@ -1,23 +1,15 @@
-import type { NextPage, GetStaticPropsContext } from 'next'
-import { ReactElement } from 'react';
+import type { GetStaticPropsContext } from 'next'
+import { ReactElement } from 'react'
+import OverviewLayout from '../../../layouts/OverviewLayout'
 
-export async function getStaticProps({ locale }: GetStaticPropsContext) {
-  return {
-    props: {
-      locales: (await import(`./../../../../locales/${locale}.json`)).default
-    }
-  };
-}
-
-function CollectionNfts() {
-
+export default function CollectionNfts() {
+  return <div />
 }
 
 interface CollectionNftsLayout {
   children: ReactElement
 }
-CollectionNfts.getLayout = function CollectionNftsLayout({ children }: NextPage) {
+
+CollectionNfts.getLayout = function CollectionNftsLayout({ children }: CollectionNftsLayout) {
   return <OverviewLayout>{children}</OverviewLayout>
 }
-
-export default CollectionNfts

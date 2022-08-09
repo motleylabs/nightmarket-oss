@@ -22,7 +22,7 @@
     "graphql": "^16.5.0",
     "luxon": "^3.0.1",
     "next": "12.2.4",
-    "next-intl": "^2.7.4",
+    "next-i18next": "^11.3.0",
     "next-plugin-graphql": "^0.0.2",
     "react": "^18.2.0",
     "react-dom": "18.2.0",

@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useTranslations } from 'next-intl'
+import { useTranslation } from 'next-i18next'
 
 import { Collection } from "../types"
 
@@ -8,7 +8,7 @@ interface CollectionCardProps {
 }
 
 export default function CollectionCard({ collection }: CollectionCardProps) {
-  const t = useTranslations('CollectionCard')
+  const { t } = useTranslation('collections')
   
   return (
     <article className="relative flex flex-col justify-end aspect-square w-full rounded-lg overflow-hidden shadow-lg transition hover:scale-[1.02]">
@@ -19,10 +19,10 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
       </h1>
       <footer className="w-full grid grid-cols-2 gap-2 z-20 text-white p-4">
       <div className="text-center bg-gray-800 backdrop-blur-md bg-opacity-50 p-2 rounded-lg text-sm xl:text-base">
-          {t('count', { amount: collection.nftCount })}
+          {t('card.count', { amount: collection.nftCount })}
         </div>
         <div className="text-center bg-gray-800 backdrop-blur-md bg-opacity-50 p-2 rounded-lg text-sm xl:text-base">
-          {t('floor', { price: collection.floorPrice })}
+          {t('card.floor', { price: collection.floorPrice })}
         </div>
       </footer>
     </article>
