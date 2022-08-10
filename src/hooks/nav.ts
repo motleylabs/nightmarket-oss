@@ -2,9 +2,8 @@ import { useWindowWidth } from '@react-hook/window-size'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 const TAIWIND_SCREEN_MD_WIDTH = 768
-type NavigationUseEffect = [boolean, Dispatch<SetStateAction<boolean>>]
 
-export default function useNavigation(): NavigationUseEffect {
+export default function useNavigation(): [boolean, Dispatch<SetStateAction<boolean>>] {
   const [showNav, setShowNav] = useState(false)
   const windowWidth = useWindowWidth()
 

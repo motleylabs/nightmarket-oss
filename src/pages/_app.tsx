@@ -51,7 +51,7 @@ interface GetViewerData {
 function App({ children }: AppComponentProps) {
   const [showNav, setShowNav] = useNavigation()
   const onLogin = useLogin()
-  const { connected, publicKey, disconnect, connecting } = useWallet()
+  const { publicKey, connecting } = useWallet()
   const viewerQueryResult = useQuery<GetViewerData>(GetViewerQuery, {
     variables: {
       address: publicKey?.toBase58(),
@@ -120,7 +120,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-function AppPage({ Component, pageProps }: AppPropsWithLayout) {
+function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet
 
   const endpoint = useMemo(() => clusterApiUrl(network), [])

@@ -41,7 +41,7 @@ const Button = ({
   block = false,
   circle = false,
   onClick,
-}: ButtonProps) => {
+}: ButtonProps): JSX.Element => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
     switch (type) {
       case ButtonType.Primary:

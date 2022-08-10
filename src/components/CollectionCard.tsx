@@ -7,7 +7,7 @@ interface CollectionCardProps {
   collection: Collection
 }
 
-export default function CollectionCard({ collection }: CollectionCardProps) {
+export default function CollectionCard({ collection }: CollectionCardProps): JSX.Element {
   const { t } = useTranslation('collection')
   
   return (
@@ -32,7 +32,8 @@ export default function CollectionCard({ collection }: CollectionCardProps) {
 interface CollectionCardSkeletonProps {
   className?: string
 }
-CollectionCard.Skeleton = function CollectionCardSkeleton({ className }: CollectionCardSkeletonProps) {
+
+CollectionCard.Skeleton = function CollectionCardSkeleton({ className }: CollectionCardSkeletonProps): JSX.Element {
   return (
     <div className={clsx('aspect-square bg-gray-800 rounded-lg', className)} />
   )
