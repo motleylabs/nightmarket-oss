@@ -1,17 +1,20 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { FC, Fragment, ReactNode, useRef, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { DebounceInput } from "react-debounce-input";
 import Link from "next/link";
-import { shortenAddress } from "../util";
+import { isPublicKey, shortenAddress } from "../util";
+import { Wallet, Collection, Nft, UserWallet } from "../types";
 
 type Input = FC;
 type Group = FC;
 type Header = FC;
 type Results = FC;
 type Loading = FC;
-type Collection = FC;
-type Profile = FC;
+type CollectionItem = FC;
+type ProfileItem = FC;
+type NftItem = FC;
 
 interface SearchProps {
   children: ReactNode;
@@ -20,8 +23,9 @@ interface SearchProps {
   Header?: Header;
   Results?: Results;
   Loading?: Loading;
-  Profile?: Profile;
-  Collection?: Collection;
+  Profile?: ProfileItem;
+  Collection?: CollectionItem;
+  MintAddress?: NftItem;
 }
 
 export function Search({ children }: SearchProps) {
@@ -94,9 +98,14 @@ interface SearchResultsProps {
   searching: boolean;
   children: ReactNode;
   error?: any;
+  hasResults: boolean;
 }
 
-function SearchResults({ searching, children }: SearchResultsProps) {
+function SearchResults({
+  searching,
+  children,
+  hasResults,
+}: SearchResultsProps) {
   return (
     <Transition
       as={Fragment}
@@ -118,7 +127,16 @@ function SearchResults({ searching, children }: SearchResultsProps) {
             <SearchLoadingItem variant={"circle"} />
           </>
         ) : (
-          <>{children}</>
+          <>
+            {!hasResults && (
+              <div className={`flex h-6 w-full items-center justify-center`}>
+                <p className={`m-0 text-center text-base font-medium`}>
+                  No Results
+                </p>
+              </div>
+            )}
+            {children}
+          </>
         )}
       </Combobox.Options>
     </Transition>
@@ -130,9 +148,21 @@ interface SearchGroupProps {
   title: string;
   subtitle?: string;
   children: ReactNode;
+  results: UserWallet[] | Collection[] | UserWallet | Nft[] | undefined;
 }
 
-function SearchGroup({ title, subtitle, children }: SearchGroupProps) {
+function SearchGroup({ title, subtitle, children, results }: SearchGroupProps) {
+  if (!results) {
+    return null;
+  }
+  if ("length" in results && results.length <= 0) {
+    return null;
+  }
+
+  if ("profile" in results && !results.profile) {
+    return null;
+  }
+
   return (
     <>
       <h6
@@ -157,8 +187,8 @@ interface SearchResultProps {
 }
 
 interface CollectionSearchResultProps extends SearchResultProps {
-  count: number;
-  floor: number;
+  count?: number;
+  floor?: number;
 }
 
 function CollectionSearchResult({
@@ -180,30 +210,76 @@ function CollectionSearchResult({
       >
         <div className={`flex flex-row items-center gap-6`}>
           <img
-            src={image}
+            src={image || "/images/placeholder.png"}
             alt={name}
             className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
           />
           <p className={`m-0 text-sm font-bold`}>{name}</p>
         </div>
-        <div className={`flex items-center justify-end gap-4`}>
-          <p
-            className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-          >
-            {count} NFTs
-          </p>
-          <p
-            className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-          >
-            Floor {floor}
-          </p>
-        </div>
+        {count && floor && (
+          <div className={`flex items-center justify-end gap-4`}>
+            <p
+              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+            >
+              {count} NFTs
+            </p>
+            <p
+              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+            >
+              Floor {floor}
+            </p>
+          </div>
+        )}
       </a>
     </Link>
   );
 }
-
 Search.Collection = CollectionSearchResult;
+
+interface MintAddressSearchResultProps extends SearchResultProps {
+  creatorAddress?: string | null;
+  creatorHandle?: string | null;
+}
+
+function MintAddressSearchResult({
+  creatorAddress,
+  creatorHandle,
+  address,
+  name,
+  image,
+  onClick,
+  active,
+}: MintAddressSearchResultProps) {
+  return (
+    <Link href={`/nfts/${address}`}>
+      <a
+        onClick={onClick}
+        className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
+          active && "bg-gray-800"
+        }`}
+      >
+        <div className={`flex flex-row items-center gap-6`}>
+          <img
+            src={image || "/images/placeholder.png"}
+            alt={name}
+            className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
+          />
+          <p className={`m-0 text-sm font-bold`}>{name}</p>
+        </div>
+        {(creatorAddress || creatorHandle) && (
+          <div className={`flex items-center justify-end gap-4`}>
+            <p
+              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+            >
+              {`@${creatorHandle}` || shortenAddress(creatorAddress || "")}
+            </p>
+          </div>
+        )}
+      </a>
+    </Link>
+  );
+}
+Search.MintAddress = MintAddressSearchResult;
 
 interface ProfileSearchResultProps extends SearchResultProps {
   handle: string;
@@ -217,6 +293,10 @@ function ProfileSearchResult({
   onClick,
   active,
 }: ProfileSearchResultProps) {
+  if (!isPublicKey(address)) {
+    return null;
+  }
+
   return (
     <Link href={`/profiles/${address}`}>
       <a
@@ -230,7 +310,7 @@ function ProfileSearchResult({
             className={"flex overflow-clip rounded-full bg-gray-900 h-10 w-10"}
           >
             <img
-              src={image}
+              src={image || "/images/placeholder.png"}
               alt={`profile-${address}`}
               className={"min-h-full min-w-full object-cover "}
             />

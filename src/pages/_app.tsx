@@ -33,6 +33,8 @@ import { Viewer, Wallet } from "./../types";
 import config from "./../app.config";
 import GetViewerQuery from "./../queries/viewer.graphql";
 import { Search } from "../components/Search";
+import useGlobalSearch from "../hooks/globalsearch";
+import { shortenAddress } from "../util";
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -63,6 +65,9 @@ function App({ children }: AppComponentProps) {
 
   const { t } = useTranslation("common");
 
+  const { updateSearch, searchTerm, results, searching, hasResults } =
+    useGlobalSearch();
+
   const loading = viewerQueryResult.loading || connecting;
 
   return (
@@ -78,62 +83,62 @@ function App({ children }: AppComponentProps) {
             </a>
           </Link>
           <Search>
-            <Search.Input onChange={() => {}} value={""} />
-            <Search.Results searching={false}>
-              <Search.Group title={"Collections"}>
-                <Search.Collection
-                  image={
-                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
+            <Search.Input onChange={updateSearch} value={searchTerm} />
+            <Search.Results searching={searching} hasResults={hasResults}>
+              <Search.Group
+                title={"Collections"}
+                results={results?.collections}
+              >
+                {results?.collections.map((collection, i) => (
+                  <Search.Collection
+                    key={`search-collection-${collection.mintAddress}-${i}`}
+                    image={collection.image}
+                    name={collection.name}
+                    address={collection.mintAddress}
+                  />
+                ))}
+              </Search.Group>
+              <Search.Group title={"Profiles"} results={results?.profiles}>
+                {results?.profiles.map((profile, i) => (
+                  <Search.Profile
+                    key={`search-profile-${profile.address}-${i}`}
+                    image={profile.profile?.profileImageUrlLowres || ""}
+                    name={
+                      profile.profile?.handle || shortenAddress(profile.address)
+                    }
+                    handle={
+                      profile.profile?.handle || shortenAddress(profile.address)
+                    }
+                    address={profile.address}
+                  />
+                ))}
+              </Search.Group>
+              <Search.Group title={"Wallet"} results={results?.wallet}>
+                <Search.Profile
+                  key={`search-wallet-${results?.wallet}`}
+                  image={results?.wallet?.profile?.profileImageUrlLowres || ""}
+                  name={
+                    results?.wallet?.profile?.handle ||
+                    shortenAddress(results?.wallet?.address)
                   }
-                  name={"Okay Bears"}
-                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
-                  floor={100}
-                  count={10000}
-                />
-                <Search.Collection
-                  image={
-                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
+                  handle={
+                    results?.wallet?.profile?.handle ||
+                    shortenAddress(results?.wallet?.address)
                   }
-                  name={"Okay Bears"}
-                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
-                  floor={100}
-                  count={10000}
-                />
-                <Search.Collection
-                  image={
-                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
-                  }
-                  name={"Okay Bears"}
-                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
-                  floor={100}
-                  count={10000}
+                  address={results?.wallet?.address || ""}
                 />
               </Search.Group>
-              <Search.Group title={"Profiles"}>
-                <Search.Profile
-                  image={
-                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
-                  }
-                  name={"Profile"}
-                  handle={"Jeff"}
-                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
-                />
-                <Search.Profile
-                  image={
-                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
-                  }
-                  name={"Profile"}
-                  handle={"Harry"}
-                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
-                />
-                <Search.Profile
-                  image={
-                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
-                  }
-                  name={"Profile"}
-                  handle={"Adam"}
-                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
-                />
+              <Search.Group title={"NFTs"} results={results?.nfts}>
+                {results?.nfts.map((nft, i) => (
+                  <Search.MintAddress
+                    key={`search-mintAddress-${nft.address}-${i}`}
+                    image={nft.image}
+                    address={nft.mintAddress}
+                    name={nft.name}
+                    creatorHandle={nft.creators[0].profile?.handle}
+                    creatorAddress={nft.creators[0].address}
+                  />
+                ))}
               </Search.Group>
             </Search.Results>
           </Search>

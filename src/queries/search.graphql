@@ -1,9 +1,9 @@
+#import "./fragments/ProfileInfo.graphql"
+
 query search(
   $term: String!
   $walletAddress: PublicKey!
-  $nftMintAddress: String!
-  $start: DateTimeUtc!
-  $end: DateTimeUtc!
+  $nftMintAddress: PublicKey!
 ) {
   profiles(term: $term, limit: 5, offset: 0) {
     address
@@ -19,7 +19,7 @@ query search(
       ...ProfileInfo
     }
   }
-  nfts: nftByMintAddress(address: $nftMintAddress) {
+  nfts: nftsByMintAddress(addresses: [$nftMintAddress]) {
     address
     name
     image
@@ -32,14 +32,12 @@ query search(
     }
     mintAddress
   }
-  collections: collectionsFeaturedByVolume(
-    term: $term
-    startDate: $start
-    endDate: $end
-    limit: 25
-    offset: 0
-    orderDirection: DESC
-  ) {
-    ...CollectionPreview
+  collections: searchCollections(term: $term, limit: 25, offset: 0) {
+    address
+    mintAddress
+    name
+    image
+    creatorAddress
+    creatorTwitterHandle
   }
 }
