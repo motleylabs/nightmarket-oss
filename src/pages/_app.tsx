@@ -101,6 +101,7 @@ function App({ children }: AppComponentProps) {
               <Search.Group title={"Profiles"} results={results?.profiles}>
                 {results?.profiles.map((profile, i) => (
                   <Search.Profile
+                    profile={profile}
                     key={`search-profile-${profile.address}-${i}`}
                     image={profile.profile?.profileImageUrlLowres || ""}
                     name={
@@ -115,6 +116,7 @@ function App({ children }: AppComponentProps) {
               </Search.Group>
               <Search.Group title={"Wallet"} results={results?.wallet}>
                 <Search.Profile
+                  profile={results?.wallet}
                   key={`search-wallet-${results?.wallet}`}
                   image={results?.wallet?.profile?.profileImageUrlLowres || ""}
                   name={
@@ -131,6 +133,7 @@ function App({ children }: AppComponentProps) {
               <Search.Group title={"NFTs"} results={results?.nfts}>
                 {results?.nfts.map((nft, i) => (
                   <Search.MintAddress
+                    nft={nft}
                     key={`search-mintAddress-${nft.address}-${i}`}
                     image={nft.image}
                     address={nft.mintAddress}

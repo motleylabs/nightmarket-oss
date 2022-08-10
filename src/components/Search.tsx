@@ -5,7 +5,8 @@ import { SearchIcon } from "@heroicons/react/outline";
 import { DebounceInput } from "react-debounce-input";
 import Link from "next/link";
 import { isPublicKey, shortenAddress } from "../util";
-import { Wallet, Collection, Nft, UserWallet } from "../types";
+import { Collection, Nft, UserWallet } from "../types";
+import { GlobalSearchData } from "../hooks/globalsearch";
 
 type Input = FC;
 type Group = FC;
@@ -28,9 +29,15 @@ interface SearchProps {
   MintAddress?: NftItem;
 }
 
+type SearchResultItems =
+  | GlobalSearchData["collections"][0]
+  | GlobalSearchData["nfts"][0]
+  | GlobalSearchData["wallet"]
+  | GlobalSearchData["profiles"][0];
+
 export function Search({ children }: SearchProps) {
   const searchContainerRef = useRef<HTMLDivElement>(null!);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<SearchResultItems | null>(null);
 
   return (
     <div
@@ -116,7 +123,7 @@ function SearchResults({
     >
       <Combobox.Options
         className={
-          "h-content scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-screen-95 w-full p-4 gap-6 overflow-y-auto rounded-lg bg-gray-900 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900"
+          "scrollbar-thumb-rounded-full absolute top-12 z-50 h-96 w-full p-4 gap-6 overflow-y-scroll rounded-lg bg-gray-900 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900"
         }
       >
         {searching ? (
@@ -189,6 +196,7 @@ interface SearchResultProps {
 interface CollectionSearchResultProps extends SearchResultProps {
   count?: number;
   floor?: number;
+  collection?: Nft;
 }
 
 function CollectionSearchResult({
@@ -199,39 +207,42 @@ function CollectionSearchResult({
   active,
   count,
   floor,
+  collection,
 }: CollectionSearchResultProps) {
   return (
-    <Link href={`/nfts/${address}`}>
-      <a
-        onClick={onClick}
-        className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-          active && "bg-gray-800"
-        }`}
-      >
-        <div className={`flex flex-row items-center gap-6`}>
-          <img
-            src={image || "/images/placeholder.png"}
-            alt={name}
-            className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
-          />
-          <p className={`m-0 text-sm font-bold`}>{name}</p>
-        </div>
-        {count && floor && (
-          <div className={`flex items-center justify-end gap-4`}>
-            <p
-              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-            >
-              {count} NFTs
-            </p>
-            <p
-              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-            >
-              Floor {floor}
-            </p>
+    <Combobox.Option key={"collection-" + address} value={collection}>
+      <Link href={`/nfts/${address}`}>
+        <a
+          onClick={onClick}
+          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
+            active && "bg-gray-800"
+          }`}
+        >
+          <div className={`flex flex-row items-center gap-6`}>
+            <img
+              src={image || "/images/placeholder.png"}
+              alt={name}
+              className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
+            />
+            <p className={`m-0 text-sm font-bold`}>{name}</p>
           </div>
-        )}
-      </a>
-    </Link>
+          {count && floor && (
+            <div className={`flex items-center justify-end gap-4`}>
+              <p
+                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+              >
+                {count} NFTs
+              </p>
+              <p
+                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+              >
+                Floor {floor}
+              </p>
+            </div>
+          )}
+        </a>
+      </Link>
+    </Combobox.Option>
   );
 }
 Search.Collection = CollectionSearchResult;
@@ -239,6 +250,7 @@ Search.Collection = CollectionSearchResult;
 interface MintAddressSearchResultProps extends SearchResultProps {
   creatorAddress?: string | null;
   creatorHandle?: string | null;
+  nft?: Nft;
 }
 
 function MintAddressSearchResult({
@@ -249,40 +261,44 @@ function MintAddressSearchResult({
   image,
   onClick,
   active,
+  nft,
 }: MintAddressSearchResultProps) {
   return (
-    <Link href={`/nfts/${address}`}>
-      <a
-        onClick={onClick}
-        className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-          active && "bg-gray-800"
-        }`}
-      >
-        <div className={`flex flex-row items-center gap-6`}>
-          <img
-            src={image || "/images/placeholder.png"}
-            alt={name}
-            className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
-          />
-          <p className={`m-0 text-sm font-bold`}>{name}</p>
-        </div>
-        {(creatorAddress || creatorHandle) && (
-          <div className={`flex items-center justify-end gap-4`}>
-            <p
-              className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-            >
-              {`@${creatorHandle}` || shortenAddress(creatorAddress || "")}
-            </p>
+    <Combobox.Option key={"nft-" + address} value={nft}>
+      <Link href={`/nfts/${address}`}>
+        <a
+          onClick={onClick}
+          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
+            active && "bg-gray-800"
+          }`}
+        >
+          <div className={`flex flex-row items-center gap-6`}>
+            <img
+              src={image || "/images/placeholder.png"}
+              alt={name}
+              className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
+            />
+            <p className={`m-0 text-sm font-bold`}>{name}</p>
           </div>
-        )}
-      </a>
-    </Link>
+          {(creatorAddress || creatorHandle) && (
+            <div className={`flex items-center justify-end gap-4`}>
+              <p
+                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
+              >
+                {`@${creatorHandle}` || shortenAddress(creatorAddress || "")}
+              </p>
+            </div>
+          )}
+        </a>
+      </Link>
+    </Combobox.Option>
   );
 }
 Search.MintAddress = MintAddressSearchResult;
 
 interface ProfileSearchResultProps extends SearchResultProps {
   handle: string;
+  profile?: UserWallet;
 }
 
 function ProfileSearchResult({
@@ -292,38 +308,43 @@ function ProfileSearchResult({
   address,
   onClick,
   active,
+  profile,
 }: ProfileSearchResultProps) {
   if (!isPublicKey(address)) {
     return null;
   }
 
   return (
-    <Link href={`/profiles/${address}`}>
-      <a
-        onClick={onClick}
-        className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-          active && "bg-gray-800"
-        }`}
-      >
-        <div className={"flex flex-row items-center gap-6"}>
-          <div
-            className={"flex overflow-clip rounded-full bg-gray-900 h-10 w-10"}
-          >
-            <img
-              src={image || "/images/placeholder.png"}
-              alt={`profile-${address}`}
-              className={"min-h-full min-w-full object-cover "}
-            />
+    <Combobox.Option key={"profile-" + address} value={profile}>
+      <Link href={`/profiles/${address}`}>
+        <a
+          onClick={onClick}
+          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
+            active && "bg-gray-800"
+          }`}
+        >
+          <div className={"flex flex-row items-center gap-6"}>
+            <div
+              className={
+                "flex overflow-clip rounded-full bg-gray-900 h-10 w-10"
+              }
+            >
+              <img
+                src={image || "/images/placeholder.png"}
+                alt={`profile-${address}`}
+                className={"min-h-full min-w-full object-cover "}
+              />
+            </div>
+            <p className={`m-0 text-sm text-white font-bold`}>
+              {handle ? `@${handle}` : shortenAddress(address)}
+            </p>
           </div>
-          <p className={`m-0 text-sm text-white font-bold`}>
-            {handle ? `@${handle}` : shortenAddress(address)}
+          <p className={`m-0 hidden text-sm text-gray-300 md:inline-block`}>
+            {shortenAddress(address)}
           </p>
-        </div>
-        <p className={`m-0 hidden text-sm text-gray-300 md:inline-block`}>
-          {shortenAddress(address)}
-        </p>
-      </a>
-    </Link>
+        </a>
+      </Link>
+    </Combobox.Option>
   );
 }
 Search.Profile = ProfileSearchResult;

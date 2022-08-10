@@ -4,7 +4,7 @@ import { isPublicKey } from "../util";
 import GlobalSearchQuery from "./../queries/search.graphql";
 import { Wallet, Collection, Nft } from "./../types";
 
-interface GlobalSearchData {
+export interface GlobalSearchData {
   profiles: Wallet[];
   wallet: Wallet;
   nfts: Nft[];
