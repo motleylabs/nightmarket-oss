@@ -13,17 +13,8 @@ interface CollectionLayoutProps {
   collection: Collection
 }
 
-function CollectionLayout(props: CollectionLayoutProps) {
-  const { children } = props
+function CollectionLayout({ children, collection }: CollectionLayoutProps) {
   const { t } = useTranslation(['collection', 'common'])
-  const router = useRouter()
-
-  const collection: Collection = {
-    ...props.collection,
-    totalVolume: 1800000,
-    listedCount: 1800,
-    holderCount: 6000
-  }
 
   const address = collection.nft.mintAddress
 
@@ -34,16 +25,18 @@ function CollectionLayout(props: CollectionLayoutProps) {
         <meta name="description" content={collection.nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <section className="flex flex-col md:flex-row justify-between px-4 md:px-8">
-          <div className="flex flex-row items-end gap-4">
+      <main className="mt-8 md:mt-12">
+        <section className="flex flex-col lg:flex-row justify-center md:justify-between items-center md:items-start px-4 md:px-8">
+          <div className="flex flex-col items-center md:flex-row md:items-end gap-4 md:gap-6">
             <img src={collection.nft.image} className="inline-block h-36 w-36 rounded-lg border-4 border-gray-900 shadow-xl" />
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col items-center md:items-start gap-8">
               <h1 className="text-5xl text-white">{collection.nft.name}</h1>
-              <div className="flex flex-row gap-2">
-                <Button icon={<PlusIcon width={14} height={14} />} size={ButtonSize.Small}>{t('follow', { ns: 'common' })}</Button>
-                <Button circle icon={<DownloadIcon width={14} height={14} />} size={ButtonSize.Small} type={ButtonType.Secondary} />
-                <ul className="border-l border-gray-800 flex flex-row gap-4 items-center px-4 ml-4">
+              <div className="flex flex-col items-center md:flex-row md:items-center gap-2">
+                <div className="flex flex-row gap-2">
+                  <Button icon={<PlusIcon width={14} height={14} />} size={ButtonSize.Small}>{t('follow', { ns: 'common' })}</Button>
+                  <Button circle icon={<DownloadIcon width={14} height={14} />} size={ButtonSize.Small} type={ButtonType.Secondary} />
+                </div>
+                <ul className="md:border-l md:border-gray-800 flex flex-row gap-4 mt-4 md:mt-0 items-center md:pl-4 md:ml-2">
                   <li className="flex gap-2 text-white">{collection.nftCount}<span className="text-gray-300">{t('supply')}</span></li>
                   <li className="flex gap-2 text-white">{collection.listedCount}<span className="text-gray-300">{t('listings')}</span></li>
                   <li className="flex gap-2 text-white">{collection.holderCount}<span className="text-gray-300">{t('holders')}</span></li>
@@ -51,7 +44,7 @@ function CollectionLayout(props: CollectionLayoutProps) {
               </div>
             </div>
           </div>
-          <aside className="flex flex-row gap-10 rounded-lg bg-gray-800 p-4 text-white">
+          <aside className="flex flex-row gap-8 rounded-lg flex-none mt-4 lg:mt-0 bg-gray-800 p-4 text-white">
             <div className="flex flex-col gap-4">
               <span className="text-gray-300">{t('floor')}</span>
               <span className="text-xl">{collection.floorPrice} SOL</span>
@@ -67,11 +60,12 @@ function CollectionLayout(props: CollectionLayoutProps) {
             </div>
           </aside>
         </section>
-        <nav className="flex flex-row ml-4 md:ml-8 mt-10">
+        <nav className="flex flex-row justify-center md:justify-start sm:ml-4 md:ml-8 mt-10">
           <Tab
             href={`/collections/${address}/nfts`}
           >
-            {t('nfts', { amount: collection.nftCount })}
+            {t('nfts')}
+            <span className="hidden md:line-block mr-1">{collection.nftCount}</span>
           </Tab>
           <Tab href={`/collections/${address}/activity`}>
             {t('activity')}

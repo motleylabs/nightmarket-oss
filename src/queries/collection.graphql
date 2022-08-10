@@ -9,5 +9,8 @@ query CollectionQuery($address: String!) {
     }
     nftCount
     floorPrice
+    totalVolume @client
+    listedCount @client
+    holderCount @client
   }
 }
