@@ -1,0 +1,45 @@
+query search(
+  $term: String!
+  $walletAddress: PublicKey!
+  $nftMintAddress: String!
+  $start: DateTimeUtc!
+  $end: DateTimeUtc!
+) {
+  profiles(term: $term, limit: 5, offset: 0) {
+    address
+    twitterHandle
+    profile {
+      ...ProfileInfo
+    }
+  }
+  wallet(address: $walletAddress) {
+    address
+    twitterHandle
+    profile {
+      ...ProfileInfo
+    }
+  }
+  nfts: nftByMintAddress(address: $nftMintAddress) {
+    address
+    name
+    image
+    creators {
+      twitterHandle
+      address
+      profile {
+        ...ProfileInfo
+      }
+    }
+    mintAddress
+  }
+  collections: collectionsFeaturedByVolume(
+    term: $term
+    startDate: $start
+    endDate: $end
+    limit: 25
+    offset: 0
+    orderDirection: DESC
+  ) {
+    ...CollectionPreview
+  }
+}
