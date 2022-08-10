@@ -1,13 +1,15 @@
-import { useCallback, useMemo, ReactElement } from 'react'
-import { appWithTranslation } from 'next-i18next'
-import type { AppProps } from 'next/app'
-import { NextPage } from 'next'
-import clsx from 'clsx'
-import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react'
+import { useCallback, useMemo, ReactElement } from "react";
+import { appWithTranslation } from "next-i18next";
+import type { AppProps } from "next/app";
+import { NextPage } from "next";
+import clsx from "clsx";
 import {
-  WalletModalProvider,
-} from '@solana/wallet-adapter-react-ui';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+  ConnectionProvider,
+  WalletProvider,
+  useWallet,
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   GlowWalletAdapter,
   PhantomWalletAdapter,
@@ -16,36 +18,37 @@ import {
   SolletExtensionWalletAdapter,
   SolletWalletAdapter,
   TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets'
-import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import { useTranslation } from 'next-i18next'
-import { ApolloProvider, useQuery } from '@apollo/client'
-import Link from 'next/link'
-import useNavigation from './../hooks/nav'
-import useLogin from '../hooks/login'
-import ViewerProvider from '../providers/ViewerProvider'
-import Button, { ButtonSize } from './../components/Button'
-import client from './../client'
-import './../../styles/globals.css'
-import { Viewer, Wallet } from './../types'
-import config from './../app.config'
-import GetViewerQuery from './../queries/viewer.graphql'
+} from "@solana/wallet-adapter-wallets";
+import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import { useTranslation } from "next-i18next";
+import { ApolloProvider, useQuery } from "@apollo/client";
+import Link from "next/link";
+import useNavigation from "./../hooks/nav";
+import useLogin from "../hooks/login";
+import ViewerProvider from "../providers/ViewerProvider";
+import Button, { ButtonSize } from "./../components/Button";
+import client from "./../client";
+import "./../../styles/globals.css";
+import { Viewer, Wallet } from "./../types";
+import config from "./../app.config";
+import GetViewerQuery from "./../queries/viewer.graphql";
+import { Search } from "../components/Search";
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
-    return config.solanaRPCUrl
+    return config.solanaRPCUrl;
   }
 
-  throw new Error(`The ${network} is not supported`)
+  throw new Error(`The ${network} is not supported`);
 }
 
 interface AppComponentProps {
-  children: JSX.Element
+  children: JSX.Element;
 }
 
 interface GetViewerData {
-  viewer: Viewer
-  wallet: Wallet
+  viewer: Viewer;
+  wallet: Wallet;
 }
 
 function App({ children }: AppComponentProps) {
@@ -55,61 +58,133 @@ function App({ children }: AppComponentProps) {
   const viewerQueryResult = useQuery<GetViewerData>(GetViewerQuery, {
     variables: {
       address: publicKey?.toBase58(),
-    }
-  })
+    },
+  });
 
-  const { t } = useTranslation('common')
+  const { t } = useTranslation("common");
 
-  const loading = viewerQueryResult.loading || connecting
+  const loading = viewerQueryResult.loading || connecting;
 
   return (
     <>
       <header className="flex flex-row justify-between items-center px-4 py-2 md:px-8 md:py-4">
-        <Link href="/" passHref>
-          <a className="text-2xl font-bold flex flex-row gap-2">
-            👋
-            <span className="hidden md:inline-block text-white">{t('header.title')}</span>
-          </a>
-        </Link>
+        <section className={"flex items-center gap-2 w-full"}>
+          <Link href="/" passHref>
+            <a className="text-2xl font-bold flex flex-row gap-2 whitespace-nowrap">
+              👋
+              <span className="hidden md:inline-block text-white">
+                {t("header.title")}
+              </span>
+            </a>
+          </Link>
+          <Search>
+            <Search.Input onChange={() => {}} value={""} />
+            <Search.Results searching={false}>
+              <Search.Group title={"Collections"}>
+                <Search.Collection
+                  image={
+                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
+                  }
+                  name={"Okay Bears"}
+                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
+                  floor={100}
+                  count={10000}
+                />
+                <Search.Collection
+                  image={
+                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
+                  }
+                  name={"Okay Bears"}
+                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
+                  floor={100}
+                  count={10000}
+                />
+                <Search.Collection
+                  image={
+                    "https://assets.holaplex.tools/arweave/7QhZL8C-lAWmCFbQ9saAh3ythEhBFhv0YCzKpwFRR6c?width=400"
+                  }
+                  name={"Okay Bears"}
+                  address={"3saAedkM9o5g1u5DCqsuMZuC4GRqPB4TuMkvSsSVvGQ3"}
+                  floor={100}
+                  count={10000}
+                />
+              </Search.Group>
+              <Search.Group title={"Profiles"}>
+                <Search.Profile
+                  image={
+                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
+                  }
+                  name={"Profile"}
+                  handle={"Jeff"}
+                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
+                />
+                <Search.Profile
+                  image={
+                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
+                  }
+                  name={"Profile"}
+                  handle={"Harry"}
+                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
+                />
+                <Search.Profile
+                  image={
+                    "https://pbs.twimg.com/profile_images/1005659267850858496/2PonB2Zv_normal.jpg"
+                  }
+                  name={"Profile"}
+                  handle={"Adam"}
+                  address={"3iazCtLU6vEvjUzkAscKaNkBwPXLtLu2CM32Zq8oSC5q"}
+                />
+              </Search.Group>
+            </Search.Results>
+          </Search>
+        </section>
         {loading ? (
           <div className="hidden md:inline-block rounded-full h-10 w-10 bg-gray-800" />
+        ) : viewerQueryResult.data?.viewer ? (
+          <img
+            className="hidden md:inline-block rounded-full h-10 w-10 transition cursor-pointer"
+            src={viewerQueryResult.data?.wallet.profile?.profileImageUrlHighres}
+          />
         ) : (
-          viewerQueryResult.data?.viewer ? (
-            <img className="hidden md:inline-block rounded-full h-10 w-10 transition cursor-pointer" src={viewerQueryResult.data?.wallet.profile?.profileImageUrlHighres} />
-          ) : (
-            <Button onClick={onLogin} size={ButtonSize.Small} className="hidden md:inline-block">
-              {t('connect')}
-            </Button>
-          )
+          <Button
+            onClick={onLogin}
+            size={ButtonSize.Small}
+            className="hidden md:inline-block"
+          >
+            {t("connect")}
+          </Button>
         )}
         <button
           className="rounded-full p-3 bg-transparent shadow-lg transition md:hidden hover:bg-gray-800"
           onClick={useCallback(() => {
-            setShowNav(true)
+            setShowNav(true);
           }, [setShowNav])}
         >
           <MenuIcon color="#fff" width={16} height={16} />
         </button>
-        <div className={clsx('fixed left-0 right-0 top-0 bottom-0 z-50 px-4 py-2 bg-gray-900 md:hidden', showNav ? 'block' : 'hidden')}>
+        <div
+          className={clsx(
+            "fixed left-0 right-0 top-0 bottom-0 z-50 px-4 py-2 bg-gray-900 md:hidden",
+            showNav ? "block" : "hidden"
+          )}
+        >
           <div className="w-full flex flex-row justify-between items-center md:hidden">
             <span className="text-2xl">👋</span>
             <button
               className="rounded-full p-3 bg-transparent bg-white transition hover:bg-gray-100"
               onClick={useCallback(() => {
-                setShowNav(false)
+                setShowNav(false);
               }, [setShowNav])}
             >
               <XIcon color="#171717" width={16} height={16} />
             </button>
           </div>
-          <nav>
-
-          </nav>
+          <nav></nav>
         </div>
       </header>
       {children}
     </>
-  )
+  );
 }
 
 type NextPageWithLayout = NextPage & {
@@ -123,7 +198,7 @@ type AppPropsWithLayout = AppProps & {
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet
 
-  const endpoint = useMemo(() => clusterApiUrl(network), [])
+  const endpoint = useMemo(() => clusterApiUrl(network), []);
 
   const wallets = useMemo(
     () => [
@@ -136,15 +211,15 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
       new SolletExtensionWalletAdapter({ network }),
     ],
     [network]
-  )
+  );
 
-  const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
+  const PageLayout =
+    Component.getLayout ??
+    ((props: { children: ReactElement }) => props.children);
 
   return (
     <ApolloProvider client={client}>
-      <ConnectionProvider
-        endpoint={endpoint}
-      >
+      <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider className="wallet-modal-theme">
             <ViewerProvider>
@@ -158,7 +233,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
         </WalletProvider>
       </ConnectionProvider>
     </ApolloProvider>
-  )
+  );
 }
 
-export default appWithTranslation(AppPage)
+export default appWithTranslation(AppPage);
