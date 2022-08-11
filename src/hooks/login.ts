@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 type OnLoginFn = () => Promise<void>
 
-export default function useLogin() {
+export default function useLogin(): OnLoginFn {
   const { wallet, connect } = useWallet()
   const { setVisible } = useWalletModal()
 

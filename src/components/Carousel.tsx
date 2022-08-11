@@ -16,7 +16,7 @@ const useSwiperRef = <T extends HTMLElement>(): [T | null, React.Ref<T>] => {
   return [wrapper, ref]
 }
 
-export default function Carousel({ children, ...other }: SwiperProps) {
+export default function Carousel({ children, ...other }: SwiperProps): JSX.Element {
   const [nextEl, nextElRef] = useSwiperRef<HTMLButtonElement>()
   const [prevEl, prevElRef] = useSwiperRef<HTMLButtonElement>()
 

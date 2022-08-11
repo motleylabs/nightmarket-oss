@@ -11,7 +11,7 @@
   "holders": "Holders",
   "floor": "Floor Price",
   "volume": "Total Volume",
-  "nfts": "NFTs {{amount}}",
+  "nfts": "NFTs",
   "activity": "Activity",
   "analytics": "Analytics",
   "about": "About"

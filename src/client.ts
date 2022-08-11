@@ -18,6 +18,12 @@ const typeDefs = gql`
     balance: Number
   }
 
+  extend type Collection {
+    totalVolume: String
+    listedCount: Number
+    holderCount: Number
+  }
+
   extend type Query {
     viewer(address: String!): Viewer
   }
@@ -45,6 +51,38 @@ const client = new ApolloClient({
               const lamports = asBN(value)
 
               return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1)
+            }
+          },
+          nftCount: {
+            read: (value) => {
+              return new Intl.NumberFormat("en-GB", {
+                notation: "compact",
+                compactDisplay: "short",
+              }).format(value);
+            }
+          },
+          totalVolume: {
+            read: (_) => {
+              return new Intl.NumberFormat("en-GB", {
+                notation: "compact",
+                compactDisplay: "short",
+              }).format(1800000);
+            }
+          },
+          listedCount: {
+            read: (_) => {
+              return new Intl.NumberFormat("en-GB", {
+                notation: "compact",
+                compactDisplay: "short",
+              }).format(1400);
+            }
+          },
+          holderCount: {
+            read: (_) => {
+              return new Intl.NumberFormat("en-GB", {
+                notation: "compact",
+                compactDisplay: "short",
+              }).format(6250);
             }
           }
         },

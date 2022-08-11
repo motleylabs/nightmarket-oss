@@ -42,7 +42,7 @@ interface CollectionNftsLayout {
   collection: Collection
 }
 
-CollectionNfts.getLayout = function CollectionNftsLayout({ children, collection }: CollectionNftsLayout) {
+CollectionNfts.getLayout = function CollectionNftsLayout({ children, collection }: CollectionNftsLayout): JSX.Element {
   return (
     <CollectionLayout
       collection={collection}

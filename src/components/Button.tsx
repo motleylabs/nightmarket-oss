@@ -41,7 +41,7 @@ const Button = ({
   block = false,
   circle = false,
   onClick,
-}: ButtonProps) => {
+}: ButtonProps): JSX.Element => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
     switch (type) {
       case ButtonType.Primary:
@@ -55,7 +55,7 @@ const Button = ({
     <button
       className={clsx(
         clsx,
-        'flex items-center text-center font-semibold justify-center duration-150 rounded-full focus:shadow-outline transition-transform',
+        'flex grow-0 items-center text-center font-semibold justify-center duration-150 rounded-full focus:shadow-outline transition-transform',
         className,
         {
           'w-full': block,
