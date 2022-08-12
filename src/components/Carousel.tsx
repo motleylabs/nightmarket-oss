@@ -1,6 +1,6 @@
 import { Swiper, SwiperProps } from 'swiper/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline';
-import { Navigation } from 'swiper';
+import { Navigation, Grid } from 'swiper';
 import { useRef, useState, useEffect } from 'react';
 
 const useSwiperRef = <T extends HTMLElement>(): [T | null, React.Ref<T>] => {
@@ -23,7 +23,7 @@ export default function Carousel({ children, ...other }: SwiperProps): JSX.Eleme
   return (
     <div className="relative w-full overflow-visible">
       <Swiper
-        modules={[Navigation]}
+        modules={[Navigation, Grid]}
         navigation={{
           prevEl,
           nextEl,

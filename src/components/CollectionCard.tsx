@@ -8,7 +8,7 @@ interface CollectionCardProps {
 }
 
 export default function CollectionCard({ collection }: CollectionCardProps): JSX.Element {
-  const { t } = useTranslation('collection');
+  const { t } = useTranslation(['collection', 'common']);
 
   return (
     <article className="relative flex aspect-square w-full flex-col justify-end overflow-hidden rounded-lg shadow-lg transition hover:scale-[1.02]">
@@ -37,5 +37,5 @@ interface CollectionCardSkeletonProps {
 CollectionCard.Skeleton = function CollectionCardSkeleton({
   className,
 }: CollectionCardSkeletonProps): JSX.Element {
-  return <div className={clsx('aspect-square rounded-lg bg-gray-800', className)} />;
+  return <div className={clsx('aspect-square animate-pulse rounded-lg bg-gray-800', className)} />;
 };

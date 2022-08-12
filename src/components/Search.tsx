@@ -1,10 +1,8 @@
-import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
+import React, { FC, Fragment, ReactNode, useCallback, useRef } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { SearchIcon } from '@heroicons/react/outline';
 import { DebounceInput } from 'react-debounce-input';
-import Link from 'next/link';
-import { shortenAddress } from '../modules/address';
-import { MetadataJson, Nft, NftCreator, UserWallet, Wallet } from '../types';
+import { MetadataJson, Nft, NftCreator, UserWallet } from '../types';
 import { useTranslation } from 'next-i18next';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
@@ -30,19 +28,10 @@ interface SearchProps {
   MintAddress?: NftItem;
 }
 
-type SearchResultItems = Nft | Wallet | MetadataJson;
-
 export default function Search({ children }: SearchProps) {
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<SearchResultItems | null>(null);
-
   return (
-    <div
-      id="searchbar-container"
-      ref={searchContainerRef}
-      className="relative z-30 flex w-full max-w-4xl flex-row items-center text-white"
-    >
-      <Combobox value={selected} onChange={setSelected}>
+    <div className="relative z-30 flex w-full max-w-4xl flex-row items-center text-white">
+      <Combobox value={undefined} onChange={() => {}}>
         {children}
       </Combobox>
     </div>
@@ -173,7 +162,7 @@ function CollectionSearchResult({
   return (
     <Combobox.Option
       key={`collection-${address}`}
-      value={collection}
+      value={address}
       className={clsx(
         'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',
         { 'bg-gray-800': active }
@@ -214,7 +203,7 @@ function MintAddressSearchResult({
   return (
     <Combobox.Option
       key={`nft-${address}`}
-      value={nft}
+      value={address}
       onClick={useCallback(() => {
         router.push(`/nfts/${address}`);
       }, [router, address])}
@@ -259,9 +248,9 @@ function ProfileSearchResult({
   return (
     <Combobox.Option
       key={`profile-${address}`}
-      value={profile}
+      value={address}
       onClick={useCallback(() => {
-        router.push(`/profiles/${address}`);
+        router.push(`/profiles/${address}/collected`);
       }, [router, address])}
       className={clsx(
         'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',

@@ -1,4 +1,6 @@
-query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!) {
+#import "./fragments/ProfileInfo.graphql"
+
+query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWallet: PublicKey) {
   collectionsFeaturedByVolume(
     startDate: $startDate
     endDate: $endDate
@@ -30,6 +32,26 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!) {
       mintAddress
       name
       image
+    }
+  }
+
+  followWallets(wallet: $userWallet, limit: 18, offset: 0) {
+    address
+    displayName @client
+    previewImage @client
+    previewBanner @client
+    compactFollowerCount @client
+    compactFollowingCount @client
+    connectionCounts {
+      toCount
+      fromCount
+    }
+    profile {
+      ...ProfileInfo
+    }
+    nftCounts {
+      owned
+      created
     }
   }
 }

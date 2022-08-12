@@ -51,8 +51,7 @@ function App({ children }: AppComponentProps) {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults, selected, setSelected } =
-    useGlobalSearch();
+  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
 
   const loading = viewerQueryResult.loading || connecting;
 
@@ -68,7 +67,7 @@ function App({ children }: AppComponentProps) {
           </Link>
         </div>
         <div className="flex flex-grow items-center px-6 md:px-0">
-          <Search value={selected} onChange={setSelected}>
+          <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results searching={searching} hasResults={hasResults}>
               <Search.Group<MetadataJson[]>
@@ -139,7 +138,8 @@ function App({ children }: AppComponentProps) {
           ) : viewerQueryResult.data?.viewer ? (
             <img
               className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-              src={viewerQueryResult.data?.wallet.profile?.profileImageUrlHighres}
+              src={viewerQueryResult.data?.wallet.previewImage}
+              alt="profile image"
             />
           ) : (
             <Button onClick={onLogin} size={ButtonSize.Small} className="hidden md:inline-block">

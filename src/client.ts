@@ -5,15 +5,14 @@ import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { TwitterProfile } from './types';
+import { ConnectionCounts, TwitterProfile } from './types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 
-function asBN(value: string): BN {
-  try {
-    return new BN(value);
-  } catch {
+function asBN(value: string | null): BN {
+  if (value === null) {
     return new BN(0);
   }
+  return new BN(value);
 }
 
 function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }): string {
@@ -38,6 +37,17 @@ function asPreviewImage(_: any, { readField }: { readField: ReadFieldFunction })
   return addressAvatar(address);
 }
 
+function asPreviewBanner(_: any, { readField }: { readField: ReadFieldFunction }): string {
+  const profile: TwitterProfile | undefined = readField('profile');
+  const address: string | undefined = readField('address');
+
+  if (profile) {
+    return profile.bannerImageUrl as string;
+  }
+
+  return addressAvatar(address);
+}
+
 function asShortAddress(_: any, { readField }: { readField: ReadFieldFunction }): string {
   const address: string | undefined = readField('address');
 
@@ -52,6 +62,13 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   }
 
   return image;
+}
+
+function asCompactNumber(number: number): string {
+  return new Intl.NumberFormat('en-GB', {
+    notation: 'compact',
+    compactDisplay: 'short',
+  }).format(number);
 }
 
 const typeDefs = gql`
@@ -69,7 +86,11 @@ const typeDefs = gql`
   extend type Wallet {
     displayName: string
     previewImage: string
+    previewBanner: string
     shortAddress: string
+    compactFollowingCount: string
+    compactFollowerCount: string
+    portfolioValue: number
   }
 
   extend type MetadataJson {
@@ -116,8 +137,42 @@ const client = new ApolloClient({
           previewImage: {
             read: asPreviewImage,
           },
+          previewBanner: {
+            read: asPreviewBanner,
+          },
           shortAddress: {
             read: asShortAddress,
+          },
+          portfolioValue: {
+            read() {
+              return 100.25;
+            },
+          },
+          compactFollowingCount: {
+            read(_, { readField }) {
+              const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
+
+              if (!connectionCounts) {
+                return asCompactNumber(0);
+              }
+
+              const { toCount } = connectionCounts;
+
+              return asCompactNumber(toCount);
+            },
+          },
+          compactFollowerCount: {
+            read(_, { readField }) {
+              const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
+
+              if (!connectionCounts) {
+                return asCompactNumber(0);
+              }
+
+              const { fromCount } = connectionCounts;
+
+              return asCompactNumber(fromCount);
+            },
           },
         },
       },
@@ -132,6 +187,9 @@ const client = new ApolloClient({
           },
           shortAddress: {
             read: asShortAddress,
+          },
+          previewBanner: {
+            read: asPreviewBanner,
           },
         },
       },

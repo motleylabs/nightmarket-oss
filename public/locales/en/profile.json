@@ -1,0 +1,13 @@
+{
+  "collected": "Collected",
+  "created": "Created",
+  "activity": "Activity",
+  "analytics": "Analytics",
+  "followers": "Followers",
+  "following": "Following",
+  "portfolioValue": "Portfolio Value",
+  "metadata": {
+    "description": "Profile for {{ name }}",
+    "title": "{{ name }} | Profile"
+  }
+}
