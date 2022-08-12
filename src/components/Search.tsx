@@ -1,12 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
-import React, { FC, Fragment, ReactNode, useRef, useState } from "react";
-import { Combobox, Transition } from "@headlessui/react";
-import { SearchIcon } from "@heroicons/react/outline";
-import { DebounceInput } from "react-debounce-input";
-import Link from "next/link";
-import { isPublicKey, shortenAddress } from "../util";
-import { Collection, Nft, UserWallet } from "../types";
-import { GlobalSearchData } from "../hooks/globalsearch";
+import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
+import { Combobox, Transition } from '@headlessui/react';
+import { SearchIcon } from '@heroicons/react/outline';
+import { DebounceInput } from 'react-debounce-input';
+import Link from 'next/link';
+import { shortenAddress } from '../modules/address';
+import { MetadataJson, Nft, NftCreator, UserWallet, Wallet } from '../types';
+import { useTranslation } from 'next-i18next';
+import clsx from 'clsx';
+import { useRouter } from 'next/router';
 
 type Input = FC;
 type Group = FC;
@@ -29,31 +30,19 @@ interface SearchProps {
   MintAddress?: NftItem;
 }
 
-type SearchResultItems =
-  | GlobalSearchData["collections"][0]
-  | GlobalSearchData["nfts"][0]
-  | GlobalSearchData["wallet"]
-  | GlobalSearchData["profiles"][0];
+type SearchResultItems = Nft | Wallet | MetadataJson;
 
-export function Search({ children }: SearchProps) {
-  const searchContainerRef = useRef<HTMLDivElement>(null!);
+export default function Search({ children }: SearchProps) {
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<SearchResultItems | null>(null);
 
   return (
     <div
-      id={"searchbar-container"}
+      id="searchbar-container"
       ref={searchContainerRef}
-      className={
-        "relative z-30 flex flex-row w-full items-center max-w-4xl text-white"
-      }
+      className="relative z-30 flex w-full max-w-4xl flex-row items-center text-white"
     >
-      <Combobox
-        value={selected}
-        onChange={(v) => {
-          setSelected(v);
-          console.log(v);
-        }}
-      >
+      <Combobox value={selected} onChange={setSelected}>
         {children}
       </Combobox>
     </div>
@@ -67,31 +56,30 @@ interface SearchInputProps {
   onBlur?: () => void;
 }
 
-function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps) {
-  const searchInputRef = useRef<HTMLInputElement>(null!);
+function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JSX.Element {
+  const { t } = useTranslation('common');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className={"relative transition-all block w-full"}>
+    <div className="relative block w-full transition-all">
       <button
-        onClick={() => searchInputRef?.current?.focus()}
-        className={
-          "absolute left-2 flex h-full items-center cursor-pointer rounded-full hover:scale-105 transition-all duration-300 ease-in-out group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none md-left-0"
-        }
+        onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
+        className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
       >
-        <SearchIcon className={"h-5 w-5 text-white"} aria-hidden={"true"} />
+        <SearchIcon className="h-5 w-5 text-white" aria-hidden="true" />
       </button>
       <DebounceInput
         minLength={2}
         debounceTimeout={300}
-        id={"search"}
-        autoComplete={"off"}
-        autoCorrect={"off"}
-        autoCapitalize={"off"}
-        className="block w-full rounded-full border border-transparent bg-transparent py-1 md:py-2 pl-10 pr-2 text-base placeholder-transparent transition-all focus:border-white focus:placeholder-gray-500 text-white focus:outline-none focus:ring-white sm:text-sm"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        className="block w-full rounded-full border border-gray-800 bg-transparent py-2 pl-10 pr-2 text-base text-white transition-all focus:border-white focus:placeholder-gray-500 focus:outline-none focus:ring-white md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
-        placeholder={value || "Search"}
+        value={value}
+        placeholder={t('search.placeholder')}
         onChange={onChange}
         inputRef={searchInputRef}
         element={Combobox.Input}
@@ -108,42 +96,31 @@ interface SearchResultsProps {
   hasResults: boolean;
 }
 
-function SearchResults({
-  searching,
-  children,
-  hasResults,
-}: SearchResultsProps) {
+function SearchResults({ searching, children, hasResults }: SearchResultsProps): JSX.Element {
+  const { t } = useTranslation('common');
+
   return (
     <Transition
       as={Fragment}
-      leave={"transition ease-in duration-100"}
-      leaveFrom={"opacity-100"}
-      leaveTo={"opacity-0"}
+      leave="transition ease-in duration-100"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options
-        className={
-          "scrollbar-thumb-rounded-full absolute top-12 z-50 h-96 w-full p-4 gap-6 overflow-y-scroll rounded-lg bg-gray-900 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900"
-        }
-      >
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
         {searching ? (
           <>
             <SearchLoadingItem />
-            <SearchLoadingItem variant={"circle"} />
+            <SearchLoadingItem variant="circle" />
             <SearchLoadingItem />
-            <SearchLoadingItem variant={"circle"} />
+            <SearchLoadingItem variant="circle" />
           </>
+        ) : hasResults ? (
+          children
         ) : (
-          <>
-            {!hasResults && (
-              <div className={`flex h-6 w-full items-center justify-center`}>
-                <p className={`m-0 text-center text-base font-medium`}>
-                  No Results
-                </p>
-              </div>
-            )}
-            {children}
-          </>
+          <div className="flex h-6 w-full items-center justify-center">
+            <p className="m-0 text-center text-base font-medium">{t('search.empty')}</p>
+          </div>
         )}
       </Combobox.Options>
     </Transition>
@@ -151,35 +128,23 @@ function SearchResults({
 }
 Search.Results = SearchResults;
 
-interface SearchGroupProps {
+interface SearchGroupProps<T> {
   title: string;
-  subtitle?: string;
-  children: ReactNode;
-  results: UserWallet[] | Collection[] | UserWallet | Nft[] | undefined;
+  children: (data: { result: T | undefined }) => ReactNode;
+  result: T | undefined;
 }
 
-function SearchGroup({ title, subtitle, children, results }: SearchGroupProps) {
-  if (!results) {
-    return null;
-  }
-  if ("length" in results && results.length <= 0) {
-    return null;
-  }
-
-  if ("profile" in results && !results.profile) {
+function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.Element | null {
+  if ((result instanceof Array && result.length === 0) || result === null) {
     return null;
   }
 
   return (
     <>
-      <h6
-        className={
-          "pt-4 text-base font-medium text-gray-300 pb-2 border-gray-500 border-b mb-2"
-        }
-      >
+      <h6 className="mb-2 border-b border-gray-500 pt-4 pb-2 text-base font-medium text-gray-300">
         {title}
       </h6>
-      {children}
+      {children({ result })}
     </>
   );
 }
@@ -190,184 +155,157 @@ interface SearchResultProps {
   image: string;
   name: string;
   active?: boolean;
-  onClick?: () => void;
 }
 
 interface CollectionSearchResultProps extends SearchResultProps {
-  count?: number;
-  floor?: number;
-  collection?: Nft;
+  collection?: MetadataJson;
 }
 
 function CollectionSearchResult({
   name,
   image,
   address,
-  onClick,
   active,
-  count,
-  floor,
   collection,
-}: CollectionSearchResultProps) {
+}: CollectionSearchResultProps): JSX.Element {
+  const router = useRouter();
+
   return (
-    <Combobox.Option key={"collection-" + address} value={collection}>
-      <Link href={`/nfts/${address}`}>
-        <a
-          onClick={onClick}
-          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-            active && "bg-gray-800"
-          }`}
-        >
-          <div className={`flex flex-row items-center gap-6`}>
-            <img
-              src={image || "/images/placeholder.png"}
-              alt={name}
-              className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
-            />
-            <p className={`m-0 text-sm font-bold`}>{name}</p>
-          </div>
-          {count && floor && (
-            <div className={`flex items-center justify-end gap-4`}>
-              <p
-                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-              >
-                {count} NFTs
-              </p>
-              <p
-                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-              >
-                Floor {floor}
-              </p>
-            </div>
-          )}
-        </a>
-      </Link>
+    <Combobox.Option
+      key={`collection-${address}`}
+      value={collection}
+      className={clsx(
+        'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',
+        { 'bg-gray-800': active }
+      )}
+      onClick={useCallback(() => {
+        router.push(`/collections/${address}/nfts`);
+      }, [router, address])}
+    >
+      <div className="flex flex-row items-center gap-6">
+        <img
+          src={image}
+          alt={name}
+          className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
+        />
+        <p className="m-0 text-sm font-bold">{name}</p>
+      </div>
     </Combobox.Option>
   );
 }
+
 Search.Collection = CollectionSearchResult;
 
 interface MintAddressSearchResultProps extends SearchResultProps {
-  creatorAddress?: string | null;
-  creatorHandle?: string | null;
+  creator?: NftCreator;
   nft?: Nft;
 }
 
 function MintAddressSearchResult({
-  creatorAddress,
-  creatorHandle,
+  creator,
   address,
   name,
   image,
-  onClick,
   active,
   nft,
-}: MintAddressSearchResultProps) {
+}: MintAddressSearchResultProps): JSX.Element {
+  const router = useRouter();
+
   return (
-    <Combobox.Option key={"nft-" + address} value={nft}>
-      <Link href={`/nfts/${address}`}>
-        <a
-          onClick={onClick}
-          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-            active && "bg-gray-800"
-          }`}
-        >
-          <div className={`flex flex-row items-center gap-6`}>
-            <img
-              src={image || "/images/placeholder.png"}
-              alt={name}
-              className={`aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm`}
-            />
-            <p className={`m-0 text-sm font-bold`}>{name}</p>
-          </div>
-          {(creatorAddress || creatorHandle) && (
-            <div className={`flex items-center justify-end gap-4`}>
-              <p
-                className={`m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex`}
-              >
-                {`@${creatorHandle}` || shortenAddress(creatorAddress || "")}
-              </p>
-            </div>
-          )}
-        </a>
-      </Link>
+    <Combobox.Option
+      key={`nft-${address}`}
+      value={nft}
+      onClick={useCallback(() => {
+        router.push(`/nfts/${address}`);
+      }, [router, address])}
+      className={clsx(
+        'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ',
+        { 'bg-gray-800': active }
+      )}
+    >
+      <div className="flex flex-row items-center gap-6">
+        <img
+          src={image}
+          alt={name}
+          className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
+        />
+        <p className="m-0 text-sm font-bold">{name}</p>
+      </div>
+      {creator && (
+        <div className="flex items-center justify-end gap-4">
+          <p className="m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex">
+            {creator.displayName}
+          </p>
+        </div>
+      )}
     </Combobox.Option>
   );
 }
+
 Search.MintAddress = MintAddressSearchResult;
 
 interface ProfileSearchResultProps extends SearchResultProps {
-  handle: string;
   profile?: UserWallet;
 }
 
 function ProfileSearchResult({
-  handle,
-  name,
   image,
   address,
-  onClick,
   active,
   profile,
-}: ProfileSearchResultProps) {
-  if (!isPublicKey(address)) {
-    return null;
-  }
+}: ProfileSearchResultProps): JSX.Element | null {
+  const router = useRouter();
 
   return (
-    <Combobox.Option key={"profile-" + address} value={profile}>
-      <Link href={`/profiles/${address}`}>
-        <a
-          onClick={onClick}
-          className={`flex flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ${
-            active && "bg-gray-800"
-          }`}
-        >
-          <div className={"flex flex-row items-center gap-6"}>
-            <div
-              className={
-                "flex overflow-clip rounded-full bg-gray-900 h-10 w-10"
-              }
-            >
-              <img
-                src={image || "/images/placeholder.png"}
-                alt={`profile-${address}`}
-                className={"min-h-full min-w-full object-cover "}
-              />
-            </div>
-            <p className={`m-0 text-sm text-white font-bold`}>
-              {handle ? `@${handle}` : shortenAddress(address)}
-            </p>
-          </div>
-          <p className={`m-0 hidden text-sm text-gray-300 md:inline-block`}>
-            {shortenAddress(address)}
-          </p>
-        </a>
-      </Link>
+    <Combobox.Option
+      key={`profile-${address}`}
+      value={profile}
+      onClick={useCallback(() => {
+        router.push(`/profiles/${address}`);
+      }, [router, address])}
+      className={clsx(
+        'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',
+        { 'bg-gray-800': active }
+      )}
+    >
+      <div className="flex flex-row items-center gap-6">
+        <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-900">
+          <img
+            src={image}
+            alt={`profile-${address}`}
+            className="min-h-full min-w-full object-cover"
+          />
+        </div>
+        <p className="m-0 text-sm font-bold text-white">{profile?.displayName}</p>
+      </div>
+      <p className="m-0 text-sm text-gray-300 md:inline-block">{profile?.shortAddress}</p>
     </Combobox.Option>
   );
 }
+
 Search.Profile = ProfileSearchResult;
 
 interface SearchLoadingProps {
-  variant?: "square" | "circle";
+  variant?: 'square' | 'circle';
 }
 
-function SearchLoadingItem({ variant = "square" }: SearchLoadingProps) {
+function SearchLoadingItem({ variant = 'square' }: SearchLoadingProps): JSX.Element {
   return (
-    <div className={`flex flex-row items-center justify-between p-4`}>
-      <div className={`flex flex-row items-center gap-6`}>
+    <div className="flex flex-row items-center justify-between p-4">
+      <div className="flex flex-row items-center gap-6">
         <div
-          className={`h-12 w-12 ${
-            variant === `circle` ? `rounded-full` : `rounded-lg`
-          } animate-pulse bg-gray-800`}
+          className={clsx('h-12 w-12 animate-pulse bg-gray-800', {
+            'rounded-full': variant === 'circle',
+            'rounded-lg': variant === 'square',
+          })}
         />
-        <div className={`h-5 w-24 animate-pulse rounded-md bg-gray-800`} />
+        <div className="h-5 w-24 animate-pulse rounded-md bg-gray-800" />
       </div>
       <div>
-        <div className={`h-5 w-36 animate-pulse rounded-md bg-gray-800`} />
+        <div className="h-5 w-36 animate-pulse rounded-md bg-gray-800" />
       </div>
     </div>
   );
 }
+
 Search.Loading = SearchLoadingItem;

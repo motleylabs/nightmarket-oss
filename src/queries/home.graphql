@@ -1,8 +1,5 @@
-query HomePageQuery(
-  $startDate: DateTimeUtc!,
-  $endDate: DateTimeUtc!
-) {
-    collectionsFeaturedByVolume(
+query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!) {
+  collectionsFeaturedByVolume(
     startDate: $startDate
     endDate: $endDate
     limit: 12

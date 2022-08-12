@@ -1,8 +1,6 @@
-
-
-import { TailSpin } from 'react-loader-spinner'
-import clsx from 'clsx'
-import { useMemo } from 'react'
+import { TailSpin } from 'react-loader-spinner';
+import clsx from 'clsx';
+import { useMemo } from 'react';
 
 export enum ButtonType {
   Primary = 'primary',
@@ -16,17 +14,17 @@ export enum ButtonSize {
 }
 
 interface ButtonProps {
-  children?: any
-  htmlType?: 'button' | 'submit' | 'reset' | undefined
-  size?: ButtonSize
-  block?: boolean
-  type?: ButtonType
-  disabled?: boolean
-  loading?: boolean
-  icon?: React.ReactElement
-  className?: string
-  onClick?: () => any
-  circle?: boolean
+  children?: any;
+  htmlType?: 'button' | 'submit' | 'reset' | undefined;
+  size?: ButtonSize;
+  block?: boolean;
+  type?: ButtonType;
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: React.ReactElement;
+  className?: string;
+  onClick?: () => any;
+  circle?: boolean;
 }
 
 const Button = ({
@@ -47,27 +45,27 @@ const Button = ({
       case ButtonType.Primary:
         return 'grey';
       case ButtonType.Secondary:
-        return 'white'
+        return 'white';
     }
-  }, [type])
+  }, [type]);
 
   return (
     <button
       className={clsx(
         clsx,
-        'flex grow-0 items-center text-center font-semibold justify-center duration-150 rounded-full focus:shadow-outline transition-transform',
+        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center font-semibold transition-transform duration-150',
         className,
         {
           'w-full': block,
-          'text-gray-900 bg-white': type === ButtonType.Primary,
-          'text-white bg-gray-800': type === ButtonType.Secondary,
-          'text-gray-300 bg-gray-700': type === ButtonType.Tertiary,
-          'text-xs md:text-sm p-2': size === ButtonSize.Small,
+          'bg-white text-gray-900': type === ButtonType.Primary,
+          'bg-gray-800 text-white': type === ButtonType.Secondary,
+          'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
+          'p-2 text-xs md:text-sm': size === ButtonSize.Small,
           'p-4': size === ButtonSize.Large,
           'opacity-75': disabled,
           'hover:scale-105': !disabled,
           'rounded-full': circle,
-          'h-10 w-10': circle && ButtonSize.Small
+          'h-10 w-10': circle && ButtonSize.Small,
         }
       )}
       disabled={disabled}
@@ -86,7 +84,7 @@ const Button = ({
       {icon && icon}
       {children}
     </button>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

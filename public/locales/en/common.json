@@ -1,7 +1,15 @@
 {
   "header": {
-    "title": "Night Market"
+    "title": "NightMarket"
   },
   "follow": "Follow",
-  "connect": "Connect"
+  "connect": "Connect",
+  "search": {
+    "collection": "Collection",
+    "profiles": "Profiles",
+    "wallet": "Wallet",
+    "nfts": "NFTs",
+    "placeholder": "Search collections, profiles, and wallets...",
+    "empty": "No results found"
+  }
 }

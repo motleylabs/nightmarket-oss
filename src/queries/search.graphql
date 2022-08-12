@@ -1,20 +1,20 @@
 #import "./fragments/ProfileInfo.graphql"
 
-query search(
-  $term: String!
-  $walletAddress: PublicKey!
-  $nftMintAddress: PublicKey!
-) {
+query search($term: String!, $walletAddress: PublicKey!, $nftMintAddress: PublicKey!) {
   profiles(term: $term, limit: 5, offset: 0) {
     address
-    twitterHandle
+    displayName @client
+    previewImage @client
+    shortAddress @client
     profile {
       ...ProfileInfo
     }
   }
   wallet(address: $walletAddress) {
     address
-    twitterHandle
+    displayName @client
+    previewImage @client
+    shortAddress @client
     profile {
       ...ProfileInfo
     }
@@ -24,20 +24,23 @@ query search(
     name
     image
     creators {
-      twitterHandle
       address
+      displayName @client
+      previewImage @client
+      shortAddress @client
       profile {
         ...ProfileInfo
       }
     }
     mintAddress
   }
-  collections: searchCollections(term: $term, limit: 25, offset: 0) {
+  collections: searchCollections(term: $term, limit: 10, offset: 0) {
     address
     mintAddress
     name
     image
     creatorAddress
     creatorTwitterHandle
+    creatorDisplayName @client
   }
 }
