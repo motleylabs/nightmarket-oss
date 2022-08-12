@@ -1,6 +1,6 @@
-import { makeVar } from '@apollo/client'
-import { Viewer } from './types'
+import { makeVar } from '@apollo/client';
+import { Viewer } from './types';
 
-export const viewerVar = makeVar<Viewer | null>(null)
+export const viewerVar = makeVar<Viewer | null>(null);
 
-export const sidebarOpenVar = makeVar<boolean>(false)
+export const sidebarOpenVar = makeVar<boolean>(false);

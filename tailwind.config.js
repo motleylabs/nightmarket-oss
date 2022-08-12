@@ -3,10 +3,10 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./styles/**/*.css",
-    "./src/pages/**/*.tsx",
-    "./src/layouts/**/*.tsx",
-    "./src/components/**/*.tsx",
+    './styles/**/*.css',
+    './src/pages/**/*.tsx',
+    './src/layouts/**/*.tsx',
+    './src/components/**/*.tsx',
   ],
   theme: {
     extend: {
@@ -28,8 +28,8 @@ module.exports = {
           800: '#262626',
           900: '#171717',
         },
-      }
+      },
     },
   },
-  plugins: [],
-}
+  plugins: [require('tailwind-scrollbar')],
+};

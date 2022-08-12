@@ -1,94 +1,100 @@
-import React, { ReactNode } from 'react'
-import clsx from 'clsx'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import React, { ReactNode } from 'react';
+import clsx from 'clsx';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface OverviewProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 function Container({ children }: OverviewProps): JSX.Element {
-  return (
-    <main className="mt-8 md:mt-12">{children}</main>
-  )
+  return <main className="mt-8 md:mt-12">{children}</main>;
 }
 
 function Hero({ children }: OverviewProps): JSX.Element {
   return (
-    <section className="flex flex-col lg:flex-row justify-center md:justify-between items-center md:items-start px-4 md:px-8">
+    <section className="flex flex-col items-center justify-center px-4 md:items-start md:justify-between md:px-8 lg:flex-row">
       {children}
     </section>
-  )
+  );
 }
 
 interface OverviewInfoProps extends OverviewProps {
-  title: ReactNode
-  avatar: ReactNode
+  title: ReactNode;
+  avatar: ReactNode;
 }
 
 function Info({ children, title, avatar }: OverviewInfoProps): JSX.Element {
   return (
-    <div className="flex flex-col items-center md:flex-row md:items-end gap-4 md:gap-6">
+    <div className="flex flex-col items-center gap-4 md:flex-row md:items-end md:gap-6">
       {avatar}
-      <div className="flex flex-col items-center md:items-start gap-8">
+      <div className="flex flex-col items-center gap-8 md:items-start">
         {title}
-        <div className="flex flex-col items-center md:flex-row md:items-center gap-2">
+        <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
           {children}
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface OverviewAvatarProps {
-  src: string
+  src: string;
 }
 
 function Avatar({ src }: OverviewAvatarProps): JSX.Element {
-  return <img src={src} className="inline-block h-24 w-24 md:h-36 md:w-36 rounded-lg border-4 border-gray-900 shadow-xl" />
+  return (
+    <img
+      src={src}
+      className="inline-block h-24 w-24 rounded-lg border-4 border-gray-900 shadow-xl md:h-36 md:w-36"
+    />
+  );
 }
 
 function Title({ children }: OverviewProps): JSX.Element {
-  return <h1 className="text-5xl text-center md:text-left text-white">{children}</h1>
+  return <h1 className="text-center text-5xl text-white md:text-left">{children}</h1>;
 }
 
 function Figures({ children }: OverviewProps): JSX.Element {
   return (
-    <ul className="md:border-l md:border-gray-800 flex flex-row gap-4 mt-4 md:mt-0 items-center md:pl-4 md:ml-2 text-sm md:text-base">
+    <ul className="mt-4 flex flex-row items-center gap-4 text-sm md:mt-0 md:ml-2 md:border-l md:border-gray-800 md:pl-4 md:text-base">
       {children}
     </ul>
-  )
+  );
 }
 
 interface OverviewFigureProps {
-  figure: string
-  label: string
+  figure: string;
+  label: string;
 }
 
-function Figure({ figure, label }: OverviewFigureProps) {
+function Figure({ figure, label }: OverviewFigureProps): JSX.Element {
   return (
-    <li className="flex gap-2 text-white">{figure}<span className="text-gray-300">{label}</span></li>
-  )
+    <li className="flex gap-2 text-white">
+      {figure}
+      <span className="text-gray-300">{label}</span>
+    </li>
+  );
 }
 
 function Actions({ children }: OverviewProps): JSX.Element {
-  return <div className="flex flex-row gap-2">{children}</div>
+  return <div className="flex flex-row gap-2">{children}</div>;
 }
 
-function Aside({ children }: OverviewProps) {
+function Aside({ children }: OverviewProps): JSX.Element {
   return (
-    <aside className="flex flex-row gap-8 rounded-lg flex-none mt-4 lg:mt-0 bg-gray-800 p-4 text-white md:text-xs xl:text-base">
+    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gray-800 p-4 text-white md:text-xs lg:mt-0 xl:text-base">
       {children}
     </aside>
-  )
+  );
 }
 
 function Tabs({ children }: OverviewProps): JSX.Element {
   return (
-    <nav className="flex flex-row justify-start overflow-scroll  md:justify-start sm:ml-4 md:ml-8 mt-10">
+    <nav className="mt-10 flex flex-row justify-start  overflow-scroll sm:ml-4 md:ml-8 md:justify-start">
       {children}
     </nav>
-  )
+  );
 }
 
 interface TabProps {
@@ -98,14 +104,16 @@ interface TabProps {
 }
 
 function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <Link href={href} passHref>
       <a
         className={clsx(
-          'flex flex-row flex-none px-6 justify-center border-b py-2.5 text-center text-sm font-medium text-white',
-          router.asPath === href ? ' border-white' : 'border-gray-800  text-gray-300 hover:text-white'
+          'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',
+          router.asPath === href
+            ? ' border-white'
+            : 'border-gray-800  text-gray-300 hover:text-white'
         )}
       >
         {Icon && <Icon className="mr-4 h-5 w-5" />}
@@ -115,8 +123,8 @@ function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
   );
 }
 
-function Divider() {
-  return <div className="h-[1px] -mt-[1px] -z-10 bg-gray-800" />
+function Divider(): JSX.Element {
+  return <div className="-z-10 -mt-[1px] h-[1px] bg-gray-800" />;
 }
 
 const Overview = {
@@ -132,6 +140,6 @@ const Overview = {
   Tabs,
   Tab,
   Divider,
-}
+};
 
-export default Overview
+export default Overview;
