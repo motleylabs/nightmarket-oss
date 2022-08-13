@@ -40,19 +40,28 @@ function Info({ children, title, avatar }: OverviewInfoProps): JSX.Element {
 
 interface OverviewAvatarProps {
   src: string;
+  circle?: boolean;
 }
 
-function Avatar({ src }: OverviewAvatarProps): JSX.Element {
+function Avatar({ src, circle }: OverviewAvatarProps): JSX.Element {
   return (
     <img
       src={src}
-      className="inline-block h-24 w-24 rounded-lg border-4 border-gray-900 shadow-xl md:h-36 md:w-36"
+      className={clsx(
+        'inline-block h-24 w-24 border-4 border-gray-900 shadow-xl md:h-36 md:w-36',
+        circle ? 'rounded-full' : 'rounded-lg'
+      )}
+      alt="overview avatar"
     />
   );
 }
 
 function Title({ children }: OverviewProps): JSX.Element {
-  return <h1 className="text-center text-5xl text-white md:text-left">{children}</h1>;
+  return (
+    <h1 className="max-w-[500px] text-center text-3xl text-white md:text-left md:text-4xl">
+      {children}
+    </h1>
+  );
 }
 
 function Figures({ children }: OverviewProps): JSX.Element {
@@ -83,7 +92,7 @@ function Actions({ children }: OverviewProps): JSX.Element {
 
 function Aside({ children }: OverviewProps): JSX.Element {
   return (
-    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gray-800 p-4 text-white md:text-xs lg:mt-0 xl:text-base">
+    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gradient-radial from-gray-900 to-gray-800 p-4 text-white md:text-xs lg:mt-0 xl:text-base">
       {children}
     </aside>
   );

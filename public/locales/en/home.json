@@ -12,5 +12,8 @@
   },
   "topMarketCap": {
     "title": "Top marketcap"
+  },
+  "followWallets": {
+    "title": "Who to follow"
   }
 }

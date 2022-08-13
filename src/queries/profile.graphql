@@ -1,0 +1,22 @@
+#import "./fragments/ProfileInfo.graphql"
+
+query WalletProfileQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    nftCounts {
+      owned
+    }
+    compactFollowerCount @client
+    compactFollowingCount @client
+    portfolioValue @client
+    displayName @client
+    previewImage @client
+    connectionCounts {
+      fromCount
+      toCount
+    }
+    profile {
+      ...ProfileInfo
+    }
+  }
+}

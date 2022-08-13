@@ -1,5 +1,5 @@
-import { useLazyQuery } from '@apollo/client';
-import React, { useMemo, useState } from 'react';
+import { useLazyQuery, OperationVariables, ApolloQueryResult } from '@apollo/client';
+import React, { SetStateAction, useMemo, useState, Dispatch } from 'react';
 import { isPublicKey } from './../modules/address';
 import GlobalSearchQuery from './../queries/search.graphql';
 import { Wallet, Nft } from './../types';
@@ -13,7 +13,18 @@ export interface GlobalSearchData {
 
 type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;
 
-export default function useGlobalSearch() {
+interface UseGlobalState {
+  searchTerm: string;
+  hasResults: boolean;
+  updateSearch: OnUpdateSearch;
+  searching: boolean;
+  results: GlobalSearchData | undefined;
+  refreshSearch: (
+    variables?: Partial<OperationVariables> | undefined
+  ) => Promise<ApolloQueryResult<GlobalSearchData>>;
+}
+
+export default function useGlobalSearch(): UseGlobalState {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const [searchQuery, { data, loading, called, variables, refetch }] =

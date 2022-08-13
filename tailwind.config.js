@@ -14,6 +14,9 @@ module.exports = {
         sans: ['Inter ', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
       colors: {
         gray: {
           25: '#FEFEFE',

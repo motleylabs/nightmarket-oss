@@ -2,6 +2,7 @@
 @import '@solana/wallet-adapter-react-ui/styles.css';
 @import 'swiper/css';
 @import 'swiper/css/navigation';
+@import 'swiper/css/grid';
 
 @tailwind base;
 @tailwind components;

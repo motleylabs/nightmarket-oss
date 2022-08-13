@@ -126,6 +126,7 @@ export interface UserWallet {
   profile?: TwitterProfile | null;
   displayName: string;
   previewImage: string;
+  previewBanner: string;
   shortAddress: string;
 }
 
@@ -288,6 +289,9 @@ export interface NftOwner extends UserWallet {
 export interface Wallet extends UserWallet {
   nftCounts: WalletNftCount;
   connectionCounts: ConnectionCounts;
+  compactFollowerCount: string;
+  compactFollowingCount: string;
+  portfolioValue: number;
 }
 
 export interface WalletNftCount {
