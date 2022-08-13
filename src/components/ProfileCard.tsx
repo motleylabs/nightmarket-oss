@@ -3,10 +3,12 @@ import { useTranslation } from 'next-i18next';
 import { Wallet } from '../types';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
 import { PlusIcon } from '@heroicons/react/outline';
+
 interface ProfileCardProps {
   wallet: Wallet;
   className?: string;
 }
+
 export default function ProfileCard({ wallet, className }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation('profile');
   return (
