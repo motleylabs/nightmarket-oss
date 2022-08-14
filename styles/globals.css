@@ -37,3 +37,16 @@ html {
 .swiper-button-disabled {
   @apply opacity-0;
 }
+::-webkit-scrollbar {
+  width: 12px;
+  border:0px;
+}
+::-webkit-scrollbar-track {
+  
+    border:0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #fff; 
+  border-radius: 10px;
+    border:0px;
+}
