@@ -30,7 +30,7 @@ interface SearchProps {
 
 export default function Search({ children }: SearchProps) {
   return (
-    <div className="relative z-30 flex w-full max-w-4xl flex-row items-center text-white">
+    <div className="relative flex w-full max-w-4xl flex-row items-center text-white">
       <Combobox value={undefined} onChange={() => {}}>
         {children}
       </Combobox>

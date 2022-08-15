@@ -15,6 +15,7 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
       <img
         src={collection.nft.image}
         className="absolute top-0 left-0 -z-10 h-full w-full object-cover"
+        alt={`Collection ${collection.nft.name}`}
       />
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
       <h1 className="z-20 px-4 text-3xl">{collection.nft.name}</h1>

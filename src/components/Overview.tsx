@@ -7,7 +7,7 @@ interface OverviewProps {
   children: ReactNode;
 }
 
-function Container({ children }: OverviewProps): JSX.Element {
+export function Overview({ children }: OverviewProps): JSX.Element {
   return <main className="mt-8 md:mt-12">{children}</main>;
 }
 
@@ -18,6 +18,8 @@ function Hero({ children }: OverviewProps): JSX.Element {
     </section>
   );
 }
+
+Overview.Hero = Hero;
 
 interface OverviewInfoProps extends OverviewProps {
   title: ReactNode;
@@ -38,6 +40,8 @@ function Info({ children, title, avatar }: OverviewInfoProps): JSX.Element {
   );
 }
 
+Overview.Info = Info;
+
 interface OverviewAvatarProps {
   src: string;
   circle?: boolean;
@@ -56,6 +60,8 @@ function Avatar({ src, circle }: OverviewAvatarProps): JSX.Element {
   );
 }
 
+Overview.Avatar = Avatar;
+
 function Title({ children }: OverviewProps): JSX.Element {
   return (
     <h1 className="max-w-[500px] text-center text-3xl text-white md:text-left md:text-4xl">
@@ -64,6 +70,8 @@ function Title({ children }: OverviewProps): JSX.Element {
   );
 }
 
+Overview.Title = Title;
+
 function Figures({ children }: OverviewProps): JSX.Element {
   return (
     <ul className="mt-4 flex flex-row items-center gap-4 text-sm md:mt-0 md:ml-2 md:border-l md:border-gray-800 md:pl-4 md:text-base">
@@ -71,6 +79,8 @@ function Figures({ children }: OverviewProps): JSX.Element {
     </ul>
   );
 }
+
+Overview.Figures = Figures;
 
 interface OverviewFigureProps {
   figure: string;
@@ -86,9 +96,13 @@ function Figure({ figure, label }: OverviewFigureProps): JSX.Element {
   );
 }
 
+Overview.Figure = Figure;
+
 function Actions({ children }: OverviewProps): JSX.Element {
   return <div className="flex flex-row gap-2">{children}</div>;
 }
+
+Overview.Actions = Actions;
 
 function Aside({ children }: OverviewProps): JSX.Element {
   return (
@@ -98,6 +112,8 @@ function Aside({ children }: OverviewProps): JSX.Element {
   );
 }
 
+Overview.Aside = Aside;
+
 function Tabs({ children }: OverviewProps): JSX.Element {
   return (
     <nav className="mt-10 flex flex-row justify-start  overflow-scroll sm:ml-4 md:ml-8 md:justify-start">
@@ -105,6 +121,8 @@ function Tabs({ children }: OverviewProps): JSX.Element {
     </nav>
   );
 }
+
+Overview.Tabs = Tabs;
 
 interface TabProps {
   href: string;
@@ -132,23 +150,10 @@ function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
   );
 }
 
+Overview.Tab = Tab;
+
 function Divider(): JSX.Element {
   return <div className="-z-10 -mt-[1px] h-[1px] bg-gray-800" />;
 }
 
-const Overview = {
-  Container,
-  Hero,
-  Info,
-  Avatar,
-  Title,
-  Figures,
-  Figure,
-  Actions,
-  Aside,
-  Tabs,
-  Tab,
-  Divider,
-};
-
-export default Overview;
+Overview.Divider = Divider;
