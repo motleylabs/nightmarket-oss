@@ -45,7 +45,7 @@ export default function CollectionNfts() {
     <>
       <Toolbar>
         <Sidebar.Control open={open} onChange={toggleSidebar} />
-        <ButtonGroup value="all" onChange={() => {}}>
+        <ButtonGroup value="all" onChange={(s) => {}}>
           <ButtonGroup.Option value="all">{t('all')}</ButtonGroup.Option>
           <ButtonGroup.Option value="listed">{t('listed')}</ButtonGroup.Option>
           <ButtonGroup.Option value="unlisted">{t('unlisted')}</ButtonGroup.Option>

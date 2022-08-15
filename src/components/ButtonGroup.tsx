@@ -2,31 +2,33 @@ import clsx from 'clsx';
 import { ReactNode } from 'react';
 import { RadioGroup } from '@headlessui/react';
 
-interface ButtonGroupProps {
+interface ButtonGroupProps<T> {
   children: ReactNode;
-  value: any;
-  onChange: (selected: any) => void;
+  value: T;
+  onChange: (selected: T) => void;
 }
 
-export function ButtonGroup({ children, value, onChange }: ButtonGroupProps): JSX.Element {
+export function ButtonGroup<T = string>(props: ButtonGroupProps<T>): JSX.Element {
   return (
     <RadioGroup
-      value={value}
-      onChange={onChange}
+      value={props.value}
+      onChange={props.onChange}
       className="flex flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1"
     >
-      {children}
+      {props.children}
     </RadioGroup>
   );
 }
 
-interface ButtonGroupButtonProps {
+interface ButtonGroupButtonProps<T> {
   children: ReactNode;
-  active?: boolean;
-  value: ReactNode;
+  value: T;
 }
 
-function ButtonGroupOption({ children, value }: ButtonGroupButtonProps): JSX.Element {
+function ButtonGroupOption<T = string>({
+  children,
+  value,
+}: ButtonGroupButtonProps<T>): JSX.Element {
   return (
     <RadioGroup.Option
       value={value}
