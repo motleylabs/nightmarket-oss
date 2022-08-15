@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import { Wallet } from '../types';
 import { PlusIcon, DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
-import Overview from './../components/Overview';
+import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
 
@@ -26,7 +26,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Overview.Container>
+      <Overview>
         <Overview.Hero>
           <Overview.Info
             avatar={<Overview.Avatar src={wallet.previewImage} circle />}
@@ -72,7 +72,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         </Overview.Tabs>
         <Overview.Divider />
         {children}
-      </Overview.Container>
+      </Overview>
     </>
   );
 }

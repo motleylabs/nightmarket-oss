@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "lint-staged": {
-    "*.ts": "prettier --write",
-    "*.tsx": "prettier --write",
-    "*.graphql": "prettier --write"
+    "./**/*.ts": "prettier --write",
+    "./**/*.tsx": "prettier --write",
+    "./**/*.graphql": "prettier --write"
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",

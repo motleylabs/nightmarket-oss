@@ -156,9 +156,9 @@ const client = new ApolloClient({
                 return asCompactNumber(0);
               }
 
-              const { toCount } = connectionCounts;
+              const { fromCount } = connectionCounts;
 
-              return asCompactNumber(toCount);
+              return asCompactNumber(fromCount);
             },
           },
           compactFollowerCount: {
@@ -169,9 +169,9 @@ const client = new ApolloClient({
                 return asCompactNumber(0);
               }
 
-              const { fromCount } = connectionCounts;
+              const { toCount } = connectionCounts;
 
-              return asCompactNumber(fromCount);
+              return asCompactNumber(toCount);
             },
           },
         },
@@ -203,35 +203,21 @@ const client = new ApolloClient({
             },
           },
           nftCount: {
-            read(value) {
-              return new Intl.NumberFormat('en-GB', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(value);
-            },
+            read: asCompactNumber,
           },
           totalVolume: {
             read(_) {
-              return new Intl.NumberFormat('en-GB', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(1800000);
+              return asCompactNumber(1800000);
             },
           },
           listedCount: {
             read(_) {
-              return new Intl.NumberFormat('en-GB', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(1400);
+              return asCompactNumber(1400);
             },
           },
           holderCount: {
             read(_) {
-              return new Intl.NumberFormat('en-GB', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(6250);
+              return asCompactNumber(6250);
             },
           },
         },
