@@ -1,4 +1,4 @@
-#import "./fragments/ProfileInfo.graphql"
+#import "./fragments/profile.graphql"
 
 query WalletProfileQuery($address: PublicKey!) {
   wallet(address: $address) {

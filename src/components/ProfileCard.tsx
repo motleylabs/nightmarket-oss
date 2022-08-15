@@ -11,6 +11,7 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ wallet, className }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation('profile');
+  
   return (
     <div
       className={clsx(

@@ -1,15 +1,17 @@
 import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
 import { ReactElement } from 'react';
-import CollectionQuery from './../../../queries/collection.graphql';
+import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection } from '../../../types';
+import { Collection, Nft } from '../../../types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
+import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -37,9 +39,30 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
+interface CollectionNFTsData {
+  nfts: Nft[]
+}
+
+interface CollectionNFTsVariables {
+  offset: number;
+  limit: number;
+  collection: string;
+}
+
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
+  const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
+
+  const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(
+    CollectionNFTsQuery,
+    { 
+      variables: {
+        offset: 0,
+        limit: 18,
+        collection: router.query.address as string
+      }
+    });
 
   return (
     <>

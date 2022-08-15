@@ -1,0 +1,23 @@
+#import "./profile.graphql"
+
+fragment NftInfo on Nft {
+  image
+  description
+  mintAddress
+  address
+  creators {
+    address
+    verified
+    profile {
+      ...ProfileInfo
+    }
+  }
+  collection {
+    nft {
+      address
+      name
+      image
+      mintAddress
+    }
+  }
+}
