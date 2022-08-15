@@ -9,7 +9,7 @@ export default function useSidebar(): SidebarContext {
   const [open, setSidebar] = useState<boolean>(true);
 
   const toggleSidebar = useCallback(() => {
-    setSidebar(!!!open);
+    setSidebar(!open);
   }, [open, setSidebar]);
 
   return {
