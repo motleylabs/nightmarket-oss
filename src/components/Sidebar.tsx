@@ -17,7 +17,9 @@ function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
   return (
     <button
       className={clsx(
-        'fixed bottom-8 left-1/2 z-20 -ml-[51px] flex flex-none flex-row justify-between rounded-full border-none bg-gray-800 py-2 px-4 text-white transition hover:border-white md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
+        'fixed bottom-8 left-1/2 z-20 -ml-[51px] flex flex-none flex-row justify-between',
+        'rounded-full border-none bg-gray-800 py-2 px-4 text-white transition',
+        'hover:border-white md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
         { 'md:w-72 lg:w-96': open }
       )}
       onClick={onChange}
