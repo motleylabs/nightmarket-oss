@@ -18,8 +18,6 @@
   "activity": "Activity",
   "analytics": "Analytics",
   "about": "About",
-  "aboutPage": {
-    "collectionDescription": "About this collection",
-    "creators": "Creators"
-  }
+  "descriptionTitle": "About this collection",
+  "creatorsTitle": "Creators"
 }

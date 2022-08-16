@@ -8,6 +8,8 @@ fragment NftInfo on Nft {
   name
   creators {
     address
+    displayName @client
+    previewImage @client
     profile {
       ...ProfileInfo
     }

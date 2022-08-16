@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
 import { InView } from 'react-intersection-observer';
-import { CollectionNFTsQuery } from './../../../queries/collection.graphql';
+import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
@@ -17,9 +17,31 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import clsx from 'clsx';
-import { getCollectionServerSideProps } from '../../../modules/collections';
 
-export const getServerSideProps = getCollectionServerSideProps;
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
+  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+
+  const { data } = await client.query({
+    query: CollectionQuery,
+    variables: {
+      address: params?.address,
+    },
+  });
+  const collection: Collection = data.collection;
+
+  if (collection === null) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      collection,
+      ...i18n,
+    },
+  };
+}
 
 interface CollectionNFTsData {
   nfts: Nft[];

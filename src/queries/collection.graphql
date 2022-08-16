@@ -11,6 +11,8 @@ query CollectionQuery($address: String!) {
       description
       creators {
         address
+        displayName @client
+        previewImage @client
         profile {
           ...ProfileInfo
         }
