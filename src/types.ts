@@ -261,6 +261,7 @@ export interface Activity {
   createdAt: string;
   wallets: Wallet[];
   activityType: string;
+  marketplaceProgramAddress: string;
   nft?: Nft;
 }
 
@@ -320,6 +321,7 @@ export interface Collection {
   floorPrice: number;
   nftCount: string;
   nft: Nft;
+  activities: Activity[];
   totalVolume: string;
   listedCount: string;
   holderCount: string;
