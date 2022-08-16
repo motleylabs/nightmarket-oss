@@ -15,7 +15,6 @@ export async function getCollectionServerSideProps({ locale, params }: GetServer
     },
   });
   const collection: Collection = data.collection;
-  console.log('collections api', locale, params, collection);
 
   if (collection === null) {
     return {

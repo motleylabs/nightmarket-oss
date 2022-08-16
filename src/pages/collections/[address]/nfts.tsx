@@ -75,8 +75,6 @@ export default function CollectionNfts() {
         variables.listed = false;
       }
 
-      console.log(variables);
-
       nftsQuery.refetch(variables).then(({ data: { nfts } }) => {
         setHasMore(nfts.length > 0);
       });
