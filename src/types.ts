@@ -222,7 +222,7 @@ export interface Nft {
   purchases?: Purchase[];
   offers?: Offer[];
   files?: NftFile[];
-  collection?: Nft;
+  collection?: Collection;
   createdAt?: string;
   parser?: string;
 }

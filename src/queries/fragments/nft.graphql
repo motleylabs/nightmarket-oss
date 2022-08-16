@@ -5,6 +5,7 @@ fragment NftInfo on Nft {
   description
   mintAddress
   address
+  name
   creators {
     address
     verified
