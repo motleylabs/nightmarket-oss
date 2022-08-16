@@ -1,4 +1,4 @@
-#import "./fragments/ProfileInfo.graphql"
+#import "./fragments/profile.graphql"
 
 query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWallet: PublicKey) {
   collectionsFeaturedByVolume(

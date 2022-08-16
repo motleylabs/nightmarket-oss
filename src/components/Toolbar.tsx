@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { MutableRefObject, ReactNode } from 'react';
 
 interface ToolbarProps {
   children: ReactNode;
@@ -6,7 +6,9 @@ interface ToolbarProps {
 
 export function Toolbar({ children }: ToolbarProps): JSX.Element {
   return (
-    <header className="flex flex-col items-center justify-between py-4 px-4 md:flex-row md:px-8">
+    <header
+      className="top-0 flex z-10 flex-col items-center justify-between bg-gray-900 py-4 px-4 md:sticky md:flex-row md:px-8"
+    >
       {children}
     </header>
   );

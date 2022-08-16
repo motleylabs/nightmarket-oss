@@ -59,7 +59,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="container mx-auto px-6 pb-10 lg:px-0">
+      <main className="container mx-auto px-6 pb-6 lg:px-0">
         <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
           <h1 className="text-3xl md:text-5xl">{t('hero.title')}</h1>
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>

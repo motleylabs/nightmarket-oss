@@ -142,7 +142,7 @@ function App({ children }: AppComponentProps) {
               alt="profile image"
             />
           ) : (
-            <Button onClick={onLogin} size={ButtonSize.Small} className="hidden md:inline-block">
+            <Button onClick={onLogin} className="hidden md:inline-block">
               {t('connect')}
             </Button>
           )}
