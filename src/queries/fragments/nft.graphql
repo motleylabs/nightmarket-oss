@@ -8,10 +8,13 @@ fragment NftInfo on Nft {
   name
   creators {
     address
-    verified
     profile {
       ...ProfileInfo
     }
+    metadataAddress
+    share
+    verified
+    position
   }
   collection {
     nft {
