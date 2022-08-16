@@ -11,6 +11,7 @@ import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { getCollectionServerSideProps } from '../../../modules/collections';
+import { shortenAddress } from '../../../modules/address';
 
 export const getServerSideProps = getCollectionServerSideProps;
 
@@ -26,8 +27,6 @@ export const getServerSideProps = getCollectionServerSideProps;
 //     },
 //   });
 
-//   console.log('collections api', locale, params, collection);
-
 //   if (collection === null) {
 //     return {
 //       notFound: true,
@@ -42,36 +41,40 @@ export const getServerSideProps = getCollectionServerSideProps;
 //   };
 // }
 
-export default function CollectionNfts() {
+export default function CollectionAboutPage(props: { collection: Collection }) {
   const { t } = useTranslation(['collection', 'common']);
-  const { open, toggleSidebar } = useSidebar();
 
   return (
-    <>
-      <Toolbar>
-        <Sidebar.Control open={open} onChange={toggleSidebar} />
-        <ButtonGroup value="all" onChange={(s) => {}}>
-          <ButtonGroup.Option value="all">{t('all')}</ButtonGroup.Option>
-          <ButtonGroup.Option value="listed">{t('listed')}</ButtonGroup.Option>
-          <ButtonGroup.Option value="unlisted">{t('unlisted')}</ButtonGroup.Option>
-        </ButtonGroup>
-      </Toolbar>
-      <Sidebar.Page open={open}>
-        <Sidebar.Panel>The sidebar</Sidebar.Panel>
-        <Sidebar.Content>The page content</Sidebar.Content>
-      </Sidebar.Page>
-    </>
+    <div className="  py-6 px-10 text-white">
+      <section>
+        <strong className="mb-4">{t('aboutPage.collectionDescription')}</strong>
+        <p className="text-gray-300">{props.collection.nft.description}</p>
+      </section>
+      <div className="my-6 border border-gray-800" />
+      <section className="">
+        <strong className="mb-4">{t('aboutPage.creators')}</strong>
+        <div>
+          {props.collection.nft.creators.map((c) => (
+            <div key={c.address} className="flex">
+              <div>img</div>
+              <div className="ml-4">{c.twitterHandle || shortenAddress(c.address)}</div>
+              <button className="ml-auto">Follow</button>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
 
-interface CollectionNftsLayout {
+interface CollectionAboutPageLayout {
   children: ReactElement;
   collection: Collection;
 }
 
-CollectionNfts.getLayout = function CollectionNftsLayout({
+CollectionAboutPage.getLayout = function CollectionNftsLayout({
   children,
   collection,
-}: CollectionNftsLayout): JSX.Element {
+}: CollectionAboutPageLayout): JSX.Element {
   return <CollectionLayout collection={collection}>{children}</CollectionLayout>;
 };

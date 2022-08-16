@@ -17,5 +17,9 @@
   "nfts": "NFTs",
   "activity": "Activity",
   "analytics": "Analytics",
-  "about": "About"
+  "about": "About",
+  "aboutPage": {
+    "collectionDescription": "About this collection",
+    "creators": "Creators"
+  }
 }

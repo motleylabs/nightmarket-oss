@@ -9,6 +9,10 @@ query CollectionQuery($address: String!) {
       name
       image
       description
+      creators {
+        address
+        twitterHandle
+      }
     }
     nftCount
     floorPrice
