@@ -21,14 +21,13 @@ import clsx from 'clsx';
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
 
-  const {
-    data: { collection },
-  } = await client.query({
+  const { data } = await client.query({
     query: CollectionQuery,
     variables: {
       address: params?.address,
     },
   });
+  const collection: Collection = data.collection;
 
   if (collection === null) {
     return {
@@ -97,8 +96,6 @@ export default function CollectionNfts() {
       } else if (listed === ListedStatus.Unlisted) {
         variables.listed = false;
       }
-
-      console.log(variables)
 
       nftsQuery.refetch(variables).then(({ data: { nfts } }) => {
         setHasMore(nfts.length > 0);

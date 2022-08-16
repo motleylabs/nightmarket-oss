@@ -9,6 +9,18 @@ query CollectionQuery($address: String!) {
       name
       image
       description
+      creators {
+        address
+        displayName @client
+        previewImage @client
+        profile {
+          ...ProfileInfo
+        }
+        metadataAddress
+        share
+        verified
+        position
+      }
     }
     nftCount
     floorPrice
