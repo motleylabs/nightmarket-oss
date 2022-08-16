@@ -1,11 +1,15 @@
 #import "./fragments/profile.graphql"
+#import "./fragments/nft.graphql"
 
 query WalletProfileQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
     nftCounts {
       owned
+      created
     }
+    compactOwnedCount @client
+    compactCreatedCount @client
     compactFollowerCount @client
     compactFollowingCount @client
     portfolioValue @client
@@ -18,5 +22,11 @@ query WalletProfileQuery($address: PublicKey!) {
     profile {
       ...ProfileInfo
     }
+  }
+}
+
+query CollectedNFTsQuery($owner: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
+  collectedNfts: nfts(owners: [$owner], limit: $limit, offset: $offset, listed: $listed) {
+    ...NftInfo
   }
 }

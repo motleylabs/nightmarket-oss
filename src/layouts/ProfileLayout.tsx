@@ -46,6 +46,8 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             <Overview.Figures>
               <Overview.Figure figure={wallet.compactFollowerCount} label={t('followers')} />
               <Overview.Figure figure={wallet.compactFollowingCount} label={t('following')} />
+              <Overview.Figure figure={wallet.compactCreatedCount} label={t('created')} />
+              <Overview.Figure figure={wallet.compactOwnedCount} label={t('collected')} />
             </Overview.Figures>
           </Overview.Info>
           <Overview.Aside>

@@ -33,7 +33,9 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
       className={({ checked }) =>
         clsx(
           'flex h-8 w-24 flex-row items-center justify-center rounded-full md:w-28',
-          checked ? 'bg-gray-700 text-white' : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-700 hover:text-gray-200'
+          checked
+            ? 'bg-gray-700 text-white'
+            : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-700 hover:text-gray-200'
         )
       }
     >

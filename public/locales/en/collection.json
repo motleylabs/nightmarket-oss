@@ -6,9 +6,6 @@
     "floor": "{{price}} SOL",
     "count": "{{amount}} NFTs"
   },
-  "all": "All",
-  "listed": "Listed",
-  "unlisted": "Unlisted",
   "supply": "Supply",
   "listings": "Listings",
   "holders": "Holders",

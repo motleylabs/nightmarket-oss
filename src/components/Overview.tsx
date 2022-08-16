@@ -89,7 +89,7 @@ interface OverviewFigureProps {
 
 function Figure({ figure, label }: OverviewFigureProps): JSX.Element {
   return (
-    <li className="flex gap-2 text-white">
+    <li className="flex gap-2 text-xs text-white sm:text-sm md:text-base">
       {figure}
       <span className="text-gray-300">{label}</span>
     </li>

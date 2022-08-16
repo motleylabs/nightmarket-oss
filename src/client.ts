@@ -5,7 +5,7 @@ import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { ConnectionCounts, TwitterProfile } from './types';
+import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 
 function asBN(value: string | null): BN {
@@ -90,6 +90,8 @@ const typeDefs = gql`
     shortAddress: string
     compactFollowingCount: string
     compactFollowerCount: string
+    compactOwnedCount: string
+    compactCreatedCount: string
     portfolioValue: number
   }
 
@@ -120,7 +122,7 @@ const client = new ApolloClient({
               return null;
             },
           },
-          nfts: offsetLimitPagination(['$listed', '$collection']),
+          nfts: offsetLimitPagination(['$listed', '$collection', '$owner']),
           viewer: {
             read() {
               return viewerVar();
@@ -172,6 +174,32 @@ const client = new ApolloClient({
               const { toCount } = connectionCounts;
 
               return asCompactNumber(toCount);
+            },
+          },
+          compactOwnedCount: {
+            read(_, { readField }) {
+              const nftCounts: WalletNftCount | undefined = readField('nftCounts');
+
+              if (!nftCounts) {
+                return asCompactNumber(0);
+              }
+
+              const { owned } = nftCounts;
+
+              return asCompactNumber(owned);
+            },
+          },
+          compactCreatedCount: {
+            read(_, { readField }) {
+              const nftCounts: WalletNftCount | undefined = readField('nftCounts');
+
+              if (!nftCounts) {
+                return asCompactNumber(0);
+              }
+
+              const { created } = nftCounts;
+
+              return asCompactNumber(created);
             },
           },
         },

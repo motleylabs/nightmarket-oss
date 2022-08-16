@@ -98,8 +98,6 @@ export default function CollectionNfts() {
         variables.listed = false;
       }
 
-      console.log(variables)
-
       nftsQuery.refetch(variables).then(({ data: { nfts } }) => {
         setHasMore(nfts.length > 0);
       });
@@ -117,9 +115,15 @@ export default function CollectionNfts() {
           name="listed"
           render={({ field: { onChange, value } }) => (
             <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>{t('all')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>{t('listed')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>{t('unlisted')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={ListedStatus.All}>
+                {t('all', { ns: 'common' })}
+              </ButtonGroup.Option>
+              <ButtonGroup.Option value={ListedStatus.Listed}>
+                {t('listed', { ns: 'common' })}
+              </ButtonGroup.Option>
+              <ButtonGroup.Option value={ListedStatus.Unlisted}>
+                {t('unlisted', { ns: 'common' })}
+              </ButtonGroup.Option>
             </ButtonGroup>
           )}
         />
@@ -128,7 +132,7 @@ export default function CollectionNfts() {
         <Sidebar.Panel>The sidebar</Sidebar.Panel>
         <Sidebar.Content
           className={clsx(
-            'grid grid-cols-1 gap-4',
+            'grid grid-cols-1 gap-4 pt-4',
             open
               ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
