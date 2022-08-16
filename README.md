@@ -3,13 +3,13 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ## Getting Started
 First, install dependencies
 ```bash
-yarn install
+npm install
 ```
 
 Then, run the development server:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 You might also want to setup a .env.local file to override some ENV variables like RPC provider, don't forget to restart the server if you do.
