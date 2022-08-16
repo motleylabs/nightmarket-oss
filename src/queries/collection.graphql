@@ -1,3 +1,6 @@
+#import "./fragments/profile.graphql"
+#import "./fragments/nft.graphql"
+
 query CollectionQuery($address: String!) {
   collection(address: $address) {
     nft {
@@ -12,5 +15,11 @@ query CollectionQuery($address: String!) {
     totalVolume @client
     listedCount @client
     holderCount @client
+  }
+}
+
+query CollectionNFTsQuery($collection: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
+  nfts(collections: [$collection], limit: $limit, offset: $offset, listed: $listed) {
+    ...NftInfo
   }
 }
