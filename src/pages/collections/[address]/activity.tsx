@@ -14,7 +14,6 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { useForm, Controller } from 'react-hook-form';
 import Link from 'next/link';
-import { cond, equals, always } from 'ramda';
 import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
 import { format } from 'timeago.js';
 import { shortenAddress } from '../../../modules/address';
@@ -67,16 +66,25 @@ Table.RowSkeleton = RowSkeleton;
 
 function Row({ activity }: { activity: Activity }): JSX.Element {
   const multipleWallets = activity.wallets.length > 1;
-  const activityType = cond([
-    [equals('purchase'), always('Sold')],
-    [equals('listing'), always('Listing')],
-    [equals('offer'), always('Offer')],
-  ])(activity.activityType);
-  const Icon = cond([
-    [equals('purchase'), always(CurrencyDollarIcon)],
-    [equals('listing'), always(TagIcon)],
-    [equals('offer'), always(HandIcon)],
-  ])(activity.activityType);
+  let activityType: string;
+  let ActivityIcon: any;
+  switch (activity.activityType) {
+    case 'listing':
+      activityType = 'Listing';
+      ActivityIcon = TagIcon;
+      break;
+    case 'offer':
+      activityType = 'Offer';
+      ActivityIcon = HandIcon;
+      break;
+    case 'purchase':
+      activityType = 'Sold';
+      ActivityIcon = CurrencyDollarIcon;
+      break;
+    default:
+      activityType = '';
+      ActivityIcon = null;
+  }
 
   return (
     <article
@@ -90,7 +98,7 @@ function Row({ activity }: { activity: Activity }): JSX.Element {
         </a>
       </Link>
       <div className="flex items-center">
-        <Icon className="mr-2 h-5 w-5 self-center text-gray-300" />
+        <ActivityIcon className="mr-2 h-5 w-5 self-center text-gray-300" />
         <div>{activityType}</div>
       </div>
       <div className="flex items-center text-xs">
@@ -147,7 +155,7 @@ interface CollectionActivityForm {
   type: ActivityType;
 }
 
-export default function CollectionNfts() {
+export default function CollectionActivity(): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionActivityForm>({
     defaultValues: { type: ActivityType.All },
@@ -166,8 +174,7 @@ export default function CollectionNfts() {
       },
     }
   );
-
-  console.log('activities query', activitiesQuery);
+  console.log('query', activitiesQuery);
 
   useEffect(() => {
     const subscription = watch(({ type }) => {
@@ -247,14 +254,14 @@ export default function CollectionNfts() {
   );
 }
 
-interface CollectionNftsLayout {
+interface CollectionActivityLayout {
   children: ReactElement;
   collection: Collection;
 }
 
-CollectionNfts.getLayout = function CollectionNftsLayout({
+CollectionActivity.getLayout = function CollectionActivityLayout({
   children,
   collection,
-}: CollectionNftsLayout): JSX.Element {
+}: CollectionActivityLayout): JSX.Element {
   return <CollectionLayout collection={collection}>{children}</CollectionLayout>;
 };
