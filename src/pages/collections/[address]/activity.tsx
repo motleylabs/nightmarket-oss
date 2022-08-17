@@ -174,7 +174,6 @@ export default function CollectionActivity(): JSX.Element {
       },
     }
   );
-  console.log('query', activitiesQuery);
 
   useEffect(() => {
     const subscription = watch(({ type }) => {
