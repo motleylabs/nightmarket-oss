@@ -1,20 +1,39 @@
 import { ReactElement } from 'react';
-import { Wallet } from '../types';
+import { GraphConnection, Wallet } from '../types';
+import { useQuery } from '@apollo/client';
+import { FollowingProfileQuery } from './../queries/profile.graphql';
 import { PlusIcon, DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
+
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
 }
 
+interface FollowingProfileData {
+  connections: GraphConnection[];
+}
+
 function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
+  const { publicKey, connected } = useWallet();
 
   const address = wallet.address;
+
+  const profileFollowingQuery = useQuery<FollowingProfileData>(FollowingProfileQuery, {
+    variables: {
+      from: publicKey?.toBase58(),
+      to: address,
+    },
+    skip: !connected,
+  });
+
+  const isFollowingProfile = profileFollowingQuery.data?.connections.length === 1;
 
   return (
     <>
@@ -33,9 +52,23 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             title={<Overview.Title>{wallet.displayName}</Overview.Title>}
           >
             <Overview.Actions>
-              <Button icon={<PlusIcon width={14} height={14} />} size={ButtonSize.Small}>
-                {t('follow', { ns: 'common' })}
-              </Button>
+              {isFollowingProfile ? (
+                <Button
+                  loading={profileFollowingQuery.loading}
+                  size={ButtonSize.Small}
+                  type={ButtonType.Secondary}
+                >
+                  {t('unfollow', { ns: 'common' })}
+                </Button>
+              ) : (
+                <Button
+                  loading={profileFollowingQuery.loading}
+                  icon={<PlusIcon width={14} height={14} />}
+                  size={ButtonSize.Small}
+                >
+                  {t('follow', { ns: 'common' })}
+                </Button>
+              )}
               <Button
                 circle
                 icon={<DownloadIcon width={14} height={14} />}

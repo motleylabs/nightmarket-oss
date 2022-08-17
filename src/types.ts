@@ -11,41 +11,10 @@ interface CreatorCounts {
   creations: number;
 }
 
-export interface MarktetplaceMetaPayload {
-  name: string;
-  description: string;
-}
-
 export interface FileUploadPayload {
   name: string | undefined;
   type: string | undefined;
   url: string;
-}
-
-export interface MarketplaceThemePayload {
-  logo: FileUploadPayload;
-  banner: FileUploadPayload;
-}
-
-export interface MarketplaceCreatorPayload {
-  address: string;
-}
-
-export interface MarketplaceAddressPayload {
-  owner?: string;
-  store?: string;
-  storeConfig?: string;
-}
-interface MarketplaceAuctionHousePayload {
-  address: string;
-}
-export interface MarktplaceSettingsPayload {
-  meta: MarktetplaceMetaPayload;
-  theme: MarketplaceThemePayload;
-  creators: MarketplaceCreatorPayload[];
-  subdomain: string;
-  address: MarketplaceAddressPayload;
-  auctionHouses: MarketplaceAuctionHousePayload[];
 }
 
 export interface Marketplace {
@@ -326,4 +295,11 @@ export interface Collection {
   totalVolume: string;
   listedCount: string;
   holderCount: string;
+}
+
+export interface GraphConnection {
+  address: string;
+  connectedAt?: string;
+  from?: Wallet;
+  to?: Wallet;
 }

@@ -1,7 +1,9 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
+
 First, install dependencies
+
 ```bash
 npm install
 ```
@@ -13,6 +15,7 @@ npm run dev
 ```
 
 You might also want to setup a .env.local file to override some ENV variables like RPC provider, don't forget to restart the server if you do.
+
 ```bash
 
 NEXT_PUBLIC_SOLANA_RPC_URL="https://holaplex-main-9e4a.mainnet.rpcpool.com/[...api_key]"
