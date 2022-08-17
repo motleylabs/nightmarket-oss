@@ -6,6 +6,9 @@
   "connect": "Connect",
   "filters": "Filters",
   "buy": "Buy",
+  "all": "All",
+  "listed": "Listed",
+  "unlisted": "Unlisted",
   "search": {
     "collection": "Collection",
     "profiles": "Profiles",

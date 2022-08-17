@@ -291,6 +291,8 @@ export interface Wallet extends UserWallet {
   connectionCounts: ConnectionCounts;
   compactFollowerCount: string;
   compactFollowingCount: string;
+  compactOwnedCount: string;
+  compactCreatedCount: string;
   portfolioValue: number;
 }
 
@@ -298,6 +300,7 @@ export interface WalletNftCount {
   owned: number;
   offered: number;
   listed: number;
+  created: number;
 }
 
 export interface ConnectionCounts {

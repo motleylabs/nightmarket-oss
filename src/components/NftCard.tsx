@@ -19,12 +19,14 @@ export function NftCard({ nft }: NftCardProps): JSX.Element {
         className="aspect-square w-full object-cover"
       />
       <div className="p-4">
-        <div className="mb-4 flex flex-row items-center justify-start gap-2 text-white">
-          <img
-            src={nft.collection?.nft?.image}
-            alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
-            className="aspect-square w-6 rounded-sm object-cover"
-          />
+        <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">
+          {nft.collection && (
+            <img
+              src={nft.collection?.nft?.image}
+              alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
+              className="aspect-square w-6 rounded-sm object-cover"
+            />
+          )}
           <span className="truncate">{nft.name}</span>
         </div>
         <div className="flex flex-row items-center justify-between">
