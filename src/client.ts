@@ -4,6 +4,7 @@ import BN from 'bn.js';
 import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
+import { toSol } from './modules/sol';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -13,6 +14,16 @@ function asBN(value: string | null): BN {
     return new BN(0);
   }
   return new BN(value);
+}
+
+function asSOL(_: any, { readField }: { readField: ReadFieldFunction }): number {
+  const price: BN | undefined = readField('price');
+
+  if (!price) {
+    return 0
+  }
+
+  return toSol(price.toNumber())
 }
 
 function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }): string {
@@ -81,6 +92,10 @@ const typeDefs = gql`
     totalVolume: String
     listedCount: Number
     holderCount: Number
+  }
+
+  extend type NftActivity {
+    solPrice: Number
   }
 
   extend type Wallet {
@@ -230,6 +245,7 @@ const client = new ApolloClient({
               return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
             },
           },
+          activities: offsetLimitPagination(['$eventTypes']),
           nftCount: {
             read: asCompactNumber,
           },
@@ -339,6 +355,9 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          solPrice: {
+            read: asSOL,
+          }
         },
       },
       Offer: {

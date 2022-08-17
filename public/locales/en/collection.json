@@ -7,6 +7,7 @@
     "count": "{{amount}} NFTs"
   },
   "supply": "Supply",
+  "all": "All",
   "listings": "Listings",
   "offers": "Offers",
   "sales": "Sales",

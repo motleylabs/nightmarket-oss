@@ -16,5 +16,10 @@
     "nfts": "NFTs",
     "placeholder": "Search collections, profiles, and wallets...",
     "empty": "No results found"
+  },
+  "activity": {
+    "purchase": "Sold",
+    "listing": "Listed",
+    "offer": "Offer"
   }
 }

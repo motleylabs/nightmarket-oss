@@ -258,6 +258,7 @@ export interface Activity {
   metadata: string;
   auctionHouse?: AuctionHouse;
   price: BN;
+  solPrice: number;
   createdAt: string;
   wallets: Wallet[];
   activityType: string;

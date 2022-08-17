@@ -6,14 +6,15 @@ interface ButtonGroupProps<T> {
   children: ReactNode;
   value: T;
   onChange: (value: T | undefined) => void;
+  className?: string;
 }
 
-export function ButtonGroup<T>({ children, value, onChange }: ButtonGroupProps<T>): JSX.Element {
+export function ButtonGroup<T>({ children, value, onChange, className }: ButtonGroupProps<T>): JSX.Element {
   return (
     <RadioGroup
       value={value}
       onChange={onChange}
-      className="flex flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1"
+      className={clsx('flex flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1', className)}
     >
       {children}
     </RadioGroup>

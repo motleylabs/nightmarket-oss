@@ -35,3 +35,41 @@ query CollectionNFTsQuery($collection: PublicKey!, $limit: Int!, $offset: Int!, 
     ...NftInfo
   }
 }
+
+query CollectionActivitiesQuery(
+  $address: String!
+  $eventTypes: [String!]
+  $limit: Int = 25
+  $offset: Int = 0
+) {
+  collection(address: $address) {
+    activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
+      id
+      metadata
+      price
+      createdAt
+      marketplaceProgramAddress
+      solPrice @client
+      wallets {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client  
+        profile {
+          ...ProfileInfo
+        }
+      }
+      activityType
+      auctionHouse {
+        address
+        treasuryMint
+      }
+      nft {
+        address
+        name
+        mintAddress
+        image(width: 100)
+      }
+    }
+  }
+}
