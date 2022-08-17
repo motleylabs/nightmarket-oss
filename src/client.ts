@@ -20,10 +20,10 @@ function asSOL(_: any, { readField }: { readField: ReadFieldFunction }): number 
   const price: BN | undefined = readField('price');
 
   if (!price) {
-    return 0
+    return 0;
   }
 
-  return toSol(price.toNumber())
+  return toSol(price.toNumber());
 }
 
 function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }): string {
@@ -357,7 +357,7 @@ const client = new ApolloClient({
           },
           solPrice: {
             read: asSOL,
-          }
+          },
         },
       },
       Offer: {

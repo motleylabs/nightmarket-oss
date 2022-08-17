@@ -14,7 +14,7 @@ import { useQuery } from '@apollo/client';
 import { useForm, Controller } from 'react-hook-form';
 import Link from 'next/link';
 import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
-import { format } from 'timeago.js';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { InView } from 'react-intersection-observer';
 import { shortenAddress } from '../../../modules/address';
 
@@ -45,29 +45,34 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 }
 
 function Table({ children }: { children: ReactNode }): JSX.Element {
-  return <div className="flex flex-col px-8">{children}</div>;
+  return <div className="flex flex-col px-4 md:px-8">{children}</div>;
 }
 
 function Header({ children }: { children: ReactNode }): JSX.Element {
-  return <div className="mb-2 grid grid-cols-8 px-4">{children}</div>;
+  return <div className="mb-2 hidden grid-cols-8 gap-2 px-4 md:grid">{children}</div>;
 }
+
 Table.Header = Header;
 
 function HeaderItem({ name, className }: { name: string; className?: string }): JSX.Element {
   return <span className={clsx('text-sm text-gray-300', className)}>{name}</span>;
 }
+
 Table.HeaderItem = HeaderItem;
 
 function RowSkeleton(): JSX.Element {
   return <div className="mb-4 h-16 rounded bg-gray-800" />;
 }
+
 Table.RowSkeleton = RowSkeleton;
 
 function Row({ activity }: { activity: Activity }): JSX.Element {
   const { t } = useTranslation('common');
 
   const multipleWallets = activity.wallets.length > 1;
-  const [activityType, Icon] = useMemo<[] | [string, (props: SVGProps<SVGSVGElement>) => JSX.Element]>(() => {
+  const [activityType, Icon] = useMemo<
+    [] | [string, (props: SVGProps<SVGSVGElement>) => JSX.Element]
+  >(() => {
     switch (activity.activityType) {
       case 'purchase':
         return [t('activity.purchase'), CurrencyDollarIcon];
@@ -76,51 +81,72 @@ function Row({ activity }: { activity: Activity }): JSX.Element {
       case 'offer':
         return [t('activity.offer'), HandIcon];
       default:
-        return []
+        return [];
     }
   }, [activity.activityType, t]);
 
   return (
     <div
       key={activity.id}
-      className="mb-4 grid grid-cols-8 rounded border border-gray-700 px-2 py-2 text-white"
+      className="mb-4 grid grid-cols-8 gap-2 rounded border border-gray-700 px-2 py-2 text-white"
     >
-      <Link href={`/nfts/${activity.nft?.address}`} passHref>
-        <a className="col-span-2 flex items-center gap-4">
-          <img className="h-12 w-12 rounded object-cover" src={activity.nft?.image} alt="nft" />
-          <div className="font-medium">{activity.nft?.name}</div>
-        </a>
-      </Link>
+      <div className="col-span-1 flex items-center gap-4 md:col-span-2">
+        <Link href={`/nfts/${activity.nft?.address}`} passHref>
+          <a className=" transition hover:scale-[1.02]">
+            <img
+              className="aspect-square w-full rounded object-cover md:w-12"
+              src={activity.nft?.image}
+              alt="nft"
+            />
+          </a>
+        </Link>
+        <div className="hidden font-medium md:inline-block">{activity.nft?.name}</div>
+      </div>
       <div className="flex items-center">
         {Icon && <Icon className="mr-2 h-5 w-5 self-center text-gray-300" />}
-        <div>{activityType}</div>
+        <div className="hidden md:inline-block">{activityType}</div>
       </div>
-      <div className="flex items-center text-xs">
+      <div className="hidden items-center text-xs md:flex md:text-base">
         {shortenAddress(activity.marketplaceProgramAddress)}
       </div>
       <div
-        className={clsx('col-span-2 flex items-center justify-center self-center ', {
+        className={clsx('col-span-2 hidden items-center justify-center self-center md:flex', {
           '-ml-6': multipleWallets,
         })}
       >
         {multipleWallets && (
-          <img src="/images/uturn.svg" className="mr-2 w-4 text-gray-300" alt="wallets" />
+          <img src="/images/uturn.svg" className="mr-1 w-4 text-gray-300" alt="wallets" />
         )}
-        <div className="flex flex-col">
-          {/* TODO: Add Avatar Component */}
+        <div className="flex flex-col gap-1">
           <Link href={`/profiles/${activity.wallets[0].address}/collected`} passHref>
-            <a>{activity.wallets[0].displayName}</a>
+            <a className="flex items-center gap-1 text-sm transition hover:scale-[1.02]">
+              <img
+                className="aspect-square w-4 rounded-full object-cover"
+                src={activity.wallets[0].previewImage}
+                alt={`wallet ${activity.wallets[0].address} avatar image`}
+              />
+              {activity.wallets[0].displayName}
+            </a>
           </Link>
           {multipleWallets && (
             <Link href={`/profiles/${activity.wallets[1].address}/collected`} passHref>
-              <a>{activity.wallets[1].displayName}</a>
+              <a className="flex items-center gap-1 text-sm transition hover:scale-[1.02]">
+                <img
+                  className="aspect-square w-4 rounded-full object-cover"
+                  src={activity.wallets[1].previewImage}
+                  alt={`wallet ${activity.wallets[1].address} avatar image`}
+                />
+                {activity.wallets[1].displayName}
+              </a>
             </Link>
           )}
         </div>
       </div>
-      <div className="self-center">{activity.solPrice} SOL</div>
-      <div className="flex justify-end self-center text-base">
-        {format(activity.createdAt, 'en_US')}
+      <div className="col-span-3 self-center text-xs sm:text-base md:col-span-1">
+        {activity.solPrice} SOL
+      </div>
+      <div className="col-span-3 flex justify-end self-center text-xs sm:text-sm md:col-span-1 md:text-base">
+        {formatDistanceToNow(parseISO(activity.createdAt), { addSuffix: true })}
       </div>
     </div>
   );
@@ -139,7 +165,7 @@ interface CollectionActivitiesVariables {
 }
 
 enum ActivityType {
-  All = 'all',
+  All = 'ALL',
   Listings = 'LISTINGS',
   Offers = 'OFFERS',
   Sales = 'PURCHASES',
@@ -203,7 +229,7 @@ export default function CollectionActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div className="text-base text-white">Activity</div>
+        <h3 className="hidden text-base text-white md:inline-block">{t('activity')}</h3>
         <Controller
           control={control}
           name="type"
@@ -238,7 +264,7 @@ export default function CollectionActivity(): JSX.Element {
             {hasMore && (
               <>
                 {activitiesQuery.data?.collection.activities.map((activity) => (
-                  <Table.Row key={activity.id} activity={activity} />
+                  <Table.Row activity={activity} key={activity.id} />
                 ))}
                 <InView
                   onChange={async (inView) => {

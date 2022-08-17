@@ -54,7 +54,7 @@ query CollectionActivitiesQuery(
         address
         twitterHandle
         previewImage @client
-        displayName @client  
+        displayName @client
         profile {
           ...ProfileInfo
         }
