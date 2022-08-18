@@ -56,6 +56,7 @@ export interface AuctionHouse {
   treasuryBump: number;
   feePayerBump: number;
   sellerFeeBasisPoints: number;
+  fee: number;
   requiresSignOff: boolean;
   canChangeSalePrice: boolean;
   stats?: MintStats;
@@ -175,7 +176,10 @@ export interface Nft {
   address: string;
   name: string;
   sellerFeeBasisPoints: number;
+  royalties: number;
   mintAddress: string;
+  shortAddress: string;
+  shortMintAddress: string;
   primarySaleHappened: boolean;
   updateAuthorityAddress: string;
   description: string;

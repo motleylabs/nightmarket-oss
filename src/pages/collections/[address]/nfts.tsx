@@ -155,7 +155,11 @@ export default function CollectionNfts() {
           ) : (
             <>
               {nftsQuery.data?.nfts.map((nft, i) => (
-                <Link href={`/nfts/${nft.mintAddress}`} key={`${nft.mintAddress}-${i}`} passHref>
+                <Link
+                  href={`/nfts/${nft.mintAddress}/details`}
+                  key={`${nft.mintAddress}-${i}`}
+                  passHref
+                >
                   <a>
                     <NftCard nft={nft} />
                   </a>

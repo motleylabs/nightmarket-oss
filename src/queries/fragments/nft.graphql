@@ -6,6 +6,7 @@ fragment NftInfo on Nft {
   mintAddress
   address
   name
+  shortMintAddress @client
   creators {
     address
     displayName @client

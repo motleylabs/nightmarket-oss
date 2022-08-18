@@ -1,0 +1,51 @@
+#import "./fragments/profile.graphql"
+#import "./fragments/nft.graphql"
+
+query NftQuery($address: String!, $subdomain: String!) {
+  marketplace(subdomain: $subdomain) {
+    configAddress
+    auctionHouses {
+      address
+      sellerFeeBasisPoints
+      fee @client
+      treasuryMint
+    }
+  }
+
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    sellerFeeBasisPoints
+    royalties @client
+    shortMintAddress @client
+    shortAddress @client
+    image(width: 1400)
+    description
+    owner {
+      address
+      previewImage @client
+      displayName @client
+      profile {
+        ...ProfileInfo
+      }
+    }
+    attributes {
+      traitType
+      value
+    }
+    collection {
+      nft {
+        ...NftInfo
+      }
+    }
+    creators {
+      verified
+      address
+      share
+      profile {
+        ...ProfileInfo
+      }
+    }
+  }
+}
