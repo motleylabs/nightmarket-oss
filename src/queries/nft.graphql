@@ -1,0 +1,25 @@
+#import "./fragments/profile.graphql"
+#import "./fragments/nft.graphql"
+
+query NftQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    image(width: 1400)
+    description
+    collection {
+      nft {
+        ...NftInfo
+      }
+    }
+    creators {
+      verified
+      address
+      share
+      profile {
+        ...ProfileInfo
+      }
+    }
+  }
+}

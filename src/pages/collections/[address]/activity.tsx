@@ -91,7 +91,7 @@ function Row({ activity }: { activity: Activity }): JSX.Element {
       className="mb-4 grid grid-cols-8 gap-2 rounded border border-gray-700 px-2 py-2 text-white"
     >
       <div className="col-span-1 flex items-center gap-4 md:col-span-2">
-        <Link href={`/nfts/${activity.nft?.address}`} passHref>
+        <Link href={`/nfts/${activity.nft?.address}/details`} passHref>
           <a className=" transition hover:scale-[1.02]">
             <img
               className="aspect-square w-full rounded object-cover md:w-12"
@@ -261,11 +261,11 @@ export default function CollectionActivity(): JSX.Element {
           </>
         ) : (
           <>
+            {activitiesQuery.data?.collection.activities.map((activity) => (
+              <Table.Row activity={activity} key={activity.id} />
+            ))}
             {hasMore && (
               <>
-                {activitiesQuery.data?.collection.activities.map((activity) => (
-                  <Table.Row activity={activity} key={activity.id} />
-                ))}
                 <InView
                   onChange={async (inView) => {
                     if (!inView) {
