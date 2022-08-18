@@ -65,6 +65,12 @@ function asShortAddress(_: any, { readField }: { readField: ReadFieldFunction })
   return shortenAddress(address);
 }
 
+function asShortMintAddress(_: any, { readField }: { readField: ReadFieldFunction }): string {
+  const address: string | undefined = readField('mintAddress');
+
+  return shortenAddress(address);
+}
+
 function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction }): string {
   const address: string | undefined = readField('mintAddress');
 
@@ -86,6 +92,16 @@ const typeDefs = gql`
   type Viewer {
     id: ID
     balance: Number
+  }
+
+  extend type Marketplace {
+    fee: number
+  }
+
+  extend type Nft {
+    shortAddress: String
+    shortMintAddress: String
+    royalties: number
   }
 
   extend type Collection {
@@ -239,7 +255,7 @@ const client = new ApolloClient({
       Collection: {
         fields: {
           floorPrice: {
-            read(value) {
+            read(value): string {
               const lamports = asBN(value);
 
               return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
@@ -293,7 +309,7 @@ const client = new ApolloClient({
         keyFields: ['creatorAddress', 'storeConfigAddress'],
       },
       Marketplace: {
-        keyFields: ['ownerAddress'],
+        keyFields: ['configAddress'],
       },
       MetadataJson: {
         keyFields: ['address'],
@@ -302,7 +318,7 @@ const client = new ApolloClient({
             read: asNFTImage,
           },
           creatorDisplayName: {
-            read(_, { readField }) {
+            read(_, { readField }): string | null {
               const handle: string | undefined = readField('creatorTwitterHandle');
               const address: string | undefined = readField('creatorAddress');
 
@@ -320,10 +336,27 @@ const client = new ApolloClient({
         },
       },
       Nft: {
-        keyFields: ['address'],
+        keyFields: ['mintAddress'],
         fields: {
+          shortMintAddress: {
+            read: asShortMintAddress,
+          },
+          shortAddress: {
+            read: asShortAddress,
+          },
           image: {
             read: asNFTImage,
+          },
+          royalties: {
+            read(_, { readField }): number {
+              const sellerFeeBasisPoints: number | undefined = readField('sellerFeeBasisPoints');
+
+              if (!sellerFeeBasisPoints) {
+                return 0;
+              }
+
+              return sellerFeeBasisPoints / 100;
+            },
           },
         },
       },
@@ -332,6 +365,20 @@ const client = new ApolloClient({
       },
       NftOwner: {
         keyFields: ['address'],
+        fields: {
+          displayName: {
+            read: asDisplayName,
+          },
+          previewImage: {
+            read: asPreviewImage,
+          },
+          shortAddress: {
+            read: asShortAddress,
+          },
+          previewBanner: {
+            read: asPreviewBanner,
+          },
+        },
       },
       Purchase: {
         keyFields: ['id'],
@@ -365,6 +412,22 @@ const client = new ApolloClient({
         fields: {
           price: {
             read: asBN,
+          },
+        },
+      },
+      AuctionHouse: {
+        keyFields: ['address'],
+        fields: {
+          fee: {
+            read(_, { readField }): number {
+              const sellerFeeBasisPoints: number | undefined = readField('sellerFeeBasisPoints');
+
+              if (!sellerFeeBasisPoints) {
+                return 0;
+              }
+
+              return sellerFeeBasisPoints / 100;
+            },
           },
         },
       },

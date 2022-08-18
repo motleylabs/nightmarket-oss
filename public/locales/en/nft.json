@@ -1,8 +1,20 @@
 {
- "details": "Details",
- "offers": "Offers",
- "activity": "Activity",
- "bid": "Make Offer",
- "prevSale": "Last sold for",
- "neverSold": "Not listed"
+  "metadata": {
+    "title": "Nft {{ address }}"
+  },
+  "details": "Details",
+  "offers": "Offers",
+  "activity": "Activity",
+  "bid": "Make Offer",
+  "prevSale": "Last sold for",
+  "neverSold": "Not listed",
+  "attributes": "Attributes",
+  "aboutCollection": "About the collection",
+  "mintAddress": "Mint address",
+  "tokenAddress": "Token Address",
+  "collectionAddress": "On-chain collection",
+  "owner": "Current owner",
+  "royalties": "Creator royalties",
+  "fee": "Marketplace fee",
+  "collection": "Collection"
 }

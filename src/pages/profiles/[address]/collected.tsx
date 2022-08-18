@@ -157,7 +157,11 @@ export default function ProfileCollected() {
           ) : (
             <>
               {nftsQuery.data?.collectedNfts.map((nft, i) => (
-                <Link href={`/nfts/${nft.mintAddress}/details`} key={`${nft.mintAddress}-${i}`} passHref>
+                <Link
+                  href={`/nfts/${nft.mintAddress}/details`}
+                  key={`${nft.mintAddress}-${i}`}
+                  passHref
+                >
                   <a>
                     <NftCard nft={nft} />
                   </a>
