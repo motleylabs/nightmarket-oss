@@ -135,7 +135,7 @@ export default function ProfileCollected() {
           className={clsx(
             'grid grid-cols-1 gap-4 pt-4',
             open
-              ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
               : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8'
           )}
         >
@@ -153,6 +153,10 @@ export default function ProfileCollected() {
               <NftCard.Skeleton />
               <NftCard.Skeleton />
               <NftCard.Skeleton />
+              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
+              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
+              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
+              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
             </>
           ) : (
             <>
@@ -194,6 +198,8 @@ export default function ProfileCollected() {
                   <NftCard.Skeleton className={clsx('hidden lg:inline-block')} />
                   <NftCard.Skeleton className="hidden xl:inline-block" />
                   <NftCard.Skeleton className={clsx('hidden', { 'xl:inline-block': !open })} />
+                  <NftCard.Skeleton className={clsx('hidden 2xl:inline-block')} />
+                  <NftCard.Skeleton className={clsx('hidden 2xl:inline-block')} />
                 </>
               )}
             </>

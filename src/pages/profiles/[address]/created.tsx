@@ -1,12 +1,12 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
+import { WalletProfileQuery, CreatedNFTsQuery } from './../../../queries/profile.graphql';
+import ProfileLayout from '../../../layouts/ProfileLayout';
+import client from '../../../client';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { Wallet } from '../../../types';
 import { ReactElement, useEffect, useState } from 'react';
 import { InView } from 'react-intersection-observer';
-import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
-import CollectionLayout from '../../../layouts/CollectionLayout';
-import client from './../../../client';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection, Nft } from '../../../types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -17,19 +17,21 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import clsx from 'clsx';
+import { Nft } from '../../../types';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
-  const { data } = await client.query({
-    query: CollectionQuery,
+  const {
+    data: { wallet },
+  } = await client.query({
+    query: WalletProfileQuery,
     variables: {
       address: params?.address,
     },
   });
-  const collection: Collection = data.collection;
 
-  if (collection === null) {
+  if (wallet === null) {
     return {
       notFound: true,
     };
@@ -37,21 +39,10 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   return {
     props: {
-      collection,
+      wallet,
       ...i18n,
     },
   };
-}
-
-interface CollectionNFTsData {
-  nfts: Nft[];
-}
-
-interface CollectionNFTsVariables {
-  offset: number;
-  limit: number;
-  collection: string;
-  listed: boolean | null;
 }
 
 enum ListedStatus {
@@ -64,7 +55,18 @@ interface CollectionNFTForm {
   listed: ListedStatus;
 }
 
-export default function CollectionNfts() {
+interface CreatedNftsData {
+  createdNfts: Nft[];
+}
+
+interface CreatedNFTsVariables {
+  offset: number;
+  limit: number;
+  listed: boolean | null;
+  creator: string;
+}
+
+export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All },
@@ -73,21 +75,21 @@ export default function CollectionNfts() {
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
 
-  const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
+  const nftsQuery = useQuery<CreatedNftsData, CreatedNFTsVariables>(CreatedNFTsQuery, {
     variables: {
       offset: 0,
       limit: 24,
       listed: null,
-      collection: router.query.address as string,
+      creator: router.query.address as string,
     },
   });
 
   useEffect(() => {
     const subscription = watch(({ listed }) => {
-      let variables: CollectionNFTsVariables = {
+      let variables: CreatedNFTsVariables = {
         offset: 0,
         limit: 24,
-        collection: router.query.address as string,
+        creator: router.query.address as string,
         listed: null,
       };
 
@@ -97,8 +99,8 @@ export default function CollectionNfts() {
         variables.listed = false;
       }
 
-      nftsQuery.refetch(variables).then(({ data: { nfts } }) => {
-        setHasMore(nfts.length > 0);
+      nftsQuery.refetch(variables).then(({ data: { createdNfts } }) => {
+        setHasMore(createdNfts.length > 0);
       });
     });
 
@@ -128,8 +130,7 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>
-        </Sidebar.Panel>
+        <Sidebar.Panel>The sidebar</Sidebar.Panel>
         <Sidebar.Content
           className={clsx(
             'grid grid-cols-1 gap-4 pt-4',
@@ -138,48 +139,6 @@ export default function CollectionNfts() {
               : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8'
           )}
         >
-          <List
-            data={nftsQuery.data?.nfts}
-            loading={nftsQuery.loading}
-            gap={4}
-            grid={{
-              xs: [1, 1],
-              sm: [2, 1],
-              md: [2, 3],
-              lg: [3, 4],
-              xl: [4, 6],
-              2xl: [6, 8]
-            }}
-          skeleton={NftCard.Skeleton}
-          onLoadMore={async (inView: boolean) => {
-            if (!inView) {
-              return;
-            }
-
-            const {
-              data: { nfts },
-            } = await nftsQuery.fetchMore({
-              variables: {
-                ...nftsQuery.variables,
-                offset: nftsQuery.data?.nfts.length,
-              },
-            });
-
-            setHasMore(nfts.length > 0);
-          }}
-          render={(nft) => (
-            <Link
-              href={`/nfts/${nft.mintAddress}/details`}
-              key={`${nft.mintAddress}-${i}`}
-              passHref
-            >
-              <a>
-                <NftCard nft={nft} />
-              </a>
-            </Link>
-          )}
-          />
-
           {nftsQuery.loading ? (
             <>
               <NftCard.Skeleton />
@@ -201,7 +160,7 @@ export default function CollectionNfts() {
             </>
           ) : (
             <>
-              {nftsQuery.data?.nfts.map((nft, i) => (
+              {nftsQuery.data?.createdNfts.map((nft, i) => (
                 <Link
                   href={`/nfts/${nft.mintAddress}/details`}
                   key={`${nft.mintAddress}-${i}`}
@@ -221,15 +180,15 @@ export default function CollectionNfts() {
                       }
 
                       const {
-                        data: { nfts },
+                        data: { createdNfts },
                       } = await nftsQuery.fetchMore({
                         variables: {
                           ...nftsQuery.variables,
-                          offset: nftsQuery.data?.nfts.length,
+                          offset: nftsQuery.data?.createdNfts.length,
                         },
                       });
 
-                      setHasMore(nfts.length > 0);
+                      setHasMore(createdNfts.length > 0);
                     }}
                   >
                     <NftCard.Skeleton />
@@ -253,12 +212,12 @@ export default function CollectionNfts() {
 
 interface CollectionNftsLayout {
   children: ReactElement;
-  collection: Collection;
+  wallet: Wallet;
 }
 
-CollectionNfts.getLayout = function CollectionNftsLayout({
+ProfileCollected.getLayout = function ProfileCollectedLayout({
   children,
-  collection,
+  wallet,
 }: CollectionNftsLayout): JSX.Element {
-  return <CollectionLayout collection={collection}>{children}</CollectionLayout>;
+  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
 };
