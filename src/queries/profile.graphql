@@ -65,6 +65,7 @@ query CollectedCollectionsQuery($address: PublicKey!) {
           address
           name
         }
+        floorPrice
       }
       nftsOwned
       estimatedValue
