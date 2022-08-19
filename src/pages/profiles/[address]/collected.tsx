@@ -1,5 +1,9 @@
 import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
-import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
+import {
+  WalletProfileQuery,
+  CollectedNFTsQuery,
+  CollectedCollectionsQuery,
+} from './../../../queries/profile.graphql';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -19,6 +23,7 @@ import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
 import clsx from 'clsx';
 import { Nft } from '../../../types';
+import CollectedCollectionItem from '../../../components/CollectedCollectionItem';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -54,6 +59,7 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
+  collections: string[] | null;
 }
 
 interface CollectionNFTsData {
@@ -65,16 +71,25 @@ interface CollectionNFTsVariables {
   limit: number;
   listed: boolean | null;
   owner: string;
+  collections: string[] | null;
+}
+
+interface CollectedCollectionsData {
+  wallet: Wallet;
+}
+interface CollectedCollectionsVariables {
+  address: string;
 }
 
 export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All },
+  const { watch, control, setValue, getValues } = useForm<CollectionNFTForm>({
+    defaultValues: { listed: ListedStatus.All, collections: null },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
+  //const [selectedCollections, setSelectedCollections] = useState<string[] | null>(null);
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectedNFTsQuery, {
     variables: {
@@ -82,18 +97,44 @@ export default function ProfileCollected() {
       limit: 24,
       listed: null,
       owner: router.query.address as string,
+      collections: null,
     },
   });
 
+  const collectedCollectionsQuery = useQuery<
+    CollectedCollectionsData,
+    CollectedCollectionsVariables
+  >(CollectedCollectionsQuery, {
+    variables: {
+      address: router.query.address as string,
+    },
+  });
+
+  const updateSelectedCollections = (collection: string) => {
+    const selectedCollections = getValues().collections;
+    if (selectedCollections === null) {
+      setValue('collections', [collection]);
+    } else {
+      if (selectedCollections.includes(collection)) {
+        setValue(
+          'collections',
+          selectedCollections.filter((c) => c !== collection)
+        );
+      } else {
+        setValue('collections', [...selectedCollections, collection]);
+      }
+    }
+  };
+
   useEffect(() => {
-    const subscription = watch(({ listed }) => {
+    const subscription = watch(({ listed, collections }) => {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
         owner: router.query.address as string,
         listed: null,
+        collections: collections,
       };
-
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
       } else if (listed === ListedStatus.Unlisted) {
@@ -131,7 +172,32 @@ export default function ProfileCollected() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>The sidebar</Sidebar.Panel>
+        <Sidebar.Panel>
+          <div className="mt-4 flex flex-col gap-2">
+            {collectedCollectionsQuery.loading ? (
+              <>
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+              </>
+            ) : (
+              collectedCollectionsQuery.data?.wallet?.collectedCollections.map(
+                (collectedCollection) => (
+                  <div
+                    key={collectedCollection.collection.nft.address}
+                    onClick={() =>
+                      updateSelectedCollections(collectedCollection.collection.nft.address)
+                    }
+                  >
+                    <CollectedCollectionItem collectedCollection={collectedCollection} />
+                  </div>
+                )
+              )
+            )}
+          </div>
+        </Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}
@@ -152,7 +218,6 @@ export default function ProfileCollected() {
               if (!inView) {
                 return;
               }
-
               const {
                 data: { collectedNfts },
               } = await nftsQuery.fetchMore({

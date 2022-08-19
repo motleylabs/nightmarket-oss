@@ -282,6 +282,17 @@ const client = new ApolloClient({
           },
         },
       },
+      CollectedCollection: {
+        fields: {
+          estimatedValue: {
+            read(value) {
+              const lamports = asBN(value);
+
+              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+            },
+          },
+        },
+      },
       MintStats: {
         fields: {
           volume24hr: {

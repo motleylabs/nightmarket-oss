@@ -6,6 +6,8 @@
     "floor": "{{price}} SOL",
     "count": "{{amount}} NFTs"
   },
+  "floorPrice": "Floor price",
+  "estValue": "Est. value",
   "supply": "Supply",
   "all": "All",
   "listings": "Listings",
