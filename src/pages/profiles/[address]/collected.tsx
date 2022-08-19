@@ -89,7 +89,7 @@ export default function ProfileCollected() {
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
-  //const [selectedCollections, setSelectedCollections] = useState<string[] | null>(null);
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectedNFTsQuery, {
     variables: {
@@ -111,17 +111,17 @@ export default function ProfileCollected() {
   });
 
   const updateSelectedCollections = (collection: string) => {
-    const selectedCollections = getValues().collections;
-    if (selectedCollections === null) {
+    const selected = getValues().collections;
+    if (selected === null) {
       setValue('collections', [collection]);
     } else {
-      if (selectedCollections.includes(collection)) {
+      if (selected.includes(collection)) {
         setValue(
           'collections',
-          selectedCollections.filter((c) => c !== collection)
+          selected.filter((c) => c !== collection)
         );
       } else {
-        setValue('collections', [...selectedCollections, collection]);
+        setValue('collections', [...selected, collection]);
       }
     }
   };
@@ -144,6 +144,7 @@ export default function ProfileCollected() {
       nftsQuery.refetch(variables).then(({ data: { collectedNfts } }) => {
         setHasMore(collectedNfts.length > 0);
       });
+      setSelectedCollections(collections);
     });
 
     return subscription.unsubscribe;
@@ -188,10 +189,15 @@ export default function ProfileCollected() {
                   <div
                     key={collectedCollection.collection.nft.address}
                     onClick={() =>
-                      updateSelectedCollections(collectedCollection.collection.nft.address)
+                      updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
                     }
                   >
-                    <CollectedCollectionItem collectedCollection={collectedCollection} />
+                    <CollectedCollectionItem
+                      collectedCollection={collectedCollection}
+                      selected={selectedCollections.includes(
+                        collectedCollection.collection.nft.mintAddress
+                      )}
+                    />
                   </div>
                 )
               )

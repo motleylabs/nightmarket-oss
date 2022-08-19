@@ -6,21 +6,28 @@ import Price from './Price';
 
 interface CollectedCollectionItemProps {
   collectedCollection: CollectedCollection;
+  selected: boolean;
 }
 
 export default function CollectedCollectionItem({
   collectedCollection,
+  selected,
 }: CollectedCollectionItemProps): JSX.Element {
   const { t } = useTranslation('collection');
   return (
-    <div className="flex cursor-pointer rounded-lg border border-gray-700 p-2">
+    <div
+      className={clsx(
+        'flex cursor-pointer rounded-lg border border-gray-700 p-2',
+        selected && 'bg-gray-700'
+      )}
+    >
       <div className="relative flex aspect-square h-16 w-16 transition hover:scale-[1.02]">
         <img
           src={collectedCollection.collection.nft.image}
-          className="absolute top-0 left-0 -z-10 h-full w-full rounded object-cover"
+          className="absolute top-0 left-0 h-full w-full rounded object-cover"
           alt={`Collection ${collectedCollection.collection.nft.name}`}
         />
-        <span className="absolute right-0 bottom-0 z-20 m-1 rounded bg-gray-900 px-1.5 text-base text-white">
+        <span className="absolute right-0 bottom-0 z-10 m-1 rounded bg-gray-900 px-1.5 text-base text-white">
           {collectedCollection.nftsOwned}
         </span>
       </div>
