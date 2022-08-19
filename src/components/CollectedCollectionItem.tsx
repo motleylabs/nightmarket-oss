@@ -39,7 +39,7 @@ export default function CollectedCollectionItem({
             <Price price={collectedCollection.collection.floorPrice} />
           </div>
           <div className="-mb-1 flex flex-col">
-            <span className="text-[10px] text-gray-400">{t('estValue')}</span>
+            <span className="text-[10px] text-gray-400">{t('estimatedValue')}</span>
             <Price price={collectedCollection.estimatedValue} />
           </div>
         </div>

@@ -7,7 +7,7 @@
     "count": "{{amount}} NFTs"
   },
   "floorPrice": "Floor price",
-  "estValue": "Est. value",
+  "estimatedValue": "Est. value",
   "supply": "Supply",
   "all": "All",
   "listings": "Listings",
