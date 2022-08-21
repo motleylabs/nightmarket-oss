@@ -1,30 +1,11 @@
-//           <List
-//           data={nftsQuery.data?.nfts}
-//           loading={nftsQuery.loading}
-//           gap={4}
-//           grid={{
-//             xs: [1, 1],
-//             sm: [2, 1],
-//             md: [2, 3],
-//             lg: [3, 4],
-//             xl: [4, 6],
-//             2xl: [6, 8]
-//           }}
-//         skeleton={NftCard.Skeleton}
-//         onLoadMore={async (inView: boolean) => {
-// ...
-//         }}
-//         render={(nft) => (
-// ...
-//         )}
-//         />
-
+import { useWindowWidth } from '@react-hook/window-size';
 import clsx from 'clsx';
-import React, { ReactNode, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { InView } from 'react-intersection-observer';
 
-type ListGridSizeValue = [number, number]
+type ListGridSizeValue = [number, number];
 
-enum ListGridSize {
+export enum ListGridSize {
   Default = 'default',
   Small = 'sm',
   Medium = 'md',
@@ -35,55 +16,110 @@ enum ListGridSize {
 
 interface ListGrid {
   [ListGridSize.Default]: ListGridSizeValue;
-  [ListGridSize.Small]?: ListGridSizeValue;
-  [ListGridSize.Medium]?: ListGridSizeValue;
-  [ListGridSize.Large]?: ListGridSizeValue;
-  [ListGridSize.ExtraLarge]?: ListGridSizeValue;
-  [ListGridSize.Jumbo]?: ListGridSizeValue;
+  [ListGridSize.Small]: ListGridSizeValue;
+  [ListGridSize.Medium]: ListGridSizeValue;
+  [ListGridSize.Large]: ListGridSizeValue;
+  [ListGridSize.ExtraLarge]: ListGridSizeValue;
+  [ListGridSize.Jumbo]: ListGridSizeValue;
 }
 
 interface ListProps<T> {
-  data: T[];
+  data: T[] | undefined;
   gap: number;
   loading: boolean;
   grid: ListGrid;
   expanded?: boolean;
-  render: (item: T) => JSX.Element;
+  hasMore: boolean;
+  render: (item: T, index: number) => JSX.Element;
   onLoadMore: (inView: boolean) => Promise<void>;
-  skeleton: ReactNode;
+  skeleton: (props: any) => JSX.Element;
   className?: string;
 }
 
-// open
-// ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-// : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8'
+export function List<T>({
+  data,
+  loading,
+  gap,
+  grid,
+  skeleton,
+  render,
+  onLoadMore,
+  expanded,
+  className,
+  hasMore,
+}: ListProps<T>): JSX.Element {
+  const windowWidth = useWindowWidth();
+  const Skeleton = skeleton;
+  const [activeGridSize, setActiveGridSize] = useState(0);
 
-export default function List<T>({ data, loading, gap, grid, skeleton, render, onLoadMore, expanded, className }: ListProps<T>): JSX.Element {
+  useEffect(() => {
+    let nextGridSize: number;
+
+    const activeGridIndex = expanded ? 0 : 1;
+
+    if (windowWidth >= 1536) {
+      nextGridSize = grid[ListGridSize.Jumbo][activeGridIndex];
+    } else if (windowWidth >= 1280) {
+      nextGridSize = grid[ListGridSize.ExtraLarge][activeGridIndex];
+    } else if (windowWidth >= 1024) {
+      nextGridSize = grid[ListGridSize.Large][activeGridIndex];
+    } else if (windowWidth >= 768) {
+      nextGridSize = grid[ListGridSize.Medium][activeGridIndex];
+    } else if (windowWidth >= 640) {
+      nextGridSize = grid[ListGridSize.Small][activeGridIndex];
+    } else {
+      nextGridSize = grid[ListGridSize.Default][activeGridIndex];
+    }
+
+    setActiveGridSize(nextGridSize);
+  }, [windowWidth, grid, expanded]);
 
   const [openClassNames, closedClassNames] = useMemo(() => {
-    const classNames = Object.entries(grid).reduce<[string[], string[]]>(([openClassNames, closedClassNames], [size, [open, closed]]) => {
+    const classNames = Object.entries(grid).reduce<[string[], string[]]>(
+      ([openClassNames, closedClassNames], [size, [open, closed]]) => {
+        if (size === ListGridSize.Default) {
+          openClassNames = [...openClassNames, `grid-cols-${open}`];
+          closedClassNames = [...closedClassNames, `grid-cols-${closed}`];
+        } else {
+          openClassNames = [...openClassNames, `${size}:grid-cols-${open}`];
+          closedClassNames = [...closedClassNames, `${size}:grid-cols-${closed}`];
+        }
 
-      if (size === ListGridSize.Default) {
-        openClassNames = [...openClassNames, `grid-cols-${open}`];
-        closedClassNames = [...closedClassNames, `grid-cols-${closed}`];
-      } else {
-        openClassNames = [...openClassNames, `${size}:grid-cols-${open}`];
-        closedClassNames = [...closedClassNames, `${size}:grid-cols-${closed}`];
-      }
+        return [openClassNames, closedClassNames];
+      },
+      [[], []]
+    );
 
-      return [openClassNames, closedClassNames]
-    }, [[], []])
-
-    return classNames
-  }, [grid])
+    return classNames;
+  }, [grid]);
 
   return (
-    <div className={clsx(openClassNames, closedClassNames, className)}>
+    <div
+      className={clsx(
+        `grid pt-4 gap-${gap}`,
+        expanded ? openClassNames : closedClassNames,
+        className
+      )}
+    >
       {loading ? (
-        <div />
+        [...Array(activeGridSize * 2)].map((_, index) => <Skeleton key={index} />)
       ) : (
-        data.map(render)
+        <>
+          {data?.map(render)}
+          {hasMore &&
+            [...Array(activeGridSize)].map((_, index) => {
+              if (index === 0) {
+                return (
+                  <InView onChange={onLoadMore} key={index}>
+                    <Skeleton />
+                  </InView>
+                );
+              } else {
+                return <Skeleton />;
+              }
+            })}
+        </>
       )}
     </div>
-  )
+  );
 }

@@ -16,6 +16,7 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
+import { List, ListGridSize } from './../../../components/List';
 import clsx from 'clsx';
 import { Nft } from '../../../types';
 
@@ -131,79 +132,50 @@ export default function ProfileCollected() {
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel>The sidebar</Sidebar.Panel>
-        <Sidebar.Content
-          className={clsx(
-            'grid grid-cols-1 gap-4 pt-4',
-            open
-              ? 'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-              : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8'
-          )}
-        >
-          {nftsQuery.loading ? (
-            <>
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton />
-              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
-              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
-              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
-              <NftCard.Skeleton className={clsx('hidden', { '2xl:inline-block': !open })} />
-            </>
-          ) : (
-            <>
-              {nftsQuery.data?.collectedNfts.map((nft, i) => (
-                <Link
-                  href={`/nfts/${nft.mintAddress}/details`}
-                  key={`${nft.mintAddress}-${i}`}
-                  passHref
-                >
-                  <a>
-                    <NftCard nft={nft} />
-                  </a>
-                </Link>
-              ))}
-              {hasMore && (
-                <>
-                  <InView
-                    onChange={async (inView) => {
-                      if (!inView) {
-                        return;
-                      }
+        <Sidebar.Content>
+          <List
+            expanded={open}
+            data={nftsQuery.data?.collectedNfts}
+            loading={nftsQuery.loading}
+            gap={4}
+            hasMore={hasMore}
+            grid={{
+              [ListGridSize.Default]: [1, 1],
+              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Medium]: [2, 3],
+              [ListGridSize.Large]: [3, 4],
+              [ListGridSize.ExtraLarge]: [4, 6],
+              [ListGridSize.Jumbo]: [6, 8],
+            }}
+            skeleton={NftCard.Skeleton}
+            onLoadMore={async (inView: boolean) => {
+              if (!inView) {
+                return;
+              }
 
-                      const {
-                        data: { collectedNfts },
-                      } = await nftsQuery.fetchMore({
-                        variables: {
-                          ...nftsQuery.variables,
-                          offset: nftsQuery.data?.collectedNfts.length,
-                        },
-                      });
+              const {
+                data: { collectedNfts },
+              } = await nftsQuery.fetchMore({
+                variables: {
+                  ...nftsQuery.variables,
+                  offset: nftsQuery.data?.collectedNfts.length,
+                },
+              });
 
-                      setHasMore(collectedNfts.length > 0);
-                    }}
-                  >
-                    <NftCard.Skeleton />
-                  </InView>
-                  <NftCard.Skeleton className="hidden sm:inline-block" />
-                  <NftCard.Skeleton className={clsx('hidden', { 'md:inline-block': !open })} />
-                  <NftCard.Skeleton className={clsx('hidden lg:inline-block')} />
-                  <NftCard.Skeleton className="hidden xl:inline-block" />
-                  <NftCard.Skeleton className={clsx('hidden', { 'xl:inline-block': !open })} />
-                  <NftCard.Skeleton className={clsx('hidden 2xl:inline-block')} />
-                  <NftCard.Skeleton className={clsx('hidden 2xl:inline-block')} />
-                </>
-              )}
-            </>
-          )}
+              setHasMore(collectedNfts.length > 0);
+            }}
+            render={(nft, i) => (
+              <Link
+                href={`/nfts/${nft.mintAddress}/details`}
+                key={`${nft.mintAddress}-${i}`}
+                passHref
+              >
+                <a>
+                  <NftCard nft={nft} />
+                </a>
+              </Link>
+            )}
+          />
         </Sidebar.Content>
       </Sidebar.Page>
     </>

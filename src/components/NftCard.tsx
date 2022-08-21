@@ -40,8 +40,9 @@ export function NftCard({ nft }: NftCardProps): JSX.Element {
   );
 }
 
-interface NftCardSkeletonProps {
+export interface NftCardSkeletonProps {
   className?: string;
+  key?: any;
 }
 
 function NftCardSkeleton({ className }: NftCardSkeletonProps) {
