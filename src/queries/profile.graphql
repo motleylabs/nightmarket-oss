@@ -41,3 +41,9 @@ query CollectedNFTsQuery($owner: PublicKey!, $limit: Int!, $offset: Int!, $liste
     ...NftInfo
   }
 }
+
+query CreatedNFTsQuery($creator: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
+  createdNfts: nfts(creators: [$creator], limit: $limit, offset: $offset, listed: $listed) {
+    ...NftInfo
+  }
+}

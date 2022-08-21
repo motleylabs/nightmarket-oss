@@ -153,7 +153,7 @@ const client = new ApolloClient({
               return null;
             },
           },
-          nfts: offsetLimitPagination(['$listed', '$collection', '$owner']),
+          nfts: offsetLimitPagination(['$listed', '$collection', '$owner', '$creator']),
           viewer: {
             read() {
               return viewerVar();

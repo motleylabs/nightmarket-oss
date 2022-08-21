@@ -31,7 +31,7 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
   );
 }
 
-interface CollectionCardSkeletonProps {
+export interface CollectionCardSkeletonProps {
   className?: string;
 }
 
