@@ -22,6 +22,19 @@ query WalletProfileQuery($address: PublicKey!) {
     profile {
       ...ProfileInfo
     }
+    collectedCollections {
+      collection {
+        nft {
+          image
+          mintAddress
+          address
+          name
+        }
+        floorPrice
+      }
+      nftsOwned
+      estimatedValue
+    }
   }
 }
 

@@ -1,9 +1,5 @@
 import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
-import {
-  WalletProfileQuery,
-  CollectedNFTsQuery,
-  CollectedCollectionsQuery,
-} from './../../../queries/profile.graphql';
+import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -74,14 +70,14 @@ interface CollectionNFTsVariables {
   collections: string[] | null;
 }
 
-interface CollectedCollectionsData {
+interface ProfileCollectedPageProps {
   wallet: Wallet;
 }
-interface CollectedCollectionsVariables {
-  address: string;
-}
+// interface CollectedCollectionsVariables {
+//   address: string;
+// }
 
-export default function ProfileCollected() {
+export default function ProfileCollected({ wallet }: ProfileCollectedPageProps) {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control, setValue, getValues } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All, collections: null },
@@ -98,15 +94,6 @@ export default function ProfileCollected() {
       listed: null,
       owner: router.query.address as string,
       collections: null,
-    },
-  });
-
-  const collectedCollectionsQuery = useQuery<
-    CollectedCollectionsData,
-    CollectedCollectionsVariables
-  >(CollectedCollectionsQuery, {
-    variables: {
-      address: router.query.address as string,
     },
   });
 
@@ -133,7 +120,7 @@ export default function ProfileCollected() {
         limit: 24,
         owner: router.query.address as string,
         listed: null,
-        collections: collections,
+        collections,
       };
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
@@ -175,33 +162,21 @@ export default function ProfileCollected() {
       <Sidebar.Page open={open}>
         <Sidebar.Panel>
           <div className="mt-4 flex flex-col gap-2">
-            {collectedCollectionsQuery.loading ? (
-              <>
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-              </>
-            ) : (
-              collectedCollectionsQuery.data?.wallet?.collectedCollections.map(
-                (collectedCollection) => (
-                  <div
-                    key={collectedCollection.collection.nft.address}
-                    onClick={() =>
-                      updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
-                    }
-                  >
-                    <CollectedCollectionItem
-                      collectedCollection={collectedCollection}
-                      selected={selectedCollections.includes(
-                        collectedCollection.collection.nft.mintAddress
-                      )}
-                    />
-                  </div>
-                )
-              )
-            )}
+            {wallet?.collectedCollections.map((collectedCollection) => (
+              <div
+                key={collectedCollection.collection.nft.address}
+                onClick={() =>
+                  updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
+                }
+              >
+                <CollectedCollectionItem
+                  collectedCollection={collectedCollection}
+                  selected={selectedCollections.includes(
+                    collectedCollection.collection.nft.mintAddress
+                  )}
+                />
+              </div>
+            ))}
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
