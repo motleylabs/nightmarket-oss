@@ -28,24 +28,6 @@ query WalletProfileQuery($address: PublicKey!) {
 query WalletProfileClientQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
-    nftCounts {
-      owned
-      created
-    }
-    compactOwnedCount @client
-    compactCreatedCount @client
-    compactFollowerCount @client
-    compactFollowingCount @client
-    portfolioValue @client
-    displayName @client
-    previewImage @client
-    connectionCounts {
-      fromCount
-      toCount
-    }
-    profile {
-      ...ProfileInfo
-    }
     collectedCollections {
       collection {
         nft {
