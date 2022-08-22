@@ -35,23 +35,23 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWalle
     }
   }
 
-  followWallets(wallet: $userWallet, limit: 18, offset: 0) {
-    address
-    displayName @client
-    previewImage @client
-    previewBanner @client
-    compactFollowerCount @client
-    compactFollowingCount @client
-    connectionCounts {
-      toCount
-      fromCount
-    }
-    profile {
-      ...ProfileInfo
-    }
-    nftCounts {
-      owned
-      created
-    }
-  }
+  # followWallets(wallet: $userWallet, limit: 18, offset: 0) {
+  #   address
+  #   displayName @client
+  #   previewImage @client
+  #   previewBanner @client
+  #   compactFollowerCount @client
+  #   compactFollowingCount @client
+  #   connectionCounts {
+  #     toCount
+  #     fromCount
+  #   }
+  #   profile {
+  #     ...ProfileInfo
+  #   }
+  #   nftCounts {
+  #     owned
+  #     created
+  #   }
+  # }
 }

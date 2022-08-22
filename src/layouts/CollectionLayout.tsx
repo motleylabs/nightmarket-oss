@@ -30,9 +30,9 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             title={<Overview.Title>{collection.nft.name}</Overview.Title>}
           >
             <Overview.Actions>
-              <Button icon={<PlusIcon width={14} height={14} />} size={ButtonSize.Small}>
+              {/* <Button icon={<PlusIcon width={14} height={14} />} size={ButtonSize.Small}>
                 {t('follow', { ns: 'common' })}
-              </Button>
+              </Button> */}
               <Button
                 circle
                 icon={<DownloadIcon width={14} height={14} />}
