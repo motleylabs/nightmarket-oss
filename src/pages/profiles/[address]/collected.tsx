@@ -1,5 +1,9 @@
 import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
-import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
+import {
+  WalletProfileQuery,
+  WalletProfileClientQuery,
+  CollectedNFTsQuery,
+} from './../../../queries/profile.graphql';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -70,14 +74,14 @@ interface CollectionNFTsVariables {
   collections: string[] | null;
 }
 
-interface ProfileCollectedPageProps {
+interface WalletProfileData {
   wallet: Wallet;
 }
-// interface CollectedCollectionsVariables {
-//   address: string;
-// }
+interface WalletProfileVariables {
+  address: string;
+}
 
-export default function ProfileCollected({ wallet }: ProfileCollectedPageProps) {
+export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control, setValue, getValues } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All, collections: null },
@@ -96,6 +100,15 @@ export default function ProfileCollected({ wallet }: ProfileCollectedPageProps) 
       collections: null,
     },
   });
+
+  const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
+    WalletProfileClientQuery,
+    {
+      variables: {
+        address: router.query.address as string,
+      },
+    }
+  );
 
   const updateSelectedCollections = (collection: string) => {
     const selected = getValues().collections;
@@ -162,21 +175,33 @@ export default function ProfileCollected({ wallet }: ProfileCollectedPageProps) 
       <Sidebar.Page open={open}>
         <Sidebar.Panel>
           <div className="mt-4 flex flex-col gap-2">
-            {wallet?.collectedCollections.map((collectedCollection) => (
-              <div
-                key={collectedCollection.collection.nft.address}
-                onClick={() =>
-                  updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
-                }
-              >
-                <CollectedCollectionItem
-                  collectedCollection={collectedCollection}
-                  selected={selectedCollections.includes(
-                    collectedCollection.collection.nft.mintAddress
-                  )}
-                />
-              </div>
-            ))}
+            {walletProfileClientQuery.loading ? (
+              <>
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+                <CollectedCollectionItem.Skeleton />
+              </>
+            ) : (
+              walletProfileClientQuery.data?.wallet?.collectedCollections.map(
+                (collectedCollection) => (
+                  <div
+                    key={collectedCollection.collection.nft.address}
+                    onClick={() =>
+                      updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
+                    }
+                  >
+                    <CollectedCollectionItem
+                      collectedCollection={collectedCollection}
+                      selected={selectedCollections.includes(
+                        collectedCollection.collection.nft.mintAddress
+                      )}
+                    />
+                  </div>
+                )
+              )
+            )}
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
