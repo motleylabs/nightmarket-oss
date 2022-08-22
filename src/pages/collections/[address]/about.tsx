@@ -67,13 +67,6 @@ function CreatorRow(props: { creator: NftCreator }) {
         alt="creator profile picture"
       />
       <div className="ml-4 text-base font-medium">{props.creator.displayName}</div>
-      <Button
-        className="ml-auto"
-        icon={<PlusIcon width={14} height={14} />}
-        size={ButtonSize.Small}
-      >
-        {t('follow', { ns: 'common' })}
-      </Button>
     </div>
   );
 }

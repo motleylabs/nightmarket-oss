@@ -31,13 +31,6 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
             alt={`profile avatar for ${wallet.address}`}
             className="relative z-20 -mt-12 h-24 w-24 rounded-full border-2 border-gray-800 bg-gray-800"
           />
-          <Button
-            type={ButtonType.Primary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon width={14} height={14} />}
-          >
-            {t('follow', { ns: 'common' })}
-          </Button>
         </div>
         <h1 className="mt-6 text-xl">{wallet.displayName}</h1>
         <div className="mt-4 flex gap-2 text-white">
