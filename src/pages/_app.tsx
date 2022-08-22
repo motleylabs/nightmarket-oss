@@ -136,11 +136,18 @@ function App({ children }: AppComponentProps) {
           {loading ? (
             <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
           ) : viewerQueryResult.data?.viewer ? (
-            <img
-              className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-              src={viewerQueryResult.data?.wallet.previewImage}
-              alt="profile image"
-            />
+            <Link
+              href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+              passHref
+            >
+              <a>
+                <img
+                  className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
+                  src={viewerQueryResult.data?.wallet.previewImage}
+                  alt="profile image"
+                />
+              </a>
+            </Link>
           ) : (
             <Button onClick={onLogin} className="hidden md:inline-block">
               {t('connect')}
