@@ -265,20 +265,18 @@ const client = new ApolloClient({
           nftCount: {
             read: asCompactNumber,
           },
-          totalVolume: {
-            read(_) {
-              return asCompactNumber(1800000);
+          volumeTotal: {
+            read(value): string {
+              const lamports = asBN(value);
+
+              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
             },
           },
           listedCount: {
-            read(_) {
-              return asCompactNumber(1400);
-            },
+            read: asCompactNumber,
           },
           holderCount: {
-            read(_) {
-              return asCompactNumber(6250);
-            },
+            read: asCompactNumber,
           },
         },
       },

@@ -1,6 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
 import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
@@ -17,7 +16,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import clsx from 'clsx';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);

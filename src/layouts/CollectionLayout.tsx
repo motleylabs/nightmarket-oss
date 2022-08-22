@@ -3,6 +3,7 @@ import { Collection } from '../types';
 import { DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
+import { toUsdString } from '../modules/sol';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
 
@@ -47,12 +48,12 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('floor')}</span>
               <span className="text-xl md:text-lg lg:text-xl">{collection.floorPrice} SOL</span>
-              <span>$3,792.46</span>
+              <span>{toUsdString(collection.floorPrice)}</span>
             </div>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('volume')}</span>
-              <span className="text-xl md:text-lg lg:text-xl">{collection.totalVolume} SOL</span>
-              <span>$77,480,462.15</span>
+              <span className="text-xl md:text-lg lg:text-xl">{collection.volumeTotal} SOL</span>
+              <span>{toUsdString(collection.volumeTotal)}</span>
             </div>
             <div className="flex flex-col justify-between">
               <Button

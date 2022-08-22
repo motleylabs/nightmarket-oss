@@ -299,7 +299,7 @@ export interface Collection {
   nftCount: string;
   nft: Nft;
   activities: Activity[];
-  totalVolume: string;
+  volumeTotal: number;
   listedCount: string;
   holderCount: string;
 }

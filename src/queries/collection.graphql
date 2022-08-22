@@ -24,9 +24,9 @@ query CollectionQuery($address: String!) {
     }
     nftCount
     floorPrice
-    totalVolume @client
-    listedCount @client
-    holderCount @client
+    volumeTotal(startDate: "2020-01-01T00:00:00Z", endDate: "2050-01-01T00:00:00Z")
+    listedCount
+    holderCount
   }
 }
 
