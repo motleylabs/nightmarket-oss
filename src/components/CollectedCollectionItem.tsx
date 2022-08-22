@@ -7,18 +7,21 @@ import Price from './Price';
 interface CollectedCollectionItemProps {
   collectedCollection: CollectedCollection;
   selected: boolean;
+  className?: string;
 }
 
 export default function CollectedCollectionItem({
   collectedCollection,
   selected,
+  className,
 }: CollectedCollectionItemProps): JSX.Element {
   const { t } = useTranslation('collection');
   return (
     <div
       className={clsx(
         'flex cursor-pointer rounded-lg border border-gray-700 p-2',
-        selected && 'bg-gray-700'
+        selected && 'bg-gray-700',
+        className
       )}
     >
       <div className="relative flex aspect-square h-16 w-16 transition hover:scale-[1.02]">

@@ -24,6 +24,7 @@ import { List, ListGridSize } from './../../../components/List';
 import clsx from 'clsx';
 import { Nft } from '../../../types';
 import CollectedCollectionItem from '../../../components/CollectedCollectionItem';
+import { Listbox } from '@headlessui/react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -110,22 +111,6 @@ export default function ProfileCollected() {
     }
   );
 
-  const updateSelectedCollections = (collection: string) => {
-    const selected = getValues().collections;
-    if (selected === null) {
-      setValue('collections', [collection]);
-    } else {
-      if (selected.includes(collection)) {
-        setValue(
-          'collections',
-          selected.filter((c) => c !== collection)
-        );
-      } else {
-        setValue('collections', [...selected, collection]);
-      }
-    }
-  };
-
   useEffect(() => {
     const subscription = watch(({ listed, collections }) => {
       let variables: CollectionNFTsVariables = {
@@ -135,6 +120,11 @@ export default function ProfileCollected() {
         listed: null,
         collections,
       };
+
+      if (collections.length == 0) {
+        variables.collections = null;
+      }
+
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
       } else if (listed === ListedStatus.Unlisted) {
@@ -144,7 +134,6 @@ export default function ProfileCollected() {
       nftsQuery.refetch(variables).then(({ data: { collectedNfts } }) => {
         setHasMore(collectedNfts.length > 0);
       });
-      setSelectedCollections(collections);
     });
 
     return subscription.unsubscribe;
@@ -184,23 +173,35 @@ export default function ProfileCollected() {
                 <CollectedCollectionItem.Skeleton />
               </>
             ) : (
-              walletProfileClientQuery.data?.wallet?.collectedCollections.map(
-                (collectedCollection) => (
-                  <div
-                    key={collectedCollection.collection.nft.address}
-                    onClick={() =>
-                      updateSelectedCollections(collectedCollection.collection.nft.mintAddress)
-                    }
+              <Controller
+                control={control}
+                name="collections"
+                render={({ field: { onChange, value } }) => (
+                  <Listbox
+                    value={selectedCollections}
+                    onChange={(e) => {
+                      onChange(e);
+                      setSelectedCollections(e);
+                    }}
+                    multiple
                   >
-                    <CollectedCollectionItem
-                      collectedCollection={collectedCollection}
-                      selected={selectedCollections.includes(
-                        collectedCollection.collection.nft.mintAddress
-                      )}
-                    />
-                  </div>
-                )
-              )
+                    <Listbox.Options static>
+                      {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
+                        <Listbox.Option
+                          key={cc.collection.nft.mintAddress}
+                          value={cc.collection.nft.mintAddress}
+                        >
+                          <CollectedCollectionItem
+                            className="mb-2"
+                            collectedCollection={cc}
+                            selected={selectedCollections.includes(cc.collection.nft.mintAddress)}
+                          />
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </Listbox>
+                )}
+              />
             )}
           </div>
         </Sidebar.Panel>
