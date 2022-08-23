@@ -5,9 +5,9 @@ import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
+import { asCompactNumber } from './modules/number';
 
 function asBN(value: string | null): BN {
   if (value === null) {
@@ -79,13 +79,6 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   }
 
   return image;
-}
-
-function asCompactNumber(number: number): string {
-  return new Intl.NumberFormat('en-GB', {
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(number);
 }
 
 const typeDefs = gql`
@@ -255,22 +248,18 @@ const client = new ApolloClient({
       Collection: {
         fields: {
           floorPrice: {
-            read(value): string {
-              const lamports = asBN(value);
-
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
-            },
+            read(value): number {
+              return toSol(value, 3);
+            }
           },
           activities: offsetLimitPagination(['$eventTypes']),
           nftCount: {
             read: asCompactNumber,
           },
           volumeTotal: {
-            read(value): string {
-              const lamports = asBN(value);
-
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
-            },
+            read(value): number {
+              return toSol(value, 3);
+            }
           },
           listedCount: {
             read: asCompactNumber,

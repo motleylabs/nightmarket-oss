@@ -6,6 +6,7 @@ import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
 import { useCurrencies } from '../hooks/currency';
+import { asCompactNumber } from '../modules/number';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -48,12 +49,12 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           <Overview.Aside>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('floor')}</span>
-              <span className="text-xl md:text-lg lg:text-xl">{collection.floorPrice} SOL</span>
+              <span className="text-xl md:text-lg lg:text-xl">{asCompactNumber(collection.floorPrice)} SOL</span>
               <span>{solToUsdString(collection.floorPrice)}</span>
             </div>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('volume')}</span>
-              <span className="text-xl md:text-lg lg:text-xl">{collection.volumeTotal} SOL</span>
+              <span className="text-xl md:text-lg lg:text-xl">{asCompactNumber(collection.volumeTotal)} SOL</span>
               <span>{solToUsdString(collection.volumeTotal)}</span>
             </div>
             <div className="flex flex-col justify-between">
