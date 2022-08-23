@@ -69,7 +69,11 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-grow items-center px-6 md:px-0">
           <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
-            <Search.Results searching={searching} hasResults={hasResults}>
+            <Search.Results
+              searching={searching}
+              hasResults={hasResults}
+              enabled={searchTerm.length > 2}
+            >
               <Search.Group<MetadataJson[]>
                 title={t('search.collection')}
                 result={results?.collections}
@@ -77,6 +81,7 @@ function App({ children }: AppComponentProps) {
                 {({ result }) => {
                   return result?.map((collection, i) => (
                     <Search.Collection
+                      value={collection}
                       key={`search-collection-${collection.mintAddress}-${i}`}
                       image={collection.image as string}
                       name={collection.name}
@@ -89,6 +94,7 @@ function App({ children }: AppComponentProps) {
                 {({ result }) => {
                   return result?.map((wallet, i) => (
                     <Search.Profile
+                      value={wallet}
                       profile={wallet}
                       key={`search-profile-${wallet.address}-${i}`}
                       image={wallet.previewImage}
@@ -106,6 +112,7 @@ function App({ children }: AppComponentProps) {
 
                   return (
                     <Search.Profile
+                      value={result}
                       profile={result}
                       key={`search-wallet-${result?.address}`}
                       image={result.previewImage}
@@ -119,6 +126,7 @@ function App({ children }: AppComponentProps) {
                 {({ result }) => {
                   return result?.map((nft, i) => (
                     <Search.MintAddress
+                      value={nft}
                       nft={nft}
                       key={`search-mintAddress-${nft.address}-${i}`}
                       image={nft.image}
