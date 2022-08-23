@@ -15,7 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { MenuIcon, XIcon } from '@heroicons/react/outline';
+import { ChevronRightIcon, MenuIcon, XIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
@@ -30,6 +30,8 @@ import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
 import useGlobalSearch from './../hooks/globalsearch';
+import Popover from '../components/Popover';
+import ViewerPopover from '../components/ViewerPopover';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -136,18 +138,10 @@ function App({ children }: AppComponentProps) {
           {loading ? (
             <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
           ) : viewerQueryResult.data?.viewer ? (
-            <Link
-              href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-              passHref
-            >
-              <a>
-                <img
-                  className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-                  src={viewerQueryResult.data?.wallet.previewImage}
-                  alt="profile image"
-                />
-              </a>
-            </Link>
+            <ViewerPopover
+              viewer={viewerQueryResult.data?.viewer}
+              wallet={viewerQueryResult.data?.wallet}
+            />
           ) : (
             <Button onClick={onLogin} className="hidden md:inline-block">
               {t('connect')}
