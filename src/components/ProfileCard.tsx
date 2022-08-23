@@ -35,10 +35,10 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
         <h1 className="mt-6 text-xl">{wallet.displayName}</h1>
         <div className="mt-4 flex gap-2 text-white">
           <div className="flex flex-row gap-1">
-            {wallet.compactFollowerCount} <span className="text-gray-300">{t('followers')}</span>
+            {wallet.compactOwnedCount} <span className="text-gray-300">{t('collected')}</span>
           </div>
           <div className="flex flex-row gap-1">
-            {wallet.compactFollowingCount} <span className="text-gray-300">{t('following')}</span>
+            {wallet.compactCreatedCount} <span className="text-gray-300">{t('created')}</span>
           </div>
         </div>
       </div>
