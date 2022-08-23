@@ -299,6 +299,7 @@ export interface Collection {
   nftCount: string;
   nft: Nft;
   activities: Activity[];
+  attributeGroups: AttributeGroup[];
   totalVolume: string;
   listedCount: string;
   holderCount: string;

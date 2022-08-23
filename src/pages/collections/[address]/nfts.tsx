@@ -1,12 +1,16 @@
 import type { GetServerSidePropsContext } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
 import { InView } from 'react-intersection-observer';
-import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
+import {
+  CollectionQuery,
+  CollectionNFTsQuery,
+  CollectionAttributeGroupsQuery,
+} from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection, Nft } from '../../../types';
+import { AttributeFilter, AttributeGroup, AttributeVariant, Collection, Nft } from '../../../types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -17,7 +21,9 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import clsx from 'clsx';
+import { Listbox } from '@headlessui/react';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/outline';
+import { CheckIcon } from '@heroicons/react/solid';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -53,6 +59,14 @@ interface CollectionNFTsVariables {
   limit: number;
   collection: string;
   listed: boolean | null;
+  attributes: AttributeFilter[] | null;
+}
+
+interface CollectionAttributeGroupsData {
+  collection: Collection;
+}
+interface CollectionAttributeGroupsVariables {
+  address: string;
 }
 
 enum ListedStatus {
@@ -63,16 +77,81 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
+  attributes: AttributeFilter[];
+}
+
+function SidebarFilterHeader({
+  group,
+  isOpen,
+}: {
+  group: AttributeGroup;
+  isOpen: boolean;
+}): JSX.Element {
+  const totalCount = group.variants.reduce((count, item) => {
+    return count + item.count;
+  }, 0);
+  return (
+    <div className="mb-4 flex items-center justify-between">
+      <span className="text-lg text-white">{group.name}</span>
+      <div className="flex items-center gap-4">
+        <span className="rounded bg-gray-800 px-1 text-sm text-white">{totalCount}</span>
+        {isOpen ? (
+          <ChevronUpIcon width={24} height={24} className="text-white" />
+        ) : (
+          <ChevronDownIcon width={24} height={24} className="text-white" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SidebarFilterItem({
+  variant,
+  isSelected,
+}: {
+  variant: AttributeVariant;
+  isSelected: boolean;
+}): JSX.Element {
+  return (
+    <div className="mb-6 flex items-center justify-between">
+      <span className="text-sm text-white">{variant.name}</span>
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-white">{variant.count}</span>
+        {isSelected ? (
+          <CheckIcon
+            width={24}
+            height={24}
+            className="rounded-md border border-gray-400 bg-white px-0.5"
+          />
+        ) : (
+          <div className="h-6 w-6 rounded-md border border-gray-400 bg-gray-700 px-0.5" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SidebarFilterSkeleton(): JSX.Element {
+  return <span className="mb-4 h-8 w-full rounded bg-gray-800" />;
 }
 
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control } = useForm<CollectionNFTForm>({
+  const { watch, control, getFieldState } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
+
+  const attributeGroupsQuery = useQuery<
+    CollectionAttributeGroupsData,
+    CollectionAttributeGroupsVariables
+  >(CollectionAttributeGroupsQuery, {
+    variables: {
+      address: router.query.address as string,
+    },
+  });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
     variables: {
@@ -80,16 +159,18 @@ export default function CollectionNfts() {
       limit: 24,
       listed: null,
       collection: router.query.address as string,
+      attributes: null,
     },
   });
 
   useEffect(() => {
-    const subscription = watch(({ listed }) => {
+    const subscription = watch(({ listed, attributes }) => {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
         collection: router.query.address as string,
         listed: null,
+        attributes,
       };
 
       if (listed === ListedStatus.Listed) {
@@ -129,7 +210,63 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel></Sidebar.Panel>
+        <Sidebar.Panel>
+          <div className="mt-6 flex flex-col px-2">
+            {attributeGroupsQuery.loading ? (
+              <>
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+                <SidebarFilterSkeleton />
+              </>
+            ) : (
+              <>
+                {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
+                  <Controller
+                    key={group.name}
+                    control={control}
+                    name={`attributes.${index}`}
+                    render={({ field: { onChange, value } }) => (
+                      <Listbox
+                        value={group.name}
+                        onChange={(e) => {
+                          console.log('onchange', e);
+                          console.log(getFieldState('attributes'));
+                          // const attribute: AttributeFilter = {
+                          //   traitType: group.name,
+                          //   values: [e],
+                          // };
+                          //onChange(e);
+                        }}
+                      >
+                        {({ open }) => (
+                          <>
+                            <Listbox.Button>
+                              <SidebarFilterHeader group={group} isOpen={open} />
+                            </Listbox.Button>
+                            <Listbox.Options>
+                              {group.variants.map((variant) => (
+                                <Listbox.Option key={variant.name} value={variant.name}>
+                                  {({ active, selected }) => (
+                                    <SidebarFilterItem variant={variant} isSelected={selected} />
+                                  )}
+                                </Listbox.Option>
+                              ))}
+                            </Listbox.Options>
+                          </>
+                        )}
+                      </Listbox>
+                    )}
+                  />
+                ))}
+              </>
+            )}
+          </div>
+        </Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}
