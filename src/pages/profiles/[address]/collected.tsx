@@ -9,7 +9,6 @@ import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet } from '../../../types';
 import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
@@ -21,13 +20,14 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
-import clsx from 'clsx';
+import Price from './../../../components/Price';
+import { Collection } from './../../../components/Collection';
 import { Nft } from '../../../types';
 import CollectedCollectionItem from '../../../components/CollectedCollectionItem';
 import { Listbox } from '@headlessui/react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
 
   const {
     data: { wallet },
@@ -60,7 +60,7 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
-  collections: string[] | null;
+  collections: (string | undefined)[] | null | undefined;
 }
 
 interface CollectionNFTsData {
@@ -72,7 +72,7 @@ interface CollectionNFTsVariables {
   limit: number;
   listed: boolean | null;
   owner: string;
-  collections: string[] | null;
+  collections?: (string | undefined)[] | null | undefined;
 }
 
 interface WalletProfileData {
@@ -84,13 +84,12 @@ interface WalletProfileVariables {
 
 export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control, setValue, getValues } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All, collections: null },
+  const { watch, control } = useForm<CollectionNFTForm>({
+    defaultValues: { listed: ListedStatus.All, collections: [] },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectedNFTsQuery, {
     variables: {
@@ -98,7 +97,6 @@ export default function ProfileCollected() {
       limit: 24,
       listed: null,
       owner: router.query.address as string,
-      collections: null,
     },
   });
 
@@ -121,7 +119,7 @@ export default function ProfileCollected() {
         collections,
       };
 
-      if (collections.length == 0) {
+      if (variables?.collections?.length === 0) {
         variables.collections = null;
       }
 
@@ -166,36 +164,43 @@ export default function ProfileCollected() {
           <div className="mt-4 flex flex-col gap-2">
             {walletProfileClientQuery.loading ? (
               <>
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
-                <CollectedCollectionItem.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
               </>
             ) : (
               <Controller
                 control={control}
                 name="collections"
                 render={({ field: { onChange, value } }) => (
-                  <Listbox
-                    value={selectedCollections}
-                    onChange={(e) => {
-                      onChange(e);
-                      setSelectedCollections(e);
-                    }}
-                    multiple
-                  >
+                  <Listbox value={value} onChange={onChange} multiple>
                     <Listbox.Options static>
                       {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
                         <Listbox.Option
                           key={cc.collection.nft.mintAddress}
                           value={cc.collection.nft.mintAddress}
                         >
-                          <CollectedCollectionItem
-                            className="mb-2"
-                            collectedCollection={cc}
-                            selected={selectedCollections.includes(cc.collection.nft.mintAddress)}
-                          />
+                          {({ selected }) => (
+                            <Collection.Option
+                              selected={selected}
+                              avatar={
+                                <Collection.Option.Avatar
+                                  src={cc.collection.nft.image}
+                                  figure={cc.nftsOwned}
+                                />
+                              }
+                              header={
+                                <Collection.Option.Title>
+                                  {cc.collection.nft.name}
+                                </Collection.Option.Title>
+                              }
+                              floorPrice={cc.collection.floorPrice}
+                            >
+                              <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
+                            </Collection.Option>
+                          )}
                         </Listbox.Option>
                       ))}
                     </Listbox.Options>
@@ -225,6 +230,7 @@ export default function ProfileCollected() {
               if (!inView) {
                 return;
               }
+
               const {
                 data: { collectedNfts },
               } = await nftsQuery.fetchMore({

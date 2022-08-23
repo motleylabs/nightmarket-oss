@@ -73,25 +73,6 @@ query CollectedNFTsQuery(
   }
 }
 
-query CollectedCollectionsQuery($address: PublicKey!) {
-  wallet(address: $address) {
-    address
-    collectedCollections {
-      collection {
-        nft {
-          image
-          mintAddress
-          address
-          name
-        }
-        floorPrice
-      }
-      nftsOwned
-      estimatedValue
-    }
-  }
-}
-
 query CreatedNFTsQuery($creator: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
   createdNfts: nfts(creators: [$creator], limit: $limit, offset: $offset, listed: $listed) {
     ...NftInfo
