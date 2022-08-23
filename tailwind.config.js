@@ -8,6 +8,12 @@ module.exports = {
     './src/layouts/**/*.tsx',
     './src/components/**/*.tsx',
   ],
+  safelist: [
+    {
+      pattern: /grid-cols-(1|2|3|4|6|8)/,
+      variants: ['sm', 'md', 'lg', 'xl', '2xl'],
+    },
+  ],
   theme: {
     extend: {
       fontFamily: {

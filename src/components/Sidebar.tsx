@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FilterIcon, ChevronRightIcon } from '@heroicons/react/outline';
+import { FilterIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 
@@ -53,7 +53,11 @@ function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
     >
       <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
       <span className="md:hidden">{t('filters')}</span>
-      <ChevronRightIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      {open ? (
+        <ChevronLeftIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      ) : (
+        <ChevronRightIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      )}
     </button>
   );
 }

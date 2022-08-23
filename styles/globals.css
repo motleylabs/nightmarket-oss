@@ -33,6 +33,9 @@ html {
   @apply bg-gray-900;
 }
 
+.input {
+  @apply border border-gray-800 rounded-lg 
+}
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply bg-gray-900 font-sans;
 }

@@ -140,7 +140,7 @@ export default function ProfileCollected() {
             gap={4}
             grid={{
               [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Small]: [2, 2],
               [ListGridSize.Medium]: [2, 3],
               [ListGridSize.Large]: [3, 4],
               [ListGridSize.ExtraLarge]: [4, 6],

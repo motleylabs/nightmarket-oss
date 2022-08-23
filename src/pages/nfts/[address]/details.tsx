@@ -49,18 +49,22 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
 
   return (
     <>
-      <h3 className="mb-4 text-xl">{t('attributes')}</h3>
-      <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
-        {nft.attributes?.map((attribute) => (
-          <div
-            className="flex flex-col justify-between gap-2 rounded-lg border border-gray-800 p-2"
-            key={attribute.traitType}
-          >
-            <span className=" text-sm text-gray-300">{attribute.traitType}</span>
-            <span className="text-white">{attribute.value}</span>
+      {(nft.attributes || []).length > 0 && (
+        <>
+          <h3 className="mb-4 text-xl">{t('attributes')}</h3>
+          <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
+            {nft.attributes?.map((attribute) => (
+              <div
+                className="flex flex-col justify-between gap-2 rounded-lg border border-gray-800 p-2"
+                key={attribute.traitType}
+              >
+                <span className=" text-sm text-gray-300">{attribute.traitType}</span>
+                <span className="text-white">{attribute.value}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
       <h3 className="mb-4 text-xl">{t('details')}</h3>
       <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-gray-300">
         <li className="flex items-center justify-between">
@@ -68,12 +72,12 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div className="flex flex-row items-center gap-1">
             <a
               target="_blank"
-              rel="nofollow"
+              rel="noreferrer"
               href={`https://explorer.solana.com/address/${nft.mintAddress}`}
             >
               <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
             </a>
-            <a target="_blank" rel="nofollow" href={`https://solscan.io/token/${nft.mintAddress}`}>
+            <a target="_blank" rel="noreferrer" href={`https://solscan.io/token/${nft.mintAddress}`}>
               <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
             </a>
             {nft.shortMintAddress}
@@ -84,7 +88,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div className="flex flex-row items-center gap-1">
             <a
               target="_blank"
-              rel="nofollow"
+              rel="noreferrer"
               href={`https://explorer.solana.com/address/${nft.address}`}
             >
               <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
@@ -101,14 +105,14 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
             <div className="flex flex-row items-center gap-1">
               <a
                 target="_blank"
-                rel="nofollow"
+                rel="noreferrer"
                 href={`https://explorer.solana.com/address/${nft.collection?.nft?.mintAddress}`}
               >
                 <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
               </a>
               <a
                 target="_blank"
-                rel="nofollow"
+                rel="noreferrer"
                 href={`https://solscan.io/token/${nft.collection?.nft?.mintAddress}`}
               >
                 <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />

@@ -1,8 +1,9 @@
 {
   "header": {
-    "title": "NightMarket"
+    "title": "Marketplace"
   },
   "follow": "Follow",
+  "cancel": "Cancel",
   "unfollow": "Unfollow",
   "connect": "Connect",
   "filters": "Filters",
