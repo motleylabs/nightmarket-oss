@@ -5,8 +5,8 @@ import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
-import { useCurrencies } from '../hooks/currency';
 import { asCompactNumber } from '../modules/number';
+import { useCurrencies } from '../providers/CurrencyProvider';
 
 interface CollectionLayoutProps {
   children: ReactElement;
