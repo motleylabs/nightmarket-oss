@@ -15,7 +15,7 @@ interface CollectionLayoutProps {
 
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
-  const {solToUsdString} = useCurrencies();
+  const {initialized: currenciesReady, solToUsdString} = useCurrencies();
 
   const address = collection.nft.mintAddress;
 
@@ -50,12 +50,12 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('floor')}</span>
               <span className="text-xl md:text-lg lg:text-xl">{asCompactNumber(collection.floorPrice)} SOL</span>
-              <span>{solToUsdString(collection.floorPrice)}</span>
+              {currenciesReady && <span>{solToUsdString(collection.floorPrice)}</span>}
             </div>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('volume')}</span>
               <span className="text-xl md:text-lg lg:text-xl">{asCompactNumber(collection.volumeTotal)} SOL</span>
-              <span>{solToUsdString(collection.volumeTotal)}</span>
+              {currenciesReady && <span>{solToUsdString(collection.volumeTotal)}</span>}
             </div>
             <div className="flex flex-col justify-between">
               <Button

@@ -8,6 +8,7 @@ const COIN_GECKO_CURRENCY_IDS: {[key: string]: string} = {
 }
 
 interface ICurrencyContext {
+  initialized: boolean;
   solToUsd(sol: number): number;
   solToUsdString(sol: number): string;
 }
@@ -37,15 +38,12 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
 
   const solToUsd: ICurrencyContext['solToUsd'] = useCallback(
     (sol) => {
-      if (!initialized) {
-        return 0;
-      }
       if (solPrice == null) {
         throw new Error('No known conversion rate from SOL to USD.');
       }
       return sol * solPrice;
     },
-    [initialized, solPrice]
+    [solPrice]
   );
 
   const solToUsdString: ICurrencyContext['solToUsdString'] = useCallback(
@@ -54,7 +52,7 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
   );
 
   return (
-    <CurrencyContext.Provider value={{ solToUsd, solToUsdString }}>
+    <CurrencyContext.Provider value={{ initialized, solToUsd, solToUsdString }}>
       {props.children}
     </CurrencyContext.Provider>
   );
