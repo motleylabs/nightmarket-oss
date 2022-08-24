@@ -1,5 +1,6 @@
 import { CoinGeckoClient } from 'coingecko-api-v3';
 import React, { useCallback, useEffect, useState } from 'react';
+import { asUsdString } from '../modules/number';
 
 const COIN_GECKO_CURRENCY_IDS: {[key: string]: string} = {
   SOL: "solana",
@@ -12,11 +13,6 @@ interface ICurrencyContext {
 }
 
 export const CurrencyContext = React.createContext<ICurrencyContext | null>(null);
-
-const USD_FORMATTER: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
 
 interface CurrencyProviderProps {
   children: JSX.Element;
@@ -53,7 +49,7 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
   );
 
   const solToUsdString: ICurrencyContext['solToUsdString'] = useCallback(
-    (sol) => USD_FORMATTER.format(solToUsd(sol)),
+    (sol) => asUsdString(solToUsd(sol)),
     [solToUsd]
   );
 

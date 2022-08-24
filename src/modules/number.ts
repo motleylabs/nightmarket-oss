@@ -10,3 +10,20 @@ export function asCompactNumber(number: number): string {
     compactDisplay: 'short',
   }).format(number);
 }
+
+
+const USD_FORMATTER: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+
+/**
+ * Formats the USD amount in US-currency format (e.g. $123,456.78)
+ * 
+ * @param usd dollar amount to be formatted
+ * @returns formatted dollar amount
+ */
+export function asUsdString(usd: number): string {
+  return USD_FORMATTER.format(usd);
+}
