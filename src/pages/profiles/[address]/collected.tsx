@@ -20,10 +20,8 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
-import Price from './../../../components/Price';
 import { Collection } from './../../../components/Collection';
 import { Nft } from '../../../types';
-import CollectedCollectionItem from '../../../components/CollectedCollectionItem';
 import { Listbox } from '@headlessui/react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -219,7 +217,7 @@ export default function ProfileCollected() {
             hasMore={hasMore}
             grid={{
               [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Small]: [2, 2],
               [ListGridSize.Medium]: [2, 3],
               [ListGridSize.Large]: [3, 4],
               [ListGridSize.ExtraLarge]: [4, 6],

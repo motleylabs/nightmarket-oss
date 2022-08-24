@@ -61,8 +61,7 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              👋
-              <span className="hidden text-white md:inline-block">{t('header.title')}</span>
+              <span className="text-white">{t('header.title')}</span>
             </a>
           </Link>
         </div>
@@ -149,7 +148,7 @@ function App({ children }: AppComponentProps) {
               </a>
             </Link>
           ) : (
-            <Button onClick={onLogin} className="hidden md:inline-block">
+            <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}
             </Button>
           )}
@@ -168,7 +167,7 @@ function App({ children }: AppComponentProps) {
             )}
           >
             <div className="flex w-full flex-row items-center justify-between md:hidden">
-              <span className="text-2xl">👋</span>
+              <span className="text-2xl font-bold text-white">{t('header.title')}</span>
               <button
                 className="rounded-full bg-transparent bg-white p-3 transition hover:bg-gray-100"
                 onClick={useCallback(() => {

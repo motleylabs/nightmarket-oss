@@ -9,7 +9,7 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 
-function asBN(value: string | null): BN {
+function asBN(value: string | number | null): BN {
   if (value === null) {
     return new BN(0);
   }
@@ -90,8 +90,9 @@ function asCompactNumber(number: number): string {
 
 const typeDefs = gql`
   type Viewer {
-    id: ID
+    address: ID
     balance: Number
+    solBalance: Number
   }
 
   extend type Marketplace {
