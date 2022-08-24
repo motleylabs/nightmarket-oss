@@ -17,12 +17,14 @@ interface ICurrencyContext {
   /**
    * @param sol SOL amount to convert to USD
    * @returns USD equivalent value of given SOL
+   * @throws if the SOL/USD exchange rate could not be loaded
    */
   solToUsd(sol: number): number;
 
   /**
    * @param sol SOL amount to convert to USD string
    * @returns USD equivalent value of given SOL formatted like $123,456.78
+   * @throws if the SOL/USD exchange rate could not be loaded
    */
   solToUsdString(sol: number): string;
 }
