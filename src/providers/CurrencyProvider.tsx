@@ -8,8 +8,22 @@ const COIN_GECKO_CURRENCY_IDS: {[key: string]: string} = {
 }
 
 interface ICurrencyContext {
+
+  /**
+   * false until all currencies have been loaded
+   */
   initialized: boolean;
+
+  /**
+   * @param sol SOL amount to convert to USD
+   * @returns USD equivalent value of given SOL
+   */
   solToUsd(sol: number): number;
+
+  /**
+   * @param sol SOL amount to convert to USD string
+   * @returns USD equivalent value of given SOL formatted like $123,456.78
+   */
   solToUsdString(sol: number): string;
 }
 

@@ -1,3 +1,8 @@
+const COMPACT_NUMBER_FORMATTER: Intl.NumberFormat = new Intl.NumberFormat('en-GB', {
+  notation: 'compact',
+  compactDisplay: 'short',
+});
+
 /**
  * Converts the given number to "compact" format like 10K, 1.9M, etc.
  * 
@@ -5,10 +10,7 @@
  * @returns compacted string
  */
 export function asCompactNumber(number: number): string {
-  return new Intl.NumberFormat('en-GB', {
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(number);
+  return COMPACT_NUMBER_FORMATTER.format(number);
 }
 
 
