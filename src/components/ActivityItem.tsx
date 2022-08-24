@@ -10,7 +10,6 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 export default function ActivityItem({ activity }: { activity: Activity }): JSX.Element {
   const { t } = useTranslation('common');
 
-  const multipleWallets = activity.wallets.length > 1;
   const [activityType, User, Icon] = useMemo<
     [] | [string, JSX.Element, (props: SVGProps<SVGSVGElement>) => JSX.Element]
   >(() => {
@@ -47,7 +46,7 @@ export default function ActivityItem({ activity }: { activity: Activity }): JSX.
         <Link href={`/nfts/${activity.nft?.address}/details`} passHref>
           <a className=" transition hover:scale-[1.02]">
             <img
-              className="aspect-square w-full rounded-lg object-cover md:w-12"
+              className="aspect-square w-12 rounded-lg object-cover"
               src={activity.nft?.image}
               alt="nft"
             />
@@ -56,7 +55,7 @@ export default function ActivityItem({ activity }: { activity: Activity }): JSX.
         <div className="flex flex-col justify-between gap-2">
           <div className="flex items-center">
             {Icon && <Icon className="mr-2 h-5 w-5 self-center text-white" />}
-            <div className="hidden md:inline-block">{activityType}</div>
+            <div className="inline-block">{activityType}</div>
           </div>
           <div className="flex gap-3 text-white">
             <span className="text-xs">{shortenAddress(activity.marketplaceProgramAddress)}</span>
