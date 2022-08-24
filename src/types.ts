@@ -263,6 +263,7 @@ export interface NftOwner extends UserWallet {
 }
 export interface Wallet extends UserWallet {
   nftCounts: WalletNftCount;
+  collectedCollections: CollectedCollection[];
   connectionCounts: ConnectionCounts;
   compactFollowerCount: string;
   compactFollowingCount: string;
@@ -302,6 +303,12 @@ export interface Collection {
   totalVolume: string;
   listedCount: string;
   holderCount: string;
+}
+
+export interface CollectedCollection {
+  collection: Collection;
+  nftsOwned: number;
+  estimatedValue: number;
 }
 
 export interface GraphConnection {
