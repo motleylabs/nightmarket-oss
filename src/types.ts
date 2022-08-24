@@ -213,8 +213,9 @@ export enum PresetNftFilter {
 }
 
 export interface Viewer extends GraphQLObject {
-  id: string;
+  address: string;
   balance: number;
+  solBalance: number;
 }
 
 export enum PresetEditFilter {

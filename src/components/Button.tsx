@@ -64,7 +64,7 @@ const Button = ({
           'py-1 px-4': !circle && size === ButtonSize.Small,
           'py-2 px-6': size === ButtonSize.Large,
           'opacity-75': disabled,
-          'hover:scale-105': !disabled,
+          'hover:scale-[1.02]': !disabled,
           'rounded-full': circle,
           'h-10 w-10': circle && ButtonSize.Small,
         }

@@ -34,7 +34,7 @@ html {
 }
 
 .input {
-  @apply border border-gray-800 rounded-lg 
+  @apply rounded-lg border border-gray-800;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply bg-gray-900 font-sans;
@@ -50,4 +50,8 @@ html {
 
 .swiper-button-disabled {
   @apply opacity-0;
+}
+
+:focus-visible {
+  outline: none;
 }

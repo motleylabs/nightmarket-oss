@@ -148,7 +148,7 @@ function App({ children }: AppComponentProps) {
               </a>
             </Link>
           ) : (
-            <Button onClick={onLogin} className="hidden md:inline-block h-[42px]">
+            <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}
             </Button>
           )}
