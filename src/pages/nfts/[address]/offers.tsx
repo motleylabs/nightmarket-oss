@@ -81,7 +81,7 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
         </div>
       )}
       <div className="flex flex-col gap-4">
-        {yourOffers && (
+        {yourOffers && yourOffers.length > 0 && (
           <>
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((yourOffer, i) => (
@@ -110,7 +110,7 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
             ))}
           </>
         )}
-        {yourOffers && yourOffers?.length > 0 && (
+        {yourOffers && yourOffers.length > 0 && (
           <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
         )}
 
