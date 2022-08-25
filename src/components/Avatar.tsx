@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 import { Wallet } from '../graphql.types';
-import { getProfileInfoQuery } from '../queries/getProfileInfoFromPubkey.graphql';
+import getProfileInfoQuery from '../queries/getProfileInfoFromPubkey.graphql';
 
 enum AvatarSize {
   Small = 'sm',

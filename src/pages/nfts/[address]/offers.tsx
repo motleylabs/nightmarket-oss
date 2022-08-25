@@ -59,7 +59,7 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
 
   const { publicKey } = useWallet();
 
-  const isOwner = nft.owner.address === publicKey?.toBase58();
+  const isOwner = nft?.owner?.address === publicKey?.toBase58();
 
   const { data, refetch } = useQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery, {
     variables: {
