@@ -1,8 +1,8 @@
 import { useLazyQuery, OperationVariables, ApolloQueryResult } from '@apollo/client';
-import React, { SetStateAction, useMemo, useState, Dispatch } from 'react';
+import React, { useMemo, useState } from 'react';
 import { isPublicKey } from './../modules/address';
 import GlobalSearchQuery from './../queries/search.graphql';
-import { Wallet, Nft } from './../types';
+import { Wallet, Nft } from './../graphql.types';
 
 export interface GlobalSearchData {
   profiles: Wallet[];

@@ -22,10 +22,10 @@ import Link from 'next/link';
 import useNavigation from './../hooks/nav';
 import useLogin from '../hooks/login';
 import ViewerProvider from '../providers/ViewerProvider';
-import Button, { ButtonSize } from './../components/Button';
+import Button from './../components/Button';
 import client from './../client';
 import './../../styles/globals.css';
-import { Wallet, Nft, MetadataJson } from './../types';
+import { Wallet, Nft, MetadataJson } from './../graphql.types';
 import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
@@ -62,8 +62,7 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              👋
-              <span className="hidden text-white md:inline-block">{t('header.title')}</span>
+              <span className="text-white">{t('header.title')}</span>
             </a>
           </Link>
         </div>
@@ -84,7 +83,7 @@ function App({ children }: AppComponentProps) {
                     <Search.Collection
                       value={collection}
                       key={`search-collection-${collection.mintAddress}-${i}`}
-                      image={collection.image as string}
+                      image={collection.image}
                       name={collection.name}
                       address={collection.mintAddress}
                     />
@@ -152,13 +151,13 @@ function App({ children }: AppComponentProps) {
               <a>
                 <img
                   className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-                  src={viewerQueryResult.data?.wallet.previewImage}
+                  src={viewerQueryResult.data?.wallet.previewImage as string}
                   alt="profile image"
                 />
               </a>
             </Link>
           ) : (
-            <Button onClick={onLogin} className="hidden md:inline-block">
+            <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}
             </Button>
           )}
@@ -177,7 +176,7 @@ function App({ children }: AppComponentProps) {
             )}
           >
             <div className="flex w-full flex-row items-center justify-between md:hidden">
-              <span className="text-2xl">👋</span>
+              <span className="text-2xl font-bold text-white">{t('header.title')}</span>
               <button
                 className="rounded-full bg-transparent bg-white p-3 transition hover:bg-gray-100"
                 onClick={useCallback(() => {
@@ -207,7 +206,7 @@ type AppPropsWithLayout = AppProps & {
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet;
 
-  const endpoint = useMemo(() => clusterApiUrl(network), []);
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(
     () => [

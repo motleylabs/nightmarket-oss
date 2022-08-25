@@ -2,7 +2,7 @@ import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'r
 import { Combobox, Transition } from '@headlessui/react';
 import { SearchIcon } from '@heroicons/react/outline';
 import { DebounceInput } from 'react-debounce-input';
-import { MetadataJson, Nft, NftCreator, UserWallet } from '../types';
+import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
@@ -299,7 +299,7 @@ function MintAddressSearchResult({
 Search.MintAddress = MintAddressSearchResult;
 
 interface ProfileSearchResultProps extends SearchResultProps {
-  profile?: UserWallet;
+  profile?: Wallet;
 }
 
 function ProfileSearchResult({

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FilterIcon, ChevronRightIcon } from '@heroicons/react/outline';
+import { FilterIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 
@@ -53,7 +53,11 @@ function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
     >
       <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
       <span className="md:hidden">{t('filters')}</span>
-      <ChevronRightIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      {open ? (
+        <ChevronLeftIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      ) : (
+        <ChevronRightIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
+      )}
     </button>
   );
 }
@@ -84,7 +88,7 @@ function SidebarPanel({ children, open }: SidebarPanel): JSX.Element {
   return (
     <aside
       className={clsx(
-        'fixed top-0 bottom-0 left-0 right-0 z-30 h-full flex-none bg-gray-900 px-4 md:sticky md:top-[74px] md:z-0',
+        'sidebar-scroll fixed top-0 bottom-0 left-0 right-0 z-30 h-full  flex-none bg-gray-900 px-4 md:sticky md:top-[74px] md:z-0',
         open ? 'inline-block md:w-72 lg:w-96' : 'hidden'
       )}
     >

@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { Maybe } from './../graphql.types';
 
 interface OverviewProps {
   children: ReactNode;
@@ -83,7 +84,7 @@ function Figures({ children }: OverviewProps): JSX.Element {
 Overview.Figures = Figures;
 
 interface OverviewFigureProps {
-  figure: string;
+  figure: Maybe<string> | undefined;
   label: string;
 }
 

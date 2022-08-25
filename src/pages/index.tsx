@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
-import { DateTime } from 'luxon';
+import { subDays, formatISO } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -8,15 +8,15 @@ import { SwiperSlide } from 'swiper/react';
 import GetHomeQuery from './../queries/home.graphql';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
-import CollectionCard from '../components/CollectionCard';
+import { Collection } from '../components/Collection';
 import ProfileCard from '../components/ProfileCard';
-import { Collection, Wallet } from '../types';
+import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 interface GetHomePageData {
-  collectionsFeaturedByVolume: Collection[];
-  collectionsFeaturedByMarketCap: Collection[];
+  collectionsFeaturedByVolume: CollectionType[];
+  collectionsFeaturedByMarketCap: CollectionType[];
   followWallets: Wallet[];
 }
 
@@ -36,10 +36,10 @@ const Home: NextPage = () => {
   const { publicKey } = useWallet();
 
   const [startDate, endDate] = useMemo(() => {
-    const now = DateTime.now();
-    const dayAgo = now.minus({ days: 1 });
-    const nowUTC = now.toUTC().toString();
-    const dayAgoUTC = dayAgo.toUTC().toString();
+    const now = new Date();
+    const dayAgo = subDays(now, 1);
+    const nowUTC = formatISO(now);
+    const dayAgoUTC = formatISO(dayAgo);
 
     return [dayAgoUTC, nowUTC];
   }, []);
@@ -70,10 +70,10 @@ const Home: NextPage = () => {
           </header>
           {homeQueryResult.loading ? (
             <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              <CollectionCard.Skeleton />
-              <CollectionCard.Skeleton className="hidden sm:inline-block" />
-              <CollectionCard.Skeleton className="hidden md:inline-block" />
-              <CollectionCard.Skeleton className="hidden lg:inline-block" />
+              <Collection.Card.Skeleton />
+              <Collection.Card.Skeleton className="hidden sm:inline-block" />
+              <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
             <Carousel
@@ -98,7 +98,7 @@ const Home: NextPage = () => {
                   <SwiperSlide key={collection.nft.address} className="p-2">
                     <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
                       <a>
-                        <CollectionCard collection={collection} />
+                        <Collection.Card collection={collection} />
                       </a>
                     </Link>
                   </SwiperSlide>
@@ -113,10 +113,10 @@ const Home: NextPage = () => {
           </header>
           {homeQueryResult.loading ? (
             <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              <CollectionCard.Skeleton />
-              <CollectionCard.Skeleton className="hidden sm:inline-block" />
-              <CollectionCard.Skeleton className="hidden md:inline-block" />
-              <CollectionCard.Skeleton className="hidden lg:inline-block" />
+              <Collection.Card.Skeleton />
+              <Collection.Card.Skeleton className="hidden sm:inline-block" />
+              <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
             <Carousel
@@ -141,7 +141,7 @@ const Home: NextPage = () => {
                   <SwiperSlide key={collection.nft.address} className="p-2">
                     <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
                       <a>
-                        <CollectionCard collection={collection} />
+                        <Collection.Card collection={collection} />
                       </a>
                     </Link>
                   </SwiperSlide>
