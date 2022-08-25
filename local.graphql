@@ -23,6 +23,10 @@ extend type NftActivity {
   solPrice: Int
 }
 
+extend type WalletActivity {
+  solPrice: Int
+}
+
 extend type Wallet {
   displayName: String
   previewImage: String

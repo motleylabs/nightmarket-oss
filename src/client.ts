@@ -189,6 +189,17 @@ const client = new ApolloClient({
           },
         },
       },
+      WalletActivity: {
+        keyFields: ['id'],
+        fields: {
+          price: {
+            read: asBN,
+          },
+          solPrice: {
+            read: asSOL,
+          },
+        },
+      },
       NftCreator: {
         keyFields: ['address'],
         fields: {
