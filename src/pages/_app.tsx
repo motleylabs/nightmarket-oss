@@ -51,7 +51,8 @@ function App({ children }: AppComponentProps) {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
+  const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
+    useGlobalSearch();
 
   const loading = viewerQueryResult.loading || connecting;
 
@@ -71,7 +72,7 @@ function App({ children }: AppComponentProps) {
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results
               searching={searching}
-              hasResults={hasResults}
+              hasResults={Boolean(previousResults)}
               enabled={searchTerm.length > 2}
             >
               <Search.Group<MetadataJson[]>

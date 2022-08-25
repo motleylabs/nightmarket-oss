@@ -14,6 +14,7 @@ export interface GlobalSearchData {
 type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;
 
 interface GlobalSearchContext {
+  previousResults: GlobalSearchData | undefined;
   searchTerm: string;
   hasResults: boolean;
   updateSearch: OnUpdateSearch;
@@ -27,7 +28,7 @@ interface GlobalSearchContext {
 export default function useGlobalSearch(): GlobalSearchContext {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const [searchQuery, { data, loading, called, variables, refetch }] =
+  const [searchQuery, { data, loading, called, variables, refetch, previousData }] =
     useLazyQuery<GlobalSearchData>(GlobalSearchQuery);
 
   const hasResults = useMemo(() => {
@@ -62,6 +63,7 @@ export default function useGlobalSearch(): GlobalSearchContext {
   return {
     searchTerm,
     hasResults,
+    previousResults: previousData,
     updateSearch,
     searching: loading,
     results: data,

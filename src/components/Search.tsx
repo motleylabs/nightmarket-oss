@@ -29,14 +29,14 @@ interface SearchProps {
   MintAddress?: NftItem;
 }
 
-type SearchResultItemTypes =
+type SearchResultItemType =
   | GlobalSearchData['profiles'][0]
   | GlobalSearchData['collections'][0]
   | GlobalSearchData['nfts'][0]
   | GlobalSearchData['wallet'];
 
 export default function Search({ children }: SearchProps) {
-  const [selected, setSelected] = useState<SearchResultItemTypes | null>(null);
+  const [selected, setSelected] = useState<SearchResultItemType | null>(null);
 
   const router = useRouter();
 
@@ -46,8 +46,9 @@ export default function Search({ children }: SearchProps) {
         value={selected}
         onChange={(selection) => {
           setSelected(selection);
-          console.log(selection);
 
+          // TODO: This stuff is really hacky because it accounts for a property that graphql provides but doesn't reveal in its typing
+          // it has an error around object is possibly undefined
           // @ts-ignore
           switch (selection?.__typename) {
             case 'MetadataJson':
@@ -61,7 +62,7 @@ export default function Search({ children }: SearchProps) {
               router.push(`/nfts/${selection.mintAddress}`);
               break;
             case 'Wallet':
-              router.push(`/profiles/${selection?.address}`);
+              router.push(`/profiles/${selection.address}`);
               break;
             default:
               console.error('Unknown content whilst searching');
@@ -197,7 +198,7 @@ interface SearchResultProps {
   address: string;
   image: string;
   name: string;
-  value: SearchResultItemTypes | MetadataJson;
+  value: SearchResultItemType | MetadataJson;
 }
 
 interface CollectionSearchResultProps extends SearchResultProps {
@@ -332,7 +333,9 @@ function ProfileSearchResult({
                 className="min-h-full min-w-full object-cover"
               />
             </div>
-            <p className="m-0 text-sm font-bold text-white">{profile?.displayName}</p>
+            <p className="m-0 text-sm font-bold text-white">
+              {profile?.displayName || profile?.address}
+            </p>
           </div>
           <p className="m-0 text-sm text-gray-300 md:inline-block">{profile?.shortAddress}</p>
         </div>
