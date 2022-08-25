@@ -9,6 +9,7 @@ import typeDefs from './../local.graphql';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import { asCompactNumber } from './modules/number';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
@@ -232,8 +233,10 @@ const client = new ApolloClient({
       CollectedCollection: {
         fields: {
           estimatedValue: {
-            read(value): number {
-              return toSol(value, 3);
+            read(value) {
+              const lamports = asBN(value);
+
+              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
             },
           },
         },
