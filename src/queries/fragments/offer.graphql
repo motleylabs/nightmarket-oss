@@ -1,0 +1,17 @@
+#import "./auctionhouse.graphql"
+
+fragment OfferInfo on Offer {
+  id
+  tradeState
+  buyer
+  metadata
+  auctionHouse {
+    ...AuctionHouseInfo
+  }
+  price
+  purchaseId
+  tradeStateBump
+  tokenAccount
+  createdAt
+  canceledAt
+}

@@ -1,0 +1,12 @@
+#import "./fragments/offer.graphql"
+
+query NftOffersQuery($address: String!) {
+  nftOffers: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    offers {
+      ...OfferInfo
+    }
+  }
+}

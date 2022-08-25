@@ -1,0 +1,10 @@
+#import "./fragments/profile.graphql"
+
+query getProfileInfoFromPubKey($pubKey: PublicKey!) {
+  wallet(address: $pubKey) {
+    address
+    profile {
+      ...ProfileInfo
+    }
+  }
+}
