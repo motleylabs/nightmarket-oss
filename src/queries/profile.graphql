@@ -92,6 +92,7 @@ query ProfileActivitiesQuery(
       metadata
       price
       createdAt
+      timeSince @client
       marketplaceProgramAddress
       solPrice @client
       wallets {

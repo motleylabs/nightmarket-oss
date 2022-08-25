@@ -26,6 +26,7 @@ declare module '*/profile.graphql' {
   export const FollowingProfileQuery: DocumentNode;
   export const CollectedNFTsQuery: DocumentNode;
   export const CreatedNFTsQuery: DocumentNode;
+  export const ProfileActivitiesQuery: DocumentNode;
 
   export default defaultDocument;
 }

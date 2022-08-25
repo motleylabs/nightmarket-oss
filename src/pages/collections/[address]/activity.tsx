@@ -7,7 +7,9 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Collection } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
-import ActivityItem from '../../../components/ActivityItem';
+import { Activity, ActivityType } from '../../../components/Activity';
+import { Avatar, AvatarSize } from '../../../components/Avatar';
+import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
@@ -51,7 +53,7 @@ interface CollectionActivitiesVariables {
   eventTypes: string[] | null;
 }
 
-enum ActivityType {
+enum ActivityFilter {
   All = 'ALL',
   Listings = 'LISTINGS',
   Offers = 'OFFERS',
@@ -59,13 +61,13 @@ enum ActivityType {
 }
 
 interface CollectionActivityForm {
-  type: ActivityType;
+  type: ActivityFilter;
 }
 
 export default function CollectionActivity(): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionActivityForm>({
-    defaultValues: { type: ActivityType.All },
+    defaultValues: { type: ActivityFilter.All },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
@@ -92,16 +94,16 @@ export default function CollectionActivity(): JSX.Element {
       };
 
       switch (type) {
-        case ActivityType.All:
+        case ActivityFilter.All:
           break;
-        case ActivityType.Listings:
-          variables.eventTypes = [ActivityType.Listings];
+        case ActivityFilter.Listings:
+          variables.eventTypes = [ActivityFilter.Listings];
           break;
-        case ActivityType.Offers:
-          variables.eventTypes = [ActivityType.Offers];
+        case ActivityFilter.Offers:
+          variables.eventTypes = [ActivityFilter.Offers];
           break;
-        case ActivityType.Sales:
-          variables.eventTypes = [ActivityType.Sales];
+        case ActivityFilter.Sales:
+          variables.eventTypes = [ActivityFilter.Sales];
           break;
       }
 
@@ -122,26 +124,48 @@ export default function CollectionActivity(): JSX.Element {
           name="type"
           render={({ field: { onChange, value } }) => (
             <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ActivityType.All}>{t('all')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityType.Listings}>{t('listings')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityType.Offers}>{t('offers')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityType.Sales}>{t('sales')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={ActivityFilter.All}>{t('all')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={ActivityFilter.Listings}>
+                {t('listings')}
+              </ButtonGroup.Option>
+              <ButtonGroup.Option value={ActivityFilter.Offers}>{t('offers')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={ActivityFilter.Sales}>{t('sales')}</ButtonGroup.Option>
             </ButtonGroup>
           )}
         />
       </Toolbar>
-      <div className="mt-4 flex flex-col px-4 md:px-8">
+      <div className="flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (
           <>
-            <ActivityItem.Skeleton />
-            <ActivityItem.Skeleton />
-            <ActivityItem.Skeleton />
-            <ActivityItem.Skeleton />
+            <Activity.Skeleton />
+            <Activity.Skeleton />
+            <Activity.Skeleton />
+            <Activity.Skeleton />
           </>
         ) : (
           <>
             {activitiesQuery.data?.collection.activities.map((activity) => (
-              <ActivityItem activity={activity} key={activity.id} />
+              <Activity
+                avatar={
+                  <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
+                    <a className="cursor-pointer transition hover:scale-[1.02]">
+                      <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
+                    </a>
+                  </Link>
+                }
+                type={activity.activityType as ActivityType}
+                key={activity.id}
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplace={activity.marketplaceProgramAddress}
+                    source={<Activity.Wallet wallets={activity.wallets} />}
+                  />
+                }
+              >
+                <Activity.Price amount={activity.solPrice} />
+                <Activity.Timestamp timeSince={activity.timeSince} />
+              </Activity>
             ))}
             {hasMore && (
               <>
@@ -163,10 +187,10 @@ export default function CollectionActivity(): JSX.Element {
                     setHasMore(collection.activities.length > 0);
                   }}
                 >
-                  <ActivityItem.Skeleton />
+                  <Activity.Skeleton />
                 </InView>
-                <ActivityItem.Skeleton />
-                <ActivityItem.Skeleton />
+                <Activity.Skeleton />
+                <Activity.Skeleton />
               </>
             )}
           </>
