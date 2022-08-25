@@ -1,12 +1,13 @@
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
 import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
+import typeDefs from './../local.graphql';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
+import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 
 function asBN(value: string | number | null): BN {
@@ -87,54 +88,6 @@ function asCompactNumber(number: number): string {
     compactDisplay: 'short',
   }).format(number);
 }
-
-const typeDefs = gql`
-  type Viewer {
-    address: ID
-    balance: Number
-    solBalance: Number
-  }
-
-  extend type Marketplace {
-    fee: number
-  }
-
-  extend type Nft {
-    shortAddress: String
-    shortMintAddress: String
-    royalties: number
-  }
-
-  extend type Collection {
-    totalVolume: String
-    listedCount: Number
-    holderCount: Number
-  }
-
-  extend type NftActivity {
-    solPrice: Number
-  }
-
-  extend type Wallet {
-    displayName: string
-    previewImage: string
-    previewBanner: string
-    shortAddress: string
-    compactFollowingCount: string
-    compactFollowerCount: string
-    compactOwnedCount: string
-    compactCreatedCount: string
-    portfolioValue: number
-  }
-
-  extend type MetadataJson {
-    creatorDisplayName: string
-  }
-
-  extend type Query {
-    viewer(address: String!): Viewer
-  }
-`;
 
 const client = new ApolloClient({
   uri: config.graphqlUrl,

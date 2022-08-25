@@ -1,11 +1,8 @@
 import { ReactElement } from 'react';
 import CollectionLayout from '../../../layouts/CollectionLayout';
-import { Collection, NftCreator } from '../../../types';
+import { Collection, NftCreator } from '../../../graphql.types';
 import { CollectionQuery } from './../../../queries/collection.graphql';
 import { useTranslation } from 'next-i18next';
-import { addressAvatar, shortenAddress } from '../../../modules/address';
-import Button, { ButtonSize } from '../../../components/Button';
-import { PlusIcon } from '@heroicons/react/outline';
 import { GetServerSidePropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import client from '../../../client';
@@ -63,7 +60,7 @@ function CreatorRow(props: { creator: NftCreator }) {
     <div className="flex w-full items-center">
       <img
         className="h-8 w-8 rounded-full"
-        src={props.creator.previewImage}
+        src={props.creator.previewImage as string}
         alt="creator profile picture"
       />
       <div className="ml-4 text-base font-medium">{props.creator.displayName}</div>

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useLazyQuery, QueryResult, OperationVariables } from '@apollo/client';
 import GetViewerQuery from './../queries/viewer.graphql';
-import { Viewer, Wallet } from './../types';
+import { Viewer, Wallet } from './../graphql.types';
 
 interface GetViewerData {
   viewer: Viewer;

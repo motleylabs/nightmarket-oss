@@ -22,10 +22,10 @@ import Link from 'next/link';
 import useNavigation from './../hooks/nav';
 import useLogin from '../hooks/login';
 import ViewerProvider from '../providers/ViewerProvider';
-import Button, { ButtonSize } from './../components/Button';
+import Button from './../components/Button';
 import client from './../client';
 import './../../styles/globals.css';
-import { Wallet, Nft, MetadataJson } from './../types';
+import { Wallet, Nft, MetadataJson } from './../graphql.types';
 import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
@@ -69,15 +69,12 @@ function App({ children }: AppComponentProps) {
           <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results searching={searching} hasResults={hasResults}>
-              <Search.Group<MetadataJson[]>
-                title={t('search.collection')}
-                result={results?.collections}
-              >
+              <Search.Group<Nft[]> title={t('search.collection')} result={results?.collections}>
                 {({ result }) => {
                   return result?.map((collection, i) => (
                     <Search.Collection
                       key={`search-collection-${collection.mintAddress}-${i}`}
-                      image={collection.image as string}
+                      image={collection.image}
                       name={collection.name}
                       address={collection.mintAddress}
                     />
@@ -142,7 +139,7 @@ function App({ children }: AppComponentProps) {
               <a>
                 <img
                   className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-                  src={viewerQueryResult.data?.wallet.previewImage}
+                  src={viewerQueryResult.data?.wallet.previewImage as string}
                   alt="profile image"
                 />
               </a>
@@ -197,7 +194,7 @@ type AppPropsWithLayout = AppProps & {
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet;
 
-  const endpoint = useMemo(() => clusterApiUrl(network), []);
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(
     () => [

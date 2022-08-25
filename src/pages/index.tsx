@@ -10,7 +10,7 @@ import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
 import ProfileCard from '../components/ProfileCard';
-import { Collection as CollectionType, Wallet } from '../types';
+import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 

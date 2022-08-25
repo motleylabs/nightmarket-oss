@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { Nft } from '../types';
+import { Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
 import { UploadIcon } from '@heroicons/react/outline';
@@ -13,7 +13,6 @@ import { Form } from '../components/Form';
 import Head from 'next/head';
 import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
-import { useWallet } from '@solana/wallet-adapter-react';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -41,7 +40,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
   } = useMakeOffer();
   //  const { postingListing, listingAmount, onChangeListing } = usePostListing()
 
-  const isOwner = viewer?.address === nft.owner.address;
+  const isOwner = viewer?.address === nft.owner?.address;
   const notOwner = !isOwner;
 
   const activeForm = makeOffer; // || postingListing
