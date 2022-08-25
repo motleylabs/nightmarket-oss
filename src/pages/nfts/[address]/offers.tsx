@@ -11,6 +11,8 @@ import NftLayout from '../../../layouts/NftLayout';
 import { ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
 import Avatar from '../../../components/Avatar';
+import ActivityCard from '../../../components/ActivityCard';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'offers', 'nft']);
@@ -67,6 +69,10 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
     },
   });
 
+  const yourOffers = data?.nftOffers?.offers?.filter(
+    (offer) => offer.buyer === publicKey?.toBase58()
+  );
+
   return (
     <>
       {data?.nftOffers?.offers?.length === 0 && (
@@ -75,14 +81,65 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
         </div>
       )}
       <div className="flex flex-col gap-4">
+        {yourOffers && (
+          <>
+            <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
+            {yourOffers.map((yourOffer, i) => (
+              <ActivityCard
+                key={`your-offer-${yourOffer.id}-${i}`}
+                userAddress={yourOffer.buyer}
+                isOwner={isOwner}
+                description={
+                  <ActivityCard.OfferDescription
+                    price={yourOffer.price / LAMPORTS_PER_SOL}
+                    userAddress={yourOffer.buyer}
+                    marketplaceAddress={''}
+                    variant={'buyer'}
+                  />
+                }
+                action={
+                  <ActivityCard.OfferAction
+                    price={yourOffer.price / LAMPORTS_PER_SOL}
+                    createdDate={yourOffer.createdAt}
+                    variant={'buyer'}
+                    onPrimaryAction={() => console.log('Update offer')}
+                    onSecondaryAction={() => console.log('Cancel offer')}
+                  />
+                }
+              />
+            ))}
+          </>
+        )}
+        {yourOffers && yourOffers?.length > 0 && (
+          <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+        )}
+
         {data?.nftOffers?.offers?.map((offer, i) => (
-          <div
+          <ActivityCard
+            hidden={offer.buyer === publicKey?.toBase58()}
             key={`offer-${offer.id}-${i}`}
-            className="flex gap-2 rounded-lg border border-gray-800 p-4"
-          >
-            <Avatar address={offer.buyer} />
-            <div></div>
-          </div>
+            userAddress={offer.buyer}
+            isOwner={isOwner}
+            description={
+              <ActivityCard.OfferDescription
+                price={offer.price / LAMPORTS_PER_SOL}
+                userAddress={offer.buyer}
+                marketplaceAddress={''}
+                variant={isOwner ? 'owner' : 'viewer'}
+              />
+            }
+            action={
+              <ActivityCard.OfferAction
+                price={offer.price / LAMPORTS_PER_SOL}
+                createdDate={offer.createdAt}
+                variant={isOwner ? 'owner' : 'viewer'}
+                isActionable={!offer.auctionHouse?.requiresSignOff}
+                onPrimaryAction={
+                  isOwner ? () => console.log('Accept offer or view') : () => console.log('None')
+                }
+              />
+            }
+          />
         ))}
       </div>
     </>
