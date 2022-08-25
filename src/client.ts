@@ -1,15 +1,16 @@
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
 import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
-import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
+import typeDefs from './../local.graphql';
+import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import { asCompactNumber } from './modules/number';
 
-function asBN(value: string | null): BN {
+function asBN(value: string | number | null): BN {
   if (value === null) {
     return new BN(0);
   }
@@ -80,53 +81,6 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
 
   return image;
 }
-
-const typeDefs = gql`
-  type Viewer {
-    id: ID
-    balance: Number
-  }
-
-  extend type Marketplace {
-    fee: number
-  }
-
-  extend type Nft {
-    shortAddress: String
-    shortMintAddress: String
-    royalties: number
-  }
-
-  extend type Collection {
-    totalVolume: String
-    listedCount: Number
-    holderCount: Number
-  }
-
-  extend type NftActivity {
-    solPrice: Number
-  }
-
-  extend type Wallet {
-    displayName: string
-    previewImage: string
-    previewBanner: string
-    shortAddress: string
-    compactFollowingCount: string
-    compactFollowerCount: string
-    compactOwnedCount: string
-    compactCreatedCount: string
-    portfolioValue: number
-  }
-
-  extend type MetadataJson {
-    creatorDisplayName: string
-  }
-
-  extend type Query {
-    viewer(address: String!): Viewer
-  }
-`;
 
 const client = new ApolloClient({
   uri: config.graphqlUrl,
@@ -278,10 +232,8 @@ const client = new ApolloClient({
       CollectedCollection: {
         fields: {
           estimatedValue: {
-            read(value) {
-              const lamports = asBN(value);
-
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+            read(value): number {
+              return toSol(value, 3);
             },
           },
         },

@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Wallet } from '../types';
+import { Wallet } from '../graphql.types';
 import { DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
@@ -30,7 +30,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
       <Overview>
         <Overview.Hero>
           <Overview.Info
-            avatar={<Overview.Avatar src={wallet.previewImage} circle />}
+            avatar={<Overview.Avatar src={wallet.previewImage as string} circle />}
             title={<Overview.Title>{wallet.displayName}</Overview.Title>}
           >
             <Overview.Actions>

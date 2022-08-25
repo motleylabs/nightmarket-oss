@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection, Nft } from '../../../types';
+import { Collection, Nft } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -127,7 +127,7 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel></Sidebar.Panel>
+        <Sidebar.Panel>sidebar</Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}
@@ -137,7 +137,7 @@ export default function CollectionNfts() {
             gap={4}
             grid={{
               [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Small]: [2, 2],
               [ListGridSize.Medium]: [2, 3],
               [ListGridSize.Large]: [3, 4],
               [ListGridSize.ExtraLarge]: [4, 6],

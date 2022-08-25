@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Collection } from '../types';
+import { Collection } from '../graphql.types';
 import { DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';

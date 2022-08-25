@@ -1,23 +1,21 @@
-import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
+import type { GetServerSidePropsContext } from 'next';
+import { ReactElement, useEffect, useState } from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { Wallet, Nft } from '../../../graphql.types';
 import { WalletProfileQuery, CreatedNFTsQuery } from './../../../queries/profile.graphql';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from '../../../client';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../types';
-import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
-import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
-import { useQuery } from '@apollo/client';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
-import { Nft } from '../../../types';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -140,7 +138,7 @@ export default function ProfileCollected() {
             gap={4}
             grid={{
               [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Small]: [2, 2],
               [ListGridSize.Medium]: [2, 3],
               [ListGridSize.Large]: [3, 4],
               [ListGridSize.ExtraLarge]: [4, 6],
