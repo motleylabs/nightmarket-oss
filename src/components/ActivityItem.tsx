@@ -10,32 +10,20 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 export default function ActivityItem({ activity }: { activity: Activity }): JSX.Element {
   const { t } = useTranslation('common');
 
-  const [activityType, User, Icon] = useMemo<
-    [] | [string, JSX.Element, (props: SVGProps<SVGSVGElement>) => JSX.Element]
+  const [activityType, wallet, Icon] = useMemo<
+    [] | [string, Wallet, (props: SVGProps<SVGSVGElement>) => JSX.Element]
   >(() => {
     switch (activity.activityType) {
       case 'purchase':
-        return [
-          t('activity.purchase'),
-          <TwitterHandle key={activity.id} wallet={activity.wallets[1]} />,
-          CurrencyDollarIcon,
-        ];
+        return [t('activity.purchase'), activity.wallets[1], CurrencyDollarIcon];
       case 'listing':
-        return [
-          t('activity.listing'),
-          <TwitterHandle key={activity.id} wallet={activity.wallets[0]} />,
-          TagIcon,
-        ];
+        return [t('activity.listing'), activity.wallets[0], TagIcon];
       case 'offer':
-        return [
-          t('activity.offer'),
-          <TwitterHandle key={activity.id} wallet={activity.wallets[0]} />,
-          HandIcon,
-        ];
+        return [t('activity.offer'), activity.wallets[0], HandIcon];
       default:
         return [];
     }
-  }, [activity.activityType, activity.id, activity.wallets, t]);
+  }, [activity.activityType, activity.wallets, t]);
 
   return (
     <div
@@ -59,15 +47,19 @@ export default function ActivityItem({ activity }: { activity: Activity }): JSX.
           </div>
           <div className="flex gap-3 text-white">
             <span className="text-xs">{shortenAddress(activity.marketplaceProgramAddress)}</span>
-            <span className="text-[10px] text-gray-400">|</span>
-            {User}
+            {wallet && (
+              <>
+                <span className="text-[10px] text-gray-400">|</span>
+                <TwitterHandle wallet={wallet} />
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="self-center">{activity.solPrice} SOL</div>
-        <div className="flex self-center text-[10px] text-gray-400">
+      <div className="flex flex-col items-end gap-2">
+        <div>{activity.solPrice} SOL</div>
+        <div className="text-[10px] text-gray-400">
           {formatDistanceToNow(parseISO(activity.createdAt), { addSuffix: true })}
         </div>
       </div>

@@ -40,10 +40,6 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
-function ActivitiesContainer({ children }: { children: ReactNode }): JSX.Element {
-  return <div className="mt-4 flex flex-col px-4 md:px-8">{children}</div>;
-}
-
 interface CollectionActivitiesData {
   collection: Collection;
 }
@@ -134,7 +130,7 @@ export default function CollectionActivity(): JSX.Element {
           )}
         />
       </Toolbar>
-      <ActivitiesContainer>
+      <div className="mt-4 flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (
           <>
             <ActivityItem.Skeleton />
@@ -175,7 +171,7 @@ export default function CollectionActivity(): JSX.Element {
             )}
           </>
         )}
-      </ActivitiesContainer>
+      </div>
     </>
   );
 }
