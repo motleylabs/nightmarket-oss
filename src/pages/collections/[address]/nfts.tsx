@@ -1,12 +1,11 @@
 import type { GetServerSidePropsContext } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
 import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection, Nft } from '../../../types';
+import { Collection, Nft } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -17,7 +16,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import clsx from 'clsx';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -129,7 +127,7 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel></Sidebar.Panel>
+        <Sidebar.Panel>sidebar</Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}

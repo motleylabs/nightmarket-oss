@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 
-import { Collection } from '../types';
+import { Collection } from '../graphql.types';
 
 interface CollectionCardProps {
   collection: Collection;

@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { ReactNode } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
-import { Collection } from '../types';
+import { Collection } from '../graphql.types';
 
 export function Collection() {
   return <div />;

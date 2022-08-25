@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
-import { DateTime } from 'luxon';
+import { subDays, formatISO } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -10,7 +10,7 @@ import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
 import ProfileCard from '../components/ProfileCard';
-import { Collection as CollectionType, Wallet } from '../types';
+import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 
@@ -36,10 +36,10 @@ const Home: NextPage = () => {
   const { publicKey } = useWallet();
 
   const [startDate, endDate] = useMemo(() => {
-    const now = DateTime.now();
-    const dayAgo = now.minus({ days: 1 });
-    const nowUTC = now.toUTC().toString();
-    const dayAgoUTC = dayAgo.toUTC().toString();
+    const now = new Date();
+    const dayAgo = subDays(now, 1);
+    const nowUTC = formatISO(now);
+    const dayAgoUTC = formatISO(dayAgo);
 
     return [dayAgoUTC, nowUTC];
   }, []);

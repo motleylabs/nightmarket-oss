@@ -2,7 +2,7 @@ import React, { FC, Fragment, ReactNode, useCallback, useRef } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { SearchIcon } from '@heroicons/react/outline';
 import { DebounceInput } from 'react-debounce-input';
-import { MetadataJson, Nft, NftCreator, UserWallet } from '../types';
+import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
@@ -141,8 +141,8 @@ Search.Group = SearchGroup;
 
 interface SearchResultProps {
   address: string;
-  image: string;
-  name: string;
+  image: Maybe<string> | undefined;
+  name: Maybe<string> | undefined;
   active?: boolean;
 }
 
@@ -173,8 +173,8 @@ function CollectionSearchResult({
     >
       <div className="flex flex-row items-center gap-6">
         <img
-          src={image}
-          alt={name}
+          src={image as string}
+          alt={name as string}
           className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
         />
         <p className="m-0 text-sm font-bold">{name}</p>
@@ -214,8 +214,8 @@ function MintAddressSearchResult({
     >
       <div className="flex flex-row items-center gap-6">
         <img
-          src={image}
-          alt={name}
+          src={image as string}
+          alt={name as string}
           className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
         />
         <p className="m-0 text-sm font-bold">{name}</p>
@@ -234,7 +234,7 @@ function MintAddressSearchResult({
 Search.MintAddress = MintAddressSearchResult;
 
 interface ProfileSearchResultProps extends SearchResultProps {
-  profile?: UserWallet;
+  profile?: Wallet;
 }
 
 function ProfileSearchResult({
@@ -260,7 +260,7 @@ function ProfileSearchResult({
       <div className="flex flex-row items-center gap-6">
         <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-900">
           <img
-            src={image}
+            src={image as string}
             alt={`profile-${address}`}
             className="min-h-full min-w-full object-cover"
           />

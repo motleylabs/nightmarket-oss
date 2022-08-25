@@ -7,7 +7,7 @@ import {
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../types';
+import { Wallet, Nft } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
@@ -21,7 +21,6 @@ import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
 import { Collection } from './../../../components/Collection';
-import { Nft } from '../../../types';
 import { Listbox } from '@headlessui/react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -177,24 +176,24 @@ export default function ProfileCollected() {
                     <Listbox.Options static>
                       {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
                         <Listbox.Option
-                          key={cc.collection.nft.mintAddress}
-                          value={cc.collection.nft.mintAddress}
+                          key={cc.collection?.nft.mintAddress}
+                          value={cc.collection?.nft.mintAddress}
                         >
                           {({ selected }) => (
                             <Collection.Option
                               selected={selected}
                               avatar={
                                 <Collection.Option.Avatar
-                                  src={cc.collection.nft.image}
+                                  src={cc.collection?.nft.image as string}
                                   figure={cc.nftsOwned}
                                 />
                               }
                               header={
                                 <Collection.Option.Title>
-                                  {cc.collection.nft.name}
+                                  {cc.collection?.nft.name}
                                 </Collection.Option.Title>
                               }
-                              floorPrice={cc.collection.floorPrice}
+                              floorPrice={cc.collection?.floorPrice}
                             >
                               <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
                             </Collection.Option>
