@@ -115,7 +115,7 @@ export function List<T>({
                   </InView>
                 );
               } else {
-                return <Skeleton />;
+                return <Skeleton key={index} />;
               }
             })}
         </>

@@ -30,6 +30,7 @@ import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
 import useGlobalSearch from './../hooks/globalsearch';
+import CurrencyProvider from '../providers/CurrencyProvider';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -229,11 +230,13 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider className="wallet-modal-theme">
             <ViewerProvider>
-              <App>
-                <PageLayout {...pageProps}>
-                  <Component {...pageProps} />
-                </PageLayout>
-              </App>
+              <CurrencyProvider>
+                <App>
+                  <PageLayout {...pageProps}>
+                    <Component {...pageProps} />
+                  </PageLayout>
+                </App>
+              </CurrencyProvider>
             </ViewerProvider>
           </WalletModalProvider>
         </WalletProvider>

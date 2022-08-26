@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
+import type { GetServerSidePropsContext } from 'next';
 import {
   WalletProfileQuery,
   WalletProfileClientQuery,
