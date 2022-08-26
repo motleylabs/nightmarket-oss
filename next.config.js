@@ -21,6 +21,11 @@ const nextConfig = {
         destination: '/collections/:publicKey/nfts',
         permanent: true,
       },
+      {
+        source: '/profiles/:publicKey',
+        destination: '/profiles/:publicKey/collected',
+        permanent: true,
+      },
     ];
   },
 };
