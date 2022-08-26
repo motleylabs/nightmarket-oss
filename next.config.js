@@ -14,6 +14,15 @@ const nextConfig = {
   //   rpc: 'NEXT_PUBLIC_SOLANA_RPC_URL',
   // },
   i18n,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    outputStandalone: true,
+  },
 };
 
 module.exports = withGraphql(nextConfig);
