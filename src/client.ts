@@ -6,7 +6,6 @@ import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
 import typeDefs from './../local.graphql';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import {
   ConnectionCounts,

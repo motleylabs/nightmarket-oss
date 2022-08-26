@@ -52,6 +52,42 @@ query NftQuery($address: String!, $subdomain: String!) {
   }
 }
 
+query NftActivitiesQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    activities {
+      id
+      metadata
+      price
+      createdAt
+      timeSince @client
+      marketplaceProgramAddress
+      solPrice @client
+      wallets {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
+      activityType
+      auctionHouse {
+        address
+        treasuryMint
+      }
+      nft {
+        address
+        name
+        mintAddress
+        image(width: 100)
+      }
+    }
+  }
+}
+
 query NftMarketInfoQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {
     address
