@@ -22,7 +22,6 @@ export default function ViewerPopover(props: { viewerData: GetViewerData }) {
 
   return (
     <Popover
-      href={'/profiles/' + wallet.address + '/collected'}
       content={
         <div className=" rounded-lg bg-gray-900 p-5 text-white shadow-lg sm:w-80">
           <div className="flex w-full justify-between">
@@ -71,18 +70,11 @@ export default function ViewerPopover(props: { viewerData: GetViewerData }) {
         </div>
       }
     >
-      {/* <Link
-      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-      passHref
-    >
-      <a> */}
       <img
         className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
         src={wallet.previewImage as string}
         alt="profile image"
       />
-      {/* </a>
-    </Link> */}
     </Popover>
   );
 }
