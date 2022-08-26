@@ -42,6 +42,8 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWalle
     previewBanner @client
     compactFollowerCount @client
     compactFollowingCount @client
+    compactOwnedCount @client
+    compactCreatedCount @client
     connectionCounts {
       toCount
       fromCount

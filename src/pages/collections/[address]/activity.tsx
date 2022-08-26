@@ -4,7 +4,7 @@ import { CollectionQuery, CollectionActivitiesQuery } from './../../../queries/c
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Activity, Collection } from '../../../types';
+import { NftActivity, Collection } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
@@ -66,7 +66,7 @@ function RowSkeleton(): JSX.Element {
 
 Table.RowSkeleton = RowSkeleton;
 
-function Row({ activity }: { activity: Activity }): JSX.Element {
+function Row({ activity }: { activity: NftActivity }): JSX.Element {
   const { t } = useTranslation('common');
 
   const multipleWallets = activity.wallets.length > 1;
@@ -122,7 +122,7 @@ function Row({ activity }: { activity: Activity }): JSX.Element {
             <a className="flex items-center gap-1 text-sm transition hover:scale-[1.02]">
               <img
                 className="aspect-square w-4 rounded-full object-cover"
-                src={activity.wallets[0].previewImage}
+                src={activity.wallets[0].previewImage as string}
                 alt={`wallet ${activity.wallets[0].address} avatar image`}
               />
               {activity.wallets[0].displayName}
@@ -133,7 +133,7 @@ function Row({ activity }: { activity: Activity }): JSX.Element {
               <a className="flex items-center gap-1 text-sm transition hover:scale-[1.02]">
                 <img
                   className="aspect-square w-4 rounded-full object-cover"
-                  src={activity.wallets[1].previewImage}
+                  src={activity.wallets[1].previewImage as string}
                   alt={`wallet ${activity.wallets[1].address} avatar image`}
                 />
                 {activity.wallets[1].displayName}

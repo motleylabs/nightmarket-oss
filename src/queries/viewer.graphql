@@ -10,5 +10,6 @@ query GetViewerQuery($address: PublicKey!) {
   }
   viewer @client {
     balance
+    solBalance @client
   }
 }

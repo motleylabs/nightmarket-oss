@@ -1,15 +1,17 @@
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
-import { viewerVar } from './cache';
+import { solPriceVar, viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { ConnectionCounts, WalletNftCount, TwitterProfile } from './types';
+import typeDefs from './../local.graphql';
+import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
+import { asCompactNumber, asUsdString } from './modules/number';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-function asBN(value: string | null): BN {
+function asBN(value: string | number | null): BN {
   if (value === null) {
     return new BN(0);
   }
@@ -81,60 +83,6 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   return image;
 }
 
-function asCompactNumber(number: number): string {
-  return new Intl.NumberFormat('en-GB', {
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(number);
-}
-
-const typeDefs = gql`
-  type Viewer {
-    id: ID
-    balance: Number
-  }
-
-  extend type Marketplace {
-    fee: number
-  }
-
-  extend type Nft {
-    shortAddress: String
-    shortMintAddress: String
-    royalties: number
-  }
-
-  extend type Collection {
-    totalVolume: String
-    listedCount: Number
-    holderCount: Number
-  }
-
-  extend type NftActivity {
-    solPrice: Number
-  }
-
-  extend type Wallet {
-    displayName: string
-    previewImage: string
-    previewBanner: string
-    shortAddress: string
-    compactFollowingCount: string
-    compactFollowerCount: string
-    compactOwnedCount: string
-    compactCreatedCount: string
-    portfolioValue: number
-  }
-
-  extend type MetadataJson {
-    creatorDisplayName: string
-  }
-
-  extend type Query {
-    viewer(address: String!): Viewer
-  }
-`;
-
 const client = new ApolloClient({
   uri: config.graphqlUrl,
   typeDefs,
@@ -153,7 +101,13 @@ const client = new ApolloClient({
               return null;
             },
           },
-          nfts: offsetLimitPagination(['$listed', '$collection', '$owner', '$creator']),
+          nfts: offsetLimitPagination([
+            '$listed',
+            '$collection',
+            '$owner',
+            '$creator',
+            '$collections',
+          ]),
           viewer: {
             read() {
               return viewerVar();
@@ -255,29 +209,56 @@ const client = new ApolloClient({
       Collection: {
         fields: {
           floorPrice: {
-            read(value): string {
-              const lamports = asBN(value);
-
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+            read(value): number {
+              return toSol(value, 3);
             },
           },
           activities: offsetLimitPagination(['$eventTypes']),
           nftCount: {
             read: asCompactNumber,
           },
-          totalVolume: {
-            read(_) {
-              return asCompactNumber(1800000);
+          volumeTotal: {
+            read(value): number {
+              return toSol(value, 3);
+            },
+          },
+          compactFloorPrice: {
+            read(_, { readField }): string {
+              const floorPrice: number | undefined = readField('floorPrice');
+
+              if (!floorPrice) {
+                return '0';
+              }
+
+              return asCompactNumber(floorPrice);
+            },
+          },
+          compactVolumeTotal: {
+            read(_, { readField }): string {
+              const volumeTotal: number | undefined = readField('volumeTotal');
+
+              if (!volumeTotal) {
+                return '0';
+              }
+
+              return asCompactNumber(volumeTotal);
             },
           },
           listedCount: {
-            read(_) {
-              return asCompactNumber(1400);
-            },
+            read: asCompactNumber,
           },
           holderCount: {
-            read(_) {
-              return asCompactNumber(6250);
+            read: asCompactNumber,
+          },
+        },
+      },
+      CollectedCollection: {
+        fields: {
+          estimatedValue: {
+            read(value) {
+              const lamports = asBN(value);
+
+              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
             },
           },
         },

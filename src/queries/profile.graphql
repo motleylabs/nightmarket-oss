@@ -25,6 +25,25 @@ query WalletProfileQuery($address: PublicKey!) {
   }
 }
 
+query WalletProfileClientQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    collectedCollections {
+      collection {
+        nft {
+          image
+          mintAddress
+          address
+          name
+        }
+        floorPrice
+      }
+      nftsOwned
+      estimatedValue
+    }
+  }
+}
+
 query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
   connections(from: [$from], to: [$to], limit: 1, offset: 0) {
     to {
@@ -36,8 +55,20 @@ query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
   }
 }
 
-query CollectedNFTsQuery($owner: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
-  collectedNfts: nfts(owners: [$owner], limit: $limit, offset: $offset, listed: $listed) {
+query CollectedNFTsQuery(
+  $owner: PublicKey!
+  $collections: [PublicKey!]
+  $limit: Int!
+  $offset: Int!
+  $listed: Boolean
+) {
+  collectedNfts: nfts(
+    owners: [$owner]
+    collections: $collections
+    limit: $limit
+    offset: $offset
+    listed: $listed
+  ) {
     ...NftInfo
   }
 }

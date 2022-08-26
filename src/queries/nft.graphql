@@ -35,6 +35,7 @@ query NftQuery($address: String!, $subdomain: String!) {
       value
     }
     collection {
+      floorPrice
       nft {
         ...NftInfo
       }
