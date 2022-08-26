@@ -586,6 +586,7 @@ export type NftActivity = {
   nft?: Maybe<Nft>;
   price: Scalars['U64'];
   solPrice?: Maybe<Scalars['Int']>;
+  timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;
 };
 
@@ -1296,6 +1297,12 @@ export type Wallet = {
   twitterHandle?: Maybe<Scalars['String']>;
 };
 
+export type WalletActivitiesArgs = {
+  eventTypes?: InputMaybe<Array<Scalars['String']>>;
+  limit: Scalars['Int'];
+  offset: Scalars['Int'];
+};
+
 export type WalletNftCountsArgs = {
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
@@ -1306,9 +1313,12 @@ export type WalletActivity = {
   auctionHouse?: Maybe<AuctionHouse>;
   createdAt: Scalars['DateTimeUtc'];
   id: Scalars['Uuid'];
+  marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
   price: Scalars['U64'];
+  solPrice?: Maybe<Scalars['Int']>;
+  timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;
 };
 

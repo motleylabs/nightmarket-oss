@@ -6,6 +6,10 @@
   "followers": "Followers",
   "following": "Following",
   "portfolioValue": "Portfolio Value",
+  "all": "All",
+  "listings": "Listings",
+  "offers": "Offers",
+  "sales": "Sales",
   "metadata": {
     "description": "Profile for {{ name }}",
     "title": "{{ name }} | Profile"

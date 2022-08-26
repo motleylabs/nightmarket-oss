@@ -50,6 +50,7 @@ query CollectionActivitiesQuery(
       metadata
       price
       createdAt
+      timeSince @client
       marketplaceProgramAddress
       solPrice @client
       wallets {

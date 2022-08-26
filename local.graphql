@@ -21,6 +21,12 @@ extend type Collection {
 
 extend type NftActivity {
   solPrice: Int
+  timeSince: String
+}
+
+extend type WalletActivity {
+  solPrice: Int
+  timeSince: String
 }
 
 extend type Wallet {
