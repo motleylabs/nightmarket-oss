@@ -11,7 +11,6 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import { asCompactNumber, asUsdString } from './modules/number';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
