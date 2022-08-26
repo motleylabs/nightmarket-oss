@@ -25,6 +25,8 @@ query CollectionQuery($address: String!) {
     nftCount
     floorPrice
     volumeTotal
+    compactFloorPrice @client
+    compactVolumeTotal @client
     listedCount
     holderCount
   }

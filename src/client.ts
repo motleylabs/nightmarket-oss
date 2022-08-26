@@ -1,14 +1,14 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
-import { viewerVar } from './cache';
+import { solPriceVar, viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
 import typeDefs from './../local.graphql';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
-import { asCompactNumber } from './modules/number';
+import { asCompactNumber, asUsdString } from './modules/number';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 function asBN(value: string | number | null): BN {
@@ -211,7 +211,7 @@ const client = new ApolloClient({
           floorPrice: {
             read(value): number {
               return toSol(value, 3);
-            }
+            },
           },
           activities: offsetLimitPagination(['$eventTypes']),
           nftCount: {
@@ -220,7 +220,29 @@ const client = new ApolloClient({
           volumeTotal: {
             read(value): number {
               return toSol(value, 3);
-            }
+            },
+          },
+          compactFloorPrice: {
+            read(_, { readField }): string {
+              const floorPrice: number | undefined = readField('floorPrice');
+
+              if (!floorPrice) {
+                return '0';
+              }
+
+              return asCompactNumber(floorPrice);
+            },
+          },
+          compactVolumeTotal: {
+            read(_, { readField }): string {
+              const volumeTotal: number | undefined = readField('volumeTotal');
+
+              if (!volumeTotal) {
+                return '0';
+              }
+
+              return asCompactNumber(volumeTotal);
+            },
           },
           listedCount: {
             read: asCompactNumber,

@@ -15,7 +15,8 @@ extend type Nft {
 }
 
 extend type Collection {
-  totalVolume: String
+  compactVolumeTotal: String
+  compactFloorPrice: String
 }
 
 extend type NftActivity {

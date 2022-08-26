@@ -219,6 +219,8 @@ export type Collection = {
   category: Scalars['String'];
   /** @deprecated use `nft { collection }` */
   collection?: Maybe<Collection>;
+  compactFloorPrice?: Maybe<Scalars['String']>;
+  compactVolumeTotal?: Maybe<Scalars['String']>;
   /** @deprecated use `nft { created_at }` */
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
   /** @deprecated use `nft { creators }` */
@@ -231,6 +233,7 @@ export type Collection = {
   files: Array<NftFile>;
   /** Lowest price of currently listed NFTs in the collection. */
   floorPrice?: Maybe<Scalars['I64']>;
+  floorPriceUsd?: Maybe<Scalars['String']>;
   /** Count of wallets that currently hold at least one NFT from the collection. */
   holderCount: Scalars['U64'];
   /** @deprecated use `nft { image }` */
@@ -260,11 +263,11 @@ export type Collection = {
   sellerFeeBasisPoints: Scalars['Int'];
   /** @deprecated use `nft { token_account_address }` */
   tokenAccountAddress: Scalars['String'];
-  totalVolume?: Maybe<Scalars['String']>;
   /** @deprecated use `nft { update_authority_address }` */
   updateAuthorityAddress: Scalars['String'];
   /** Total of all sales of all NFTs in the collection over all time, in lamports. */
   volumeTotal: Scalars['U64'];
+  volumeTotalUsd?: Maybe<Scalars['String']>;
 };
 
 export type CollectionActivitiesArgs = {
