@@ -1,14 +1,15 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
-import { viewerVar } from './cache';
+import { solPriceVar, viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
 import typeDefs from './../local.graphql';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
+import { asCompactNumber, asUsdString } from './modules/number';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
@@ -80,13 +81,6 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   }
 
   return image;
-}
-
-function asCompactNumber(number: number): string {
-  return new Intl.NumberFormat('en-GB', {
-    notation: 'compact',
-    compactDisplay: 'short',
-  }).format(number);
 }
 
 const client = new ApolloClient({
@@ -215,30 +209,46 @@ const client = new ApolloClient({
       Collection: {
         fields: {
           floorPrice: {
-            read(value): string {
-              const lamports = asBN(value);
-
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+            read(value): number {
+              return toSol(value, 3);
             },
           },
           activities: offsetLimitPagination(['$eventTypes']),
           nftCount: {
             read: asCompactNumber,
           },
-          totalVolume: {
-            read(_) {
-              return asCompactNumber(1800000);
+          volumeTotal: {
+            read(value): number {
+              return toSol(value, 3);
+            },
+          },
+          compactFloorPrice: {
+            read(_, { readField }): string {
+              const floorPrice: number | undefined = readField('floorPrice');
+
+              if (!floorPrice) {
+                return '0';
+              }
+
+              return asCompactNumber(floorPrice);
+            },
+          },
+          compactVolumeTotal: {
+            read(_, { readField }): string {
+              const volumeTotal: number | undefined = readField('volumeTotal');
+
+              if (!volumeTotal) {
+                return '0';
+              }
+
+              return asCompactNumber(volumeTotal);
             },
           },
           listedCount: {
-            read(_) {
-              return asCompactNumber(1400);
-            },
+            read: asCompactNumber,
           },
           holderCount: {
-            read(_) {
-              return asCompactNumber(6250);
-            },
+            read: asCompactNumber,
           },
         },
       },
