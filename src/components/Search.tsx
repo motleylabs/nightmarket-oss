@@ -41,7 +41,7 @@ export default function Search({ children }: SearchProps) {
   const router = useRouter();
 
   return (
-    <div className="relative flex w-full max-w-4xl flex-row items-center text-white">
+    <div className=" flex w-full max-w-2xl flex-row items-center text-white">
       <Combobox
         value={selected}
         onChange={(selection) => {
@@ -88,7 +88,7 @@ function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JS
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="relative block w-full transition-all">
+    <div className=" relative block w-full transition-all">
       <button
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
@@ -140,7 +140,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-16 left-0 right-0 z-50 mx-auto max-h-96 w-full max-w-2xl gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
         {searching ? (
           <>
             <SearchLoadingItem />

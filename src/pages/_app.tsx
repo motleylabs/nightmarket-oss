@@ -59,7 +59,7 @@ function App({ children }: AppComponentProps) {
 
   return (
     <>
-      <header className="flex flex-row items-center justify-between px-4 py-2 md:px-8 md:py-4">
+      <header className="relative flex flex-row items-center justify-between px-4 py-2 md:px-8 md:py-4">
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
@@ -67,7 +67,7 @@ function App({ children }: AppComponentProps) {
             </a>
           </Link>
         </div>
-        <div className="flex flex-grow items-center px-6 md:px-0">
+        <div className=" flex-grow items-center px-6 sm:flex md:px-0">
           <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results
