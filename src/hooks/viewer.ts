@@ -4,7 +4,7 @@ import { useLazyQuery, QueryResult, OperationVariables } from '@apollo/client';
 import GetViewerQuery from './../queries/viewer.graphql';
 import { Viewer, Wallet } from './../graphql.types';
 
-interface GetViewerData {
+export interface GetViewerData {
   viewer: Viewer;
   wallet: Wallet;
 }

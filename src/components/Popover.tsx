@@ -8,32 +8,18 @@ export default function Popover(props: { href?: string; children: ReactNode; con
   let [popperElement, setPopperElement] = useState<any>();
   let { styles, attributes } = usePopper(referenceElement, popperElement);
 
-  const [isShowing, setIsShowing] = useState(true);
-
   return (
     <HeadlessPopover className="relative">
       {props.href ? (
         <Link passHref href={props.href}>
-          <HeadlessPopover.Button
-            as="a"
-            ref={setReferenceElement}
-            onMouseEnter={() => setIsShowing(true)}
-            onMouseLeave={() => setIsShowing(false)}
-          >
+          <HeadlessPopover.Button as="a" ref={setReferenceElement}>
             {props.children}
           </HeadlessPopover.Button>
         </Link>
       ) : (
-        <HeadlessPopover.Button
-          ref={setReferenceElement}
-          onMouseEnter={() => setIsShowing(true)}
-          onMouseLeave={() => setIsShowing(false)}
-        >
-          {props.children}
-        </HeadlessPopover.Button>
+        <HeadlessPopover.Button ref={setReferenceElement}>{props.children}</HeadlessPopover.Button>
       )}
       <Transition
-        show={isShowing}
         enter="transition duration-100 ease-out"
         enterFrom="transform scale-95 opacity-0"
         enterTo="transform scale-100 opacity-100"
@@ -42,9 +28,6 @@ export default function Popover(props: { href?: string; children: ReactNode; con
         leaveTo="transform scale-95 opacity-0"
       >
         <HeadlessPopover.Panel
-          static={isShowing}
-          onMouseEnter={() => setIsShowing(true)}
-          onMouseLeave={() => setIsShowing(false)}
           className="absolute z-10"
           ref={setPopperElement}
           style={styles.popper}

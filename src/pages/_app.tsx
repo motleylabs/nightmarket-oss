@@ -134,11 +134,8 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-end md:w-1/4">
           {loading ? (
             <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
-          ) : viewerQueryResult.data?.viewer ? (
-            <ViewerPopover
-              viewer={viewerQueryResult.data?.viewer}
-              wallet={viewerQueryResult.data?.wallet}
-            />
+          ) : viewerQueryResult.data ? (
+            <ViewerPopover viewerData={viewerQueryResult.data} />
           ) : (
             <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}
