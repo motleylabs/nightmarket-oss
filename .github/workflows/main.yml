@@ -43,7 +43,7 @@ jobs:
             graphql_endpoint="https://graph-test.holaplex.com/v1"
             node_env=development
           fi
-          image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$app-$git_branch-$git_hash"
+          image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
           #build
           docker build -t $image_tag --target $app \
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
