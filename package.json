@@ -26,6 +26,7 @@
     "@solana/web3.js": "^1.50.1",
     "bn.js": "^5.2.1",
     "clsx": "^1.2.1",
+    "coingecko-api-v3": "^0.0.13",
     "date-fns": "^2.29.1",
     "graphql": "^16.5.0",
     "next": "12.2.4",

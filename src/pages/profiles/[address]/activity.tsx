@@ -1,34 +1,34 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState, ReactNode } from 'react';
-import { CollectionQuery, CollectionActivitiesQuery } from './../../../queries/collection.graphql';
-import CollectionLayout from '../../../layouts/CollectionLayout';
+import { ReactElement, useEffect, useState } from 'react';
+import { WalletProfileQuery, ProfileActivitiesQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection } from '../../../graphql.types';
+import { Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
 import { Activity, ActivityType } from '../../../components/Activity';
-import { Avatar, AvatarSize } from '../../../components/Avatar';
-import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { useForm, Controller } from 'react-hook-form';
+import Link from 'next/link';
 import { InView } from 'react-intersection-observer';
+import ProfileLayout from '../../../layouts/ProfileLayout';
+import { Avatar, AvatarSize } from '../../../components/Avatar';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
   const {
-    data: { collection },
+    data: { wallet },
   } = await client.query({
-    query: CollectionQuery,
+    query: WalletProfileQuery,
     variables: {
       address: params?.address,
     },
   });
 
-  if (collection === null) {
+  if (wallet === null) {
     return {
       notFound: true,
     };
@@ -36,17 +36,16 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   return {
     props: {
-      collection,
+      wallet,
       ...i18n,
     },
   };
 }
-
-interface CollectionActivitiesData {
-  collection: Collection;
+interface ProfileActivitiesData {
+  wallet: Wallet;
 }
 
-interface CollectionActivitiesVariables {
+interface ProfileActivitiesVariables {
   offset: number;
   limit: number;
   address: string;
@@ -60,20 +59,20 @@ enum ActivityFilter {
   Sales = 'PURCHASES',
 }
 
-interface CollectionActivityForm {
+interface ProfileActivityForm {
   type: ActivityFilter;
 }
 
-export default function CollectionActivity(): JSX.Element {
-  const { t } = useTranslation(['collection', 'common']);
-  const { watch, control } = useForm<CollectionActivityForm>({
+export default function ProfileActivity(): JSX.Element {
+  const { t } = useTranslation(['common', 'profile']);
+  const { watch, control } = useForm<ProfileActivityForm>({
     defaultValues: { type: ActivityFilter.All },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
 
-  const activitiesQuery = useQuery<CollectionActivitiesData, CollectionActivitiesVariables>(
-    CollectionActivitiesQuery,
+  const activitiesQuery = useQuery<ProfileActivitiesData, ProfileActivitiesVariables>(
+    ProfileActivitiesQuery,
     {
       variables: {
         offset: 0,
@@ -86,7 +85,7 @@ export default function CollectionActivity(): JSX.Element {
 
   useEffect(() => {
     const subscription = watch(({ type }) => {
-      let variables: CollectionActivitiesVariables = {
+      let variables: ProfileActivitiesVariables = {
         offset: 0,
         limit: 24,
         address: router.query.address as string,
@@ -107,8 +106,8 @@ export default function CollectionActivity(): JSX.Element {
           break;
       }
 
-      activitiesQuery.refetch(variables).then(({ data: { collection } }) => {
-        setHasMore(collection.activities.length > 0);
+      activitiesQuery.refetch(variables).then(({ data: { wallet } }) => {
+        setHasMore(wallet.activities.length > 0);
       });
     });
 
@@ -134,7 +133,7 @@ export default function CollectionActivity(): JSX.Element {
           )}
         />
       </Toolbar>
-      <div className="flex flex-col px-4 md:px-8">
+      <div className="mt-4 flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (
           <>
             <Activity.Skeleton />
@@ -144,7 +143,7 @@ export default function CollectionActivity(): JSX.Element {
           </>
         ) : (
           <>
-            {activitiesQuery.data?.collection.activities.map((activity) => (
+            {activitiesQuery.data?.wallet.activities.map((activity) => (
               <Activity
                 avatar={
                   <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
@@ -159,7 +158,6 @@ export default function CollectionActivity(): JSX.Element {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplace={activity.marketplaceProgramAddress}
-                    source={<Activity.Wallet wallets={activity.wallets} />}
                   />
                 }
               >
@@ -176,15 +174,15 @@ export default function CollectionActivity(): JSX.Element {
                     }
 
                     const {
-                      data: { collection },
+                      data: { wallet },
                     } = await activitiesQuery.fetchMore({
                       variables: {
                         ...activitiesQuery.variables,
-                        offset: activitiesQuery.data?.collection.activities.length,
+                        offset: activitiesQuery.data?.wallet.activities.length,
                       },
                     });
 
-                    setHasMore(collection.activities.length > 0);
+                    setHasMore(wallet.activities.length > 0);
                   }}
                 >
                   <Activity.Skeleton />
@@ -200,14 +198,14 @@ export default function CollectionActivity(): JSX.Element {
   );
 }
 
-interface CollectionActivityLayout {
+interface ProfileActivityLayoutProps {
   children: ReactElement;
-  collection: Collection;
+  wallet: Wallet;
 }
 
-CollectionActivity.getLayout = function CollectionActivityLayout({
+ProfileActivity.getLayout = function ProfileActivityLayout({
   children,
-  collection,
-}: CollectionActivityLayout): JSX.Element {
-  return <CollectionLayout collection={collection}>{children}</CollectionLayout>;
+  wallet,
+}: ProfileActivityLayoutProps): JSX.Element {
+  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
 };
