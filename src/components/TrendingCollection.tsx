@@ -81,7 +81,7 @@ export function TrendingCollection({
           <Area
             dataKey={'price'}
             stroke={trendColor}
-            strokeWidth={3}
+            strokeWidth={1}
             fill={trendColor}
             fillOpacity={0.2}
             type={'monotone'}
