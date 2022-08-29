@@ -5,9 +5,7 @@ import { NftQuery, NftActivitiesQuery } from './../../../queries/nft.graphql';
 import { Nft } from '../../../graphql.types';
 import { ReactNode } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
-import { useTranslation } from 'next-i18next';
 import config from '../../../app.config';
-import Icon from '../../../components/Icon';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { Activity, ActivityType } from '../../../components/Activity';
@@ -62,47 +60,44 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
       address: router.query.address as string,
     },
   });
-  console.log('nft address', router.query.address);
-  console.log('activities query', activitiesQuery);
+
   return (
-    <>
-      <div className="mt-4 flex flex-col px-4 md:px-8">
-        {activitiesQuery.loading ? (
-          <>
-            <Activity.Skeleton />
-            <Activity.Skeleton />
-            <Activity.Skeleton />
-            <Activity.Skeleton />
-          </>
-        ) : (
-          <>
-            {activitiesQuery.data?.nft.activities.map((activity) => (
-              <Activity
-                avatar={
-                  <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
-                    <a className="cursor-pointer transition hover:scale-[1.02]">
-                      <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
-                    </a>
-                  </Link>
-                }
-                type={activity.activityType as ActivityType}
-                key={activity.id}
-                meta={
-                  <Activity.Meta
-                    title={<Activity.Tag />}
-                    marketplace={activity.marketplaceProgramAddress}
-                    source={<Activity.Wallet wallets={activity.wallets} />}
-                  />
-                }
-              >
-                <Activity.Price amount={activity.solPrice} />
-                <Activity.Timestamp timeSince={activity.timeSince} />
-              </Activity>
-            ))}
-          </>
-        )}
-      </div>
-    </>
+    <div className="mt-4 flex flex-col px-4 md:px-8">
+      {activitiesQuery.loading ? (
+        <>
+          <Activity.Skeleton />
+          <Activity.Skeleton />
+          <Activity.Skeleton />
+          <Activity.Skeleton />
+        </>
+      ) : (
+        <>
+          {activitiesQuery.data?.nft.activities.map((activity) => (
+            <Activity
+              avatar={
+                <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
+                  <a className="cursor-pointer transition hover:scale-[1.02]">
+                    <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
+                  </a>
+                </Link>
+              }
+              type={activity.activityType as ActivityType}
+              key={activity.id}
+              meta={
+                <Activity.Meta
+                  title={<Activity.Tag />}
+                  marketplace={activity.marketplaceProgramAddress}
+                  source={<Activity.Wallet wallets={activity.wallets} />}
+                />
+              }
+            >
+              <Activity.Price amount={activity.solPrice} />
+              <Activity.Timestamp timeSince={activity.timeSince} />
+            </Activity>
+          ))}
+        </>
+      )}
+    </div>
   );
 }
 
