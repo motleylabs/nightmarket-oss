@@ -98,32 +98,45 @@ const Home: NextPage = () => {
               <tbody className="mt-2">
                 {homeQueryResult.loading ? (
                   <>
-                    <LoadingTrendingCollection />
-                    <LoadingTrendingCollection />
-                    <LoadingTrendingCollection />
-                    <LoadingTrendingCollection />
+                    <tr className="border-b border-gray-800">
+                      <LoadingTrendingCollection />
+                    </tr>
+                    <tr className="border-b border-gray-800">
+                      <LoadingTrendingCollection />
+                    </tr>
+                    <tr className="border-b border-gray-800">
+                      <LoadingTrendingCollection />
+                    </tr>
+                    <tr className="border-b border-gray-800">
+                      <LoadingTrendingCollection />
+                    </tr>
                   </>
                 ) : (
                   homeQueryResult.data?.collectionsFeaturedByVolume.map((collection, i) => (
-                    <TrendingCollection
-                      address={collection.mintAddress}
+                    <tr
+                      className="border-b border-gray-800"
                       key={`collection-${collection.mintAddress}-${i}`}
-                      name={collection.nft.name}
-                      image={collection.nft.image}
-                      floor={collection.floorPrice}
-                      volume={collection.volumeTotal}
-                      sales={collection.holderCount}
-                      marketcap={1000}
-                      floorTrend={[
-                        { price: 1 },
-                        { price: 3 },
-                        { price: 2 },
-                        { price: 10 },
-                        { price: 5 },
-                        { price: 12 },
-                        { price: collection.floorPrice }, // TODO: get historical floor data into query
-                      ]}
-                    />
+                    >
+                      <TrendingCollection
+                        address={collection.mintAddress}
+                        key={`collection-${collection.mintAddress}-${i}`}
+                        name={collection.nft.name}
+                        image={collection.nft.image}
+                        floor={collection.floorPrice}
+                        volume={collection.volumeTotal}
+                        sales={collection.holderCount}
+                        marketcap={1000}
+                        floorTrend={[
+                          { price: Math.random() * 10 },
+                          { price: Math.random() * 50 },
+                          { price: Math.random() * 20 },
+                          { price: Math.random() * 60 },
+                          { price: Math.random() * 40 },
+                          { price: Math.random() * 100 },
+                          { price: collection.floorPrice }, // TODO: get historical floor data into query
+                        ]}
+                      />
+                    </tr>
                   ))
                 )}
               </tbody>

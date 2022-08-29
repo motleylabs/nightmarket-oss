@@ -32,7 +32,7 @@ export function TrendingCollection({
   const priceChangePercentage = (priceChange / floorTrend[0].price) * 100;
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
   return (
-    <tr className="border-b border-gray-800">
+    <>
       <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
         <img src={image} alt={name} className="h-10 w-10 overflow-clip rounded-lg object-cover" />
         <h6 className="text-base font-semibold">{name}</h6>
@@ -88,13 +88,13 @@ export function TrendingCollection({
           ></Area>
         </AreaChart>
       </td>
-    </tr>
+    </>
   );
 }
 
 export function LoadingTrendingCollection() {
   return (
-    <tr className="border-b border-gray-800">
+    <>
       <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
         <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-800" />
         <div className="h-4 w-24 animate-pulse rounded-md bg-gray-800" />
@@ -114,6 +114,6 @@ export function LoadingTrendingCollection() {
       <td className="pl-4 lg:pl-0">
         <div className="h-6 w-36 animate-pulse rounded-md bg-gray-800" />
       </td>
-    </tr>
+    </>
   );
 }
