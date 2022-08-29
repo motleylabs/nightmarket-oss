@@ -14,6 +14,7 @@ import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LoadingTrendingCollection, TrendingCollection } from '../components/TrendingCollection';
+import Button, { ButtonType } from '../components/Button';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionType[];
@@ -70,6 +71,12 @@ const Home: NextPage = () => {
         <section className="mt-28">
           <header className={'mb-16 flex w-full flex-row justify-between'}>
             <h1 className="mb-2 text-2xl">{t('trendingCollections.title')}</h1>
+            <div className="flex flex-row items-center gap-2">
+              <Button type={ButtonType.Secondary}>{t('trendingCollections.filters.hour')}</Button>
+              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.day')}</Button>
+              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.week')}</Button>
+              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.all')}</Button>
+            </div>
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
             <table className="w-full table-auto">
