@@ -28,6 +28,15 @@ const nextConfig = {
       },
     ];
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    outputStandalone: true,
+  },
 };
 
 module.exports = withGraphql(nextConfig);
