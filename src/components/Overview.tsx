@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { Maybe } from './../graphql.types';
 
 interface OverviewProps {
   children: ReactNode;
@@ -83,7 +84,7 @@ function Figures({ children }: OverviewProps): JSX.Element {
 Overview.Figures = Figures;
 
 interface OverviewFigureProps {
-  figure: string;
+  figure: Maybe<string> | undefined;
   label: string;
 }
 
@@ -116,7 +117,7 @@ Overview.Aside = Aside;
 
 function Tabs({ children }: OverviewProps): JSX.Element {
   return (
-    <nav className="mt-10 flex flex-row justify-start overflow-scroll sm:ml-4 md:ml-8 md:justify-start">
+    <nav className="mt-10 flex flex-row justify-start overflow-auto sm:ml-4 md:ml-8 md:justify-start">
       {children}
     </nav>
   );

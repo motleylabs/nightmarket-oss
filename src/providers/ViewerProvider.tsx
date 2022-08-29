@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { viewerVar } from './../cache';
+import { toSol } from '../modules/sol';
 
 interface ViewerProviderProps {
   children: JSX.Element;
@@ -22,8 +23,9 @@ export const ViewerProvider: React.FC<ViewerProviderProps> = ({ children }) => {
 
         viewerVar({
           balance,
-          id: publicKey?.toBase58() as string,
+          address: publicKey?.toBase58() as string,
           __typename: 'Viewer',
+          solBalance: toSol(balance),
         });
       } catch (e) {
         console.error(e);

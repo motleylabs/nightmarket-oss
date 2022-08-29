@@ -16,5 +16,11 @@
   "owner": "Current owner",
   "royalties": "Creator royalties",
   "fee": "Marketplace fee",
-  "collection": "Collection"
+  "collection": "Collection",
+  "placeBid": "Make an Offer",
+  "currentFloor": "Current floor price",
+  "lastSold": "Last sold for",
+  "walletBalance": "Current wallet balance",
+  "amount": "Amount",
+  "submitOffer": "Submit offer"
 }

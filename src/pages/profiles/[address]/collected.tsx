@@ -1,11 +1,14 @@
-import type { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
-import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
+import type { GetServerSidePropsContext } from 'next';
+import {
+  WalletProfileQuery,
+  WalletProfileClientQuery,
+  CollectedNFTsQuery,
+} from './../../../queries/profile.graphql';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../types';
+import { Wallet, Nft } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
@@ -17,11 +20,11 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
-import clsx from 'clsx';
-import { Nft } from '../../../types';
+import { Collection } from './../../../components/Collection';
+import { Listbox } from '@headlessui/react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
 
   const {
     data: { wallet },
@@ -54,6 +57,7 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
+  collections: (string | undefined)[] | null | undefined;
 }
 
 interface CollectionNFTsData {
@@ -65,12 +69,20 @@ interface CollectionNFTsVariables {
   limit: number;
   listed: boolean | null;
   owner: string;
+  collections?: (string | undefined)[] | null | undefined;
+}
+
+interface WalletProfileData {
+  wallet: Wallet;
+}
+interface WalletProfileVariables {
+  address: string;
 }
 
 export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All },
+    defaultValues: { listed: ListedStatus.All, collections: [] },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
@@ -85,14 +97,28 @@ export default function ProfileCollected() {
     },
   });
 
+  const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
+    WalletProfileClientQuery,
+    {
+      variables: {
+        address: router.query.address as string,
+      },
+    }
+  );
+
   useEffect(() => {
-    const subscription = watch(({ listed }) => {
+    const subscription = watch(({ listed, collections }) => {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
         owner: router.query.address as string,
         listed: null,
+        collections,
       };
+
+      if (variables?.collections?.length === 0) {
+        variables.collections = null;
+      }
 
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
@@ -131,7 +157,56 @@ export default function ProfileCollected() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>The sidebar</Sidebar.Panel>
+        <Sidebar.Panel>
+          <div className="mt-4 flex flex-col gap-2">
+            {walletProfileClientQuery.loading ? (
+              <>
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+                <Collection.Option.Skeleton />
+              </>
+            ) : (
+              <Controller
+                control={control}
+                name="collections"
+                render={({ field: { onChange, value } }) => (
+                  <Listbox value={value} onChange={onChange} multiple>
+                    <Listbox.Options static>
+                      {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
+                        <Listbox.Option
+                          key={cc.collection?.nft.mintAddress}
+                          value={cc.collection?.nft.mintAddress}
+                        >
+                          {({ selected }) => (
+                            <Collection.Option
+                              selected={selected}
+                              avatar={
+                                <Collection.Option.Avatar
+                                  src={cc.collection?.nft.image as string}
+                                  figure={cc.nftsOwned}
+                                />
+                              }
+                              header={
+                                <Collection.Option.Title>
+                                  {cc.collection?.nft.name}
+                                </Collection.Option.Title>
+                              }
+                              floorPrice={cc.collection?.floorPrice}
+                            >
+                              <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
+                            </Collection.Option>
+                          )}
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </Listbox>
+                )}
+              />
+            )}
+          </div>
+        </Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}
@@ -141,7 +216,7 @@ export default function ProfileCollected() {
             hasMore={hasMore}
             grid={{
               [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 1],
+              [ListGridSize.Small]: [2, 2],
               [ListGridSize.Medium]: [2, 3],
               [ListGridSize.Large]: [3, 4],
               [ListGridSize.ExtraLarge]: [4, 6],

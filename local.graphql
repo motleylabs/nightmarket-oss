@@ -1,0 +1,74 @@
+type Viewer {
+  address: ID
+  balance: Int
+  solBalance: Int
+}
+
+extend type AuctionHouse {
+  fee: Int
+}
+
+extend type Nft {
+  shortAddress: String
+  shortMintAddress: String
+  royalties: Int
+}
+
+extend type Collection {
+  compactVolumeTotal: String
+  compactFloorPrice: String
+}
+
+extend type NftActivity {
+  solPrice: Int
+  timeSince: String
+}
+
+extend type WalletActivity {
+  solPrice: Int
+  timeSince: String
+}
+
+extend type Wallet {
+  displayName: String
+  previewImage: String
+  previewBanner: String
+  shortAddress: String
+  compactFollowingCount: String
+  compactFollowerCount: String
+  compactOwnedCount: String
+  compactCreatedCount: String
+  portfolioValue: Int
+}
+
+extend type NftCreator {
+  displayName: String
+  previewImage: String
+  previewBanner: String
+  shortAddress: String
+  compactFollowingCount: String
+  compactFollowerCount: String
+  compactOwnedCount: String
+  compactCreatedCount: String
+  portfolioValue: Int
+}
+
+extend type NftOwner {
+  displayName: String
+  previewImage: String
+  previewBanner: String
+  shortAddress: String
+  compactFollowingCount: String
+  compactFollowerCount: String
+  compactOwnedCount: String
+  compactCreatedCount: String
+  portfolioValue: Int
+}
+
+extend type MetadataJson {
+  creatorDisplayName: String
+}
+
+extend type QueryRoot {
+  viewer: Viewer
+}

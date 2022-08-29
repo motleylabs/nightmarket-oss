@@ -17,11 +17,25 @@ h5,
 h6 {
   @apply text-white;
 }
+
+.sidebar-scroll {
+  @apply overflow-y-scroll;
+}
+
+@media screen(md) {
+  .sidebar-scroll {
+    max-height: calc(100vh - 74px);
+  }
+}
+
 body,
 html {
   @apply bg-gray-900;
 }
 
+.input {
+  @apply rounded-lg border border-gray-800;
+}
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply bg-gray-900 font-sans;
 }
@@ -36,4 +50,8 @@ html {
 
 .swiper-button-disabled {
   @apply opacity-0;
+}
+
+:focus-visible {
+  outline: none;
 }

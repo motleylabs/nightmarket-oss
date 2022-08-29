@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import { ReactNode } from 'react';
-import { Nft } from '../types';
+import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
 
 interface NftCardProps {

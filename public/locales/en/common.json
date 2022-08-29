@@ -1,8 +1,9 @@
 {
   "header": {
-    "title": "NightMarket"
+    "title": "Marketplace"
   },
   "follow": "Follow",
+  "cancel": "Cancel",
   "unfollow": "Unfollow",
   "connect": "Connect",
   "filters": "Filters",
@@ -18,9 +19,7 @@
     "placeholder": "Search collections, profiles, and wallets...",
     "empty": "No results found"
   },
-  "activity": {
-    "purchase": "Sold",
-    "listing": "Listed",
-    "offer": "Offer"
-  }
+  "purchase": "Sold",
+  "listing": "Listed",
+  "offer": "Offer"
 }

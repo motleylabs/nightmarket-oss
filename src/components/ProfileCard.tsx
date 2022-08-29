@@ -1,8 +1,6 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import { Wallet } from '../types';
-import Button, { ButtonSize, ButtonType } from './../components/Button';
-import { PlusIcon } from '@heroicons/react/outline';
+import { Wallet } from '../graphql.types';
 
 interface ProfileCardProps {
   wallet: Wallet;
@@ -20,14 +18,14 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
       )}
     >
       <img
-        src={wallet.previewBanner}
+        src={wallet.previewBanner as string}
         alt={`profile banner for ${wallet.address}`}
         className="relative h-32 w-full flex-shrink-0 object-cover"
       />
       <div className="p-4">
         <div className="flex flex-row items-center justify-between">
           <img
-            src={wallet.previewImage}
+            src={wallet.previewImage as string}
             alt={`profile avatar for ${wallet.address}`}
             className="relative z-20 -mt-12 h-24 w-24 rounded-full border-2 border-gray-800 bg-gray-800"
           />
@@ -35,10 +33,10 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
         <h1 className="mt-6 text-xl">{wallet.displayName}</h1>
         <div className="mt-4 flex gap-2 text-white">
           <div className="flex flex-row gap-1">
-            {wallet.compactFollowerCount} <span className="text-gray-300">{t('followers')}</span>
+            {wallet.compactOwnedCount} <span className="text-gray-300">{t('collected')}</span>
           </div>
           <div className="flex flex-row gap-1">
-            {wallet.compactFollowingCount} <span className="text-gray-300">{t('following')}</span>
+            {wallet.compactCreatedCount} <span className="text-gray-300">{t('created')}</span>
           </div>
         </div>
       </div>
