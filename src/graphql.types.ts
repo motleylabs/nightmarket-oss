@@ -145,7 +145,9 @@ export type CandyMachineCollectionPda = {
 export type CandyMachineConfigLine = {
   __typename?: 'CandyMachineConfigLine';
   candyMachineAddress: Scalars['PublicKey'];
+  idx: Scalars['Int'];
   name: Scalars['String'];
+  taken: Scalars['Boolean'];
   uri: Scalars['String'];
 };
 
@@ -233,7 +235,6 @@ export type Collection = {
   files: Array<NftFile>;
   /** Lowest price of currently listed NFTs in the collection. */
   floorPrice?: Maybe<Scalars['I64']>;
-  floorPriceUsd?: Maybe<Scalars['String']>;
   /** Count of wallets that currently hold at least one NFT from the collection. */
   holderCount: Scalars['U64'];
   /** @deprecated use `nft { image }` */
@@ -267,7 +268,6 @@ export type Collection = {
   updateAuthorityAddress: Scalars['String'];
   /** Total of all sales of all NFTs in the collection over all time, in lamports. */
   volumeTotal: Scalars['U64'];
-  volumeTotalUsd?: Maybe<Scalars['String']>;
 };
 
 
@@ -678,6 +678,8 @@ export type Offer = {
   nft?: Maybe<Nft>;
   price: Scalars['U64'];
   purchaseId?: Maybe<Scalars['Uuid']>;
+  solPrice?: Maybe<Scalars['Int']>;
+  timeSince?: Maybe<Scalars['String']>;
   tokenAccount?: Maybe<Scalars['String']>;
   tokenSize: Scalars['Int'];
   tradeState: Scalars['String'];
@@ -843,7 +845,9 @@ export type QueryRoot = {
   __typename?: 'QueryRoot';
   activities: Array<NftActivity>;
   auctionHouse?: Maybe<AuctionHouse>;
-  /** Get a candymachine by the candymachine config address */
+  /** Get a candy machine by the candy machine config address */
+  candyMachine?: Maybe<CandyMachine>;
+  /** @deprecated Deprecated alias for candyMachine */
   candymachine?: Maybe<CandyMachine>;
   charts: PriceChart;
   /** Returns collection data along with collection activities */
@@ -916,8 +920,13 @@ export type QueryRootAuctionHouseArgs = {
 };
 
 
-export type QueryRootCandymachineArgs = {
+export type QueryRootCandyMachineArgs = {
   address: Scalars['String'];
+};
+
+
+export type QueryRootCandymachineArgs = {
+  addr: Scalars['String'];
 };
 
 
@@ -1339,11 +1348,13 @@ export type Wallet = {
   twitterHandle?: Maybe<Scalars['String']>;
 };
 
+
 export type WalletActivitiesArgs = {
   eventTypes?: InputMaybe<Array<Scalars['String']>>;
   limit: Scalars['Int'];
   offset: Scalars['Int'];
 };
+
 
 export type WalletNftCountsArgs = {
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;

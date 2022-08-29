@@ -14,6 +14,11 @@ extend type Nft {
   royalties: Int
 }
 
+extend type Offer {
+  solPrice: Int
+  timeSince: String
+}
+
 extend type Collection {
   compactVolumeTotal: String
   compactFloorPrice: String

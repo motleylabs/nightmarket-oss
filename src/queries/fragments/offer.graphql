@@ -9,6 +9,8 @@ fragment OfferInfo on Offer {
     ...AuctionHouseInfo
   }
   price
+  timeSince @client
+  solPrice @client
   purchaseId
   tradeStateBump
   tokenAccount

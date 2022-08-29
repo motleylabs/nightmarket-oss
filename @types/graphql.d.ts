@@ -42,12 +42,12 @@ declare module '*/profile.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const ProfileInfo: DocumentNode;
-  export const WalletProfileQuery: DocumentNode;
-  export const WalletProfileClientQuery: DocumentNode;
-  export const FollowingProfileQuery: DocumentNode;
-  export const CollectedNFTsQuery: DocumentNode;
-  export const CreatedNFTsQuery: DocumentNode;
-  export const ProfileActivitiesQuery: DocumentNode;
+export const WalletProfileQuery: DocumentNode;
+export const WalletProfileClientQuery: DocumentNode;
+export const FollowingProfileQuery: DocumentNode;
+export const CollectedNFTsQuery: DocumentNode;
+export const CreatedNFTsQuery: DocumentNode;
+export const ProfileActivitiesQuery: DocumentNode;
 
   export default defaultDocument;
 }

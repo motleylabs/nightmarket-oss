@@ -10,8 +10,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import NftLayout from '../../../layouts/NftLayout';
 import { ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
-import Avatar from '../../../components/Avatar';
-import ActivityCard from '../../../components/ActivityCard';
+import OfferCard from '../../../components/OfferCard';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -85,22 +84,22 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
           <>
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((yourOffer, i) => (
-              <ActivityCard
+              <OfferCard
                 key={`your-offer-${yourOffer.id}-${i}`}
                 userAddress={yourOffer.buyer}
                 isOwner={isOwner}
                 description={
-                  <ActivityCard.OfferDescription
-                    price={yourOffer.price / LAMPORTS_PER_SOL}
+                  <OfferCard.Description
+                    price={yourOffer.solPrice}
                     userAddress={yourOffer.buyer}
                     marketplaceAddress={''}
                     variant={'buyer'}
                   />
                 }
                 action={
-                  <ActivityCard.OfferAction
-                    price={yourOffer.price / LAMPORTS_PER_SOL}
-                    createdDate={yourOffer.createdAt}
+                  <OfferCard.Action
+                    price={yourOffer.solPrice}
+                    timeSince={yourOffer.timeSince}
                     variant={'buyer'}
                     onPrimaryAction={() => console.log('Update offer')}
                     onSecondaryAction={() => console.log('Cancel offer')}
@@ -115,23 +114,23 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
         )}
 
         {data?.nftOffers?.offers?.map((offer, i) => (
-          <ActivityCard
+          <OfferCard
             hidden={offer.buyer === publicKey?.toBase58()}
             key={`offer-${offer.id}-${i}`}
             userAddress={offer.buyer}
             isOwner={isOwner}
             description={
-              <ActivityCard.OfferDescription
-                price={offer.price / LAMPORTS_PER_SOL}
+              <OfferCard.Description
+                price={offer.solPrice}
                 userAddress={offer.buyer}
                 marketplaceAddress={''}
                 variant={isOwner ? 'owner' : 'viewer'}
               />
             }
             action={
-              <ActivityCard.OfferAction
-                price={offer.price / LAMPORTS_PER_SOL}
-                createdDate={offer.createdAt}
+              <OfferCard.Action
+                price={offer.solPrice}
+                timeSince={offer.timeSince || '--'}
                 variant={isOwner ? 'owner' : 'viewer'}
                 isActionable={!offer.auctionHouse?.requiresSignOff}
                 onPrimaryAction={

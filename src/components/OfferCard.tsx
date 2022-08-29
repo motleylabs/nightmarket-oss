@@ -1,13 +1,12 @@
 import { useTranslation } from 'next-i18next';
 import { ReactNode } from 'react';
-import { Scalars } from '../graphql.types';
+import { Maybe } from '../graphql.types';
 import useProfileInfo from '../hooks/profileinfo';
 import { shortenAddress } from '../modules/address';
-import { formatTimeAgo } from '../modules/time';
-import Avatar from './Avatar';
+import { Avatar, AvatarSize } from './Avatar';
 import Button, { ButtonType } from './Button';
 
-interface ActivityCardProps {
+interface OfferCardProps {
   isOwner: boolean;
   userAddress: string;
   description: ReactNode | any;
@@ -15,13 +14,18 @@ interface ActivityCardProps {
   hidden?: boolean;
 }
 
-function ActivityCard({ userAddress, description, action, hidden = false }: ActivityCardProps) {
+function OfferCard({ userAddress, description, action, hidden = false }: OfferCardProps) {
+  const { wallet } = useProfileInfo(userAddress);
   if (hidden) {
     return null;
   }
   return (
     <div className="flex items-center gap-2 rounded-lg border border-gray-800 p-4">
-      <Avatar address={userAddress} />
+      <Avatar
+        circle={true}
+        size={AvatarSize.Standard}
+        src={wallet?.profile?.profileImageUrlLowres || '/images/placeholder.png'}
+      />
       <div className={`flex w-full items-center justify-between`}>
         {description}
         {action}
@@ -30,10 +34,10 @@ function ActivityCard({ userAddress, description, action, hidden = false }: Acti
   );
 }
 
-export default ActivityCard;
+export default OfferCard;
 
 interface OfferDescription {
-  price: number;
+  price: Maybe<number> | undefined;
   marketplaceAddress: string;
   userAddress: string;
   variant?: 'viewer' | 'buyer' | 'owner';
@@ -100,11 +104,11 @@ function OfferDescription({
   }
 }
 
-ActivityCard.OfferDescription = OfferDescription;
+OfferCard.Description = OfferDescription;
 
 interface OfferAction {
-  createdDate: Scalars['DateTimeUtc'];
-  price: number;
+  timeSince: Maybe<String> | undefined;
+  price: Maybe<number> | undefined;
   onPrimaryAction?: () => void;
   onSecondaryAction?: () => void;
   isActionable?: boolean;
@@ -112,7 +116,7 @@ interface OfferAction {
 }
 
 function OfferAction({
-  createdDate,
+  timeSince,
   price,
   isActionable = true,
   variant = 'viewer',
@@ -126,7 +130,7 @@ function OfferAction({
       return (
         <div className="flex flex-col gap-2">
           <p className="m-0 text-sm font-medium text-white">{price} SOL</p>
-          <p className="m-0 text-xs font-light text-gray-300">{formatTimeAgo(createdDate)} ago</p>
+          <p className="m-0 text-xs font-light text-gray-300">{timeSince}</p>
         </div>
       );
     case 'buyer':
@@ -158,10 +162,10 @@ function OfferAction({
       return (
         <div className="flex flex-col gap-2">
           <p className="m-0 text-sm font-medium text-white">{price} SOL</p>
-          <p className="m-0 text-xs font-light text-gray-300">{formatTimeAgo(createdDate)} ago</p>
+          <p className="m-0 text-xs font-light text-gray-300">{timeSince}</p>
         </div>
       );
   }
 }
 
-ActivityCard.OfferAction = OfferAction;
+OfferCard.Action = OfferAction;
