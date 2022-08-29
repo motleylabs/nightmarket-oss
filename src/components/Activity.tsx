@@ -70,11 +70,11 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
     switch (type) {
       case ActivityType.Purchase:
       case ActivityType.Sell:
-        return [t('activity.purchase'), CurrencyDollarIcon];
+        return [t('purchase'), CurrencyDollarIcon];
       case ActivityType.Listing:
-        return [t('activity.listing'), TagIcon];
+        return [t('listing'), TagIcon];
       case ActivityType.Offer:
-        return [t('activity.offer'), HandIcon];
+        return [t('offer'), HandIcon];
       default:
         return [];
     }

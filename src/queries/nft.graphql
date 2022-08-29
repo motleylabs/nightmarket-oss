@@ -50,3 +50,19 @@ query NftQuery($address: String!, $subdomain: String!) {
     }
   }
 }
+
+query NftMarketInfoQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    listings {
+      id
+      seller
+      price
+      marketplaceProgramAddress
+      auctionHouse {
+        address
+      }
+    }
+  }
+}

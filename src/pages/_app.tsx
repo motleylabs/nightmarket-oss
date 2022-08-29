@@ -1,4 +1,4 @@
-import { useCallback, useMemo, ReactElement, useEffect } from 'react';
+import { useCallback, useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -25,7 +25,7 @@ import ViewerProvider from '../providers/ViewerProvider';
 import Button from './../components/Button';
 import client from './../client';
 import './../../styles/globals.css';
-import { Wallet, Nft, MetadataJson } from './../graphql.types';
+import { Wallet, Nft } from './../graphql.types';
 import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
