@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
 import { Area, AreaChart } from 'recharts';
+import { percentageDifference } from '../modules/number';
 import Icon from './Icon';
 
 type FloorData = {
@@ -29,7 +30,10 @@ export function TrendingCollection({
   address,
 }: TrendingCollectionProps) {
   const priceChange = floorTrend[floorTrend.length - 1].price - floorTrend[0].price;
-  const priceChangePercentage = (priceChange / floorTrend[0].price) * 100;
+  const priceChangePercentage = percentageDifference(
+    floorTrend[0].price,
+    floorTrend[floorTrend.length - 1].price
+  );
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
   return (
     <>
@@ -75,7 +79,7 @@ export function TrendingCollection({
         <AreaChart
           key={`${address}-collection-trend-chart`}
           width={90}
-          height={26}
+          height={40}
           data={floorTrend}
         >
           <Area
