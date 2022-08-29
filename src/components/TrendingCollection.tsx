@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
 import { Area, AreaChart } from 'recharts';
+import Icon from './Icon';
 
 type FloorData = {
   price: number;
@@ -30,7 +31,6 @@ export function TrendingCollection({
   const priceChange = floorTrend[floorTrend.length - 1].price - floorTrend[0].price;
   const priceChangePercentage = (priceChange / floorTrend[0].price) * 100;
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
-  console.log(floorTrend[0].price);
   return (
     <tr className="border-b border-gray-800">
       <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
@@ -39,6 +39,7 @@ export function TrendingCollection({
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
         <div className="flex flex-row items-center gap-2">
+          <Icon.Currency height={16} width={16} className={'text-white'} />
           <p className="text-base font-semibold">{floor}</p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
@@ -56,13 +57,19 @@ export function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <p className="text-base font-semibold">{volume}</p>
+        <div className="flex flex-row items-center gap-2">
+          <Icon.Currency height={16} width={16} className={'text-white'} />
+          <p className="text-base font-semibold">{volume}</p>
+        </div>
       </td>
       <td className="pl-4 lg:pl-0">
         <p className="text-base font-normal">{sales}</p>
       </td>
       <td className="pl-4 lg:pl-0">
-        <p className="text-base font-normal">{marketcap}</p>
+        <div className="flex flex-row items-center gap-2">
+          <Icon.Currency height={16} width={16} className={'text-white'} />
+          <p className="text-base font-normal">{marketcap}</p>
+        </div>
       </td>
       <td>
         <AreaChart
