@@ -1,5 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { subDays, formatISO } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -13,6 +13,7 @@ import ProfileCard from '../components/ProfileCard';
 import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { LoadingTrendingCollection, TrendingCollection } from '../components/TrendingCollection';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionType[];
@@ -44,6 +45,8 @@ const Home: NextPage = () => {
     return [dayAgoUTC, nowUTC];
   }, []);
 
+  const chartRef = useRef(null);
+
   const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery, {
     variables: {
       startDate,
@@ -63,6 +66,69 @@ const Home: NextPage = () => {
         <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
           <h1 className="text-3xl md:text-5xl">{t('hero.title')}</h1>
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
+        </section>
+        <section className="mt-28">
+          <header className={'mb-16 flex w-full flex-row justify-between'}>
+            <h1 className="mb-2 text-2xl">{t('trendingCollections.title')}</h1>
+          </header>
+          <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+            <table className="w-full table-auto">
+              <thead>
+                <tr>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300">
+                    {t('trendingCollections.collection')}
+                  </th>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                    {t('trendingCollections.floor')}
+                  </th>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                    {t('trendingCollections.volume')}
+                  </th>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                    {t('trendingCollections.sales')}
+                  </th>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                    {t('trendingCollections.marketcap')}
+                  </th>
+                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                    {t('trendingCollections.trend')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="mt-2">
+                {homeQueryResult.loading ? (
+                  <>
+                    <LoadingTrendingCollection />
+                    <LoadingTrendingCollection />
+                    <LoadingTrendingCollection />
+                    <LoadingTrendingCollection />
+                  </>
+                ) : (
+                  homeQueryResult.data?.collectionsFeaturedByVolume.map((collection, i) => (
+                    <TrendingCollection
+                      address={collection.mintAddress}
+                      key={`collection-${collection.mintAddress}-${i}`}
+                      name={collection.nft.name}
+                      image={collection.nft.image}
+                      floor={collection.floorPrice}
+                      volume={collection.volumeTotal}
+                      sales={collection.holderCount}
+                      marketcap={1000}
+                      floorTrend={[
+                        { price: 1 },
+                        { price: 3 },
+                        { price: 2 },
+                        { price: 10 },
+                        { price: 5 },
+                        { price: 12 },
+                        { price: collection.floorPrice }, // TODO: get historical floor data into query
+                      ]}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
         <section className="mt-28">
           <header className="mb-4 flex w-full flex-row justify-between border-b border-gray-800">
