@@ -61,6 +61,9 @@ export default function Search({ children }: SearchProps) {
               // @ts-ignore
               router.push(`/nfts/${selection.mintAddress}`);
               break;
+            case 'Nft':
+              router.push(`/nfts/${selection.mintAddress}`);
+              break;
             case 'Wallet':
               router.push(`/profiles/${selection.address}`);
               break;
@@ -197,7 +200,7 @@ Search.Group = SearchGroup;
 interface SearchResultProps {
   address: string;
   image: string;
-  name: string;
+  name?: Maybe<string> | undefined;
   value: SearchResultItemType | MetadataJson;
 }
 
@@ -232,7 +235,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -278,7 +281,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>

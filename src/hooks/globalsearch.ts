@@ -2,13 +2,13 @@ import { useLazyQuery, OperationVariables, ApolloQueryResult } from '@apollo/cli
 import React, { useMemo, useState } from 'react';
 import { isPublicKey } from './../modules/address';
 import GlobalSearchQuery from './../queries/search.graphql';
-import { Wallet, Nft } from './../graphql.types';
+import { Wallet, Nft, MetadataJson } from './../graphql.types';
 
 export interface GlobalSearchData {
   profiles: Wallet[];
   wallet: Wallet;
-  nfts: Nft[];
-  collections: Nft[];
+  nfts: MetadataJson[] | Nft[];
+  collections: MetadataJson[] | Nft[];
 }
 
 type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;

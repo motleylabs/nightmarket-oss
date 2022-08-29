@@ -84,7 +84,7 @@ function App({ children }: AppComponentProps) {
                     <Search.Collection
                       value={collection}
                       key={`search-collection-${collection.mintAddress}-${i}`}
-                      image={collection.image}
+                      image={collection.image || '/images/placeholder.png'}
                       name={collection.name}
                       address={collection.mintAddress}
                     />
@@ -98,7 +98,7 @@ function App({ children }: AppComponentProps) {
                       value={wallet}
                       profile={wallet}
                       key={`search-profile-${wallet.address}-${i}`}
-                      image={wallet.previewImage}
+                      image={wallet.previewImage || '/images/placeholder.png'}
                       name={wallet.displayName}
                       address={wallet.address}
                     />
@@ -116,7 +116,7 @@ function App({ children }: AppComponentProps) {
                       value={result}
                       profile={result}
                       key={`search-wallet-${result?.address}`}
-                      image={result.previewImage}
+                      image={result.previewImage || '/images/placeholder.png'}
                       name={result.displayName}
                       address={result.address}
                     />
