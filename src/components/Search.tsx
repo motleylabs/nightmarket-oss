@@ -41,7 +41,7 @@ export default function Search({ children }: SearchProps) {
   const router = useRouter();
 
   return (
-    <div className=" flex w-full max-w-2xl flex-row items-center text-white">
+    <div className="relative flex w-full max-w-4xl flex-row items-center text-white">
       <Combobox
         value={selected}
         onChange={(selection) => {
@@ -59,6 +59,9 @@ export default function Search({ children }: SearchProps) {
                 break;
               }
               // @ts-ignore
+              router.push(`/nfts/${selection.mintAddress}`);
+              break;
+            case 'Nft':
               router.push(`/nfts/${selection.mintAddress}`);
               break;
             case 'Wallet':
@@ -140,7 +143,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-16 left-0 right-0 z-50 mx-auto max-h-96 w-full max-w-2xl gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -197,7 +200,7 @@ Search.Group = SearchGroup;
 interface SearchResultProps {
   address: string;
   image: string;
-  name: string;
+  name?: Maybe<string> | undefined;
   value: SearchResultItemType | MetadataJson;
 }
 
@@ -232,7 +235,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -278,7 +281,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
