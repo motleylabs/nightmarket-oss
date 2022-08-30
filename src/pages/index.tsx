@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useMemo, useRef } from 'react';
-import { subDays, formatISO } from 'date-fns';
+import { subDays, formatISO, subHours, subMonths, startOfDay } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -15,6 +15,7 @@ import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LoadingTrendingCollection, TrendingCollection } from '../components/TrendingCollection';
 import Button, { ButtonType } from '../components/Button';
+import { useUrlQueryParam } from '../hooks/urlparam';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionType[];
@@ -33,18 +34,45 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
   },
 });
 
+enum DateOption {
+  HOUR = '1hr',
+  DAY = '24hr',
+  WEEK = '7d',
+  ALL = 'all',
+}
+
+const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
+
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
+  const urlParam = useUrlQueryParam<DateOption>('trending', DEFAULT_DATE_OPTION, true);
 
   const [startDate, endDate] = useMemo(() => {
     const now = new Date();
-    const dayAgo = subDays(now, 1);
-    const nowUTC = formatISO(now);
-    const dayAgoUTC = formatISO(dayAgo);
+    const nowDay = startOfDay(now);
+    const nowUTC = formatISO(nowDay);
 
-    return [dayAgoUTC, nowUTC];
-  }, []);
+    switch (urlParam.value) {
+      case DateOption.HOUR:
+        const hourAgo = startOfDay(subHours(now, 1));
+        const hourAgoUTC = formatISO(hourAgo);
+        return [hourAgoUTC, nowUTC];
+      case DateOption.DAY:
+        const dayAgo = startOfDay(subDays(now, 1));
+        const dayAgoUTC = formatISO(dayAgo);
+        return [dayAgoUTC, nowUTC];
+      case DateOption.WEEK:
+        const weekAgo = startOfDay(subDays(now, 7));
+        const weekAgoUTC = formatISO(weekAgo);
+        return [weekAgoUTC, nowUTC];
+      case DateOption.ALL:
+        // TODO: discuss what all-time is for this
+        const allTime = startOfDay(subMonths(now, 6));
+        const allTimeUTC = formatISO(allTime);
+        return [allTimeUTC, nowUTC];
+    }
+  }, [urlParam.value]);
 
   const chartRef = useRef(null);
 
@@ -69,35 +97,55 @@ const Home: NextPage = () => {
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
         <section className="mt-28">
-          <header className={'mb-16 flex w-full flex-row justify-between'}>
-            <h1 className="mb-2 text-2xl">{t('trendingCollections.title')}</h1>
+          <header className={'mb-16 flex w-full flex-col justify-between md:flex-row'}>
+            <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
-              <Button type={ButtonType.Secondary}>{t('trendingCollections.filters.hour')}</Button>
-              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.day')}</Button>
-              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.week')}</Button>
-              <Button type={ButtonType.Ghost}>{t('trendingCollections.filters.all')}</Button>
+              <Button
+                onClick={() => urlParam.setAndActivate(DateOption.HOUR)}
+                type={urlParam.value === DateOption.HOUR ? ButtonType.Secondary : ButtonType.Ghost}
+              >
+                {t('trendingCollections.filters.hour')}
+              </Button>
+              <Button
+                onClick={() => urlParam.setAndActivate(DateOption.DAY)}
+                type={urlParam.value === DateOption.DAY ? ButtonType.Secondary : ButtonType.Ghost}
+              >
+                {t('trendingCollections.filters.day')}
+              </Button>
+              <Button
+                onClick={() => urlParam.setAndActivate(DateOption.WEEK)}
+                type={urlParam.value === DateOption.WEEK ? ButtonType.Secondary : ButtonType.Ghost}
+              >
+                {t('trendingCollections.filters.week')}
+              </Button>
+              <Button
+                onClick={() => urlParam.setAndActivate(DateOption.ALL)}
+                type={urlParam.value === DateOption.ALL ? ButtonType.Secondary : ButtonType.Ghost}
+              >
+                {t('trendingCollections.filters.all')}
+              </Button>
             </div>
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
-            <table className="w-full table-auto">
+            <table className="w-full table-auto border-spacing-x-24">
               <thead>
                 <tr>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300">
                     {t('trendingCollections.collection')}
                   </th>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.floor')}
                   </th>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.volume')}
                   </th>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.sales')}
                   </th>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.marketcap')}
                   </th>
-                  <th className="pl-4 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.trend')}
                   </th>
                 </tr>
@@ -132,7 +180,7 @@ const Home: NextPage = () => {
                         floor={collection.floorPrice}
                         volume={collection.volumeTotal}
                         sales={collection.holderCount}
-                        marketcap={1000}
+                        marketcap={Number(collection.floorPrice) * Number(collection.nftCount)}
                         floorTrend={[
                           { price: Math.random() * 10 },
                           { price: Math.random() * 50 },

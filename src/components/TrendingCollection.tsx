@@ -38,7 +38,7 @@ export function TrendingCollection({
   return (
     <>
       <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
-        <img src={image} alt={name} className="h-10 w-10 overflow-clip rounded-lg object-cover" />
+        <img src={image} alt={name} className="h-10 w-10 rounded-lg object-cover" />
         <h6 className="text-base font-semibold">{name}</h6>
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
@@ -72,13 +72,13 @@ export function TrendingCollection({
       <td className="pl-4 lg:pl-0">
         <div className="flex flex-row items-center gap-2">
           <Icon.Currency height={16} width={16} className={'text-white'} />
-          <p className="text-base font-normal">{marketcap}</p>
+          <p className="text-base font-normal">{marketcap.toFixed(1)}</p>
         </div>
       </td>
-      <td>
+      <td className="pl-4 lg:pl-0">
         <AreaChart
           key={`${address}-collection-trend-chart`}
-          width={90}
+          width={120}
           height={40}
           data={floorTrend}
         >

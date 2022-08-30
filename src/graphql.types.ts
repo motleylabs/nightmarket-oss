@@ -222,6 +222,7 @@ export type Collection = {
   /** @deprecated use `nft { collection }` */
   collection?: Maybe<Collection>;
   compactFloorPrice?: Maybe<Scalars['String']>;
+  compactNftCount?: Maybe<Scalars['String']>;
   compactVolumeTotal?: Maybe<Scalars['String']>;
   /** @deprecated use `nft { created_at }` */
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
