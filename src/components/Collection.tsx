@@ -11,7 +11,7 @@ export function Collection() {
 interface CollectionOptionProps {
   className?: string;
   selected: boolean;
-  children: ReactNode;
+  children?: ReactNode;
   avatar: JSX.Element;
   header: JSX.Element;
   floorPrice: number;

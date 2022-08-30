@@ -106,8 +106,6 @@ export default function ProfileCollected() {
     }
   );
 
-  console.log('created collection query', createdCollectionsQuery);
-
   useEffect(() => {
     const subscription = watch(({ listed, collections }) => {
       let variables: CreatedNFTsVariables = {
@@ -196,9 +194,7 @@ export default function ProfileCollected() {
                                 </Collection.Option.Title>
                               }
                               floorPrice={cc.collection?.floorPrice}
-                            >
-                              <div />
-                            </Collection.Option>
+                            ></Collection.Option>
                           )}
                         </Listbox.Option>
                       ))}
