@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
+import Link from 'next/link';
 import { Area, AreaChart } from 'recharts';
 import { percentageDifference } from '../modules/number';
 import Icon from './Icon';
@@ -37,9 +38,15 @@ export function TrendingCollection({
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
   return (
     <>
-      <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
-        <img src={image} alt={name} className="h-10 w-10 rounded-lg object-cover" />
-        <h6 className="text-base font-semibold">{name}</h6>
+      <td>
+        <Link href={`/collections/${address}`}>
+          <a className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
+            <img src={image} alt={name} className="h-10 w-10 rounded-lg object-cover" />
+            <h6 className="transform text-base font-semibold duration-500 ease-in-out hover:scale-105">
+              {name}
+            </h6>
+          </a>
+        </Link>
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
         <div className="flex flex-row items-center gap-2">
@@ -101,7 +108,10 @@ export function LoadingTrendingCollection() {
     <>
       <td className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
         <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-800" />
-        <div className="h-4 w-24 animate-pulse rounded-md bg-gray-800" />
+        <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
+      </td>
+      <td className="pl-4 lg:pl-0">
+        <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
         <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
@@ -110,10 +120,7 @@ export function LoadingTrendingCollection() {
         <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        <div className="h-4 w-20 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
         <div className="h-6 w-36 animate-pulse rounded-md bg-gray-800" />

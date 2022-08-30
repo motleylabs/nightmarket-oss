@@ -174,7 +174,7 @@ const Home: NextPage = () => {
                       key={`collection-${collection.mintAddress}-${i}`}
                     >
                       <TrendingCollection
-                        address={collection.mintAddress}
+                        address={collection.nft.mintAddress}
                         key={`collection-${collection.mintAddress}-${i}`}
                         name={collection.nft.name}
                         image={collection.nft.image}
