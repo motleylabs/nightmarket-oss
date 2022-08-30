@@ -100,12 +100,13 @@ const Home: NextPage = () => {
           <header className={'mb-16 flex w-full flex-col justify-between md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
-              <Button
+              {/* Doesn't work with current implementation */}
+              {/* <Button
                 onClick={() => urlParam.setAndActivate(DateOption.HOUR)}
                 type={urlParam.value === DateOption.HOUR ? ButtonType.Secondary : ButtonType.Ghost}
               >
                 {t('trendingCollections.filters.hour')}
-              </Button>
+              </Button> */}
               <Button
                 onClick={() => urlParam.setAndActivate(DateOption.DAY)}
                 type={urlParam.value === DateOption.DAY ? ButtonType.Secondary : ButtonType.Ghost}
