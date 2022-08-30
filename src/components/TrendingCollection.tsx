@@ -41,7 +41,11 @@ export function TrendingCollection({
       <td>
         <Link href={`/collections/${address}`}>
           <a className={'flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0'}>
-            <img src={image} alt={name} className="h-10 w-10 rounded-lg object-cover" />
+            <img
+              src={image}
+              alt={name}
+              className="h-10 w-10 transform rounded-lg object-cover duration-500 ease-in-out hover:scale-110"
+            />
             <h6 className="transform text-base font-semibold duration-500 ease-in-out hover:scale-105">
               {name}
             </h6>
