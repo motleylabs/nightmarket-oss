@@ -14,8 +14,9 @@ import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LoadingTrendingCollection, TrendingCollection } from '../components/TrendingCollection';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { useUrlQueryParam } from '../hooks/urlparam';
+import { useWindowWidth } from '@react-hook/window-size';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionType[];
@@ -47,6 +48,7 @@ const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
   const urlParam = useUrlQueryParam<DateOption>('trending', DEFAULT_DATE_OPTION, true);
+  const screenWidth = useWindowWidth();
 
   const [startDate, endDate] = useMemo(() => {
     const now = new Date();
@@ -97,7 +99,7 @@ const Home: NextPage = () => {
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
         <section className="mt-28">
-          <header className={'mb-16 flex w-full flex-col justify-between md:flex-row'}>
+          <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
               {/* Doesn't work with current implementation */}
@@ -110,18 +112,21 @@ const Home: NextPage = () => {
               <Button
                 onClick={() => urlParam.setAndActivate(DateOption.DAY)}
                 type={urlParam.value === DateOption.DAY ? ButtonType.Secondary : ButtonType.Ghost}
+                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
               >
                 {t('trendingCollections.filters.day')}
               </Button>
               <Button
                 onClick={() => urlParam.setAndActivate(DateOption.WEEK)}
                 type={urlParam.value === DateOption.WEEK ? ButtonType.Secondary : ButtonType.Ghost}
+                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
               >
                 {t('trendingCollections.filters.week')}
               </Button>
               <Button
                 onClick={() => urlParam.setAndActivate(DateOption.ALL)}
                 type={urlParam.value === DateOption.ALL ? ButtonType.Secondary : ButtonType.Ghost}
+                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
               >
                 {t('trendingCollections.filters.all')}
               </Button>
