@@ -47,18 +47,13 @@ export default function Search({ children }: SearchProps) {
         onChange={(selection) => {
           setSelected(selection);
 
-          // TODO: This stuff is really hacky because it accounts for a property that graphql provides but doesn't reveal in its typing
-          // it has an error around object is possibly undefined
-          // @ts-ignore
           switch (selection?.__typename) {
             case 'MetadataJson':
-              // @ts-ignore
               if (!selection?.creatorAddress) {
-                // @ts-ignore
                 router.push(`/collections/${selection.mintAddress}`);
                 break;
               }
-              // @ts-ignore
+
               router.push(`/nfts/${selection.mintAddress}`);
               break;
             case 'Nft':

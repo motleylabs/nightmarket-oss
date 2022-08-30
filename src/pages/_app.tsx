@@ -25,7 +25,7 @@ import ViewerProvider from '../providers/ViewerProvider';
 import Button from './../components/Button';
 import client from './../client';
 import './../../styles/globals.css';
-import { Wallet, Nft } from './../graphql.types';
+import { Wallet, Nft, MetadataJson } from './../graphql.types';
 import config from './../app.config';
 import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
@@ -63,7 +63,11 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              <span className="text-white">{t('header.title')}</span>
+              <img
+                src="/images/nightmarket-stacked.svg"
+                className="h-[42px] w-auto object-fill"
+                alt="night market logo"
+              />
             </a>
           </Link>
         </div>

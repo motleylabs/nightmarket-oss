@@ -23,8 +23,8 @@ export function Avatar({ src, circle, size }: AvatarProps) {
       alt="avatar"
       className={clsx('aspect-square object-cover', {
         'rounded-full': circle,
-        'h-10 w-10': size === AvatarSize.Standard,
-        'h-16 w-16': size === AvatarSize.Large,
+        'w-12': size === AvatarSize.Standard,
+        'w-16': size === AvatarSize.Large,
         'rounded-md': !circle && [AvatarSize.Tiny, AvatarSize.Small].includes(size),
         'rounded-lg': !circle && [AvatarSize.Standard, AvatarSize.Large].includes(size),
         'rounded-xl': !circle && [AvatarSize.Jumbo, AvatarSize.Gigantic].includes(size),

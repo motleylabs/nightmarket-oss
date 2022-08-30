@@ -42,9 +42,9 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
 
   const nftMarketInfoQuery = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
     variables: {
-      address: router.query.adress as string
-    }
-  })
+      address: router.query.address as string,
+    },
+  });
 
   const {
     makeOffer,
@@ -182,11 +182,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
                   <span>{t('highestOffer')}</span>
                   <span>--</span>
                 </div>
-                <Button
-                  type={ButtonType.Ghost}
-                  size={ButtonSize.Large}
-                  onClick={() => {}}
-                >
+                <Button type={ButtonType.Ghost} size={ButtonSize.Large} onClick={() => {}}>
                   {t('accept')}
                 </Button>
               </div>

@@ -8,9 +8,16 @@ import { toSol } from './modules/sol';
 import typeDefs from './../local.graphql';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
+import {
+  ConnectionCounts,
+  WalletNftCount,
+  TwitterProfile,
+  NftMarketplace,
+  AuctionHouse,
+} from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
-import { asCompactNumber, asUsdString } from './modules/number';
+import marketplaces from './marketplaces.json';
+import { asCompactNumber } from './modules/number';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
@@ -92,6 +99,40 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   }
 
   return image;
+}
+
+function asNftMarketplace(
+  _: void,
+  { readField }: { readField: ReadFieldFunction }
+): NftMarketplace {
+  const marketplaceProgramAddress: string | undefined = readField('marketplaceProgramAddress');
+  const auctionHouse: AuctionHouse | undefined = readField('auctionHouse');
+
+  let result: NftMarketplace[] | NftMarketplace | undefined;
+
+  const unknownMarketplace = {
+    logo: '/images/unknown-marketplace.svg',
+    name: 'Unknown Marketplace',
+    link: undefined,
+  };
+
+  result = marketplaces.filter(
+    (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
+  );
+
+  if (result.length === 0) {
+    return unknownMarketplace;
+  } else if (result.length === 1) {
+    return result[0];
+  }
+
+  result = result.find((marketplace) => marketplace.auctionHouseAddress === auctionHouse?.address);
+
+  if (!result) {
+    return unknownMarketplace;
+  }
+
+  return result;
 }
 
 const client = new ApolloClient({
@@ -212,6 +253,9 @@ const client = new ApolloClient({
           },
           timeSince: {
             read: asTimeSince,
+          },
+          nftMarketplace: {
+            read: asNftMarketplace,
           },
         },
       },
@@ -401,11 +445,17 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
         },
       },
       NftActivity: {
         keyFields: ['id'],
         fields: {
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
           },
@@ -420,6 +470,9 @@ const client = new ApolloClient({
       Offer: {
         keyFields: ['id'],
         fields: {
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
           },
