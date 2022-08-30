@@ -288,6 +288,11 @@ export type ConnectionCounts = {
   toCount: Scalars['Int'];
 };
 
+export type CreatedCollection = {
+  __typename?: 'CreatedCollection';
+  collection?: Maybe<Collection>;
+};
+
 export type Creator = {
   __typename?: 'Creator';
   address: Scalars['String'];
@@ -1338,6 +1343,7 @@ export type Wallet = {
   compactFollowingCount?: Maybe<Scalars['String']>;
   compactOwnedCount?: Maybe<Scalars['String']>;
   connectionCounts: ConnectionCounts;
+  createdCollections: Array<CreatedCollection>;
   displayName?: Maybe<Scalars['String']>;
   nftCounts: WalletNftCount;
   portfolioValue?: Maybe<Scalars['Int']>;

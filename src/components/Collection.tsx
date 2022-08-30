@@ -54,7 +54,7 @@ Collection.Option = CollectionOption;
 
 interface CollectionAvatarProps {
   src: string;
-  figure?: number;
+  figure?: string;
 }
 
 function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Element {
