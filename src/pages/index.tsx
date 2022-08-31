@@ -152,52 +152,49 @@ const Home: NextPage = () => {
             </div>
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
-            <table className="w-full table-auto border-spacing-x-24">
+            <table className="w-full table-auto border-spacing-x-24 divide-y divide-gray-800">
               <thead>
                 <tr>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300">
                     {t('trendingCollections.collection')}
                   </th>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.floor')}
                   </th>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.volume')}
                   </th>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.sales')}
                   </th>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.marketcap')}
                   </th>
-                  <th className="border-b border-gray-800 pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.trend')}
                   </th>
                 </tr>
               </thead>
-              <tbody className="mt-2">
+              <tbody className="mt-2 divide-y divide-gray-800">
                 {trendingCollectionsQuery.loading ? (
                   <>
-                    <tr className="border-b border-gray-800">
+                    <tr>
                       <LoadingTrendingCollection />
                     </tr>
-                    <tr className="border-b border-gray-800">
+                    <tr>
                       <LoadingTrendingCollection />
                     </tr>
-                    <tr className="border-b border-gray-800">
+                    <tr>
                       <LoadingTrendingCollection />
                     </tr>
-                    <tr className="border-b border-gray-800">
+                    <tr>
                       <LoadingTrendingCollection />
                     </tr>
                   </>
                 ) : (
                   trendingCollectionsQuery.data?.collectionsFeaturedByVolume.map(
                     (collection, i) => (
-                      <tr
-                        className="border-b border-gray-800"
-                        key={`collection-${collection.mintAddress}-${i}`}
-                      >
+                      <tr key={`collection-${collection.mintAddress}-${i}`}>
                         <TrendingCollection
                           address={collection.nft.mintAddress}
                           key={`collection-${collection.mintAddress}-${i}`}

@@ -62,11 +62,12 @@ export function TrendingCollection({
               'text-[#F04438]': priceChange < 0,
             })}
           >
-            {priceChange >= 0 ? (
-              <ArrowUpIcon className="h-2 w-2" />
-            ) : (
-              <ArrowDownIcon className="h-2 w-2" />
-            )}
+            <ArrowUpIcon
+              className={clsx(clsx, 'h-2 w-2', {
+                'rotate-180 transform': priceChange < 0,
+                'rotate-0 transform': priceChange >= 0,
+              })}
+            />
             {priceChangePercentage.toFixed(1)}%
           </p>
         </div>
