@@ -55,7 +55,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
             {nft.attributes?.map((attribute) => (
               <div
-                className="flex flex-col justify-between gap-2 rounded-lg border border-gray-800 p-2"
+                className="flex flex-col justify-between gap-2 rounded-md border border-gray-800 p-2"
                 key={attribute.traitType}
               >
                 <span className=" text-sm text-gray-300">{attribute.traitType}</span>

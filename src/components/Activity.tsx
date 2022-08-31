@@ -3,7 +3,6 @@ import { SVGProps, useMemo, cloneElement, Children } from 'react';
 import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
 import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
-import { shortenAddress } from './../modules/address';
 
 export enum ActivityType {
   Purchase = 'purchase',
@@ -21,7 +20,7 @@ interface ActivityProps {
 
 export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.Element {
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg border border-gray-700 p-4 text-white">
+    <div className="mb-4 flex items-center justify-between rounded-md border border-gray-700 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
         {avatar}
         {cloneElement(meta, { type })}
@@ -148,7 +147,7 @@ function ActivityWallet({ wallets, type }: ActivityWalletProps): JSX.Element {
 Activity.Wallet = ActivityWallet;
 
 function ActivitySkeleton(): JSX.Element {
-  return <div className="mb-4 h-16 rounded bg-gray-800" />;
+  return <div className="mb-4 h-16 rounded-md bg-gray-800" />;
 }
 
 Activity.Skeleton = ActivitySkeleton;

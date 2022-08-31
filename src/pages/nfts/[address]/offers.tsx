@@ -83,7 +83,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
   return (
     <>
       {called && data?.nftOffers?.offers?.length === 0 && (
-        <div className="flex w-full justify-center rounded-lg border border-gray-800 p-4">
+        <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
           <h3 className="text-gray-300">{t('noOffers')}</h3>
         </div>
       )}

@@ -39,7 +39,7 @@ function FormInput({ className, icon, ...props }: FormInputProps): JSX.Element {
   return (
     <div
       className={clsx(
-        'flex w-full flex-row items-center justify-start rounded-lg border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+        'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
         className
       )}
     >
