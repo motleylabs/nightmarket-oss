@@ -9,21 +9,17 @@ const withGraphql = require('next-plugin-graphql');
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // env: {
-  //   gql: 'NEXT_PUBLIC_GRAPHQL_URL',
-  //   rpc: 'NEXT_PUBLIC_SOLANA_RPC_URL',
-  // },
   i18n,
   async redirects() {
     return [
       {
-        source: '/collections/:publicKey',
-        destination: '/collections/:publicKey/nfts',
+        source: '/collections/:address',
+        destination: '/collections/:address/nfts',
         permanent: true,
       },
       {
-        source: '/profiles/:publicKey',
-        destination: '/profiles/:publicKey/collected',
+        source: '/profiles/:address',
+        destination: '/profiles/:address/collected',
         permanent: true,
       },
     ];
@@ -32,10 +28,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
-  },
-  experimental: {
-    outputStandalone: true,
+    ignoreBuildErrors: false,
   },
 };
 

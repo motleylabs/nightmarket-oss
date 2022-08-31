@@ -1,0 +1,14 @@
+fragment ListingInfo on AhListing {
+  id
+  seller
+  price
+  marketplaceProgramAddress
+  nftMarketplace @client {
+    name
+    logo
+    link
+  }
+  auctionHouse {
+    address
+  }
+}

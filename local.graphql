@@ -4,6 +4,22 @@ type Viewer {
   solBalance: Int
 }
 
+type NftMarketplace {
+  name: String
+  logo: String
+  link: String
+  marketplaceProgramAddress: String
+  auctionHouseAddress: String
+}
+
+extend type AhListing {
+  nftMarketplace: NftMarketplace
+}
+
+extend type Offer {
+  nftMarketplace: NftMarketplace
+}
+
 extend type AuctionHouse {
   fee: Int
 }
@@ -28,11 +44,13 @@ extend type Collection {
 extend type NftActivity {
   solPrice: Int
   timeSince: String
+  nftMarketplace: NftMarketplace
 }
 
 extend type WalletActivity {
   solPrice: Int
   timeSince: String
+  nftMarketplace: NftMarketplace
 }
 
 extend type Wallet {

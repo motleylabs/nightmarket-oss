@@ -1,4 +1,4 @@
-import { useCallback, useMemo, ReactElement, useEffect } from 'react';
+import { useCallback, useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -63,7 +63,11 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              <span className="text-white">{t('header.title')}</span>
+              <img
+                src="/images/nightmarket-stacked.svg"
+                className="h-[42px] w-auto object-fill"
+                alt="night market logo"
+              />
             </a>
           </Link>
         </div>

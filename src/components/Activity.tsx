@@ -1,6 +1,6 @@
 import { useTranslation } from 'next-i18next';
 import { SVGProps, useMemo, cloneElement, Children } from 'react';
-import { Wallet, Maybe } from './../graphql.types';
+import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
 import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
 import { shortenAddress } from './../modules/address';
@@ -35,7 +35,7 @@ export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.E
 
 interface ActivityMetaProps {
   title: JSX.Element;
-  marketplace: string;
+  marketplace: Maybe<NftMarketplace> | undefined;
   source?: JSX.Element;
   type?: ActivityType;
 }
@@ -44,7 +44,11 @@ function ActivityMeta({ title, marketplace, source, type }: ActivityMetaProps): 
     <div className="flex flex-col justify-between">
       {cloneElement(title, { type })}
       <div className="flex flex-row gap-2">
-        <span className="text-xs">{shortenAddress(marketplace)}</span>
+        <img
+          src={marketplace?.logo as string}
+          alt={`nft marketplace logo ${marketplace?.name}`}
+          className="object-fit h-4 w-auto"
+        />
         {source && (
           <span className="border-l-[1px] border-l-gray-600 pl-2">
             {cloneElement(source, { type })}
@@ -70,11 +74,11 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
     switch (type) {
       case ActivityType.Purchase:
       case ActivityType.Sell:
-        return [t('activity.purchase'), CurrencyDollarIcon];
+        return [t('purchase'), CurrencyDollarIcon];
       case ActivityType.Listing:
-        return [t('activity.listing'), TagIcon];
+        return [t('listing'), TagIcon];
       case ActivityType.Offer:
-        return [t('activity.offer'), HandIcon];
+        return [t('offer'), HandIcon];
       default:
         return [];
     }

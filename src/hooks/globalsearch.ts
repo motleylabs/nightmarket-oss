@@ -7,8 +7,8 @@ import { Wallet, Nft, MetadataJson } from './../graphql.types';
 export interface GlobalSearchData {
   profiles: Wallet[];
   wallet: Wallet;
-  nfts: MetadataJson[] | Nft[];
-  collections: MetadataJson[] | Nft[];
+  nfts: Nft[];
+  collections: MetadataJson[];
 }
 
 type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -28,7 +28,7 @@ interface GlobalSearchContext {
 export default function useGlobalSearch(): GlobalSearchContext {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const [searchQuery, { data, loading, called, variables, refetch, previousData }] =
+  const [searchQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<GlobalSearchData>(GlobalSearchQuery);
 
   const hasResults = useMemo(() => {
