@@ -65,7 +65,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
   return (
     <main className="relative mx-auto mt-8 grid max-w-7xl grid-cols-12 justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
       <Head>
-        <title>{t('metadata.title', { address: nft.shortMintAddress })}</title>
+        <title>{nft.name}</title>
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
