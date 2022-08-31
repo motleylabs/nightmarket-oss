@@ -1,58 +1,57 @@
-# Install dependencies only when needed
-FROM node:16.14-alpine AS deps
+FROM node:16-alpine AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package.json .
-RUN yarn install --frozen-lockfile --production=false
 
-# Rebuild the source code only when needed
-FROM node:16.14-alpine AS builder
+WORKDIR /app
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+
+FROM node:16-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-#Env
-ARG NEXT_ENVIRONMENT
-ENV NEXT_PUBLIC_ENVIRONMENT $ENVIRONMENT
-ENV NODE_ENV $NEXT_ENVIRONMENT
-
-#Solana
+#Solana RPC
 ARG SOLANA_ENDPOINT
 ENV SOLANA_ENDPOINT $SOLANA_ENDPOINT
 ENV NEXT_PUBLIC_SOLANA_RPC_URL $SOLANA_ENDPOINT
 
-#Indexer
+#Indexer GraphQL
 ARG GRAPHQL_URL
 ENV NEXT_PUBLIC_GRAPHQL_URL $GRAPHQL_URL
 
+#Haus market
 ARG MARKETPLACE_SUBDOMAIN
 ENV NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN $MARKETPLACE_SUBDOMAIN
-
 RUN yarn build
 
-# Production image, copy all the files and run next
-FROM node:16.14-alpine AS runner
+FROM node:16-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ARG NODE_ENV
+ENV NEXT_PUBLIC_ENVIRONMENT $NODE_ENV
+ENV NODE_ENV $NODE_ENV
 
-ENV NEXT_TELEMETRY_DISABLED 1
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
 
-# Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+
 USER nextjs
 
 EXPOSE 3000
-ENV PORT 3000
-ENV NEXT_SHARP_PATH /app/node_modules/sharp
 
-CMD ["npx", "next", "start"]
+ENV PORT 3000
+
+CMD ["node", "server.js"]
