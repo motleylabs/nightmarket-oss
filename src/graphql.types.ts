@@ -215,6 +215,7 @@ export type Collection = {
   address: Scalars['String'];
   /** @deprecated use `nft { animation_url }` */
   animationUrl?: Maybe<Scalars['String']>;
+  attributeGroups: Array<AttributeGroup>;
   /** @deprecated use `nft { attributes }` */
   attributes: Array<NftAttribute>;
   /** @deprecated use `nft { category }` */

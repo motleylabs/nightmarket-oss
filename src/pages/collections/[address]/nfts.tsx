@@ -1,6 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
-import { InView } from 'react-intersection-observer';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -83,7 +82,7 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
-  attributes: AttributeFilter[];
+  attributes: { [key: string]: string[] };
 }
 
 function SidebarFilterHeader({
@@ -93,9 +92,13 @@ function SidebarFilterHeader({
   group: AttributeGroup;
   isOpen: boolean;
 }): JSX.Element {
-  const totalCount = group.variants.reduce((count, item) => {
-    return count + item.count;
-  }, 0);
+  const totalCount = useMemo(
+    () =>
+      group.variants.reduce((count, item) => {
+        return count + item.count;
+      }, 0),
+    [group.variants]
+  );
   return (
     <div className="mb-4 flex items-center justify-between">
       <span className="text-lg text-white">{group.name}</span>
@@ -143,7 +146,7 @@ function SidebarFilterSkeleton(): JSX.Element {
 
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control, getFieldState } = useForm<CollectionNFTForm>({
+  const { watch, control, getValues } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All },
   });
   const router = useRouter();
@@ -169,6 +172,11 @@ export default function CollectionNfts() {
     },
   });
 
+  const getGroupSelectedAttributes = (groupName: string) => {
+    const variants = getValues().attributes[groupName];
+    return variants ? variants : [];
+  };
+
   useEffect(() => {
     const subscription = watch(({ listed, attributes }) => {
       let variables: CollectionNFTsVariables = {
@@ -176,8 +184,24 @@ export default function CollectionNfts() {
         limit: 24,
         collection: router.query.address as string,
         listed: null,
-        attributes,
+        attributes: null,
       };
+
+      if (attributes) {
+        const attributesFilters: AttributeFilter[] = new Array<AttributeFilter>();
+        for (let [key, value] of Object.entries(attributes)) {
+          if (value) {
+            const attributeFilter: AttributeFilter = {
+              traitType: key,
+              values: value,
+            };
+            attributesFilters.push(attributeFilter);
+          }
+        }
+        if (attributesFilters.length > 0) {
+          variables.attributes = attributesFilters;
+        }
+      }
 
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
@@ -225,9 +249,6 @@ export default function CollectionNfts() {
                 <SidebarFilterSkeleton />
                 <SidebarFilterSkeleton />
                 <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
               </>
             ) : (
               <>
@@ -235,18 +256,13 @@ export default function CollectionNfts() {
                   <Controller
                     key={group.name}
                     control={control}
-                    name={`attributes.${index}`}
+                    name={`attributes.${group.name}`}
                     render={({ field: { onChange, value } }) => (
                       <Listbox
-                        value={group.name}
+                        multiple
+                        value={getGroupSelectedAttributes(group.name)}
                         onChange={(e) => {
-                          console.log('onchange', e);
-                          console.log(getFieldState('attributes'));
-                          // const attribute: AttributeFilter = {
-                          //   traitType: group.name,
-                          //   values: [e],
-                          // };
-                          //onChange(e);
+                          onChange(e);
                         }}
                       >
                         {({ open }) => (
@@ -257,7 +273,7 @@ export default function CollectionNfts() {
                             <Listbox.Options>
                               {group.variants.map((variant) => (
                                 <Listbox.Option key={variant.name} value={variant.name}>
-                                  {({ active, selected }) => (
+                                  {({ selected }) => (
                                     <SidebarFilterItem variant={variant} isSelected={selected} />
                                   )}
                                 </Listbox.Option>

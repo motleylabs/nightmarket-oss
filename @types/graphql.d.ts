@@ -3,6 +3,7 @@ declare module '*/collection.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const CollectionQuery: DocumentNode;
+export const CollectionAttributeGroupsQuery: DocumentNode;
 export const CollectionNFTsQuery: DocumentNode;
 export const CollectionActivitiesQuery: DocumentNode;
 
