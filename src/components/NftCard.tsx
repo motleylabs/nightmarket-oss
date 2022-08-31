@@ -11,7 +11,7 @@ export function NftCard({ nft }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
   return (
-    <div className="overflow-clip rounded-lg text-white shadow-lg transition hover:scale-[1.02]">
+    <div className="overflow-clip rounded-md text-white shadow-lg transition hover:scale-[1.02]">
       <img
         src={nft.image}
         alt={`Nft image for ${nft.mintAddress}`}
@@ -48,7 +48,7 @@ function NftCardSkeleton({ className }: NftCardSkeletonProps) {
   return (
     <div
       className={clsx(
-        'animate-pulse overflow-clip rounded-lg text-white shadow-lg transition',
+        'animate-pulse overflow-clip rounded-md text-white shadow-lg transition',
         className
       )}
     >

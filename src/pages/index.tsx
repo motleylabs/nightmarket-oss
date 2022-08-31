@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
-import { subDays, formatISO } from 'date-fns';
+import { subDays, formatISO, startOfDay } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -36,8 +36,8 @@ const Home: NextPage = () => {
   const { publicKey } = useWallet();
 
   const [startDate, endDate] = useMemo(() => {
-    const now = new Date();
-    const dayAgo = subDays(now, 1);
+    const now = startOfDay(new Date());
+    const dayAgo = startOfDay(subDays(now, 1));
     const nowUTC = formatISO(now);
     const dayAgoUTC = formatISO(dayAgo);
 

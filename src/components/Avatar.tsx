@@ -25,9 +25,8 @@ export function Avatar({ src, circle, size }: AvatarProps) {
         'rounded-full': circle,
         'w-12': size === AvatarSize.Standard,
         'w-16': size === AvatarSize.Large,
-        'rounded-md': !circle && [AvatarSize.Tiny, AvatarSize.Small].includes(size),
-        'rounded-lg': !circle && [AvatarSize.Standard, AvatarSize.Large].includes(size),
-        'rounded-xl': !circle && [AvatarSize.Jumbo, AvatarSize.Gigantic].includes(size),
+        'rounded-md': !circle && [AvatarSize.Tiny, AvatarSize.Small, AvatarSize.Standard, AvatarSize.Large].includes(size),
+        'rounded-lg': !circle && [AvatarSize.Jumbo, AvatarSize.Gigantic].includes(size),
       })}
     />
   );
