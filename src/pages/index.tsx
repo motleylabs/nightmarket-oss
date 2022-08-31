@@ -1,11 +1,12 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useMemo, useRef } from 'react';
+import { useEffect } from 'react';
 import { subDays, formatISO, subHours, subMonths, startOfDay } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
 import { SwiperSlide } from 'swiper/react';
 import GetHomeQuery from './../queries/home.graphql';
+import TrendingCollectionQuery from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
@@ -14,14 +15,17 @@ import { Collection as CollectionType, Wallet } from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { LoadingTrendingCollection, TrendingCollection } from '../components/TrendingCollection';
-import Button, { ButtonSize, ButtonType } from '../components/Button';
-import { useUrlQueryParam } from '../hooks/urlparam';
-import { useWindowWidth } from '@react-hook/window-size';
+import { Controller, useForm } from 'react-hook-form';
+import { ButtonGroup } from '../components/ButtonGroup';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionType[];
   collectionsFeaturedByMarketCap: CollectionType[];
   followWallets: Wallet[];
+}
+
+interface TrendingCollectionData {
+  collectionsFeaturedByVolume: CollectionType[];
 }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
@@ -39,52 +43,78 @@ enum DateOption {
   HOUR = '1hr',
   DAY = '24hr',
   WEEK = '7d',
-  ALL = 'all',
 }
 
 const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
 
+const now = new Date();
+const nowUTC = formatISO(now);
+const dayAgo = subDays(now, 1);
+const dayAgoUTC = formatISO(dayAgo);
+
+interface TrendingCollectionForm {
+  filter: DateOption;
+}
+
+interface TrendingCollectionVariables {
+  startDate: string;
+  endDate: string;
+}
+
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
-  const urlParam = useUrlQueryParam<DateOption>('trending', DEFAULT_DATE_OPTION, true);
-  const screenWidth = useWindowWidth();
 
-  const [startDate, endDate] = useMemo(() => {
-    const now = new Date();
-    const nowDay = startOfDay(now);
-    const nowUTC = formatISO(nowDay);
-
-    switch (urlParam.value) {
-      case DateOption.HOUR:
-        const hourAgo = startOfDay(subHours(now, 1));
-        const hourAgoUTC = formatISO(hourAgo);
-        return [hourAgoUTC, nowUTC];
-      case DateOption.DAY:
-        const dayAgo = startOfDay(subDays(now, 1));
-        const dayAgoUTC = formatISO(dayAgo);
-        return [dayAgoUTC, nowUTC];
-      case DateOption.WEEK:
-        const weekAgo = startOfDay(subDays(now, 7));
-        const weekAgoUTC = formatISO(weekAgo);
-        return [weekAgoUTC, nowUTC];
-      case DateOption.ALL:
-        // TODO: discuss what all-time is for this
-        const allTime = startOfDay(subMonths(now, 6));
-        const allTimeUTC = formatISO(allTime);
-        return [allTimeUTC, nowUTC];
-    }
-  }, [urlParam.value]);
-
-  const chartRef = useRef(null);
+  const { watch, control } = useForm<TrendingCollectionForm>({
+    defaultValues: { filter: DEFAULT_DATE_OPTION },
+  });
 
   const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery, {
     variables: {
-      startDate,
-      endDate,
+      startDate: dayAgoUTC,
+      endDate: nowUTC,
       userWallet: publicKey?.toBase58(),
     },
   });
+
+  const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
+    TrendingCollectionQuery,
+    {
+      variables: {
+        startDate: dayAgoUTC,
+        endDate: nowUTC,
+      },
+    }
+  );
+
+  useEffect(() => {
+    const subscription = watch(({ filter }) => {
+      let variables: TrendingCollectionVariables = {
+        startDate: dayAgoUTC,
+        endDate: nowUTC,
+      };
+      switch (filter) {
+        case DateOption.HOUR:
+          const hourAgo = subHours(now, 1);
+          const hourAgoUTC = formatISO(hourAgo);
+          variables.startDate = hourAgoUTC;
+          break;
+        case DateOption.DAY:
+          const dayAgo = subDays(now, 1);
+          const dayAgoUTC = formatISO(dayAgo);
+          variables.startDate = dayAgoUTC;
+          break;
+        case DateOption.WEEK:
+          const weekAgo = startOfDay(subDays(now, 7));
+          const weekAgoUTC = formatISO(weekAgo);
+          variables.startDate = weekAgoUTC;
+          break;
+      }
+
+      trendingCollectionsQuery.refetch(variables);
+    });
+    return subscription.unsubscribe;
+  }, [watch, trendingCollectionsQuery]);
 
   return (
     <>
@@ -102,34 +132,23 @@ const Home: NextPage = () => {
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
-              {/* Doesn't work with current implementation */}
-              {/* <Button
-                onClick={() => urlParam.setAndActivate(DateOption.HOUR)}
-                type={urlParam.value === DateOption.HOUR ? ButtonType.Secondary : ButtonType.Ghost}
-              >
-                {t('trendingCollections.filters.hour')}
-              </Button> */}
-              <Button
-                onClick={() => urlParam.setAndActivate(DateOption.DAY)}
-                type={urlParam.value === DateOption.DAY ? ButtonType.Secondary : ButtonType.Ghost}
-                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
-              >
-                {t('trendingCollections.filters.day')}
-              </Button>
-              <Button
-                onClick={() => urlParam.setAndActivate(DateOption.WEEK)}
-                type={urlParam.value === DateOption.WEEK ? ButtonType.Secondary : ButtonType.Ghost}
-                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
-              >
-                {t('trendingCollections.filters.week')}
-              </Button>
-              <Button
-                onClick={() => urlParam.setAndActivate(DateOption.ALL)}
-                type={urlParam.value === DateOption.ALL ? ButtonType.Secondary : ButtonType.Ghost}
-                size={screenWidth > 768 ? ButtonSize.Large : ButtonSize.Small}
-              >
-                {t('trendingCollections.filters.all')}
-              </Button>
+              <Controller
+                control={control}
+                name={'filter'}
+                render={({ field: { onChange, value } }) => (
+                  <ButtonGroup value={value} onChange={onChange}>
+                    <ButtonGroup.Option value={DateOption.HOUR}>
+                      {t('trendingCollections.filters.hour')}
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={DateOption.DAY}>
+                      {t('trendingCollections.filters.day')}
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={DateOption.WEEK}>
+                      {t('trendingCollections.filters.week')}
+                    </ButtonGroup.Option>
+                  </ButtonGroup>
+                )}
+              />
             </div>
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
@@ -157,7 +176,7 @@ const Home: NextPage = () => {
                 </tr>
               </thead>
               <tbody className="mt-2">
-                {homeQueryResult.loading ? (
+                {trendingCollectionsQuery.loading ? (
                   <>
                     <tr className="border-b border-gray-800">
                       <LoadingTrendingCollection />
@@ -173,32 +192,34 @@ const Home: NextPage = () => {
                     </tr>
                   </>
                 ) : (
-                  homeQueryResult.data?.collectionsFeaturedByVolume.map((collection, i) => (
-                    <tr
-                      className="border-b border-gray-800"
-                      key={`collection-${collection.mintAddress}-${i}`}
-                    >
-                      <TrendingCollection
-                        address={collection.nft.mintAddress}
+                  trendingCollectionsQuery.data?.collectionsFeaturedByVolume.map(
+                    (collection, i) => (
+                      <tr
+                        className="border-b border-gray-800"
                         key={`collection-${collection.mintAddress}-${i}`}
-                        name={collection.nft.name}
-                        image={collection.nft.image}
-                        floor={collection.floorPrice}
-                        volume={collection.volumeTotal}
-                        sales={collection.holderCount}
-                        marketcap={Number(collection.floorPrice) * Number(collection.nftCount)}
-                        floorTrend={[
-                          { price: Math.random() * 10 },
-                          { price: Math.random() * 50 },
-                          { price: Math.random() * 20 },
-                          { price: Math.random() * 60 },
-                          { price: Math.random() * 40 },
-                          { price: Math.random() * 100 },
-                          { price: collection.floorPrice }, // TODO: get historical floor data into query
-                        ]}
-                      />
-                    </tr>
-                  ))
+                      >
+                        <TrendingCollection
+                          address={collection.nft.mintAddress}
+                          key={`collection-${collection.mintAddress}-${i}`}
+                          name={collection.nft.name}
+                          image={collection.nft.image}
+                          floor={collection.floorPrice}
+                          volume={collection.volumeTotal}
+                          sales={collection.holderCount}
+                          marketcap={Number(collection.floorPrice) * Number(collection.nftCount)}
+                          floorTrend={[
+                            { price: Math.random() * 10 },
+                            { price: Math.random() * 50 },
+                            { price: Math.random() * 20 },
+                            { price: Math.random() * 60 },
+                            { price: Math.random() * 40 },
+                            { price: Math.random() * 100 },
+                            { price: collection.floorPrice }, // TODO: get historical floor data into query
+                          ]}
+                        />
+                      </tr>
+                    )
+                  )
                 )}
               </tbody>
             </table>
