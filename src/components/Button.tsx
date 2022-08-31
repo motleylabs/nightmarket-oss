@@ -6,6 +6,7 @@ export enum ButtonType {
   Primary = 'primary',
   Secondary = 'secondary',
   Tertiary = 'tertiary',
+  Ghost = 'ghost',
 }
 
 export enum ButtonSize {
@@ -60,6 +61,7 @@ const Button = ({
           'bg-white text-gray-900': type === ButtonType.Primary,
           'bg-gray-800 text-white': type === ButtonType.Secondary,
           'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
+          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small,
           'py-2 px-6': size === ButtonSize.Large,

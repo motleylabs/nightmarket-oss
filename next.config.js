@@ -14,6 +14,20 @@ const nextConfig = {
   //   rpc: 'NEXT_PUBLIC_SOLANA_RPC_URL',
   // },
   i18n,
+  async redirects() {
+    return [
+      {
+        source: '/collections/:publicKey',
+        destination: '/collections/:publicKey/nfts',
+        permanent: true,
+      },
+      {
+        source: '/profiles/:publicKey',
+        destination: '/profiles/:publicKey/collected',
+        permanent: true,
+      },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

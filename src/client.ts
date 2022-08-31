@@ -423,6 +423,12 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          timeSince: {
+            read: asTimeSince,
+          },
+          solPrice: {
+            read: asSOL,
+          },
         },
       },
       AuctionHouse: {
