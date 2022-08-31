@@ -42,6 +42,7 @@ Icon.SolScan = SolScanIcon;
 interface SolanaIconProps extends IconProps {
   gradient?: boolean;
 }
+
 function SolanaIcon({ className, width, height, gradient }: SolanaIconProps) {
   if (gradient) {
     return (

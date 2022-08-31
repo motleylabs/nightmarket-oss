@@ -52,6 +52,11 @@ query CollectionActivitiesQuery(
       createdAt
       timeSince @client
       marketplaceProgramAddress
+      nftMarketplace @client {
+        name
+        link
+        logo
+      }
       solPrice @client
       wallets {
         address

@@ -9,5 +9,6 @@
   "update": "Update",
   "view": "View",
   "accept": "Accept",
-  "noOffers": "No offers"
+  "noOffers": "No offers",
+  "placedOffer": "made an offer"
 }

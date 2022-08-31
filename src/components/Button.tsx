@@ -54,7 +54,7 @@ const Button = ({
     <button
       className={clsx(
         clsx,
-        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center font-semibold transition-transform duration-150',
+        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center transition-transform duration-150',
         className,
         {
           'w-full': block,

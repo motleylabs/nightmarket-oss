@@ -155,10 +155,7 @@ export default function ProfileActivity(): JSX.Element {
                 type={activity.activityType as ActivityType}
                 key={activity.id}
                 meta={
-                  <Activity.Meta
-                    title={<Activity.Tag />}
-                    marketplace={activity.marketplaceProgramAddress}
-                  />
+                  <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
                 }
               >
                 <Activity.Price amount={activity.solPrice} />
