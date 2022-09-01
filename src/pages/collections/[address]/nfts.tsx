@@ -1,11 +1,15 @@
 import type { GetServerSidePropsContext } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
-import { CollectionQuery, CollectionNFTsQuery } from './../../../queries/collection.graphql';
+import {
+  CollectionQuery,
+  CollectionNFTsQuery,
+  CollectionAttributeGroupsQuery,
+} from './../../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection, Nft } from '../../../graphql.types';
+import { AttributeFilter, Collection, Nft, Scalars } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -16,6 +20,8 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
+import { Listbox } from '@headlessui/react';
+import { Attribute } from '../../../components/Attribute';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -51,6 +57,14 @@ interface CollectionNFTsVariables {
   limit: number;
   collection: string;
   listed: boolean | null;
+  attributes: AttributeFilter[] | null;
+}
+
+interface CollectionAttributeGroupsData {
+  collection: Collection;
+}
+interface CollectionAttributeGroupsVariables {
+  address: string;
 }
 
 enum ListedStatus {
@@ -61,16 +75,26 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   listed: ListedStatus;
+  attributes: { [key: string]: string[] };
 }
 
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control } = useForm<CollectionNFTForm>({
+  const { watch, control, getValues } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
+
+  const attributeGroupsQuery = useQuery<
+    CollectionAttributeGroupsData,
+    CollectionAttributeGroupsVariables
+  >(CollectionAttributeGroupsQuery, {
+    variables: {
+      address: router.query.address as string,
+    },
+  });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
     variables: {
@@ -78,17 +102,34 @@ export default function CollectionNfts() {
       limit: 24,
       listed: null,
       collection: router.query.address as string,
+      attributes: null,
     },
   });
 
   useEffect(() => {
-    const subscription = watch(({ listed }) => {
+    const subscription = watch(({ listed, attributes }) => {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
         collection: router.query.address as string,
         listed: null,
+        attributes: null,
       };
+
+      const nextAttributes = Object.entries(attributes || {}).reduce(
+        (memo: AttributeFilter[], [traitType, values]) => {
+          if (!values || values?.length === 0) {
+            return [...memo];
+          }
+
+          return [...memo, { traitType: traitType, values: values }] as AttributeFilter[];
+        },
+        []
+      );
+
+      if (nextAttributes.length > 0) {
+        variables.attributes = nextAttributes;
+      }
 
       if (listed === ListedStatus.Listed) {
         variables.listed = true;
@@ -127,7 +168,56 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>sidebar</Sidebar.Panel>
+        <Sidebar.Panel>
+          <div className="mt-6 flex flex-col px-2">
+            {attributeGroupsQuery.loading ? (
+              <>
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+              </>
+            ) : (
+              <>
+                {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
+                  <Controller
+                    key={group.name}
+                    control={control}
+                    name={`attributes.${group.name}`}
+                    render={({ field: { onChange, value } }) => (
+                      <Listbox
+                        multiple
+                        value={value || []}
+                        onChange={(e) => {
+                          onChange(e);
+                        }}
+                      >
+                        {({ open }) => (
+                          <>
+                            <Listbox.Button>
+                              <Attribute.Header group={group} isOpen={open} />
+                            </Listbox.Button>
+                            <Listbox.Options>
+                              {group.variants.map((variant) => (
+                                <Listbox.Option key={variant.name} value={variant.name}>
+                                  {({ selected }) => (
+                                    <Attribute.Option variant={variant} selected={selected} />
+                                  )}
+                                </Listbox.Option>
+                              ))}
+                            </Listbox.Options>
+                          </>
+                        )}
+                      </Listbox>
+                    )}
+                  />
+                ))}
+              </>
+            )}
+          </div>
+        </Sidebar.Panel>
+
         <Sidebar.Content>
           <List
             expanded={open}
