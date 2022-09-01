@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { Wallet } from '../graphql.types';
-import { DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
+import { ArrowUpTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 
@@ -36,7 +36,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             <Overview.Actions>
               <Button
                 circle
-                icon={<DownloadIcon width={14} height={14} />}
+                icon={<ArrowUpTrayIcon width={14} height={14} />}
                 size={ButtonSize.Small}
                 type={ButtonType.Secondary}
               />
@@ -55,7 +55,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             <div className="flex flex-col justify-between">
               <Button
                 circle
-                icon={<RefreshIcon width={14} height={14} className="stroke-gray-300" />}
+                icon={<ArrowPathIcon width={14} height={14} className="stroke-gray-300" />}
                 size={ButtonSize.Small}
                 type={ButtonType.Secondary}
               />

@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import { Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
-import { UploadIcon } from '@heroicons/react/outline';
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import useMakeOffer from '../hooks/offer';
 import useListNft from '../hooks/list';
 import { Form } from '../components/Form';
@@ -70,7 +70,11 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="align-self-start col-span-12 mb-10 md:col-span-6 md:pr-10 lg:col-span-7">
-        <img src={nft.image} alt="nft image" className=" top-10 z-10 md:sticky w-full rounded-lg object-cover" />
+        <img
+          src={nft.image}
+          alt="nft image"
+          className=" top-10 z-10 w-full rounded-lg object-cover md:sticky"
+        />
       </div>
       <div className="col-span-12 bg-gray-900 pt-0 md:col-span-6 md:pl-10 md:pt-20 lg:col-span-5">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
@@ -93,7 +97,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
             className="justify-self-end"
             type={ButtonType.Secondary}
             size={ButtonSize.Small}
-            icon={<UploadIcon width={12} height={12} />}
+            icon={<ArrowUpTrayIcon width={12} height={12} />}
           />
         </div>
         <h1 className="mb-6 text-4xl font-semibold">{nft.name}</h1>

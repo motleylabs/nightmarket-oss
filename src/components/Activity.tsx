@@ -1,7 +1,7 @@
 import { useTranslation } from 'next-i18next';
 import { SVGProps, useMemo, cloneElement, Children } from 'react';
 import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
-import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
+import { CurrencyDollarIcon, HandRaisedIcon, TagIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 export enum ActivityType {
@@ -77,7 +77,7 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
       case ActivityType.Listing:
         return [t('listing'), TagIcon];
       case ActivityType.Offer:
-        return [t('offer'), HandIcon];
+        return [t('offer'), HandRaisedIcon];
       default:
         return [];
     }
