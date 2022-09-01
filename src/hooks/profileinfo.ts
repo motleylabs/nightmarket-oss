@@ -1,19 +1,19 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Wallet } from '../graphql.types';
-import getProfileInfoQuery from '../queries/getProfileInfoFromPubkey.graphql';
+import { ProfileInfoByAddressQuery } from '../queries/profile.graphql';
 
 export interface ProfileInfo {
   wallet: Wallet | undefined;
 }
 
 export interface ProfileVariables {
-  pubKey: string;
+  address: string;
 }
 
 export default function useProfileInfo(address: string): ProfileInfo {
-  const profileContext = useQuery<ProfileInfo, ProfileVariables>(getProfileInfoQuery, {
+  const profileContext = useQuery<ProfileInfo, ProfileVariables>(ProfileInfoByAddressQuery, {
     variables: {
-      pubKey: address,
+      address,
     },
   });
 

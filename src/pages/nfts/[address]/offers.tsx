@@ -1,17 +1,16 @@
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Marketplace, Nft, Offer } from '../../../graphql.types';
+import { Marketplace, Nft } from '../../../graphql.types';
 import client from './../../../client';
-import NftQuery from './../../../queries/nft.graphql';
-import NftOffersQuery from './../../../queries/offers.graphql';
+import { NftQuery } from './../../../queries/nft.graphql';
+import { NftOffersQuery } from './../../../queries/offers.graphql';
 import { GetServerSidePropsContext } from 'next';
 import config from '../../../app.config';
 import { useWallet } from '@solana/wallet-adapter-react';
 import NftLayout from '../../../layouts/NftLayout';
 import { ReactNode } from 'react';
 import { useQuery } from '@apollo/client';
-import OfferCard from '../../../components/OfferCard';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Offer } from '../../../components/Offer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'offers', 'nft']);
@@ -54,15 +53,13 @@ interface NftOfferPageProps {
   marketplace: Marketplace;
 }
 
-export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
-  marketplace;
+export default function NftOffers({ nft }: NftOfferPageProps) {
   const { t } = useTranslation('offers');
-
   const { publicKey } = useWallet();
 
   const isOwner = nft?.owner?.address === publicKey?.toBase58();
 
-  const { data, refetch } = useQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery, {
+  const { data, called, loading } = useQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery, {
     variables: {
       address: nft.mintAddress,
     },
@@ -72,10 +69,21 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
     (offer) => offer.buyer === publicKey?.toBase58()
   );
 
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Offer.Card.Skeleton />
+        <Offer.Card.Skeleton />
+        <Offer.Card.Skeleton />
+        <Offer.Card.Skeleton />
+      </div>
+    );
+  }
+
   return (
     <>
-      {data?.nftOffers?.offers?.length === 0 && (
-        <div className="flex w-full justify-center rounded-lg border border-gray-800 p-4">
+      {called && data?.nftOffers?.offers?.length === 0 && (
+        <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
           <h3 className="text-gray-300">{t('noOffers')}</h3>
         </div>
       )}
@@ -84,23 +92,23 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
           <>
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((yourOffer, i) => (
-              <OfferCard
+              <Offer.Card
                 key={`your-offer-${yourOffer.id}-${i}`}
                 userAddress={yourOffer.buyer}
                 isOwner={isOwner}
                 description={
-                  <OfferCard.Description
+                  <Offer.Card.Description
                     price={yourOffer.solPrice}
                     userAddress={yourOffer.buyer}
-                    marketplaceAddress={''}
-                    variant={'buyer'}
+                    nftMarketplace={yourOffer.nftMarketplace}
+                    variant="buyer"
                   />
                 }
                 action={
-                  <OfferCard.Action
+                  <Offer.Action
                     price={yourOffer.solPrice}
                     timeSince={yourOffer.timeSince}
-                    variant={'buyer'}
+                    variant="buyer"
                     onPrimaryAction={() => console.log('Update offer')}
                     onSecondaryAction={() => console.log('Cancel offer')}
                   />
@@ -112,23 +120,22 @@ export default function NftOffers({ nft, marketplace }: NftOfferPageProps) {
         {yourOffers && yourOffers.length > 0 && (
           <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
         )}
-
         {data?.nftOffers?.offers?.map((offer, i) => (
-          <OfferCard
+          <Offer.Card
             hidden={offer.buyer === publicKey?.toBase58()}
             key={`offer-${offer.id}-${i}`}
             userAddress={offer.buyer}
             isOwner={isOwner}
             description={
-              <OfferCard.Description
+              <Offer.Card.Description
                 price={offer.solPrice}
                 userAddress={offer.buyer}
-                marketplaceAddress={''}
+                nftMarketplace={offer.nftMarketplace}
                 variant={isOwner ? 'owner' : 'viewer'}
               />
             }
             action={
-              <OfferCard.Action
+              <Offer.Action
                 price={offer.solPrice}
                 timeSince={offer.timeSince || '--'}
                 variant={isOwner ? 'owner' : 'viewer'}

@@ -95,6 +95,10 @@ query ProfileActivitiesQuery(
       timeSince @client
       marketplaceProgramAddress
       solPrice @client
+      nftMarketplace @client {
+        name
+        logo
+      }
       wallets {
         address
         twitterHandle
@@ -115,6 +119,17 @@ query ProfileActivitiesQuery(
         mintAddress
         image(width: 100)
       }
+    }
+  }
+}
+
+query ProfileInfoByAddressQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    previewImage @client
+    displayName @client
+    profile {
+      ...ProfileInfo
     }
   }
 }

@@ -9,8 +9,14 @@ fragment OfferInfo on Offer {
     ...AuctionHouseInfo
   }
   price
+  marketplaceProgramAddress
   timeSince @client
   solPrice @client
+  nftMarketplace @client {
+    name
+    logo
+    link
+  }
   purchaseId
   tradeStateBump
   tokenAccount

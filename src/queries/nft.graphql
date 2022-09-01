@@ -1,5 +1,6 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
+#import "./fragments/listing.graphql"
 
 query NftQuery($address: String!, $subdomain: String!) {
   marketplace(subdomain: $subdomain) {
@@ -47,6 +48,16 @@ query NftQuery($address: String!, $subdomain: String!) {
       profile {
         ...ProfileInfo
       }
+    }
+  }
+}
+
+query NftMarketInfoQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    listings {
+      ...ListingInfo
     }
   }
 }

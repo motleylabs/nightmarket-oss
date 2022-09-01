@@ -1,4 +1,4 @@
-import { useCallback, useMemo, ReactElement, useEffect } from 'react';
+import { useCallback, useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -15,7 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { MenuIcon, XIcon } from '@heroicons/react/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
@@ -63,7 +63,11 @@ function App({ children }: AppComponentProps) {
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              <span className="text-white">{t('header.title')}</span>
+              <img
+                src="/images/nightmarket-stacked.svg"
+                className="h-[42px] w-auto object-fill"
+                alt="night market logo"
+              />
             </a>
           </Link>
         </div>
@@ -168,7 +172,7 @@ function App({ children }: AppComponentProps) {
               setShowNav(true);
             }, [setShowNav])}
           >
-            <MenuIcon color="#fff" width={16} height={16} />
+            <Bars3Icon color="#fff" width={16} height={16} />
           </button>
           <div
             className={clsx(
@@ -184,7 +188,7 @@ function App({ children }: AppComponentProps) {
                   setShowNav(false);
                 }, [setShowNav])}
               >
-                <XIcon color="#171717" width={16} height={16} />
+                <XMarkIcon color="#171717" width={16} height={16} />
               </button>
             </div>
             <nav></nav>
