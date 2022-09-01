@@ -8,9 +8,9 @@ export default function Popover(props: {
   children: ReactNode;
   content: ReactNode;
 }) {
-  let [referenceElement, setReferenceElement] = useState<any>();
-  let [popperElement, setPopperElement] = useState<any>();
-  let { styles, attributes } = usePopper(referenceElement, popperElement);
+  const [referenceElement, setReferenceElement] = useState<any>();
+  const [popperElement, setPopperElement] = useState<any>();
+  const { styles, attributes } = usePopper(referenceElement, popperElement);
 
   return (
     <HeadlessPopover className="relative">

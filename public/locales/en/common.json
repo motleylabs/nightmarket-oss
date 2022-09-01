@@ -21,5 +21,8 @@
   },
   "purchase": "Sold",
   "listing": "Listed",
-  "offer": "Offer"
+  "offer": "Offer",
+  "viewProfile": "View profile",
+  "switchWallet": "Swich wallet",
+  "disconnectWallet": "Disconnect wallet"
 }
