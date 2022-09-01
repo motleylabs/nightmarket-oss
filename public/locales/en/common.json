@@ -19,6 +19,9 @@
     "placeholder": "Search collections, profiles, and wallets...",
     "empty": "No results found"
   },
+  "copyLink": "Copy link",
+  "copied": "Copied",
+  "shareTwitter": "Share to Twitter",
   "purchase": "Sold",
   "listing": "Listed",
   "offer": "Offer"
