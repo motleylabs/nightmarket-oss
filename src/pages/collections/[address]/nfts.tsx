@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -9,13 +9,7 @@ import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {
-  AttributeFilter,
-  AttributeGroup,
-  AttributeVariant,
-  Collection,
-  Nft,
-} from '../../../graphql.types';
+import { AttributeFilter, Collection, Nft } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -27,8 +21,7 @@ import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
 import { Listbox } from '@headlessui/react';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/outline';
-import { CheckIcon } from '@heroicons/react/solid';
+import { Attribute } from '../../../components/Attribute';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -85,65 +78,6 @@ interface CollectionNFTForm {
   attributes: { [key: string]: string[] };
 }
 
-function SidebarFilterHeader({
-  group,
-  isOpen,
-}: {
-  group: AttributeGroup;
-  isOpen: boolean;
-}): JSX.Element {
-  const totalCount = useMemo(
-    () =>
-      group.variants.reduce((count, item) => {
-        return count + item.count;
-      }, 0),
-    [group.variants]
-  );
-  return (
-    <div className="mb-4 flex items-center justify-between">
-      <span className="text-lg text-white">{group.name}</span>
-      <div className="flex items-center gap-4">
-        <span className="rounded bg-gray-800 px-1 text-sm text-white">{totalCount}</span>
-        {isOpen ? (
-          <ChevronUpIcon width={24} height={24} className="text-white" />
-        ) : (
-          <ChevronDownIcon width={24} height={24} className="text-white" />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SidebarFilterItem({
-  variant,
-  isSelected,
-}: {
-  variant: AttributeVariant;
-  isSelected: boolean;
-}): JSX.Element {
-  return (
-    <div className="mb-6 flex items-center justify-between">
-      <span className="text-sm text-white">{variant.name}</span>
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-white">{variant.count}</span>
-        {isSelected ? (
-          <CheckIcon
-            width={24}
-            height={24}
-            className="rounded-md border border-gray-400 bg-white px-0.5"
-          />
-        ) : (
-          <div className="h-6 w-6 rounded-md border border-gray-400 bg-gray-700 px-0.5" />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SidebarFilterSkeleton(): JSX.Element {
-  return <span className="mb-4 h-8 w-full rounded bg-gray-800" />;
-}
-
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control, getValues } = useForm<CollectionNFTForm>({
@@ -172,11 +106,6 @@ export default function CollectionNfts() {
     },
   });
 
-  const getGroupSelectedAttributes = (groupName: string) => {
-    const variants = getValues().attributes[groupName];
-    return variants ? variants : [];
-  };
-
   useEffect(() => {
     const subscription = watch(({ listed, attributes }) => {
       let variables: CollectionNFTsVariables = {
@@ -187,20 +116,17 @@ export default function CollectionNfts() {
         attributes: null,
       };
 
-      if (attributes) {
-        const attributesFilters: AttributeFilter[] = new Array<AttributeFilter>();
-        for (let [key, value] of Object.entries(attributes)) {
-          if (value) {
-            const attributeFilter: AttributeFilter = {
-              traitType: key,
-              values: value,
-            };
-            attributesFilters.push(attributeFilter);
-          }
-        }
-        if (attributesFilters.length > 0) {
-          variables.attributes = attributesFilters;
-        }
+      const nextAttributes = Object.entries(attributes || {}).reduce(
+        (memo, [traitType, values]) =>
+          values
+            ? [...memo, { traitType: traitType, values: values } as AttributeFilter]
+            : [...memo],
+
+        [] as AttributeFilter[]
+      );
+
+      if (nextAttributes.length > 0) {
+        variables.attributes = nextAttributes;
       }
 
       if (listed === ListedStatus.Listed) {
@@ -244,11 +170,11 @@ export default function CollectionNfts() {
           <div className="mt-6 flex flex-col px-2">
             {attributeGroupsQuery.loading ? (
               <>
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
-                <SidebarFilterSkeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
+                <Attribute.Skeleton />
               </>
             ) : (
               <>
@@ -260,7 +186,7 @@ export default function CollectionNfts() {
                     render={({ field: { onChange, value } }) => (
                       <Listbox
                         multiple
-                        value={getGroupSelectedAttributes(group.name)}
+                        value={value || []}
                         onChange={(e) => {
                           onChange(e);
                         }}
@@ -268,13 +194,13 @@ export default function CollectionNfts() {
                         {({ open }) => (
                           <>
                             <Listbox.Button>
-                              <SidebarFilterHeader group={group} isOpen={open} />
+                              <Attribute.Header group={group} isOpen={open} />
                             </Listbox.Button>
                             <Listbox.Options>
                               {group.variants.map((variant) => (
                                 <Listbox.Option key={variant.name} value={variant.name}>
                                   {({ selected }) => (
-                                    <SidebarFilterItem variant={variant} isSelected={selected} />
+                                    <Attribute.Option variant={variant} selected={selected} />
                                   )}
                                 </Listbox.Option>
                               ))}
