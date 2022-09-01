@@ -24,5 +24,8 @@
   "shareTwitter": "Share to Twitter",
   "purchase": "Sold",
   "listing": "Listed",
-  "offer": "Offer"
+  "offer": "Offer",
+  "viewProfile": "View profile",
+  "switchWallet": "Switch wallet",
+  "disconnectWallet": "Disconnect wallet"
 }
