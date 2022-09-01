@@ -23,8 +23,8 @@ export default function ViewerPopover(props: { viewerData: GetViewerData }) {
   return (
     <Popover
       content={
-        <div className=" rounded-lg bg-gray-900 p-5 text-white shadow-lg sm:w-80">
-          <div className="flex w-full justify-between">
+        <div className=" rounded-lg bg-gray-900 p-4 text-white shadow-lg sm:w-96">
+          {/* <div className="flex w-full justify-between">
             <img
               className="hidden h-20 w-20 rounded-full transition md:inline-block"
               src={wallet.previewImage as string}
@@ -49,9 +49,7 @@ export default function ViewerPopover(props: { viewerData: GetViewerData }) {
                   onClick={copyPubKey}
                 >
                   {wallet.displayName}
-                  {/* {wallet.profile?.handle
-                    ? '@' + wallet.profile?.handle
-                    : shortenAddress(wallet.address)} */}
+
                   {copied ? (
                     <CheckIcon className="h-4 w-4 " />
                   ) : (
@@ -64,9 +62,7 @@ export default function ViewerPopover(props: { viewerData: GetViewerData }) {
           <WalletDisconnectButton
             startIcon={undefined}
             className="mt-4 flex w-full justify-center rounded-full bg-gray-800 text-white hover:!bg-gray-700"
-          >
-            {/* <Button type={ButtonType.Secondary}>Disconnect</Button> */}
-          </WalletDisconnectButton>
+          ></WalletDisconnectButton> */}
         </div>
       }
     >
