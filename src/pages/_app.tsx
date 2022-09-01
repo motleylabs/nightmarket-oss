@@ -168,8 +168,13 @@ function App({ children }: AppComponentProps) {
         </div>
         <div className="flex flex-shrink items-center justify-end gap-6 md:w-1/4">
           <Link href={'/collections'}>
-            <a className="text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white">
-              Collections
+            <a className="hidden text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white lg:inline-block">
+              {t('navigation.collections')}
+            </a>
+          </Link>
+          <Link href={'/discover'}>
+            <a className="hidden text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white lg:inline-block">
+              {t('navigation.discover')}
             </a>
           </Link>
           {loading ? (
