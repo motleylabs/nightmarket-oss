@@ -7,6 +7,7 @@ import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
+import SharingMenu from '../components/SharingMenu';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -32,12 +33,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             title={<Overview.Title>{collection.nft.name}</Overview.Title>}
           >
             <Overview.Actions>
-              <Button
-                circle
-                icon={<ArrowUpTrayIcon width={14} height={14} />}
-                size={ButtonSize.Small}
-                type={ButtonType.Secondary}
-              />
+              <SharingMenu address={address} />
             </Overview.Actions>
             <Overview.Figures>
               <Overview.Figure figure={collection.nftCount} label={t('supply')} />

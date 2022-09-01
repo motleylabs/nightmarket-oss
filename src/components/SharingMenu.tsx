@@ -1,9 +1,10 @@
 import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
 import React, { useState } from 'react';
 import Button, { ButtonSize, ButtonType } from './Button';
 import Popover from './Popover';
 
-export default function SharingMenu(props: { address: string }) {
+export default function SharingMenu(props: { address: string; forceDirection?: 'left' }) {
   const [copied, setCopied] = useState(false);
   const copyPubKey = async () => {
     if (props.address) {
@@ -15,6 +16,7 @@ export default function SharingMenu(props: { address: string }) {
 
   return (
     <Popover
+      panelClassNames={clsx(props.forceDirection && '-translate-x-56')}
       content={
         <ul
           className="w-52
@@ -28,12 +30,12 @@ export default function SharingMenu(props: { address: string }) {
           <li className="w-full">
             {copied ? (
               <div className="flex items-center">
-                <CheckIcon className="h-4 w-4" /> <span className="pl-5">Link copied</span>
+                <CheckIcon className="h-4 w-4" /> <span className="pl-5">Copied!</span>
               </div>
             ) : (
               <button onClick={copyPubKey} className="flex items-center hover:text-gray-300">
                 <DocumentDuplicateIcon className="h-4 w-4" />
-                <span className="pl-5">Copy link to NFT</span>
+                <span className="pl-5">Copy link</span>
               </button>
             )}
           </li>

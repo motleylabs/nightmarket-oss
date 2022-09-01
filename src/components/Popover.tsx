@@ -14,7 +14,9 @@ export default function Popover(props: {
 
   return (
     <HeadlessPopover className="relative">
-      <HeadlessPopover.Button ref={setReferenceElement}>{props.children}</HeadlessPopover.Button>
+      <HeadlessPopover.Button ref={setReferenceElement} as="div">
+        {props.children}
+      </HeadlessPopover.Button>
 
       <Transition
         as={Fragment}

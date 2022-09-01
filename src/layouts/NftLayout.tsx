@@ -15,6 +15,7 @@ import { Form } from '../components/Form';
 import Head from 'next/head';
 import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
+import SharingMenu from '../components/SharingMenu';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -92,13 +93,8 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
           ) : (
             <div />
           )}
-          <Button
-            circle
-            className="justify-self-end"
-            type={ButtonType.Secondary}
-            size={ButtonSize.Small}
-            icon={<ArrowUpTrayIcon width={12} height={12} />}
-          />
+
+          <SharingMenu address={nft.mintAddress} forceDirection="left" />
         </div>
         <h1 className="mb-6 text-4xl font-semibold">{nft.name}</h1>
         {makeOffer && (
