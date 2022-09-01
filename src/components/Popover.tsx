@@ -1,21 +1,40 @@
 import { Popover as HeadlessPopover, Transition } from '@headlessui/react';
 import clsx from 'clsx';
-import { Fragment, ReactNode, useState } from 'react';
+import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 import { usePopper } from 'react-popper';
 
-export default function Popover(props: {
+export default function Popover({
+  toggledPopperElement = () => {},
+  ...props
+}: {
   panelClassNames?: string;
+  toggledPopperElement?: () => void;
   children: ReactNode;
   content: ReactNode;
 }) {
   const [referenceElement, setReferenceElement] = useState<any>();
   const [popperElement, setPopperElement] = useState<any>();
+
   const { styles, attributes } = usePopper(referenceElement, popperElement);
+
+  const contentRef = useRef<HTMLDivElement>(null!);
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (contentRef?.current && !contentRef?.current?.contains(event.target as Node)) {
+        toggledPopperElement();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contentRef, toggledPopperElement]);
 
   return (
     <HeadlessPopover className="relative">
-      <HeadlessPopover.Button ref={setReferenceElement}>{props.children}</HeadlessPopover.Button>
-
+      <HeadlessPopover.Button onClick={toggledPopperElement} as={'div'} ref={setReferenceElement}>
+        {props.children}
+      </HeadlessPopover.Button>
       <Transition
         as={Fragment}
         enter="transition duration-100 ease-out"
@@ -26,12 +45,12 @@ export default function Popover(props: {
         leaveTo="transform scale-95 opacity-0"
       >
         <HeadlessPopover.Panel
-          className={clsx('absolute z-10', props.panelClassNames)}
+          className={clsx('absolute z-20', props.panelClassNames)}
           ref={setPopperElement}
           style={styles.popper}
           {...attributes.popper}
         >
-          {props.content}
+          <div ref={contentRef}>{props.content}</div>
         </HeadlessPopover.Panel>
       </Transition>
     </HeadlessPopover>

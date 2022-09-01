@@ -24,7 +24,7 @@ module.exports = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
       borderRadius: {
-        md: '0.25rem', 
+        md: '0.25rem',
       },
       colors: {
         orange: {
@@ -43,6 +43,21 @@ module.exports = {
           800: '#262626',
           900: '#191919',
         },
+      },
+      keyframes: {
+        draw: {
+          '0%': { border: '2px solid transparent' },
+          '25%': { borderTop: '2px solid' },
+          '50%': { borderRight: '2px solid' },
+          '75%': { borderBottom: '2px solid' },
+          '100%': {
+            borderColor: '0s ease-out 0.5',
+            border: 'width 0.25s ease-out 0.5s, height 0.25s ease-out 0.75s',
+          },
+        },
+      },
+      animation: {
+        drawBorder: 'draw .5s',
       },
     },
   },

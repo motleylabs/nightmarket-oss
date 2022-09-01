@@ -19,6 +19,16 @@
     "placeholder": "Search collections, profiles, and wallets...",
     "empty": "No results found"
   },
+  "profileMenu": {
+    "collected": "Collected NFTs",
+    "created": "Created NFTs",
+    "activity": "Wallet activity",
+    "analytics": "Wallet analytics"
+  },
+  "navigation": {
+    "collections": "Collections",
+    "discover": "Discover"
+  },
   "copyLink": "Copy link",
   "copied": "Copied",
   "shareTwitter": "Share to Twitter",
