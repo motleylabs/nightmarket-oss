@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ChangeEventHandler, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { RadioGroup } from '@headlessui/react';
 
 interface ButtonGroupProps<T> {
@@ -20,7 +20,7 @@ export function ButtonGroup<T>({
       value={value}
       onChange={onChange}
       className={clsx(
-        'flex flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1',
+        'flex flex-row items-center justify-start gap-2 rounded-md border border-gray-800 px-1 py-1',
         className
       )}
     >
@@ -41,7 +41,7 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
       value={value}
       className={({ checked }) =>
         clsx(
-          'flex h-8 w-16 flex-row items-center justify-center rounded-full text-sm md:w-28 md:text-base',
+          'flex h-8 w-28 flex-row items-center justify-center rounded-md text-sm md:text-base',
           checked
             ? 'bg-gray-700 text-white'
             : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-700 hover:text-gray-200'

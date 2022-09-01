@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "title": "Nft Offers {{ address }}"
+  },
+  "yours": "Your offer",
+  "all": "All offers",
+  "made": "made an offer",
+  "cancel": "Cancel",
+  "update": "Update",
+  "view": "View",
+  "accept": "Accept",
+  "noOffers": "No offers",
+  "placedOffer": "made an offer"
+}

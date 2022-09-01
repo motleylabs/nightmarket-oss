@@ -78,3 +78,58 @@ query CreatedNFTsQuery($creator: PublicKey!, $limit: Int!, $offset: Int!, $liste
     ...NftInfo
   }
 }
+
+query ProfileActivitiesQuery(
+  $address: PublicKey!
+  $eventTypes: [String!]
+  $limit: Int = 25
+  $offset: Int = 0
+) {
+  wallet(address: $address) {
+    address
+    activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
+      id
+      metadata
+      price
+      createdAt
+      timeSince @client
+      marketplaceProgramAddress
+      solPrice @client
+      nftMarketplace @client {
+        name
+        logo
+      }
+      wallets {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
+      activityType
+      auctionHouse {
+        address
+        treasuryMint
+      }
+      nft {
+        address
+        name
+        mintAddress
+        image(width: 100)
+      }
+    }
+  }
+}
+
+query ProfileInfoByAddressQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    previewImage @client
+    displayName @client
+    profile {
+      ...ProfileInfo
+    }
+  }
+}

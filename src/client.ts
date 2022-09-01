@@ -1,15 +1,23 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
-import { solPriceVar, viewerVar } from './cache';
+import { viewerVar } from './cache';
 import config from './app.config';
 import { isPublicKey, shortenAddress, addressAvatar } from './modules/address';
 import { toSol } from './modules/sol';
 import typeDefs from './../local.graphql';
-import { ConnectionCounts, WalletNftCount, TwitterProfile } from './graphql.types';
-import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
-import { asCompactNumber, asUsdString } from './modules/number';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import {
+  ConnectionCounts,
+  WalletNftCount,
+  TwitterProfile,
+  NftMarketplace,
+  AuctionHouse,
+} from './graphql.types';
+import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
+import marketplaces from './marketplaces.json';
+import { asCompactNumber } from './modules/number';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
@@ -37,6 +45,16 @@ function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }):
   }
 
   return shortenAddress(address);
+}
+
+function asTimeSince(_: any, { readField }: { readField: ReadFieldFunction }): string | undefined {
+  const createdAt: string | undefined = readField('createdAt');
+
+  if (!createdAt) {
+    return undefined;
+  }
+
+  return formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
 }
 
 function asPreviewImage(_: any, { readField }: { readField: ReadFieldFunction }): string {
@@ -83,6 +101,40 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   return image;
 }
 
+function asNftMarketplace(
+  _: void,
+  { readField }: { readField: ReadFieldFunction }
+): NftMarketplace {
+  const marketplaceProgramAddress: string | undefined = readField('marketplaceProgramAddress');
+  const auctionHouse: AuctionHouse | undefined = readField('auctionHouse');
+
+  let result: NftMarketplace[] | NftMarketplace | undefined;
+
+  const unknownMarketplace = {
+    logo: '/images/unknown-marketplace.svg',
+    name: 'Unknown Marketplace',
+    link: undefined,
+  };
+
+  result = marketplaces.filter(
+    (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
+  );
+
+  if (result.length === 0) {
+    return unknownMarketplace;
+  } else if (result.length === 1) {
+    return result[0];
+  }
+
+  result = result.find((marketplace) => marketplace.auctionHouseAddress === auctionHouse?.address);
+
+  if (!result) {
+    return unknownMarketplace;
+  }
+
+  return result;
+}
+
 const client = new ApolloClient({
   uri: config.graphqlUrl,
   typeDefs,
@@ -118,6 +170,7 @@ const client = new ApolloClient({
       Wallet: {
         keyFields: ['address'],
         fields: {
+          activities: offsetLimitPagination(['$eventTypes']),
           displayName: {
             read: asDisplayName,
           },
@@ -186,6 +239,23 @@ const client = new ApolloClient({
 
               return asCompactNumber(created);
             },
+          },
+        },
+      },
+      WalletActivity: {
+        keyFields: ['id'],
+        fields: {
+          price: {
+            read: asBN,
+          },
+          solPrice: {
+            read: asSOL,
+          },
+          timeSince: {
+            read: asTimeSince,
+          },
+          nftMarketplace: {
+            read: asNftMarketplace,
           },
         },
       },
@@ -375,24 +445,42 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
         },
       },
       NftActivity: {
         keyFields: ['id'],
         fields: {
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
           },
           solPrice: {
             read: asSOL,
           },
+          timeSince: {
+            read: asTimeSince,
+          },
         },
       },
       Offer: {
         keyFields: ['id'],
         fields: {
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
+          },
+          timeSince: {
+            read: asTimeSince,
+          },
+          solPrice: {
+            read: asSOL,
           },
         },
       },

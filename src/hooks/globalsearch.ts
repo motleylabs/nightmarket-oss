@@ -2,18 +2,19 @@ import { useLazyQuery, OperationVariables, ApolloQueryResult } from '@apollo/cli
 import React, { useMemo, useState } from 'react';
 import { isPublicKey } from './../modules/address';
 import GlobalSearchQuery from './../queries/search.graphql';
-import { Wallet, Nft } from './../graphql.types';
+import { Wallet, Nft, MetadataJson } from './../graphql.types';
 
 export interface GlobalSearchData {
   profiles: Wallet[];
   wallet: Wallet;
   nfts: Nft[];
-  collections: Nft[];
+  collections: MetadataJson[];
 }
 
 type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;
 
 interface GlobalSearchContext {
+  previousResults: GlobalSearchData | undefined;
   searchTerm: string;
   hasResults: boolean;
   updateSearch: OnUpdateSearch;
@@ -27,7 +28,7 @@ interface GlobalSearchContext {
 export default function useGlobalSearch(): GlobalSearchContext {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const [searchQuery, { data, loading, called, variables, refetch }] =
+  const [searchQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<GlobalSearchData>(GlobalSearchQuery);
 
   const hasResults = useMemo(() => {
@@ -62,6 +63,7 @@ export default function useGlobalSearch(): GlobalSearchContext {
   return {
     searchTerm,
     hasResults,
+    previousResults: previousData,
     updateSearch,
     searching: loading,
     results: data,

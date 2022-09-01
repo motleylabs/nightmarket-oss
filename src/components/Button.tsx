@@ -6,6 +6,7 @@ export enum ButtonType {
   Primary = 'primary',
   Secondary = 'secondary',
   Tertiary = 'tertiary',
+  Ghost = 'ghost',
 }
 
 export enum ButtonSize {
@@ -53,19 +54,21 @@ const Button = ({
     <button
       className={clsx(
         clsx,
-        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center font-semibold transition-transform duration-150',
+        'focus:shadow-outline flex grow-0 items-center justify-center text-center transition-transform duration-150',
         className,
         {
           'w-full': block,
-          'bg-white text-gray-900': type === ButtonType.Primary,
+          'bg-orange-600 text-white': type === ButtonType.Primary,
           'bg-gray-800 text-white': type === ButtonType.Secondary,
           'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
+          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small,
           'py-2 px-6': size === ButtonSize.Large,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
           'rounded-full': circle,
+          'rounded-md': !circle,
           'h-10 w-10': circle && ButtonSize.Small,
         }
       )}

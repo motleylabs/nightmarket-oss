@@ -54,7 +54,7 @@ function Avatar({ src, circle }: OverviewAvatarProps): JSX.Element {
       src={src}
       className={clsx(
         'inline-block h-24 w-24 border-4 border-gray-900 shadow-xl md:h-36 md:w-36',
-        circle ? 'rounded-full' : 'rounded-lg'
+        circle ? 'rounded-full' : 'rounded-md'
       )}
       alt="overview avatar"
     />
@@ -117,7 +117,7 @@ Overview.Aside = Aside;
 
 function Tabs({ children }: OverviewProps): JSX.Element {
   return (
-    <nav className="mt-10 flex flex-row justify-start overflow-scroll sm:ml-4 md:ml-8 md:justify-start">
+    <nav className="mt-10 flex flex-row justify-start overflow-auto sm:ml-4 md:ml-8 md:justify-start">
       {children}
     </nav>
   );

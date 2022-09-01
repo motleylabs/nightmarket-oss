@@ -7,13 +7,30 @@ const withGraphql = require('next-plugin-graphql');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
-  // env: {
-  //   gql: 'NEXT_PUBLIC_GRAPHQL_URL',
-  //   rpc: 'NEXT_PUBLIC_SOLANA_RPC_URL',
-  // },
   i18n,
+  async redirects() {
+    return [
+      {
+        source: '/collections/:address',
+        destination: '/collections/:address/nfts',
+        permanent: true,
+      },
+      {
+        source: '/profiles/:address',
+        destination: '/profiles/:address/collected',
+        permanent: true,
+      },
+    ];
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 module.exports = withGraphql(nextConfig);

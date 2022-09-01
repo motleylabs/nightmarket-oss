@@ -1,0 +1,25 @@
+#import "./auctionhouse.graphql"
+
+fragment OfferInfo on Offer {
+  id
+  tradeState
+  buyer
+  metadata
+  auctionHouse {
+    ...AuctionHouseInfo
+  }
+  price
+  marketplaceProgramAddress
+  timeSince @client
+  solPrice @client
+  nftMarketplace @client {
+    name
+    logo
+    link
+  }
+  purchaseId
+  tradeStateBump
+  tokenAccount
+  createdAt
+  canceledAt
+}

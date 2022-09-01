@@ -8,11 +8,36 @@ declare module '*/collection.graphql' {
   export default defaultDocument;
 }
 
+declare module '*/auctionhouse.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const AuctionHouseInfo: DocumentNode;
+
+  export default defaultDocument;
+}
+
+declare module '*/listing.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const ListingInfo: DocumentNode;
+
+  export default defaultDocument;
+}
+
 declare module '*/nft.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const NftInfo: DocumentNode;
   export const NftQuery: DocumentNode;
+  export const NftMarketInfoQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+
+declare module '*/offer.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const OfferInfo: DocumentNode;
 
   export default defaultDocument;
 }
@@ -26,6 +51,8 @@ declare module '*/profile.graphql' {
   export const FollowingProfileQuery: DocumentNode;
   export const CollectedNFTsQuery: DocumentNode;
   export const CreatedNFTsQuery: DocumentNode;
+  export const ProfileActivitiesQuery: DocumentNode;
+  export const ProfileInfoByAddressQuery: DocumentNode;
 
   export default defaultDocument;
 }
@@ -34,6 +61,14 @@ declare module '*/home.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const HomePageQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+
+declare module '*/offers.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const NftOffersQuery: DocumentNode;
 
   export default defaultDocument;
 }

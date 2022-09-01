@@ -1,4 +1,4 @@
-import { useCallback, useMemo, ReactElement, useEffect } from 'react';
+import { useCallback, useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -54,30 +54,43 @@ function App({ children }: AppComponentProps) {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
+  const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
+    useGlobalSearch();
 
   const loading = viewerQueryResult.loading || connecting;
 
   return (
     <>
-      <header className="flex flex-row items-center justify-between px-4 py-2 md:px-8 md:py-4">
+      <header className="relative flex flex-row items-center justify-between px-4 py-2 md:px-8 md:py-4">
         <div className="flex flex-shrink justify-start md:w-1/4">
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-              <span className="text-white">{t('header.title')}</span>
+              <img
+                src="/images/nightmarket-stacked.svg"
+                className="h-[42px] w-auto object-fill"
+                alt="night market logo"
+              />
             </a>
           </Link>
         </div>
-        <div className="flex flex-grow items-center px-6 md:px-0">
+        <div className=" flex-grow items-center px-6 sm:flex md:px-0">
           <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
-            <Search.Results searching={searching} hasResults={hasResults}>
-              <Search.Group<Nft[]> title={t('search.collection')} result={results?.collections}>
+            <Search.Results
+              searching={searching}
+              hasResults={Boolean(previousResults)}
+              enabled={searchTerm.length > 2}
+            >
+              <Search.Group<MetadataJson[]>
+                title={t('search.collection')}
+                result={results?.collections}
+              >
                 {({ result }) => {
                   return result?.map((collection, i) => (
                     <Search.Collection
+                      value={collection}
                       key={`search-collection-${collection.mintAddress}-${i}`}
-                      image={collection.image}
+                      image={collection.image || '/images/placeholder.png'}
                       name={collection.name}
                       address={collection.mintAddress}
                     />
@@ -88,9 +101,10 @@ function App({ children }: AppComponentProps) {
                 {({ result }) => {
                   return result?.map((wallet, i) => (
                     <Search.Profile
+                      value={wallet}
                       profile={wallet}
                       key={`search-profile-${wallet.address}-${i}`}
-                      image={wallet.previewImage}
+                      image={wallet.previewImage || '/images/placeholder.png'}
                       name={wallet.displayName}
                       address={wallet.address}
                     />
@@ -105,9 +119,10 @@ function App({ children }: AppComponentProps) {
 
                   return (
                     <Search.Profile
+                      value={result}
                       profile={result}
                       key={`search-wallet-${result?.address}`}
-                      image={result.previewImage}
+                      image={result.previewImage || '/images/placeholder.png'}
                       name={result.displayName}
                       address={result.address}
                     />
@@ -118,6 +133,7 @@ function App({ children }: AppComponentProps) {
                 {({ result }) => {
                   return result?.map((nft, i) => (
                     <Search.MintAddress
+                      value={nft}
                       nft={nft}
                       key={`search-mintAddress-${nft.address}-${i}`}
                       image={nft.image}

@@ -34,7 +34,7 @@ html {
 }
 
 .input {
-  @apply rounded-lg border border-gray-800;
+  @apply rounded-md border border-gray-800;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply bg-gray-900 font-sans;
@@ -54,4 +54,10 @@ html {
 
 :focus-visible {
   outline: none;
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  /* -webkit-appearance: none; */
+  color: white;
+  filter: brightness(10);
 }
