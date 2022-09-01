@@ -22,7 +22,7 @@ import Link from 'next/link';
 import useNavigation from './../hooks/nav';
 import useLogin from '../hooks/login';
 import ViewerProvider from '../providers/ViewerProvider';
-import Button, { ButtonType } from './../components/Button';
+import Button from './../components/Button';
 import client from './../client';
 import './../../styles/globals.css';
 import { Wallet, Nft, MetadataJson } from './../graphql.types';
@@ -30,7 +30,6 @@ import config from './../app.config';
 import useViewer, { GetViewerData } from './../hooks/viewer';
 import Search from '../components/Search';
 import useGlobalSearch from './../hooks/globalsearch';
-import ViewerPopover from '../components/ViewerPopover';
 import CurrencyProvider from '../providers/CurrencyProvider';
 import Popover from '../components/Popover';
 
@@ -46,13 +45,14 @@ interface AppComponentProps {
   children: JSX.Element;
 }
 
-function ViewerMenu(props: { viewerData: GetViewerData }) {
-  const { wallet, viewer } = props.viewerData;
+function ViewerProfileImageWithPopover(props: { viewerData: GetViewerData }) {
+  const { wallet } = props.viewerData;
   const { setVisible } = useWalletModal();
   const { disconnect } = useWallet();
 
   return (
     <Popover
+      panelClassNames="-translate-x-80 translate-y-12"
       content={
         <div className=" overflow-hidden rounded-md bg-gray-800  text-white shadow-lg sm:w-96">
           <div className="flex items-center p-4 ">
@@ -209,8 +209,7 @@ function App({ children }: AppComponentProps) {
           {loading ? (
             <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
           ) : viewerQueryResult.data ? (
-            // <ViewerPopover viewerData={viewerQueryResult.data} />
-            <ViewerMenu viewerData={viewerQueryResult.data} />
+            <ViewerProfileImageWithPopover viewerData={viewerQueryResult.data} />
           ) : (
             <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}

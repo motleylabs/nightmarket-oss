@@ -1,8 +1,13 @@
 import { Popover as HeadlessPopover, Transition } from '@headlessui/react';
+import clsx from 'clsx';
 import { Fragment, ReactNode, useState } from 'react';
 import { usePopper } from 'react-popper';
 
-export default function Popover(props: { href?: string; children: ReactNode; content: ReactNode }) {
+export default function Popover(props: {
+  panelClassNames?: string;
+  children: ReactNode;
+  content: ReactNode;
+}) {
   let [referenceElement, setReferenceElement] = useState<any>();
   let [popperElement, setPopperElement] = useState<any>();
   let { styles, attributes } = usePopper(referenceElement, popperElement);
@@ -21,7 +26,7 @@ export default function Popover(props: { href?: string; children: ReactNode; con
         leaveTo="transform scale-95 opacity-0"
       >
         <HeadlessPopover.Panel
-          className="absolute z-10 -translate-x-80 translate-y-12"
+          className={clsx('absolute z-10', props.panelClassNames)}
           ref={setPopperElement}
           style={styles.popper}
           {...attributes.popper}
