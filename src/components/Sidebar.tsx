@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FilterIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/outline';
+import { ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 

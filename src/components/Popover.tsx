@@ -1,6 +1,5 @@
 import { Popover as HeadlessPopover, Transition } from '@headlessui/react';
-import Link from 'next/link';
-import { ReactNode, useState } from 'react';
+import { Fragment, ReactNode, useState } from 'react';
 import { usePopper } from 'react-popper';
 
 export default function Popover(props: { href?: string; children: ReactNode; content: ReactNode }) {
@@ -12,26 +11,24 @@ export default function Popover(props: { href?: string; children: ReactNode; con
     <HeadlessPopover className="relative">
       <HeadlessPopover.Button ref={setReferenceElement}>{props.children}</HeadlessPopover.Button>
 
-      <HeadlessPopover.Panel
-        className="absolute z-10"
-        ref={setPopperElement}
-        style={styles.popper}
-        {...attributes.popper}
+      <Transition
+        as={Fragment}
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
       >
-        {props.content}
-      </HeadlessPopover.Panel>
+        <HeadlessPopover.Panel
+          className="absolute z-10 -translate-x-80 translate-y-12"
+          ref={setPopperElement}
+          style={styles.popper}
+          {...attributes.popper}
+        >
+          {props.content}
+        </HeadlessPopover.Panel>
+      </Transition>
     </HeadlessPopover>
   );
-}
-
-// Seems to mess with popper, but can otherwise be wrapped around .Panel
-{
-  /* <Transition
-enter="transition duration-100 ease-out"
-enterFrom="transform scale-95 opacity-0"
-enterTo="transform scale-100 opacity-100"
-leave="transition duration-75 ease-out"
-leaveFrom="transform scale-100 opacity-100"
-leaveTo="transform scale-95 opacity-0"
-> */
 }

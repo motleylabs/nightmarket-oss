@@ -1,6 +1,6 @@
 import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { SearchIcon } from '@heroicons/react/outline';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
 import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
@@ -91,7 +91,7 @@ function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JS
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
       >
-        <SearchIcon className="h-5 w-5 text-white" aria-hidden="true" />
+        <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
       </button>
       <DebounceInput
         minLength={2}
