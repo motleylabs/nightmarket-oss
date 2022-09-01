@@ -59,7 +59,7 @@ const Button = ({
         {
           'w-full': block,
           'bg-orange-600 text-white': type === ButtonType.Primary,
-          'bg-gray-800 text-white': type === ButtonType.Secondary,
+          'bg-gray-800 text-white hover:bg-gray-700 ': type === ButtonType.Secondary,
           'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
           'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,

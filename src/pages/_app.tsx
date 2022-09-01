@@ -4,7 +4,7 @@ import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
 import clsx from 'clsx';
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { useWalletModal, WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   GlowWalletAdapter,
@@ -15,7 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
@@ -31,6 +31,7 @@ import useViewer from './../hooks/viewer';
 import Search from '../components/Search';
 import useGlobalSearch from './../hooks/globalsearch';
 import CurrencyProvider from '../providers/CurrencyProvider';
+import Popover from '../components/Popover';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -47,7 +48,9 @@ interface AppComponentProps {
 function App({ children }: AppComponentProps) {
   const [showNav, setShowNav] = useNavigation();
   const onLogin = useLogin();
-  const { connecting } = useWallet();
+  const { setVisible } = useWalletModal();
+
+  const { connecting, disconnect } = useWallet();
   const viewerQueryResult = useViewer();
 
   const { t } = useTranslation('common');
@@ -147,20 +150,70 @@ function App({ children }: AppComponentProps) {
         </div>
         <div className="flex flex-shrink justify-end md:w-1/4">
           {loading ? (
-            <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
-          ) : viewerQueryResult.data?.viewer ? (
-            <Link
-              href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-              passHref
+            <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
+          ) : viewerQueryResult.data ? (
+            <Popover
+              panelClassNames="-translate-x-80 translate-y-12"
+              content={
+                <div className=" overflow-hidden rounded-md bg-gray-900  text-white shadow-lg sm:w-96">
+                  <div className="flex items-center p-4 ">
+                    <img
+                      className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
+                      src={viewerQueryResult.data.wallet.previewImage as string}
+                      alt="profile image"
+                    />
+                    <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
+
+                    <Link
+                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                      passHref
+                    >
+                      <a className="ml-auto flex cursor-pointer items-center text-base text-orange-600 hover:text-gray-300 ">
+                        <span className="">{t('viewProfile')}</span>
+                      </a>
+                    </Link>
+                  </div>
+                  <div
+                    className="flex cursor-pointer items-center p-4 text-xs hover:bg-gray-700 "
+                    onClick={async () => {
+                      await disconnect();
+                      setVisible(true);
+                    }}
+                  >
+                    <ArrowPathIcon className="mr-2 h-4 w-4" />
+                    {t('switchWallet')}
+                  </div>
+                  <div
+                    onClick={disconnect}
+                    className="flex cursor-pointer items-center p-4 text-xs hover:bg-gray-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      className="mr-2 h-4 w-4"
+                    >
+                      <path fill="none" d="M0 0h24v24H0z" />
+                      <path
+                        fill="currentColor"
+                        d="M6.265 3.807l1.147 1.639a8 8 0 1 0 9.176 0l1.147-1.639A9.988 9.988 0 0 1 22 12c0 5.523-4.477 10-10 10S2 17.523 2 12a9.988 9.988 0 0 1 4.265-8.193zM11 12V2h2v10h-2z"
+                      />
+                    </svg>
+                    {t('disconnectWallet')}
+                  </div>
+                </div>
+              }
             >
-              <a>
-                <img
-                  className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
-                  src={viewerQueryResult.data?.wallet.previewImage as string}
-                  alt="profile image"
-                />
-              </a>
-            </Link>
+              <img
+                className={clsx(
+                  'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
+                  {
+                    'border border-orange-400': true,
+                  }
+                )}
+                src={viewerQueryResult.data.wallet.previewImage as string}
+                alt="profile image"
+              />
+            </Popover>
           ) : (
             <Button onClick={onLogin} className="hidden h-[42px] md:inline-block">
               {t('connect')}
