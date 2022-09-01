@@ -32,8 +32,32 @@ query CollectionQuery($address: String!) {
   }
 }
 
-query CollectionNFTsQuery($collection: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
-  nfts(collections: [$collection], limit: $limit, offset: $offset, listed: $listed) {
+query CollectionAttributeGroupsQuery($address: String!) {
+  collection(address: $address) {
+    attributeGroups {
+      name
+      variants {
+        name
+        count
+      }
+    }
+  }
+}
+
+query CollectionNFTsQuery(
+  $collection: PublicKey!
+  $limit: Int!
+  $offset: Int!
+  $listed: Boolean
+  $attributes: [AttributeFilter!]
+) {
+  nfts(
+    collections: [$collection]
+    limit: $limit
+    offset: $offset
+    listed: $listed
+    attributes: $attributes
+  ) {
     ...NftInfo
   }
 }
