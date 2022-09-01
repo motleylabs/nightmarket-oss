@@ -1,6 +1,6 @@
 import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { SearchIcon } from '@heroicons/react/outline';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
 import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
@@ -91,7 +91,7 @@ function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JS
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
       >
-        <SearchIcon className="h-5 w-5 text-white" aria-hidden="true" />
+        <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
       </button>
       <DebounceInput
         minLength={2}
@@ -99,7 +99,7 @@ function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JS
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        className="block w-full rounded-full border border-gray-800 bg-transparent py-2 pl-10 pr-2 text-base text-white transition-all focus:border-white focus:placeholder-gray-500 focus:outline-none focus:ring-white md:py-2"
+        className="block w-full rounded-md border border-gray-800 bg-transparent py-2 pl-10 pr-2 text-base text-white transition-all focus:border-white focus:placeholder-gray-500 focus:outline-none focus:ring-white md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
@@ -138,7 +138,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-lg bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -223,7 +223,7 @@ function CollectionSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800',
             { 'bg-gray-800': active }
           )}
         >
@@ -231,7 +231,7 @@ function CollectionSearchResult({
             <img
               src={image}
               alt={name || address}
-              className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
+              className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
           </div>
@@ -269,7 +269,7 @@ function MintAddressSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800 ',
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800 ',
             { 'bg-gray-800': active }
           )}
         >
@@ -277,7 +277,7 @@ function MintAddressSearchResult({
             <img
               src={image}
               alt={name || address}
-              className="aspect-square h-10 w-10 overflow-hidden rounded-lg text-sm"
+              className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
           </div>
@@ -319,7 +319,7 @@ function ProfileSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-lg p-4 hover:bg-gray-800',
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800',
             { 'bg-gray-800': active }
           )}
         >
@@ -355,7 +355,7 @@ function SearchLoadingItem({ variant = 'square' }: SearchLoadingProps): JSX.Elem
         <div
           className={clsx('h-12 w-12 animate-pulse bg-gray-800', {
             'rounded-full': variant === 'circle',
-            'rounded-lg': variant === 'square',
+            'rounded-md': variant === 'square',
           })}
         />
         <div className="h-5 w-24 animate-pulse rounded-md bg-gray-800" />

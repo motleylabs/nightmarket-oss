@@ -15,7 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { MenuIcon, XIcon } from '@heroicons/react/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
@@ -172,7 +172,7 @@ function App({ children }: AppComponentProps) {
               setShowNav(true);
             }, [setShowNav])}
           >
-            <MenuIcon color="#fff" width={16} height={16} />
+            <Bars3Icon color="#fff" width={16} height={16} />
           </button>
           <div
             className={clsx(
@@ -188,7 +188,7 @@ function App({ children }: AppComponentProps) {
                   setShowNav(false);
                 }, [setShowNav])}
               >
-                <XIcon color="#171717" width={16} height={16} />
+                <XMarkIcon color="#171717" width={16} height={16} />
               </button>
             </div>
             <nav></nav>

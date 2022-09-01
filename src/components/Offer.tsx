@@ -26,7 +26,7 @@ function OfferCard({ userAddress, description, action, hidden = false }: OfferCa
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-gray-800 p-4">
+    <div className="flex items-center gap-2 rounded-md border border-gray-800 p-4">
       <Link href={`/profiles/${wallet?.address}/collected`} passHref>
         <a className="transition hover:scale-[1.02]">
           <Avatar circle size={AvatarSize.Standard} src={wallet?.previewImage as string} />
@@ -121,7 +121,7 @@ function OfferCardDescription({
 OfferCard.Description = OfferCardDescription;
 
 function OfferCardSkeleton(): JSX.Element {
-  return <div className="h-[78px] w-full animate-pulse rounded-lg bg-gray-800"></div>;
+  return <div className="h-[78px] w-full animate-pulse rounded-md bg-gray-800"></div>;
 }
 
 OfferCard.Skeleton = OfferCardSkeleton;

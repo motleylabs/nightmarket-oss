@@ -1,5 +1,5 @@
 import { Swiper, SwiperProps } from 'swiper/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/outline';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Navigation, Grid } from 'swiper';
 import { useRef, useState, useEffect } from 'react';
 
