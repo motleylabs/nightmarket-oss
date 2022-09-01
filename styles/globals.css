@@ -56,8 +56,7 @@ html {
   outline: none;
 }
 
-
-input[type="search"]::-webkit-search-cancel-button {
+input[type='search']::-webkit-search-cancel-button {
   /* -webkit-appearance: none; */
   color: white;
   filter: brightness(10);

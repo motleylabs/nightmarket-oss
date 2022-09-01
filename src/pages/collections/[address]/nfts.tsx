@@ -9,7 +9,7 @@ import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AttributeFilter, Collection, Nft } from '../../../graphql.types';
+import { AttributeFilter, Collection, Nft, Scalars } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
@@ -117,12 +117,14 @@ export default function CollectionNfts() {
       };
 
       const nextAttributes = Object.entries(attributes || {}).reduce(
-        (memo, [traitType, values]) =>
-          values
-            ? [...memo, { traitType: traitType, values: values } as AttributeFilter]
-            : [...memo],
+        (memo: AttributeFilter[], [traitType, values]) => {
+          if (!values || values?.length === 0) {
+            return [...memo];
+          }
 
-        [] as AttributeFilter[]
+          return [...memo, { traitType: traitType, values: values }] as AttributeFilter[];
+        },
+        []
       );
 
       if (nextAttributes.length > 0) {

@@ -59,7 +59,7 @@ function AttributeOptionHeader({
 Attribute.Header = AttributeOptionHeader;
 
 function AttributeOptionSkeleton(): JSX.Element {
-  return <span className="mb-4 h-8 w-full rounded bg-gray-800" />;
+  return <span className="mb-4 h-8 w-full animate-pulse rounded bg-gray-800" />;
 }
 
 Attribute.Skeleton = AttributeOptionSkeleton;
