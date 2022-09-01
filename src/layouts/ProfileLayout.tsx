@@ -1,11 +1,19 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { Wallet } from '../graphql.types';
-import { ArrowUpTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowUpTrayIcon,
+  ArrowPathIcon,
+  CheckIcon,
+  DocumentDuplicateIcon,
+} from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
+import DropdownMenu from '../components/DropdownMenu';
+import Popover from '../components/Popover';
+import SharingMenu from '../components/SharingMenu';
 
 interface ProfileLayout {
   children: ReactElement;
@@ -34,12 +42,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             title={<Overview.Title>{wallet.displayName}</Overview.Title>}
           >
             <Overview.Actions>
-              <Button
-                circle
-                icon={<ArrowUpTrayIcon width={14} height={14} />}
-                size={ButtonSize.Small}
-                type={ButtonType.Secondary}
-              />
+              <SharingMenu address={address} />
             </Overview.Actions>
             <Overview.Figures>
               <Overview.Figure figure={wallet.compactCreatedCount} label={t('created')} />
