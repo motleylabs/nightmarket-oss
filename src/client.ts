@@ -284,8 +284,16 @@ const client = new ApolloClient({
             },
           },
           activities: offsetLimitPagination(['$eventTypes']),
-          nftCount: {
-            read: asCompactNumber,
+          compactNftCount: {
+            read(_, { readField }): string {
+              const nftCount: number | undefined = readField('nftCount');
+
+              if (!nftCount) {
+                return '0';
+              }
+
+              return asCompactNumber(nftCount);
+            },
           },
           volumeTotal: {
             read(value): number {

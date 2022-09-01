@@ -84,7 +84,7 @@ function App({ children }: AppComponentProps) {
             >
               <Search.Group<MetadataJson[]>
                 title={t('search.collection')}
-                result={results?.collections}
+                result={results?.collections as MetadataJson[]}
               >
                 {({ result }) => {
                   return result?.map((collection, i) => (
@@ -130,7 +130,7 @@ function App({ children }: AppComponentProps) {
                   );
                 }}
               </Search.Group>
-              <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts}>
+              <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts as Nft[]}>
                 {({ result }) => {
                   return result?.map((nft, i) => (
                     <Search.MintAddress

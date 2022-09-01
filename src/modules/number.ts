@@ -27,3 +27,8 @@ const USD_FORMATTER: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
 export function asUsdString(usd: number): string {
   return USD_FORMATTER.format(usd);
 }
+
+export function percentageDifference(startNum: number, endNum: number): number {
+  const change = endNum - startNum;
+  return (change / startNum) * 100;
+}

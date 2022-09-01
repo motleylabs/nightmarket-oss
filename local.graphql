@@ -38,6 +38,7 @@ extend type Offer {
 extend type Collection {
   compactVolumeTotal: String
   compactFloorPrice: String
+  compactNftCount: String
 }
 
 extend type NftActivity {

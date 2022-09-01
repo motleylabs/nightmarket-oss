@@ -2,15 +2,33 @@ import React from 'react';
 
 interface IconProps {
   className?: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }
+
+function CurrencyIcon({ className, width = 16, height = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={width}
+      height={height}
+      viewBox={`-1 -1 ${width + 2} ${height + 2}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx={width / 2} cy={height / 2} r={height / 2} stroke="#A8A8A8" />
+      <circle cx={width / 2} cy={height / 2} r={height / 4} stroke="#A8A8A8" />
+    </svg>
+  );
+}
+
+Icon.Currency = CurrencyIcon;
 
 export default function Icon() {
   return <div></div>;
 }
 
-function SolScanIcon({ className, width, height }: IconProps) {
+function SolScanIcon({ className, width = 12, height = 12 }: IconProps) {
   return (
     <svg
       className={className}
@@ -42,8 +60,7 @@ Icon.SolScan = SolScanIcon;
 interface SolanaIconProps extends IconProps {
   gradient?: boolean;
 }
-
-function SolanaIcon({ className, width, height, gradient }: SolanaIconProps) {
+function SolanaIcon({ className, width = 12, height = 12, gradient }: SolanaIconProps) {
   if (gradient) {
     return (
       <svg
