@@ -150,12 +150,12 @@ function App({ children }: AppComponentProps) {
         </div>
         <div className="flex flex-shrink justify-end md:w-1/4">
           {loading ? (
-            <div className="hidden h-10 w-10 rounded-full bg-gray-800 md:inline-block" />
+            <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
           ) : viewerQueryResult.data ? (
             <Popover
               panelClassNames="-translate-x-80 translate-y-12"
               content={
-                <div className=" overflow-hidden rounded-md bg-gray-800  text-white shadow-lg sm:w-96">
+                <div className=" overflow-hidden rounded-md bg-gray-900  text-white shadow-lg sm:w-96">
                   <div className="flex items-center p-4 ">
                     <img
                       className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
@@ -204,7 +204,12 @@ function App({ children }: AppComponentProps) {
               }
             >
               <img
-                className="hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block"
+                className={clsx(
+                  'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
+                  {
+                    'border border-orange-400': true,
+                  }
+                )}
                 src={viewerQueryResult.data.wallet.previewImage as string}
                 alt="profile image"
               />
