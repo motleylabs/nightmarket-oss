@@ -178,7 +178,7 @@ function App({ children }: AppComponentProps) {
                 <img
                   className={clsx(
                     'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
-                    'animate-drawBorder border-2 border-orange-600 duration-100'
+                    'animate-draw-border border-2 border-orange-600 duration-100'
                   )}
                   src={viewerQueryResult.data.wallet.previewImage as string}
                   alt="profile image"
@@ -218,7 +218,7 @@ function App({ children }: AppComponentProps) {
                     </div>
                     <div className="flex flex-col pb-4">
                       <Link
-                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                        href={`/profiles/${viewerQueryResult.data.wallet.address}/collected`}
                         passHref
                       >
                         <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
@@ -226,7 +226,7 @@ function App({ children }: AppComponentProps) {
                         </a>
                       </Link>
                       <Link
-                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/created'}
+                        href={`/profiles/${viewerQueryResult.data.wallet.address}/created`}
                         passHref
                       >
                         <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
@@ -234,7 +234,7 @@ function App({ children }: AppComponentProps) {
                         </a>
                       </Link>
                       <Link
-                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
+                        href={`/profiles/${viewerQueryResult.data.wallet.address}/activity`}
                         passHref
                       >
                         <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
@@ -242,7 +242,7 @@ function App({ children }: AppComponentProps) {
                         </a>
                       </Link>
                       <Link
-                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
+                        href={`/profiles/${viewerQueryResult.data.wallet.address}/analytics`}
                         passHref
                       >
                         <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
@@ -253,7 +253,7 @@ function App({ children }: AppComponentProps) {
                     <div className="flex flex-col gap-4">
                       <div className="flex px-4">
                         <Link
-                          href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                          href={`/profiles/${viewerQueryResult.data.wallet.address}/collected`}
                           passHref
                         >
                           <a className="flex w-full">
@@ -298,7 +298,7 @@ function App({ children }: AppComponentProps) {
           </button>
           <div
             className={clsx(
-              'fixed left-0 right-0 top-0 bottom-0 z-50 h-screen bg-gray-900 px-4 py-2 md:hidden',
+              'fixed left-0 right-0 top-0 bottom-0 z-50  bg-gray-900 px-4 py-2 md:hidden',
               showNav ? 'block' : 'hidden'
             )}
           >

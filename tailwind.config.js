@@ -57,7 +57,7 @@ module.exports = {
         },
       },
       animation: {
-        drawBorder: 'draw .5s',
+        'draw-border': 'draw .5s',
       },
     },
   },
