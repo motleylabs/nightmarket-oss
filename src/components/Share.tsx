@@ -3,9 +3,18 @@ import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/re
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { Fragment, useState } from 'react';
+import config from '../app.config';
 import Button, { ButtonSize, ButtonType } from './Button';
 
-export default function SharingMenu(props: { address: string; forceDirection?: 'left' }) {
+export default function Share(props: {
+  address: string;
+  twitterParams: {
+    text: string;
+    hashtags: string[];
+    url: string;
+  };
+  forceDirection?: 'left';
+}) {
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation('common');
   const copyPubKey = async () => {
@@ -37,7 +46,7 @@ export default function SharingMenu(props: { address: string; forceDirection?: '
       >
         <Popover.Panel
           className={clsx(
-            'absolute translate-y-2 ',
+            'absolute z-20 translate-y-2 ',
             props.forceDirection && '-translate-x-[calc(208px-40px)]'
           )}
         >
@@ -65,10 +74,10 @@ export default function SharingMenu(props: { address: string; forceDirection?: '
             <li className="w-full">
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  `Checkout this amazing NFT`
-                )}&hashtags=holaplex&url=${encodeURI(
-                  `https://holaplex.com/nfts/${props.address}`
-                )}`}
+                  props.twitterParams.text
+                )}&hashtags=${props.twitterParams.hashtags.join(',')}&url=${
+                  props.twitterParams.url
+                }`}
                 className="flex items-center pt-4 hover:text-gray-300"
                 target="_blank"
                 rel="noreferrer"
