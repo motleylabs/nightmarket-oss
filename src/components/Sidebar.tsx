@@ -93,6 +93,7 @@ interface SidebarPanel {
 }
 
 function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
+  const { t } = useTranslation('common');
   return (
     <>
       <aside
@@ -103,7 +104,7 @@ function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
       >
         <div className="flex w-full justify-between px-2 pt-4 pb-2 text-white md:hidden">
           <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
-          Filters
+          {t('filters')}
           <XMarkIcon
             onClick={onChange}
             width={24}
