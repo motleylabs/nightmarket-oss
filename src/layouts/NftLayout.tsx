@@ -15,7 +15,8 @@ import { Form } from '../components/Form';
 import Head from 'next/head';
 import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
-import SharingMenu from '../components/SharingMenu';
+import Share from '../components/Share';
+import config from '../app.config';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -93,8 +94,15 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
           ) : (
             <div />
           )}
-
-          <SharingMenu address={nft.mintAddress} forceDirection="left" />
+          <Share
+            address={nft.mintAddress}
+            forceDirection="left"
+            twitterParams={{
+              text: t('twitterShareText'),
+              hashtags: ['nightmarket'],
+              url: `${config.baseUrl}/nfts/${nft.mintAddress}`,
+            }}
+          />
         </div>
         <h1 className="mb-6 text-4xl font-semibold">{nft.name}</h1>
         {makeOffer && (

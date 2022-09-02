@@ -12,8 +12,8 @@ import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
 import DropdownMenu from '../components/DropdownMenu';
-import Popover from '../components/Popover';
-import SharingMenu from '../components/SharingMenu';
+import Share from '../components/Share';
+import config from '../app.config';
 
 interface ProfileLayout {
   children: ReactElement;
@@ -42,7 +42,14 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             title={<Overview.Title>{wallet.displayName}</Overview.Title>}
           >
             <Overview.Actions>
-              <SharingMenu address={address} />
+              <Share
+                address={address}
+                twitterParams={{
+                  text: t('twitterShareText'),
+                  hashtags: ['nightmarket'],
+                  url: `${config.baseUrl}/profiles/${address}`,
+                }}
+              />
             </Overview.Actions>
             <Overview.Figures>
               <Overview.Figure figure={wallet.compactCreatedCount} label={t('created')} />
