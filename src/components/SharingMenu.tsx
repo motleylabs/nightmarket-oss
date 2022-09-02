@@ -1,9 +1,10 @@
+import { Popover } from '@headlessui/react';
 import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { useState } from 'react';
 import Button, { ButtonSize, ButtonType } from './Button';
-import Popover from './Popover';
+// import Popover from './Popover';
 
 export default function SharingMenu(props: { address: string; forceDirection?: 'left' }) {
   const [copied, setCopied] = useState(false);
@@ -17,9 +18,22 @@ export default function SharingMenu(props: { address: string; forceDirection?: '
   };
 
   return (
-    <Popover
-      panelClassNames={clsx(props.forceDirection && '-translate-x-56')}
-      content={
+    <Popover>
+      <Popover.Button as="div">
+        <Button
+          circle
+          icon={<ArrowUpTrayIcon width={14} height={14} />}
+          size={ButtonSize.Small}
+          type={ButtonType.Secondary}
+        />
+      </Popover.Button>
+
+      <Popover.Panel
+        className={clsx(
+          'absolute translate-y-2 ',
+          props.forceDirection && '-translate-x-[calc(208px-40px)]'
+        )}
+      >
         <ul
           className="w-52
         overflow-hidden
@@ -61,14 +75,7 @@ export default function SharingMenu(props: { address: string; forceDirection?: '
             </a>
           </li>
         </ul>
-      }
-    >
-      <Button
-        circle
-        icon={<ArrowUpTrayIcon width={14} height={14} />}
-        size={ButtonSize.Small}
-        type={ButtonType.Secondary}
-      />
+      </Popover.Panel>
     </Popover>
   );
 }

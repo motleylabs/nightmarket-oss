@@ -20,7 +20,7 @@ export function ButtonGroup<T>({
       value={value}
       onChange={onChange}
       className={clsx(
-        'flex flex-row items-center justify-start gap-2 rounded-md border border-gray-800 px-1 py-1',
+        'flex max-w-full flex-row items-center justify-start gap-2 rounded-md border border-gray-800 px-1 py-1',
         className
       )}
     >
