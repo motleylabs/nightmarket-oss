@@ -10,6 +10,8 @@ import Head from 'next/head';
 import Share from '../components/Share';
 import config from '../app.config';
 import { useQuery } from '@apollo/client';
+import { useCurrencies } from '../hooks/currencies';
+import clsx from 'clsx';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -26,8 +28,9 @@ interface ProfileLayout {
 
 function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
-
   const address = wallet.address;
+  const { initialized: currenciesReady, solToUsdString } = useCurrencies();
+  const loading = !currenciesReady;
 
   const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
     WalletProfileClientQuery,
@@ -77,8 +80,16 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           <Overview.Aside>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('portfolioValue')}</span>
-              <span className="text-xl md:text-lg lg:text-xl">${wallet.portfolioValue}</span>
-              <span>{portfolioValue} SOL</span>
+              <span
+                className={clsx('text-xl md:text-lg lg:text-xl', {
+                  'h-6 w-full rounded-md bg-gray-800 transition': loading,
+                })}
+              >
+                {currenciesReady && portfolioValue && solToUsdString(portfolioValue)}
+              </span>
+              <span className={clsx({ 'h-4 w-full rounded-md bg-gray-800 transition': loading })}>
+                {portfolioValue} SOL
+              </span>
             </div>
             <div className="flex flex-col justify-between">
               <Button
