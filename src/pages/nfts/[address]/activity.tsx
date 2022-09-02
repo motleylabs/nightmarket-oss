@@ -62,7 +62,7 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
   });
 
   return (
-    <div className="mt-4 flex flex-col px-4 md:px-8">
+    <div className="mt-4 flex flex-col">
       {activitiesQuery.loading ? (
         <>
           <Activity.Skeleton />
@@ -86,7 +86,7 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
               meta={
                 <Activity.Meta
                   title={<Activity.Tag />}
-                  marketplace={activity.marketplaceProgramAddress}
+                  marketplace={activity.nftMarketplace}
                   source={<Activity.Wallet wallets={activity.wallets} />}
                 />
               }

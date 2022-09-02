@@ -64,6 +64,10 @@ query NftActivitiesQuery($address: String!) {
       timeSince @client
       marketplaceProgramAddress
       solPrice @client
+      nftMarketplace @client {
+        name
+        logo
+      }
       wallets {
         address
         twitterHandle
