@@ -442,7 +442,7 @@ const Home: NextPage = () => {
             </Carousel>
           )}
         </section>
-        <section className="mt-28">
+        {/* <section className="mt-28">
           <header className="mb-4 flex w-full flex-row justify-between border-b border-gray-800">
             <h1 className="mb-2 text-2xl">{t('followWallets.title')}</h1>
           </header>
@@ -491,7 +491,7 @@ const Home: NextPage = () => {
               })}
             </Carousel>
           )}
-        </section>
+        </section> */}
       </main>
     </>
   );
