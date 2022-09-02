@@ -17,7 +17,7 @@
     "volume": "Volume",
     "sales": "Sales",
     "marketcap": "Marketcap",
-    "trend": "7 day floor trend",
+    "trend": "Floor trend",
     "filters": {
       "hour": "Last 1h",
       "day": "Last 24h",
