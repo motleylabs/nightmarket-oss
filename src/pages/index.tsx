@@ -188,9 +188,9 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
 });
 
 enum DateOption {
-  HOUR = '1hr',
-  DAY = '24hr',
-  WEEK = '7d',
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month',
 }
 
 const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
@@ -242,11 +242,6 @@ const Home: NextPage = () => {
         endDate: nowUTC,
       };
       switch (filter) {
-        case DateOption.HOUR:
-          const hourAgo = subHours(now, 1);
-          const hourAgoUTC = formatISO(hourAgo);
-          variables.startDate = hourAgoUTC;
-          break;
         case DateOption.DAY:
           const dayAgo = subDays(now, 1);
           const dayAgoUTC = formatISO(dayAgo);
@@ -256,6 +251,11 @@ const Home: NextPage = () => {
           const weekAgo = startOfDay(subDays(now, 7));
           const weekAgoUTC = formatISO(weekAgo);
           variables.startDate = weekAgoUTC;
+          break;
+        case DateOption.MONTH:
+          const monthAgo = startOfDay(subMonths(now, 1));
+          const monthAgoUTC = formatISO(monthAgo);
+          variables.startDate = monthAgoUTC;
           break;
       }
 
@@ -285,14 +285,14 @@ const Home: NextPage = () => {
                 name={'filter'}
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
-                    <ButtonGroup.Option value={DateOption.HOUR}>
-                      {t('trendingCollections.filters.hour')}
-                    </ButtonGroup.Option>
                     <ButtonGroup.Option value={DateOption.DAY}>
                       {t('trendingCollections.filters.day')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={DateOption.WEEK}>
                       {t('trendingCollections.filters.week')}
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={DateOption.MONTH}>
+                      {t('trendingCollections.filters.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
