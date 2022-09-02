@@ -15,13 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import {
-  ArrowPathIcon,
-  Bars3Icon,
-  XMarkIcon,
-  ClipboardDocumentIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';

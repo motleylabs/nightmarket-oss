@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { useState } from 'react';
 import Button, { ButtonSize, ButtonType } from './Button';
-// import Popover from './Popover';
 
 export default function SharingMenu(props: { address: string; forceDirection?: 'left' }) {
   const [copied, setCopied] = useState(false);
