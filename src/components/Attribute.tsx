@@ -1,5 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/outline';
-import { CheckIcon } from '@heroicons/react/solid';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { AttributeGroup, AttributeVariant } from '../graphql.types';
 
 export function Attribute() {

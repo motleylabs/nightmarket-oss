@@ -168,7 +168,7 @@ export default function CollectionNfts() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>
+        <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-6 flex flex-col px-2">
             {attributeGroupsQuery.loading ? (
               <>
