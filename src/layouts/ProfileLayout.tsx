@@ -1,4 +1,4 @@
-import { cloneElement, ReactElement } from 'react';
+import { cloneElement, ReactElement, useMemo } from 'react';
 import { Wallet } from '../graphql.types';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
@@ -41,9 +41,13 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     }
   );
 
-  const portfolioValue = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
-    (total, current) => total + Number.parseFloat(current.estimatedValue),
-    0
+  const portfolioValue = useMemo(
+    () =>
+      walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
+        (total, current) => total + Number.parseFloat(current.estimatedValue),
+        0
+      ),
+    [walletProfileClientQuery.data?.wallet.collectedCollections]
   );
 
   return (
