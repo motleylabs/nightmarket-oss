@@ -43,7 +43,7 @@ interface SidebarControlProps {
 function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
   const { t } = useTranslation('common');
   return (
-    <div className={clsx({ hidden: open })}>
+    <div className={clsx({ 'hidden md:block': open })}>
       <button
         className={clsx(
           'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between',
