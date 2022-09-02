@@ -90,7 +90,7 @@ function App({ children }: AppComponentProps) {
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results
               searching={searching}
-              hasResults={Boolean(previousResults)}
+              hasResults={Boolean(previousResults) || hasResults}
               enabled={searchTerm.length > 2}
             >
               <Search.Group<MetadataJson[]>
