@@ -13,10 +13,13 @@ import {
   TwitterProfile,
   NftMarketplace,
   AuctionHouse,
+  Wallet,
 } from './graphql.types';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
 import { asCompactNumber } from './modules/number';
+import { ActivityType } from './components/Activity';
 
 function asBN(value: string | number | null): BN {
   if (value === null) {
@@ -98,6 +101,27 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   }
 
   return image;
+}
+
+function asActivityPrimaryWallet(
+  _: void,
+  { readField }: { readField: ReadFieldFunction }
+): Wallet | undefined {
+  const type: string | undefined = readField('activityType');
+  const wallets: readonly [Wallet, Wallet] | undefined = readField('wallets');
+
+  if (!type || !wallets) {
+    return undefined;
+  }
+
+  switch (type) {
+    case ActivityType.Purchase || ActivityType.Sell:
+      return wallets[1];
+    case ActivityType.Listing:
+      return wallets[0];
+    case ActivityType.Offer:
+      return wallets[0];
+  }
 }
 
 function asNftMarketplace(
@@ -255,6 +279,9 @@ const client = new ApolloClient({
           },
           nftMarketplace: {
             read: asNftMarketplace,
+          },
+          primaryWallet: {
+            read: asActivityPrimaryWallet,
           },
         },
       },
@@ -471,6 +498,9 @@ const client = new ApolloClient({
           },
           timeSince: {
             read: asTimeSince,
+          },
+          primaryWallet: {
+            read: asActivityPrimaryWallet,
           },
         },
       },

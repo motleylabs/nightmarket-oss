@@ -664,6 +664,7 @@ export type NftActivity = {
   nft?: Maybe<Nft>;
   nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
+  primaryWallet: Wallet;
   solPrice?: Maybe<Scalars['Int']>;
   timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;
@@ -1466,6 +1467,7 @@ export type WalletActivity = {
   nft?: Maybe<Nft>;
   nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
+  primaryWallet: Wallet;
   solPrice?: Maybe<Scalars['Int']>;
   timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;

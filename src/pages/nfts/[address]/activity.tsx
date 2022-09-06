@@ -75,20 +75,20 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
           {activitiesQuery.data?.nft.activities.map((activity) => (
             <Activity
               avatar={
-                <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
+                <Link href={`/profiles/${activity.primaryWallet.address}/collected`} passHref>
                   <a className="cursor-pointer transition hover:scale-[1.02]">
-                    <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
+                    <Avatar
+                      circle
+                      src={activity.primaryWallet.previewImage as string}
+                      size={AvatarSize.Standard}
+                    />
                   </a>
                 </Link>
               }
               type={activity.activityType as ActivityType}
               key={activity.id}
               meta={
-                <Activity.Meta
-                  title={<Activity.Tag />}
-                  marketplace={activity.nftMarketplace}
-                  source={<Activity.Wallet wallets={activity.wallets} />}
-                />
+                <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
               }
             >
               <Activity.Price amount={activity.solPrice} />

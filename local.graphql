@@ -45,12 +45,14 @@ extend type NftActivity {
   solPrice: Int
   timeSince: String
   nftMarketplace: NftMarketplace
+  primaryWallet: Wallet!
 }
 
 extend type WalletActivity {
   solPrice: Int
   timeSince: String
   nftMarketplace: NftMarketplace
+  primaryWallet: Wallet!
 }
 
 extend type Wallet {
