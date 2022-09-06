@@ -29,8 +29,8 @@ interface ProfileLayout {
 function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
+
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
-  const loading = !currenciesReady;
 
   const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
     WalletProfileClientQuery,
@@ -41,14 +41,21 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     }
   );
 
-  const portfolioValue = useMemo(
-    () =>
-      walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
-        (total, current) => total + Number.parseFloat(current.estimatedValue),
-        0
-      ),
-    [walletProfileClientQuery.data?.wallet.collectedCollections]
-  );
+  const loading = !currenciesReady || walletProfileClientQuery.loading;
+
+  const portfolioValue = useMemo(() => {
+    const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
+      (total, current) => total + Number.parseFloat(current.estimatedValue),
+      0
+    );
+
+    if (!total) {
+      return undefined;
+    }
+
+    const multiplier = Math.pow(10, 2);
+    return Math.round((total * multiplier) / multiplier);
+  }, [walletProfileClientQuery.data?.wallet.collectedCollections]);
 
   return (
     <>
@@ -84,16 +91,22 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           <Overview.Aside>
             <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
               <span className="text-gray-300">{t('portfolioValue')}</span>
-              <span
-                className={clsx('text-xl md:text-lg lg:text-xl', {
-                  'h-6 w-full rounded-md bg-gray-800 transition': loading,
-                })}
-              >
-                {currenciesReady && portfolioValue && solToUsdString(portfolioValue)}
-              </span>
-              <span className={clsx({ 'h-4 w-full rounded-md bg-gray-800 transition': loading })}>
-                {portfolioValue} SOL
-              </span>
+              {loading ? (
+                <span
+                  className={clsx('h-7 w-20 animate-pulse rounded-md bg-gray-800 transition')}
+                />
+              ) : (
+                <span className={clsx('text-xl md:text-lg lg:text-xl')}>
+                  {currenciesReady && portfolioValue && solToUsdString(portfolioValue)}
+                </span>
+              )}
+              {loading ? (
+                <span
+                  className={clsx('h-4 w-20 animate-pulse rounded-md bg-gray-800 transition')}
+                />
+              ) : (
+                <span>{portfolioValue} SOL</span>
+              )}
             </div>
             <div className="flex flex-col justify-between">
               <Button
