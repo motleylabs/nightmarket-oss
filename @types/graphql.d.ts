@@ -10,6 +10,16 @@ export const CollectionActivitiesQuery: DocumentNode;
 }
     
 
+declare module '*/collections.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const CollectionsByVolumeQuery: DocumentNode;
+export const CollectionsByMarketCapQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+    
+
 declare module '*/auctionhouse.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;

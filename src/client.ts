@@ -160,6 +160,8 @@ const client = new ApolloClient({
             '$creator',
             '$collections',
           ]),
+          collectionsFeaturedByVolume: offsetLimitPagination(),
+          collectionsFeaturedByMarketCap: offsetLimitPagination(),
           viewer: {
             read() {
               return viewerVar();
