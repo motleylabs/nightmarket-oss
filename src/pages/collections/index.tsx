@@ -1,6 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { formatISO, subDays } from 'date-fns';
-import { NextPage } from 'next';
+import { GetServerSidePropsContext, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -12,9 +12,10 @@ import {
   CollectionsByVolumeQuery,
   CollectionsByMarketCapQuery,
 } from './../../queries/collections.graphql';
-import Select from 'react-select';
 import { useForm, Controller } from 'react-hook-form';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ControlledSelect } from '../../components/Select';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 interface CollectionsByVolumeData {
   collectionsFeaturedByVolume: Collection[];
@@ -43,6 +44,16 @@ interface SortOption {
   value: CollectionsType;
 }
 
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
+  const i18n = await serverSideTranslations(locale as string, ['collections']);
+
+  return {
+    props: {
+      ...i18n,
+    },
+  };
+}
+
 const Collections: NextPage = () => {
   const { t } = useTranslation('collections');
   const [hasMore, setHasMore] = useState(true);
@@ -60,7 +71,7 @@ const Collections: NextPage = () => {
   const { control, watch, getValues } = useForm({
     defaultValues: {
       search: '',
-      select: collectionsType,
+      collectionTypeSelect: collectionsType,
     },
   });
 
@@ -112,9 +123,9 @@ const Collections: NextPage = () => {
       }
     };
 
-    const selectSubscription = watch(({ select }) => {
-      if (collectionsType.value !== select?.value) {
-        setCollectionsType(select as SortOption);
+    const selectSubscription = watch(({ collectionTypeSelect }) => {
+      if (collectionsType.value !== collectionTypeSelect?.value) {
+        setCollectionsType(collectionTypeSelect as SortOption);
         refetch();
       }
     });
@@ -145,14 +156,17 @@ const Collections: NextPage = () => {
           <h1 className="text-3xl md:text-5xl">{t('hero.title')}</h1>
         </section>
         <section className="mt-14 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="flex-grow text-white">
+          <div className="group flex-grow text-white">
             <Controller
               name="search"
               control={control}
               render={({ field: { onChange, value } }) => {
                 return (
-                  <div className="flex items-center justify-between rounded-md border border-gray-700 px-3">
-                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-600" aria-hidden="true" />
+                  <div className=" flex items-center justify-between rounded-md border border-gray-700 px-3 group-focus-within:border-white ">
+                    <MagnifyingGlassIcon
+                      className="h-5 w-5 text-gray-600 group-focus-within:text-white"
+                      aria-hidden="true"
+                    />
 
                     <input
                       autoFocus
@@ -167,13 +181,7 @@ const Collections: NextPage = () => {
             />
           </div>
           <div className="flex-grow sm:w-72 sm:flex-grow-0">
-            <Controller
-              name="select"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} value={field.value} options={sortOptions} />
-              )}
-            />
+            <ControlledSelect control={control} id="collectionTypeSelect" options={sortOptions} />
           </div>
         </section>
         <section className="mt-4">
