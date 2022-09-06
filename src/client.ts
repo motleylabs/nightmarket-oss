@@ -206,11 +206,6 @@ const client = new ApolloClient({
           shortAddress: {
             read: asShortAddress,
           },
-          portfolioValue: {
-            read() {
-              return 100.25;
-            },
-          },
           compactFollowingCount: {
             read(_, { readField }) {
               const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
@@ -268,6 +263,9 @@ const client = new ApolloClient({
       WalletActivity: {
         keyFields: ['id'],
         fields: {
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
           },
@@ -276,9 +274,6 @@ const client = new ApolloClient({
           },
           timeSince: {
             read: asTimeSince,
-          },
-          nftMarketplace: {
-            read: asNftMarketplace,
           },
           primaryWallet: {
             read: asActivityPrimaryWallet,
