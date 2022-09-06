@@ -46,7 +46,7 @@ function ActivityMeta({ title, marketplace, source, type }: ActivityMetaProps): 
         <img
           src={marketplace?.logo as string}
           alt={`nft marketplace logo ${marketplace?.name}`}
-          className="object-fit h-4 w-auto"
+          className="object-fit h-3 w-auto"
         />
         {source && (
           <span className="border-l-[1px] border-l-gray-600 pl-2">
@@ -85,7 +85,7 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
 
   return (
     <div className="flex items-center">
-      {Icon && <Icon className="mr-2 h-3 w-3 self-center text-white" />}
+      {Icon && <Icon className="mr-2 h-4 w-4 self-center text-white" />}
       <div className="inline-block">{label}</div>
     </div>
   );
@@ -110,26 +110,10 @@ function ActivityTimestamp({ timeSince }: { timeSince: Maybe<string> | undefined
 Activity.Timestamp = ActivityTimestamp;
 
 interface ActivityWalletProps {
-  wallets: Wallet[];
-  type?: ActivityType;
+  wallet: Wallet;
 }
 
-function ActivityWallet({ wallets, type }: ActivityWalletProps): JSX.Element {
-  const wallet = useMemo<Wallet | undefined>(() => {
-    switch (type) {
-      case ActivityType.Purchase || ActivityType.Sell:
-        return wallets[1];
-      case ActivityType.Listing:
-        return wallets[0];
-      case ActivityType.Offer:
-        return wallets[0];
-    }
-  }, [type, wallets]);
-
-  if (!wallet) {
-    return <></>;
-  }
-
+function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
   return (
     <Link href={`/profiles/${wallet.address}/collected`} passHref>
       <a className="flex items-center gap-1 text-[10px] transition hover:scale-[1.02]">

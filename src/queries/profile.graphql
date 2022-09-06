@@ -99,6 +99,15 @@ query ProfileActivitiesQuery(
         name
         logo
       }
+      primaryWallet @client {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
       wallets {
         address
         twitterHandle
