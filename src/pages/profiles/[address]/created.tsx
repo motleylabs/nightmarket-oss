@@ -185,7 +185,7 @@ export default function ProfileCollected() {
                               avatar={
                                 <Collection.Option.Avatar
                                   src={cc.collection?.nft.image as string}
-                                  figure={cc.collection?.nftCount}
+                                  figure={cc.collection?.nftCount.toString()}
                                 />
                               }
                               header={
