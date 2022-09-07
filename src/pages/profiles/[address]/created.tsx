@@ -82,7 +82,7 @@ interface CreatedCollectionsVariables {
 export default function ProfileCollected() {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All },
+    defaultValues: { listed: ListedStatus.All, collections: [] },
   });
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
