@@ -165,11 +165,6 @@ function App({ children }: AppComponentProps) {
               {t('navigation.collections')}
             </a>
           </Link>
-          <Link href={'/discover'}>
-            <a className="hidden text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white lg:inline-block">
-              {t('navigation.discover')}
-            </a>
-          </Link>
           {loading ? (
             <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
           ) : viewerQueryResult.data ? (
@@ -303,7 +298,15 @@ function App({ children }: AppComponentProps) {
             )}
           >
             <div className="flex w-full flex-row items-center justify-between md:hidden">
-              <span className="text-2xl font-bold text-white">{t('header.title')}</span>
+              <Link href="/" passHref>
+                <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
+                  <img
+                    src="/images/nightmarket-stacked.svg"
+                    className="h-8 w-auto object-fill"
+                    alt="night market logo"
+                  />
+                </a>
+              </Link>
               <button
                 className="rounded-full bg-transparent bg-white p-3 transition hover:bg-gray-100"
                 onClick={useCallback(() => {
@@ -313,7 +316,7 @@ function App({ children }: AppComponentProps) {
                 <XMarkIcon color="#171717" width={16} height={16} />
               </button>
             </div>
-            <nav className="flex h-[95%] flex-col p-2">
+            <nav className="flex h-[95%] flex-col py-2 md:p-2">
               {loading ? (
                 <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
               ) : viewerQueryResult.data ? (
@@ -377,11 +380,6 @@ function App({ children }: AppComponentProps) {
                         {t('navigation.collections')}
                       </a>
                     </Link>
-                    <Link href={'/collections'}>
-                      <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
-                        {t('navigation.discover')}
-                      </a>
-                    </Link>
                   </section>
 
                   <section
@@ -423,11 +421,6 @@ function App({ children }: AppComponentProps) {
                     <Link href={'/collections'}>
                       <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
                         {t('navigation.collections')}
-                      </a>
-                    </Link>
-                    <Link href={'/collections'}>
-                      <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
-                        {t('navigation.discover')}
                       </a>
                     </Link>
                   </section>

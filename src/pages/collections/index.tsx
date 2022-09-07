@@ -1,5 +1,5 @@
 import { useLazyQuery } from '@apollo/client';
-import { formatISO, subDays } from 'date-fns';
+import { formatISO, subDays, startOfDay } from 'date-fns';
 import { GetServerSidePropsContext, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
@@ -44,8 +44,12 @@ interface SortOption {
   value: CollectionsType;
 }
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['collections']);
+export async function getServerSideProps({ locale }: GetServerSidePropsContext) {
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'collections',
+    'collection',
+  ]);
 
   return {
     props: {
@@ -59,10 +63,10 @@ const Collections: NextPage = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const sortOptions: SortOption[] = [
-    { value: CollectionsType.CollectionsByVolume, label: 'Top volume collections' },
+    { value: CollectionsType.CollectionsByVolume, label: t('topVolume') },
     {
       value: CollectionsType.CollectionsByMarketCap,
-      label: 'Top marketcap collections',
+      label: t('topMarketcap'),
     },
   ];
 
@@ -75,22 +79,26 @@ const Collections: NextPage = () => {
     },
   });
 
-  const now = new Date();
-  const nowUTC = formatISO(now);
-  const dayAgo = subDays(now, 30);
-  const dayAgoUTC = formatISO(dayAgo);
+  const [startDate, endDate] = useMemo(() => {
+    const now = new Date();
+    const nowUTC = formatISO(startOfDay(now));
+    const dayAgo = startOfDay(subDays(now, 30));
+    const dayAgoUTC = formatISO(dayAgo);
+
+    return [dayAgoUTC, nowUTC];
+  }, []);
 
   const variables: CollectionsVariables = useMemo(() => {
     const v = {
       term: getValues('search'),
-      startDate: dayAgoUTC,
-      endDate: nowUTC,
+      startDate,
+      endDate,
       orderDirection: OrderDirection.Desc,
       offset: 0,
       limit: 24,
     };
     return v;
-  }, [dayAgoUTC, getValues, nowUTC]);
+  }, [getValues, startDate, endDate]);
 
   const [, collectionsByVolumeQuery] = useLazyQuery<CollectionsByVolumeData, CollectionsVariables>(
     CollectionsByVolumeQuery,
@@ -134,7 +142,10 @@ const Collections: NextPage = () => {
       refetch();
     });
 
-    return selectSubscription.unsubscribe && searchSubscription.unsubscribe;
+    return () => {
+      selectSubscription.unsubscribe();
+      searchSubscription.unsubscribe();
+    };
   }, [
     collectionsType.value,
     watch,
@@ -143,6 +154,51 @@ const Collections: NextPage = () => {
     getValues,
     variables,
   ]);
+
+  let onLoadMore: (inView: boolean) => Promise<void>;
+  let data: Collection[] | undefined;
+  let loading: boolean;
+
+  if (collectionsType.value === CollectionsType.CollectionsByVolume) {
+    onLoadMore = async (inView: boolean) => {
+      if (!inView) {
+        return;
+      }
+
+      const {
+        data: { collectionsFeaturedByVolume },
+      } = await collectionsByVolumeQuery.fetchMore({
+        variables: {
+          ...collectionsByVolumeQuery.variables,
+          offset: collectionsByVolumeQuery.data?.collectionsFeaturedByVolume.length ?? 0,
+        },
+      });
+
+      setHasMore(collectionsFeaturedByVolume.length > 0);
+    };
+
+    data = collectionsByVolumeQuery.data?.collectionsFeaturedByVolume;
+    loading = collectionsByVolumeQuery.loading;
+  } else {
+    onLoadMore = async (inView: boolean) => {
+      if (!inView) {
+        return;
+      }
+
+      const {
+        data: { collectionsFeaturedByMarketCap },
+      } = await collectionsByMarketCapQuery.fetchMore({
+        variables: {
+          ...collectionsByMarketCapQuery.variables,
+          offset: collectionsByMarketCapQuery.data?.collectionsFeaturedByMarketCap.length ?? 0,
+        },
+      });
+
+      setHasMore(collectionsFeaturedByMarketCap.length > 0);
+    };
+    data = collectionsByMarketCapQuery.data?.collectionsFeaturedByMarketCap;
+    loading = collectionsByMarketCapQuery.loading;
+  }
 
   return (
     <>
@@ -185,94 +241,33 @@ const Collections: NextPage = () => {
           </div>
         </section>
         <section className="mt-4">
-          {collectionsType.value === CollectionsType.CollectionsByVolume ? (
-            <List
-              data={collectionsByVolumeQuery.data?.collectionsFeaturedByVolume}
-              loading={collectionsByVolumeQuery.loading}
-              hasMore={hasMore}
-              gap={4}
-              grid={{
-                [ListGridSize.Default]: [1, 1],
-                [ListGridSize.Small]: [2, 2],
-                [ListGridSize.Medium]: [2, 3],
-                [ListGridSize.Large]: [3, 4],
-                [ListGridSize.ExtraLarge]: [4, 6],
-                [ListGridSize.Jumbo]: [6, 8],
-              }}
-              skeleton={CollectionUI.Card.Skeleton}
-              onLoadMore={async (inView: boolean) => {
-                if (!inView) {
-                  return;
-                }
-
-                const {
-                  data: { collectionsFeaturedByVolume },
-                } = await collectionsByVolumeQuery.fetchMore({
-                  variables: {
-                    ...collectionsByVolumeQuery.variables,
-                    offset: collectionsByVolumeQuery.data?.collectionsFeaturedByVolume.length ?? 0,
-                  },
-                });
-
-                setHasMore(collectionsFeaturedByVolume.length > 0);
-              }}
-              render={(collection, i) => (
-                <Link
-                  href={`/collections/${collection.nft.mintAddress}`}
-                  key={`${collection.nft.mintAddress}`}
-                  passHref
-                >
-                  <a>
-                    <CollectionUI.Card collection={collection} />
-                  </a>
-                </Link>
-              )}
-            />
-          ) : (
-            <List
-              data={collectionsByMarketCapQuery.data?.collectionsFeaturedByMarketCap}
-              loading={collectionsByMarketCapQuery.loading}
-              hasMore={hasMore}
-              gap={4}
-              grid={{
-                [ListGridSize.Default]: [1, 1],
-                [ListGridSize.Small]: [2, 2],
-                [ListGridSize.Medium]: [2, 3],
-                [ListGridSize.Large]: [3, 4],
-                [ListGridSize.ExtraLarge]: [4, 6],
-                [ListGridSize.Jumbo]: [6, 8],
-              }}
-              skeleton={CollectionUI.Card.Skeleton}
-              onLoadMore={async (inView: boolean) => {
-                if (!inView) {
-                  return;
-                }
-
-                const {
-                  data: { collectionsFeaturedByMarketCap },
-                } = await collectionsByMarketCapQuery.fetchMore({
-                  variables: {
-                    ...collectionsByMarketCapQuery.variables,
-                    offset:
-                      collectionsByMarketCapQuery.data?.collectionsFeaturedByMarketCap.length ?? 0,
-                  },
-                });
-
-                setHasMore(collectionsFeaturedByMarketCap.length > 0);
-              }}
-              render={(collection, i) => (
-                <Link
-                  href={`/collections/${collection.nft.mintAddress}`}
-                  key={`${collection.nft.mintAddress}`}
-                  passHref
-                >
-                  <a>
-                    <CollectionUI.Card collection={collection} />
-                  </a>
-                </Link>
-              )}
-            />
-          )}
+          <List
+            data={data}
+            loading={loading}
+            hasMore={hasMore}
+            gap={4}
+            grid={{
+              [ListGridSize.Default]: [1, 1],
+              [ListGridSize.Small]: [2, 2],
+              [ListGridSize.Medium]: [2, 3],
+              [ListGridSize.Large]: [3, 4],
+              [ListGridSize.ExtraLarge]: [3, 4],
+              [ListGridSize.Jumbo]: [3, 4],
+            }}
+            skeleton={CollectionUI.Card.Skeleton}
+            onLoadMore={onLoadMore}
+            render={(collection, i) => (
+              <Link
+                href={`/collections/${collection.nft.mintAddress}`}
+                key={`${collection.nft.mintAddress}`}
+                passHref
+              >
+                <a>
+                  <CollectionUI.Card collection={collection} />
+                </a>
+              </Link>
+            )}
+          />
         </section>
       </main>
     </>
