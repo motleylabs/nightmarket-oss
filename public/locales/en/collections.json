@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "title": "Explore Collections",
+    "description": "Explore collections on the DAO marketplace"
+  },
+  "hero": {
+    "title": "Explore Night Market"
+  },
+  "search": {
+    "placeholder": "Search by collection name"
+  },
+  "topVolume": "Top volume collections",
+  "topMarketcap": "Top marketcap collections"
+}

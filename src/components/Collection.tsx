@@ -140,7 +140,7 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
     <div className="relative flex aspect-square w-full flex-col justify-end overflow-hidden rounded-md shadow-lg transition hover:scale-[1.02]">
       <img
         src={collection.nft.image}
-        className="absolute top-0 left-0 -z-10 h-full w-full object-cover"
+        className="absolute top-0 left-0 h-full w-full object-cover"
         alt={`Collection ${collection.nft.name}`}
       />
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
