@@ -44,7 +44,6 @@ function TrendingCollection({
   floor,
   volume,
   sales,
-  marketcap,
   floorTrend,
   address,
 }: TrendingCollectionProps) {
@@ -71,9 +70,8 @@ function TrendingCollection({
         </Link>
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
-        <div className="flex flex-row items-center gap-2">
-          <Icon.Currency height={16} width={16} className="text-white" />
-          <p className="text-base font-semibold">{floor}</p>
+        <div className="flex flex-row items-center justify-center gap-2">
+          <p className="text-base font-semibold">{floor.toFixed(2)} SOL</p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -91,36 +89,47 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex flex-row items-center gap-2">
-          <Icon.Currency height={16} width={16} className="text-white" />
-          <p className="text-base font-semibold">{volume}</p>
+        <div className="flex flex-row items-center justify-center gap-2">
+          <p className="text-base font-semibold">{volume.toFixed(2)}</p>
+          <p
+            className={clsx(clsx, 'flex items-center gap-1 text-xs', {
+              'text-[#12B76A]': priceChange >= 0,
+              'text-[#F04438]': priceChange < 0,
+            })}
+          >
+            <ArrowUpIcon
+              className={clsx(clsx, 'h-2 w-2', {
+                'rotate-180 transform': priceChange < 0,
+                'rotate-0 transform': priceChange >= 0,
+              })}
+            />
+            {priceChangePercentage.toFixed(1)}%
+          </p>
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <p className="text-base font-normal">{sales}</p>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex flex-row items-center gap-2">
-          <Icon.Currency height={16} width={16} className="text-white" />
-          <p className="text-base font-normal">{marketcap.toFixed(1)}</p>
+        <div className="flex justify-center">
+          <p className="text-base font-normal">{sales}</p>
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <AreaChart
-          key={`${address}-collection-trend-chart`}
-          width={120}
-          height={40}
-          data={floorTrend}
-        >
-          <Area
-            dataKey="price"
-            stroke={trendColor}
-            strokeWidth={1}
-            fill={trendColor}
-            fillOpacity={0.2}
-            type="monotone"
-          ></Area>
-        </AreaChart>
+        <div className="flex items-center justify-end">
+          <AreaChart
+            key={`${address}-collection-trend-chart`}
+            width={120}
+            height={40}
+            data={floorTrend}
+          >
+            <Area
+              dataKey="price"
+              stroke={trendColor}
+              strokeWidth={1}
+              fill={trendColor}
+              fillOpacity={0.2}
+              type="monotone"
+            ></Area>
+          </AreaChart>
+        </div>
       </td>
     </>
   );
@@ -134,19 +143,24 @@ function LoadingTrendingCollection() {
         <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
+        <div className="flex justify-center">
+          <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
+        </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        <div className="flex justify-center">
+          <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        <div className="flex justify-center">
+          <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="h-4 w-20 animate-pulse rounded-md bg-gray-800" />
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="h-6 w-36 animate-pulse rounded-md bg-gray-800" />
+        <div className="flex justify-end">
+          <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
+        </div>
       </td>
     </>
   );
@@ -174,9 +188,9 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
 });
 
 enum DateOption {
-  HOUR = '1hr',
-  DAY = '24hr',
-  WEEK = '7d',
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month',
 }
 
 const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
@@ -228,11 +242,6 @@ const Home: NextPage = () => {
         endDate: nowUTC,
       };
       switch (filter) {
-        case DateOption.HOUR:
-          const hourAgo = subHours(now, 1);
-          const hourAgoUTC = formatISO(hourAgo);
-          variables.startDate = hourAgoUTC;
-          break;
         case DateOption.DAY:
           const dayAgo = subDays(now, 1);
           const dayAgoUTC = formatISO(dayAgo);
@@ -242,6 +251,11 @@ const Home: NextPage = () => {
           const weekAgo = startOfDay(subDays(now, 7));
           const weekAgoUTC = formatISO(weekAgo);
           variables.startDate = weekAgoUTC;
+          break;
+        case DateOption.MONTH:
+          const monthAgo = startOfDay(subMonths(now, 1));
+          const monthAgoUTC = formatISO(monthAgo);
+          variables.startDate = monthAgoUTC;
           break;
       }
 
@@ -271,14 +285,14 @@ const Home: NextPage = () => {
                 name={'filter'}
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
-                    <ButtonGroup.Option value={DateOption.HOUR}>
-                      {t('trendingCollections.filters.hour')}
-                    </ButtonGroup.Option>
                     <ButtonGroup.Option value={DateOption.DAY}>
                       {t('trendingCollections.filters.day')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={DateOption.WEEK}>
                       {t('trendingCollections.filters.week')}
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={DateOption.MONTH}>
+                      {t('trendingCollections.filters.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
@@ -292,19 +306,16 @@ const Home: NextPage = () => {
                   <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300">
                     {t('trendingCollections.collection')}
                   </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.floor')}
                   </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.volume')}
                   </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.sales')}
                   </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.marketcap')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pb-2 text-right text-xs font-normal text-gray-300">
                     {t('trendingCollections.trend')}
                   </th>
                 </tr>

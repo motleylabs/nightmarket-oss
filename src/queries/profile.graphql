@@ -12,7 +12,6 @@ query WalletProfileQuery($address: PublicKey!) {
     compactCreatedCount @client
     compactFollowerCount @client
     compactFollowingCount @client
-    portfolioValue @client
     displayName @client
     previewImage @client
     connectionCounts {
@@ -31,7 +30,7 @@ query WalletProfileClientQuery($address: PublicKey!) {
     collectedCollections {
       collection {
         nft {
-          image
+          image(width: 100)
           mintAddress
           address
           name
@@ -40,6 +39,24 @@ query WalletProfileClientQuery($address: PublicKey!) {
       }
       nftsOwned
       estimatedValue
+    }
+  }
+}
+
+query CreatedCollectionsQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    createdCollections {
+      collection {
+        nft {
+          image
+          mintAddress
+          address
+          name
+        }
+        floorPrice
+        nftCount
+      }
     }
   }
 }
@@ -98,15 +115,6 @@ query ProfileActivitiesQuery(
       nftMarketplace @client {
         name
         logo
-      }
-      wallets {
-        address
-        twitterHandle
-        previewImage @client
-        displayName @client
-        profile {
-          ...ProfileInfo
-        }
       }
       activityType
       auctionHouse {

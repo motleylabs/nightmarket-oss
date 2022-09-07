@@ -4,7 +4,10 @@ import {
   WalletProfileClientQuery,
   CollectedNFTsQuery,
 } from './../../../queries/profile.graphql';
-import ProfileLayout from '../../../layouts/ProfileLayout';
+import ProfileLayout, {
+  WalletProfileData,
+  WalletProfileVariables,
+} from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet, Nft } from '../../../graphql.types';
@@ -15,7 +18,7 @@ import { Sidebar } from '../../../components/Sidebar';
 import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
-import { useQuery } from '@apollo/client';
+import { QueryResult, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
@@ -72,14 +75,11 @@ interface CollectionNFTsVariables {
   collections?: (string | undefined)[] | null | undefined;
 }
 
-interface WalletProfileData {
-  wallet: Wallet;
-}
-interface WalletProfileVariables {
-  address: string;
-}
-
-export default function ProfileCollected() {
+export default function ProfileCollected({
+  walletProfileClientQuery,
+}: {
+  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
+}) {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All, collections: [] },
@@ -96,15 +96,6 @@ export default function ProfileCollected() {
       owner: router.query.address as string,
     },
   });
-
-  const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
-    WalletProfileClientQuery,
-    {
-      variables: {
-        address: router.query.address as string,
-      },
-    }
-  );
 
   useEffect(() => {
     const subscription = watch(({ listed, collections }) => {
@@ -157,7 +148,7 @@ export default function ProfileCollected() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>
+        <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex flex-col gap-2">
             {walletProfileClientQuery.loading ? (
               <>

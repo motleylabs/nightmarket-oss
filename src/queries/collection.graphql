@@ -33,8 +33,32 @@ query CollectionQuery($address: String!) {
   }
 }
 
-query CollectionNFTsQuery($collection: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
-  nfts(collections: [$collection], limit: $limit, offset: $offset, listed: $listed) {
+query CollectionAttributeGroupsQuery($address: String!) {
+  collection(address: $address) {
+    attributeGroups {
+      name
+      variants {
+        name
+        count
+      }
+    }
+  }
+}
+
+query CollectionNFTsQuery(
+  $collection: PublicKey!
+  $limit: Int!
+  $offset: Int!
+  $listed: Boolean
+  $attributes: [AttributeFilter!]
+) {
+  nfts(
+    collections: [$collection]
+    limit: $limit
+    offset: $offset
+    listed: $listed
+    attributes: $attributes
+  ) {
     ...NftInfo
   }
 }
@@ -59,6 +83,15 @@ query CollectionActivitiesQuery(
         logo
       }
       solPrice @client
+      primaryWallet @client {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
       wallets {
         address
         twitterHandle
