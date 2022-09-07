@@ -43,6 +43,24 @@ query WalletProfileClientQuery($address: PublicKey!) {
   }
 }
 
+query CreatedCollectionsQuery($address: PublicKey!) {
+  wallet(address: $address) {
+    address
+    createdCollections {
+      collection {
+        nft {
+          image
+          mintAddress
+          address
+          name
+        }
+        floorPrice
+        nftCount
+      }
+    }
+  }
+}
+
 query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
   connections(from: [$from], to: [$to], limit: 1, offset: 0) {
     to {

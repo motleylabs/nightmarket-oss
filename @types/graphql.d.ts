@@ -56,6 +56,7 @@ declare module '*/profile.graphql' {
   export const ProfileInfo: DocumentNode;
 export const WalletProfileQuery: DocumentNode;
 export const WalletProfileClientQuery: DocumentNode;
+export const CreatedCollectionsQuery: DocumentNode;
 export const FollowingProfileQuery: DocumentNode;
 export const CollectedNFTsQuery: DocumentNode;
 export const CreatedNFTsQuery: DocumentNode;
