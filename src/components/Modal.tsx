@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { XIcon } from '@heroicons/react/solid';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { Dispatch, Fragment, ReactNode, SetStateAction } from 'react';
 
@@ -77,7 +77,7 @@ export default function Modal(props: ModalProps) {
                   className="absolute -top-2 -right-2 z-50 rounded-full bg-white p-1 hover:bg-gray-100 hover:text-gray-400"
                 >
                   {/* <Close color={`#ffffff`} /> */}
-                  <XIcon className="h-4 w-4 text-gray-900" />
+                  <XMarkIcon className="h-4 w-4 text-gray-900" />
                 </button>
                 {props.title && (
                   <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">

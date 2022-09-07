@@ -10,6 +10,20 @@
   "topVolume": {
     "title": "Top volume"
   },
+  "trendingCollections": {
+    "title": "Trending collections",
+    "collection": "Collection",
+    "floor": "Floor",
+    "volume": "Volume",
+    "sales": "Sales",
+    "marketcap": "Marketcap",
+    "trend": "Floor trend",
+    "filters": {
+      "day": "1 Day",
+      "week": "1 Week",
+      "month": "1 Month"
+    }
+  },
   "topMarketCap": {
     "title": "Top marketcap"
   },

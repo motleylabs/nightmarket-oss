@@ -2,15 +2,56 @@ import React from 'react';
 
 interface IconProps {
   className?: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }
+
+function CopyIcon({ className, width = 16, height = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={width}
+      height={height}
+      viewBox={`2 1 ${width + 4} ${height + 6}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5M11 9H20C21.1046 9 22 9.89543 22 11V20C22 21.1046 21.1046 22 20 22H11C9.89543 22 9 21.1046 9 20V11C9 9.89543 9.89543 9 11 9Z"
+        stroke="#A8A8A8"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+Icon.Copy = CopyIcon;
+
+function CurrencyIcon({ className, width = 16, height = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={width}
+      height={height}
+      viewBox={`-1 -1 ${width + 2} ${height + 2}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx={width / 2} cy={height / 2} r={height / 2} stroke="#A8A8A8" />
+      <circle cx={width / 2} cy={height / 2} r={height / 4} stroke="#A8A8A8" />
+    </svg>
+  );
+}
+
+Icon.Currency = CurrencyIcon;
 
 export default function Icon() {
   return <div></div>;
 }
 
-function SolScanIcon({ className, width, height }: IconProps) {
+function SolScanIcon({ className, width = 12, height = 12 }: IconProps) {
   return (
     <svg
       className={className}
@@ -42,7 +83,7 @@ Icon.SolScan = SolScanIcon;
 interface SolanaIconProps extends IconProps {
   gradient?: boolean;
 }
-function SolanaIcon({ className, width, height, gradient }: SolanaIconProps) {
+function SolanaIcon({ className, width = 12, height = 12, gradient }: SolanaIconProps) {
   if (gradient) {
     return (
       <svg

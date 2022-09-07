@@ -19,7 +19,23 @@
     "placeholder": "Search collections, profiles, and wallets...",
     "empty": "No results found"
   },
+  "profileMenu": {
+    "collected": "Collected NFTs",
+    "created": "Created NFTs",
+    "activity": "Wallet activity",
+    "analytics": "Wallet analytics"
+  },
+  "navigation": {
+    "collections": "Collections",
+    "discover": "Discover"
+  },
+  "copyLink": "Copy link",
+  "copied": "Copied",
+  "shareTwitter": "Share to Twitter",
   "purchase": "Sold",
   "listing": "Listed",
-  "offer": "Offer"
+  "offer": "Offer",
+  "viewProfile": "View profile",
+  "switchWallet": "Switch wallet",
+  "disconnectWallet": "Disconnect wallet"
 }

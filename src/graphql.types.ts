@@ -33,6 +33,7 @@ export type AhListing = {
   marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
+  nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
   purchaseId?: Maybe<Scalars['Uuid']>;
   seller: Scalars['PublicKey'];
@@ -215,6 +216,7 @@ export type Collection = {
   address: Scalars['String'];
   /** @deprecated use `nft { animation_url }` */
   animationUrl?: Maybe<Scalars['String']>;
+  attributeGroups: Array<AttributeGroup>;
   /** @deprecated use `nft { attributes }` */
   attributes: Array<NftAttribute>;
   /** @deprecated use `nft { category }` */
@@ -222,6 +224,7 @@ export type Collection = {
   /** @deprecated use `nft { collection }` */
   collection?: Maybe<Collection>;
   compactFloorPrice?: Maybe<Scalars['String']>;
+  compactNftCount?: Maybe<Scalars['String']>;
   compactVolumeTotal?: Maybe<Scalars['String']>;
   /** @deprecated use `nft { created_at }` */
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
@@ -363,15 +366,86 @@ export type GenoHabitat = {
   nextDayTimestamp: Scalars['DateTimeUtc'];
   nft?: Maybe<Nft>;
   parentHabitat?: Maybe<Scalars['PublicKey']>;
+  parentHabitatData?: Maybe<GenoHabitat>;
   renewalTimestamp: Scalars['DateTimeUtc'];
   rentalAgreement?: Maybe<GenoRentalAgreement>;
   seedsSpawned: Scalars['Boolean'];
   sequence: Scalars['I64'];
   subHabitatCooldownTimestamp: Scalars['DateTimeUtc'];
+  subHabitatData: Array<Maybe<GenoHabitat>>;
   subHabitats: Array<Scalars['PublicKey']>;
   terraformingHabitat?: Maybe<Scalars['PublicKey']>;
   totalCrystalsRefined: Scalars['I64'];
   totalKiHarvested: Scalars['I64'];
+};
+
+/** A list of Genopets habitats */
+export type GenoHabitatList = {
+  __typename?: 'GenoHabitatList';
+  habitats: Array<GenoHabitat>;
+  totalCountHint?: Maybe<Scalars['I64']>;
+};
+
+/** Input sorting parameter for the `genoHabitatsCounted` query */
+export enum GenoHabitatSortField {
+  /** Sort by the `address` field */
+  Address = 'ADDRESS',
+  /** Sort by the `crystalsRefined` field */
+  CrystalsRefined = 'CRYSTALS_REFINED',
+  /** Sort by the `kiHarvested` field */
+  KiHarvested = 'KI_HARVESTED',
+  /** Sort by the `level` field */
+  Level = 'LEVEL',
+  /** Sort by the `expiryTimestamp` field */
+  Lifespan = 'LIFESPAN'
+}
+
+/** Input parameters for the `genoHabitatsCounted` query */
+export type GenoHabitatsParams = {
+  /** Filter by elements */
+  elements?: InputMaybe<Array<Scalars['Int']>>;
+  /** Filter by genesis (or non-genesis) */
+  genesis?: InputMaybe<Scalars['Boolean']>;
+  /** Filter by guild IDs */
+  guilds?: InputMaybe<Array<Scalars['Int']>>;
+  /** Filter by open (or closed) market */
+  harvesterOpenMarket?: InputMaybe<Scalars['Boolean']>;
+  /** Filter by harvester addresses */
+  harvesters?: InputMaybe<Array<Scalars['String']>>;
+  /** Maximum number of results to return (max 250) */
+  limit: Scalars['Int'];
+  /** Maximum habitat durability to return */
+  maxDurability?: InputMaybe<Scalars['Int']>;
+  /** Maximum habitat expiry timestamp to return */
+  maxExpiry?: InputMaybe<Scalars['DateTimeUtc']>;
+  /** Maximum habitat level to return */
+  maxLevel?: InputMaybe<Scalars['Int']>;
+  /** Maximum habitat sequence number to return */
+  maxSequence?: InputMaybe<Scalars['Int']>;
+  /** Minimum habitat durability to return */
+  minDurability?: InputMaybe<Scalars['Int']>;
+  /** Minimum habitat expiry timestamp to return */
+  minExpiry?: InputMaybe<Scalars['DateTimeUtc']>;
+  /** Minimum habitat level to return */
+  minLevel?: InputMaybe<Scalars['Int']>;
+  /** Minimum habitat sequence number to return */
+  minSequence?: InputMaybe<Scalars['Int']>;
+  /** Filter by habitat NFT addresses */
+  mints?: InputMaybe<Array<Scalars['PublicKey']>>;
+  /** Pagination offset */
+  offset: Scalars['Int'];
+  /** Filter by habitat NFT owners */
+  owners?: InputMaybe<Array<Scalars['PublicKey']>>;
+  /** Filter by rental open (or closed) market */
+  rentalOpenMarket?: InputMaybe<Scalars['Boolean']>;
+  /** Filter by renter addresses */
+  renters?: InputMaybe<Array<Scalars['PublicKey']>>;
+  /** True to sort results in descending order (default false) */
+  sortDesc?: InputMaybe<Scalars['Boolean']>;
+  /** Field to sort results by (default `ADDRESS`) */
+  sortField?: InputMaybe<GenoHabitatSortField>;
+  /** Filter habitats by a fuzzy text-search query */
+  term?: InputMaybe<Scalars['String']>;
 };
 
 export type GenoRentalAgreement = {
@@ -593,7 +667,9 @@ export type NftActivity = {
   marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
+  nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
+  primaryWallet: Wallet;
   solPrice?: Maybe<Scalars['Int']>;
   timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;
@@ -644,6 +720,15 @@ export type NftFile = {
   uri: Scalars['String'];
 };
 
+export type NftMarketplace = {
+  __typename?: 'NftMarketplace';
+  auctionHouseAddress?: Maybe<Scalars['String']>;
+  link?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['String']>;
+  marketplaceProgramAddress?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+};
+
 export type NftOwner = {
   __typename?: 'NftOwner';
   address: Scalars['String'];
@@ -681,6 +766,7 @@ export type Offer = {
   marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
+  nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
   purchaseId?: Maybe<Scalars['Uuid']>;
   solPrice?: Maybe<Scalars['Int']>;
@@ -870,8 +956,12 @@ export type QueryRoot = {
   feedEvents: Array<FeedEvent>;
   /** Recommend wallets to follow. */
   followWallets: Array<Wallet>;
+  /** Query up to one Genopets habitat by the public key of its on-chain data */
   genoHabitat?: Maybe<GenoHabitat>;
+  /** @deprecated Use genoHabitatsCounted instead */
   genoHabitats: Array<GenoHabitat>;
+  /** Query zero or more Genopets habitats */
+  genoHabitatsCounted: GenoHabitatList;
   governances: Array<Governance>;
   /** Returns the latest on chain events using the graph_program. */
   latestFeedEvents: Array<FeedEvent>;
@@ -1015,7 +1105,8 @@ export type QueryRootFollowWalletsArgs = {
 
 
 export type QueryRootGenoHabitatArgs = {
-  address: Scalars['PublicKey'];
+  address?: InputMaybe<Scalars['PublicKey']>;
+  mint?: InputMaybe<Scalars['PublicKey']>;
 };
 
 
@@ -1040,6 +1131,11 @@ export type QueryRootGenoHabitatsArgs = {
   rentalOpenMarket?: InputMaybe<Scalars['Boolean']>;
   renters?: InputMaybe<Array<Scalars['PublicKey']>>;
   term?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryRootGenoHabitatsCountedArgs = {
+  params: GenoHabitatsParams;
 };
 
 
@@ -1375,7 +1471,9 @@ export type WalletActivity = {
   marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
+  nftMarketplace?: Maybe<NftMarketplace>;
   price: Scalars['U64'];
+  primaryWallet: Wallet;
   solPrice?: Maybe<Scalars['Int']>;
   timeSince?: Maybe<Scalars['String']>;
   wallets: Array<Wallet>;

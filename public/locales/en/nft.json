@@ -22,5 +22,10 @@
   "lastSold": "Last sold for",
   "walletBalance": "Current wallet balance",
   "amount": "Amount",
-  "submitOffer": "Submit offer"
+  "submitOffer": "Submit offer",
+  "lastSale": "Last sale price",
+  "listNft": "List for sale",
+  "highestOffer": "Highest offer",
+  "accept": "Accept",
+  "twitterShareText": "Check out this NFT"
 }

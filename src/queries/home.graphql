@@ -10,6 +10,8 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWalle
   ) {
     floorPrice
     nftCount
+    volumeTotal
+    holderCount
     nft {
       address
       mintAddress

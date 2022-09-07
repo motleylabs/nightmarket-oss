@@ -1,0 +1,16 @@
+[
+  {
+    "marketplaceProgramAddress": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+    "auctionHouseAddress": null,
+    "name": "Magic Eden",
+    "link": "https://magiceden.io/item-details/{}",
+    "logo": "/images/magiceden.svg"
+  },
+  {
+    "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
+    "auctionHouseAddress": "9cCXJPiwjKTrEDWv6cgxHNeE7m7XK5YbzVfr4ZTBcn9",
+    "name": "Night Market",
+    "link": "https://nightmarket.holaplex.dev/nfts/{}",
+    "logo": "/images/nightmarket.svg"
+  }
+]

@@ -158,8 +158,8 @@ export default function CollectionActivity(): JSX.Element {
                 meta={
                   <Activity.Meta
                     title={<Activity.Tag />}
-                    marketplace={activity.marketplaceProgramAddress}
-                    source={<Activity.Wallet wallets={activity.wallets} />}
+                    marketplace={activity.nftMarketplace}
+                    source={<Activity.Wallet wallet={activity.primaryWallet} />}
                   />
                 }
               >

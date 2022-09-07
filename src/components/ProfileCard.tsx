@@ -13,7 +13,7 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
   return (
     <div
       className={clsx(
-        'relative flex w-full flex-col overflow-clip rounded-lg bg-gray-900 shadow-md shadow-black transition duration-300 hover:scale-[1.02]',
+        'relative flex w-full flex-col overflow-clip rounded-md bg-gray-900 shadow-md shadow-black transition duration-300 hover:scale-[1.02]',
         className
       )}
     >
@@ -52,7 +52,7 @@ function ProfileCardSkeleton({ className }: ProfileCardSkeletonProps): JSX.Eleme
   return (
     <div
       className={clsx(
-        'relative flex w-full animate-pulse flex-col overflow-clip rounded-lg bg-gray-900 shadow-md shadow-black duration-300',
+        'relative flex w-full animate-pulse flex-col overflow-clip rounded-md bg-gray-900 shadow-md shadow-black duration-300',
         className
       )}
     >

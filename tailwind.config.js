@@ -23,7 +23,13 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
+      borderRadius: {
+        md: '0.25rem',
+      },
       colors: {
+        orange: {
+          600: '#E15A0A',
+        },
         gray: {
           25: '#FEFEFE',
           50: '#F4F4F4',
@@ -31,12 +37,27 @@ module.exports = {
           200: '#C6C6C6',
           300: '#A8A8A8',
           400: '#8D8D8D',
-          500: '#6F6F6F',
+          500: '#707070',
           600: '#525252',
-          700: '#393939',
+          700: '#383838',
           800: '#262626',
-          900: '#171717',
+          900: '#191919',
         },
+      },
+      keyframes: {
+        draw: {
+          '0%': { border: '2px solid transparent' },
+          '25%': { borderTop: '2px solid' },
+          '50%': { borderRight: '2px solid' },
+          '75%': { borderBottom: '2px solid' },
+          '100%': {
+            borderColor: '0s ease-out 0.5',
+            border: 'width 0.25s ease-out 0.5s, height 0.25s ease-out 0.75s',
+          },
+        },
+      },
+      animation: {
+        'draw-border': 'draw .5s',
       },
     },
   },

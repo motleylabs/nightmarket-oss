@@ -157,7 +157,7 @@ export default function ProfileCollected() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>
+        <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex flex-col gap-2">
             {createdCollectionsQuery.loading ? (
               <>

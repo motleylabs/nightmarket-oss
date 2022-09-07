@@ -1,12 +1,14 @@
 import { ReactElement } from 'react';
 import Head from 'next/head';
 import { Collection } from '../graphql.types';
-import { DownloadIcon, RefreshIcon } from '@heroicons/react/outline';
+import { ArrowUpTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
+import config from '../app.config';
+import Share from '../components/Share';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -32,11 +34,13 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             title={<Overview.Title>{collection.nft.name}</Overview.Title>}
           >
             <Overview.Actions>
-              <Button
-                circle
-                icon={<DownloadIcon width={14} height={14} />}
-                size={ButtonSize.Small}
-                type={ButtonType.Secondary}
+              <Share
+                address={address}
+                twitterParams={{
+                  text: t('twitterShareText'),
+                  hashtags: ['nightmarket'],
+                  url: `${config.baseUrl}/collections/${address}`,
+                }}
               />
             </Overview.Actions>
             <Overview.Figures>
@@ -67,7 +71,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="flex flex-col justify-between">
               <Button
                 circle
-                icon={<RefreshIcon width={14} height={14} className="stroke-gray-300" />}
+                icon={<ArrowPathIcon width={14} height={14} className="stroke-gray-300" />}
                 size={ButtonSize.Small}
                 type={ButtonType.Secondary}
               />

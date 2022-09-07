@@ -1,9 +1,8 @@
 import { useTranslation } from 'next-i18next';
 import { SVGProps, useMemo, cloneElement, Children } from 'react';
-import { Wallet, Maybe } from './../graphql.types';
-import { CurrencyDollarIcon, HandIcon, TagIcon } from '@heroicons/react/outline';
+import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
+import { CurrencyDollarIcon, HandRaisedIcon, TagIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { shortenAddress } from './../modules/address';
 
 export enum ActivityType {
   Purchase = 'purchase',
@@ -21,7 +20,7 @@ interface ActivityProps {
 
 export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.Element {
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg border border-gray-700 p-4 text-white">
+    <div className="mb-4 flex items-center justify-between rounded-md border border-gray-700 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
         {avatar}
         {cloneElement(meta, { type })}
@@ -35,7 +34,7 @@ export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.E
 
 interface ActivityMetaProps {
   title: JSX.Element;
-  marketplace: string;
+  marketplace: Maybe<NftMarketplace> | undefined;
   source?: JSX.Element;
   type?: ActivityType;
 }
@@ -44,7 +43,11 @@ function ActivityMeta({ title, marketplace, source, type }: ActivityMetaProps): 
     <div className="flex flex-col justify-between">
       {cloneElement(title, { type })}
       <div className="flex flex-row gap-2">
-        <span className="text-xs">{shortenAddress(marketplace)}</span>
+        <img
+          src={marketplace?.logo as string}
+          alt={`nft marketplace logo ${marketplace?.name}`}
+          className="object-fit h-3 w-auto"
+        />
         {source && (
           <span className="border-l-[1px] border-l-gray-600 pl-2">
             {cloneElement(source, { type })}
@@ -70,11 +73,11 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
     switch (type) {
       case ActivityType.Purchase:
       case ActivityType.Sell:
-        return [t('activity.purchase'), CurrencyDollarIcon];
+        return [t('purchase'), CurrencyDollarIcon];
       case ActivityType.Listing:
-        return [t('activity.listing'), TagIcon];
+        return [t('listing'), TagIcon];
       case ActivityType.Offer:
-        return [t('activity.offer'), HandIcon];
+        return [t('offer'), HandRaisedIcon];
       default:
         return [];
     }
@@ -82,7 +85,7 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
 
   return (
     <div className="flex items-center">
-      {Icon && <Icon className="mr-2 h-3 w-3 self-center text-white" />}
+      {Icon && <Icon className="mr-2 h-4 w-4 self-center text-white" />}
       <div className="inline-block">{label}</div>
     </div>
   );
@@ -107,26 +110,10 @@ function ActivityTimestamp({ timeSince }: { timeSince: Maybe<string> | undefined
 Activity.Timestamp = ActivityTimestamp;
 
 interface ActivityWalletProps {
-  wallets: Wallet[];
-  type?: ActivityType;
+  wallet: Wallet;
 }
 
-function ActivityWallet({ wallets, type }: ActivityWalletProps): JSX.Element {
-  const wallet = useMemo<Wallet | undefined>(() => {
-    switch (type) {
-      case ActivityType.Purchase || ActivityType.Sell:
-        return wallets[1];
-      case ActivityType.Listing:
-        return wallets[0];
-      case ActivityType.Offer:
-        return wallets[0];
-    }
-  }, [type, wallets]);
-
-  if (!wallet) {
-    return <></>;
-  }
-
+function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
   return (
     <Link href={`/profiles/${wallet.address}/collected`} passHref>
       <a className="flex items-center gap-1 text-[10px] transition hover:scale-[1.02]">
@@ -144,7 +131,7 @@ function ActivityWallet({ wallets, type }: ActivityWalletProps): JSX.Element {
 Activity.Wallet = ActivityWallet;
 
 function ActivitySkeleton(): JSX.Element {
-  return <div className="mb-4 h-16 rounded bg-gray-800" />;
+  return <div className="mb-4 h-16 rounded-md bg-gray-800" />;
 }
 
 Activity.Skeleton = ActivitySkeleton;
