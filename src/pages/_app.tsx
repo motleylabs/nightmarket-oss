@@ -196,90 +196,102 @@ function App({ children }: AppComponentProps) {
                 <Popover.Panel
                   className={'absolute z-40 translate-y-2 sm:-translate-x-[calc(384px-40px)]'}
                 >
-                  <div className=" hidden overflow-hidden rounded-md bg-gray-900 pb-4 text-white shadow-lg shadow-black sm:w-96 md:inline-block">
-                    <div className="flex items-center p-4 ">
-                      <img
-                        className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
-                        src={viewerQueryResult.data.wallet.previewImage as string}
-                        alt="profile image"
-                      />
-                      <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
+                  {({ close }) => (
+                    <div className=" hidden overflow-hidden rounded-md bg-gray-900 pb-4 text-white shadow-lg shadow-black sm:w-96 md:inline-block">
+                      <div className="flex items-center p-4 ">
+                        <img
+                          className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
+                          src={viewerQueryResult.data?.wallet.previewImage as string}
+                          alt="profile image"
+                        />
+                        <span className="ml-2">{viewerQueryResult.data?.wallet.displayName}</span>
 
-                      <button
-                        onClick={copyWallet}
-                        className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
-                      >
-                        {copied ? (
-                          <CheckIcon className="h-4 w-4 text-gray-300" />
-                        ) : (
-                          <Icon.Copy className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                    <div className="flex flex-col pb-4">
-                      <Link
-                        href={`/profiles/${viewerQueryResult.data.wallet.address}/collected`}
-                        passHref
-                      >
-                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                          {t('profileMenu.collected')}
-                        </a>
-                      </Link>
-                      <Link
-                        href={`/profiles/${viewerQueryResult.data.wallet.address}/created`}
-                        passHref
-                      >
-                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                          {t('profileMenu.created')}
-                        </a>
-                      </Link>
-                      <Link
-                        href={`/profiles/${viewerQueryResult.data.wallet.address}/activity`}
-                        passHref
-                      >
-                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                          {t('profileMenu.activity')}
-                        </a>
-                      </Link>
-                      <Link
-                        href={`/profiles/${viewerQueryResult.data.wallet.address}/analytics`}
-                        passHref
-                      >
-                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                          {t('profileMenu.analytics')}
-                        </a>
-                      </Link>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <div className="flex px-4">
+                        <button
+                          onClick={copyWallet}
+                          className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
+                        >
+                          {copied ? (
+                            <CheckIcon className="h-4 w-4 text-gray-300" />
+                          ) : (
+                            <Icon.Copy className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      <div onClick={() => close()} className="flex flex-col pb-4">
                         <Link
-                          href={`/profiles/${viewerQueryResult.data.wallet.address}/collected`}
+                          href={`/profiles/${viewerQueryResult.data?.wallet.address}/collected`}
                           passHref
                         >
-                          <a className="flex w-full">
-                            <Button className="w-full">{t('viewProfile')}</Button>
+                          <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                            {t('profileMenu.collected')}
+                          </a>
+                        </Link>
+                        <Link
+                          href={`/profiles/${viewerQueryResult.data?.wallet.address}/created`}
+                          passHref
+                        >
+                          <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                            {t('profileMenu.created')}
+                          </a>
+                        </Link>
+                        <Link
+                          href={`/profiles/${viewerQueryResult.data?.wallet.address}/activity`}
+                          passHref
+                        >
+                          <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                            {t('profileMenu.activity')}
+                          </a>
+                        </Link>
+                        <Link
+                          href={`/profiles/${viewerQueryResult.data?.wallet.address}/analytics`}
+                          passHref
+                        >
+                          <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                            {t('profileMenu.analytics')}
                           </a>
                         </Link>
                       </div>
-                      <div className="flex w-full px-4">
-                        <Button
-                          onClick={async () => {
-                            await disconnect();
-                            setVisible(true);
-                          }}
-                          type={ButtonType.Secondary}
-                          className="w-full"
-                        >
-                          {t('switchWallet')}
-                        </Button>
-                      </div>
-                      <div className="flex w-full px-4">
-                        <Button onClick={disconnect} type={ButtonType.Ghost} className="w-full">
-                          {t('disconnectWallet')}
-                        </Button>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex px-4">
+                          <Link
+                            href={`/profiles/${viewerQueryResult.data?.wallet.address}/collected`}
+                            passHref
+                          >
+                            <a className="flex w-full">
+                              <Button onClick={() => close()} className="w-full">
+                                {t('viewProfile')}
+                              </Button>
+                            </a>
+                          </Link>
+                        </div>
+                        <div className="flex w-full px-4">
+                          <Button
+                            onClick={async () => {
+                              await disconnect();
+                              close();
+                              setVisible(true);
+                            }}
+                            type={ButtonType.Secondary}
+                            className="w-full"
+                          >
+                            {t('switchWallet')}
+                          </Button>
+                        </div>
+                        <div className="flex w-full px-4">
+                          <Button
+                            onClick={() => {
+                              disconnect();
+                              close();
+                            }}
+                            type={ButtonType.Ghost}
+                            className="w-full"
+                          >
+                            {t('disconnectWallet')}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </Popover.Panel>
               </Transition>
             </Popover>
