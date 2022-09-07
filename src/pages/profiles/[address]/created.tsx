@@ -128,7 +128,7 @@ export default function ProfileCollected() {
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel>The sidebar</Sidebar.Panel>
+        <Sidebar.Panel onChange={toggleSidebar}>The sidebar</Sidebar.Panel>
         <Sidebar.Content>
           <List
             expanded={open}

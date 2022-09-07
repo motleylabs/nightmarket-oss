@@ -182,6 +182,7 @@ const client = new ApolloClient({
             '$owner',
             '$creator',
             '$collections',
+            '$attributes',
           ]),
           viewer: {
             read() {
