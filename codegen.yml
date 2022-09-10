@@ -2,7 +2,7 @@ overwrite: true
 documents:
   - '**/*.graphql'
 schema:
-  - https://graph.holaplex.com/v1
+  - http://localhost:3000/v1
   - local.graphql
 generates:
   ./@types/graphql.d.ts:
