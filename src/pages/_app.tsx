@@ -440,7 +440,7 @@ function App({ children }: AppComponentProps) {
           </button>
           <div
             className={clsx(
-              'fixed left-0 right-0 top-0 bottom-0 z-50  bg-gray-900 px-4 py-2 md:hidden',
+              'fixed left-0 right-0 top-0 bottom-0 z-50 bg-gray-900 px-4 py-2 md:hidden',
               showNav ? 'block' : 'hidden'
             )}
           >
@@ -464,7 +464,7 @@ function App({ children }: AppComponentProps) {
               </button>
             </div>
             {/* mobile nav */}
-            <nav className="flex h-[95%] flex-col py-2 md:p-2">
+            <nav className="flex h-screen flex-col bg-gray-900 py-2 md:p-2">
               {loading ? (
                 <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
               ) : viewerQueryResult.data ? (
