@@ -98,7 +98,8 @@ function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
     <>
       <aside
         className={clsx(
-          'sidebar-scroll fixed top-0 bottom-0 left-0 right-0 z-30 h-full  flex-none bg-gray-900 pr-4 md:sticky md:top-[74px] md:z-0',
+          'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-gray-900 pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
+          'scrollbar-thin scrollbar-thumb-gray-600',
           open ? 'inline-block md:w-72 lg:w-96' : 'hidden'
         )}
       >
