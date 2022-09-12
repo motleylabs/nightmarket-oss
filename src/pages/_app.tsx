@@ -1,4 +1,4 @@
-import { useCallback, useMemo, ReactElement, useState, Fragment } from 'react';
+import { useCallback, useMemo, ReactElement, useState, Fragment, useRef } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -15,7 +15,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { Bars3Icon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { ApolloProvider } from '@apollo/client';
 import Link from 'next/link';
@@ -33,6 +33,8 @@ import useGlobalSearch from './../hooks/globalsearch';
 import CurrencyProvider from '../providers/CurrencyProvider';
 import Icon from '../components/Icon';
 import { Popover, Transition } from '@headlessui/react';
+import useMobileSearch from '../hooks/mobilesearch';
+import { useOutsideAlert } from '../hooks/outsidealert';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -48,6 +50,25 @@ interface AppComponentProps {
 
 function App({ children }: AppComponentProps) {
   const [showNav, setShowNav] = useNavigation();
+
+  const { searchExpanded, setSearchExpanded, setShowMobileSearch, showMobileSearch } =
+    useMobileSearch();
+
+  const expandedSearchRef = useRef<HTMLDivElement>(null!);
+  const mobileSearchRef = useRef<HTMLDivElement>(null!);
+  useOutsideAlert(
+    expandedSearchRef,
+    useCallback(() => {
+      setSearchExpanded(false);
+    }, [setSearchExpanded])
+  );
+  useOutsideAlert(
+    mobileSearchRef,
+    useCallback(() => {
+      setShowMobileSearch(false);
+    }, [setShowMobileSearch])
+  );
+
   const onLogin = useLogin();
   const { setVisible } = useWalletModal();
 
@@ -73,8 +94,12 @@ function App({ children }: AppComponentProps) {
 
   return (
     <>
-      <header className="relative flex flex-row items-center justify-between px-4 py-2 md:px-8 md:py-4">
-        <div className="flex flex-shrink justify-start md:w-1/4">
+      <header className="sticky top-0 z-30 flex w-full flex-row items-center justify-between px-4 py-2 backdrop-blur-sm md:px-8 md:py-4">
+        <div
+          className={clsx('flex flex-shrink justify-start md:w-1/4', {
+            hidden: searchExpanded,
+          })}
+        >
           <Link href="/" passHref>
             <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
               <img
@@ -85,7 +110,117 @@ function App({ children }: AppComponentProps) {
             </a>
           </Link>
         </div>
-        <div className=" flex-grow items-center px-6 sm:flex md:px-0">
+        {/* mobile search UI */}
+        <div
+          className={clsx(
+            'flex flex-grow items-center sm:hidden',
+            searchExpanded ? 'justify-start' : 'justify-center'
+          )}
+        >
+          <button
+            className={clsx(
+              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
+              { hidden: searchExpanded }
+            )}
+            onClick={useCallback(() => {
+              setSearchExpanded(true);
+            }, [setSearchExpanded])}
+          >
+            <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
+          </button>
+          <div ref={expandedSearchRef} className={clsx(searchExpanded ? 'block w-full' : 'hidden')}>
+            <Search>
+              <Search.Input
+                onChange={(e) => {
+                  updateSearch(e);
+                  setShowMobileSearch(true);
+                }}
+                value={searchTerm}
+              />
+              <div
+                className={clsx(
+                  showMobileSearch
+                    ? 'fixed left-0 right-0 top-2 bottom-0 z-40 block h-[95%] sm:hidden'
+                    : 'hidden'
+                )}
+              >
+                <div ref={mobileSearchRef}>
+                  <Search.Results
+                    searching={searching}
+                    hasResults={Boolean(previousResults) || hasResults}
+                    enabled={searchTerm.length > 2}
+                  >
+                    <Search.Group<MetadataJson[]>
+                      title={t('search.collection')}
+                      result={results?.collections as MetadataJson[]}
+                    >
+                      {({ result }) => {
+                        return result?.map((collection, i) => (
+                          <Search.Collection
+                            value={collection}
+                            key={`search-collection-${collection.mintAddress}-${i}`}
+                            image={collection.image || '/images/placeholder.png'}
+                            name={collection.name}
+                            address={collection.mintAddress}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                    <Search.Group<Wallet[]> title={t('search.profiles')} result={results?.profiles}>
+                      {({ result }) => {
+                        return result?.map((wallet, i) => (
+                          <Search.Profile
+                            value={wallet}
+                            profile={wallet}
+                            key={`search-profile-${wallet.address}-${i}`}
+                            image={wallet.previewImage || '/images/placeholder.png'}
+                            name={wallet.displayName}
+                            address={wallet.address}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                    <Search.Group<Wallet> title={t('search.wallet')} result={results?.wallet}>
+                      {({ result }) => {
+                        if (!result) {
+                          return null;
+                        }
+
+                        return (
+                          <Search.Profile
+                            value={result}
+                            profile={result}
+                            key={`search-wallet-${result?.address}`}
+                            image={result.previewImage || '/images/placeholder.png'}
+                            name={result.displayName}
+                            address={result.address}
+                          />
+                        );
+                      }}
+                    </Search.Group>
+                    <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts as Nft[]}>
+                      {({ result }) => {
+                        return result?.map((nft, i) => (
+                          <Search.MintAddress
+                            value={nft}
+                            nft={nft}
+                            key={`search-mintAddress-${nft.address}-${i}`}
+                            image={nft.image}
+                            address={nft.mintAddress}
+                            name={nft.name}
+                            creator={nft.creators[0]}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                  </Search.Results>
+                </div>
+              </div>
+            </Search>
+          </div>
+        </div>
+
+        <div className="hidden flex-grow items-center px-6 sm:flex md:px-0">
           <Search>
             <Search.Input onChange={updateSearch} value={searchTerm} />
             <Search.Results
@@ -301,7 +436,7 @@ function App({ children }: AppComponentProps) {
               setShowNav(true);
             }, [setShowNav])}
           >
-            <Bars3Icon color="#fff" width={16} height={16} />
+            <Bars3Icon color="#fff" width={20} height={20} />
           </button>
           <div
             className={clsx(
@@ -325,9 +460,10 @@ function App({ children }: AppComponentProps) {
                   setShowNav(false);
                 }, [setShowNav])}
               >
-                <XMarkIcon color="#171717" width={16} height={16} />
+                <XMarkIcon color="#171717" width={20} height={20} />
               </button>
             </div>
+            {/* mobile nav */}
             <nav className="flex h-[95%] flex-col py-2 md:p-2">
               {loading ? (
                 <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
