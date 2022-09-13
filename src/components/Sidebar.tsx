@@ -38,24 +38,25 @@ Sidebar.FilterIcon = SidebarFilterIcon;
 interface SidebarControlProps {
   open: boolean;
   onChange: () => void;
+  disabled?: boolean;
 }
 
-function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
+function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.Element {
   const { t } = useTranslation('common');
   return (
-    <div className={clsx({ 'hidden md:block': open })}>
+    <div className={clsx({ 'hidden md:block': open && !disabled })}>
       <button
         className={clsx(
           'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between',
           'rounded-full border-none bg-gray-800 py-2 px-4 text-white transition',
           'hover:border-white md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
-          { 'md:w-72 lg:w-96': open }
+          { 'md:w-72 lg:w-96': open && !disabled }
         )}
         onClick={onChange}
       >
         <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
         <span className="md:hidden">{t('filters')}</span>
-        {open ? (
+        {open && !disabled ? (
           <ChevronLeftIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
         ) : (
           <ChevronRightIcon
@@ -90,9 +91,10 @@ interface SidebarPanel {
   children: ReactNode;
   open?: boolean;
   onChange: () => void;
+  disabled?: boolean;
 }
 
-function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
+function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX.Element {
   const { t } = useTranslation('common');
   return (
     <>
@@ -100,7 +102,7 @@ function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
         className={clsx(
           'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-gray-900 pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
           'scrollbar-thin scrollbar-thumb-gray-600',
-          open ? 'inline-block md:w-72 lg:w-96' : 'hidden'
+          open && !disabled ? 'inline-block md:w-72 lg:w-96' : 'hidden'
         )}
       >
         <div className="flex w-full justify-between px-2 pt-4 pb-2 text-white md:hidden">
