@@ -431,7 +431,10 @@ function App({ children }: AppComponentProps) {
             </Button>
           )}
           <button
-            className="rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden"
+            className={clsx(
+              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
+              searchExpanded && 'hidden'
+            )}
             onClick={useCallback(() => {
               setShowNav(true);
             }, [setShowNav])}
