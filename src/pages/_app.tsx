@@ -128,7 +128,10 @@ function App({ children }: AppComponentProps) {
           >
             <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
           </button>
-          <div ref={expandedSearchRef} className={clsx(searchExpanded ? 'block w-full' : 'hidden')}>
+          <div
+            ref={expandedSearchRef}
+            className={clsx(searchExpanded ? 'block w-full pb-[2px]' : 'hidden')}
+          >
             <Search>
               <Search.Input
                 onChange={(e) => {
@@ -140,7 +143,7 @@ function App({ children }: AppComponentProps) {
               <div
                 className={clsx(
                   showMobileSearch
-                    ? 'fixed left-0 right-0 top-2 bottom-0 z-40 block h-[95%] sm:hidden'
+                    ? 'fixed left-0 right-0 top-2 bottom-0 z-40 block  sm:hidden'
                     : 'hidden'
                 )}
               >
@@ -467,121 +470,123 @@ function App({ children }: AppComponentProps) {
               </button>
             </div>
             {/* mobile nav */}
-            <nav className="flex h-screen flex-col bg-gray-900 py-2 md:p-2">
-              {loading ? (
-                <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-              ) : viewerQueryResult.data ? (
-                <div className="flex h-full flex-col gap-4 text-white">
-                  <section className="flex flex-col" id="wallet-profile-viewer-mobile">
-                    <div className="flex items-center p-4 ">
-                      <img
-                        className="inline-block h-8 w-8 rounded-full border-2 border-orange-600 transition"
-                        src={viewerQueryResult.data.wallet.previewImage as string}
-                        alt="profile image"
-                      />
-                      <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
+            <nav className="flex  flex-col bg-gray-900 py-2 md:p-2">
+              <div className="flex h-[calc(100vh-59px)] flex-col gap-4 text-white">
+                {loading ? (
+                  <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
+                ) : viewerQueryResult.data ? (
+                  <>
+                    <section className="flex flex-col" id="wallet-profile-viewer-mobile">
+                      <div className="flex items-center p-4 ">
+                        <img
+                          className="inline-block h-8 w-8 rounded-full border-2 border-orange-600 transition"
+                          src={viewerQueryResult.data.wallet.previewImage as string}
+                          alt="profile image"
+                        />
+                        <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
 
-                      <button
-                        onClick={copyWallet}
-                        className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
+                        <button
+                          onClick={copyWallet}
+                          className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
+                        >
+                          {copied ? (
+                            <CheckIcon className="h-4 w-4 text-gray-300" />
+                          ) : (
+                            <Icon.Copy className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      <Link
+                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                        passHref
                       >
-                        {copied ? (
-                          <CheckIcon className="h-4 w-4 text-gray-300" />
-                        ) : (
-                          <Icon.Copy className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                    <Link
-                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                      passHref
-                    >
-                      <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                        {t('profileMenu.collected')}
-                      </a>
-                    </Link>
-                    <Link
-                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/created'}
-                      passHref
-                    >
-                      <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                        {t('profileMenu.created')}
-                      </a>
-                    </Link>
-                    <Link
-                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
-                      passHref
-                    >
-                      <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                        {t('profileMenu.activity')}
-                      </a>
-                    </Link>
-                    <Link
-                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
-                      passHref
-                    >
-                      <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                        {t('profileMenu.analytics')}
-                      </a>
-                    </Link>
-                  </section>
-                  <section className="flex flex-col" id="mobile-nav">
-                    <Link href={'/collections'}>
-                      <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
-                        {t('navigation.collections')}
-                      </a>
-                    </Link>
-                  </section>
+                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                          {t('profileMenu.collected')}
+                        </a>
+                      </Link>
+                      <Link
+                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/created'}
+                        passHref
+                      >
+                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                          {t('profileMenu.created')}
+                        </a>
+                      </Link>
+                      <Link
+                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
+                        passHref
+                      >
+                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                          {t('profileMenu.activity')}
+                        </a>
+                      </Link>
+                      <Link
+                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
+                        passHref
+                      >
+                        <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                          {t('profileMenu.analytics')}
+                        </a>
+                      </Link>
+                    </section>
+                    <section className="flex flex-col" id="mobile-nav">
+                      <Link href={'/collections'}>
+                        <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                          {t('navigation.collections')}
+                        </a>
+                      </Link>
+                    </section>
 
-                  <section
-                    className="mt-auto flex flex-col justify-end gap-4"
-                    id="wallet-action-buttons-mobile"
-                  >
-                    <Link
-                      href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                      passHref
+                    <section
+                      className="mt-auto flex flex-col justify-end gap-4"
+                      id="wallet-action-buttons-mobile"
                     >
-                      <a className="flex w-full">
-                        <Button className="w-full font-semibold">{t('viewProfile')}</Button>
-                      </a>
-                    </Link>
+                      <Link
+                        href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                        passHref
+                      >
+                        <a className="flex w-full">
+                          <Button className="w-full font-semibold">{t('viewProfile')}</Button>
+                        </a>
+                      </Link>
 
-                    <Button
-                      onClick={async () => {
-                        await disconnect();
-                        setVisible(true);
-                      }}
-                      type={ButtonType.Secondary}
-                      className="w-full font-semibold"
-                    >
-                      {t('switchWallet')}
-                    </Button>
+                      <Button
+                        onClick={async () => {
+                          await disconnect();
+                          setVisible(true);
+                        }}
+                        type={ButtonType.Secondary}
+                        className="w-full font-semibold"
+                      >
+                        {t('switchWallet')}
+                      </Button>
 
-                    <Button
-                      onClick={disconnect}
-                      type={ButtonType.Ghost}
-                      className="w-full font-semibold"
-                    >
-                      {t('disconnectWallet')}
-                    </Button>
-                  </section>
-                </div>
-              ) : (
-                <div className="flex h-full flex-col gap-4 text-white">
-                  <section className="flex flex-col" id="mobile-nav">
-                    <Link href={'/collections'}>
-                      <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
-                        {t('navigation.collections')}
-                      </a>
-                    </Link>
-                  </section>
-                  <section className="mt-auto flex" id="wallet-connect-action-mobile">
-                    <Button className="w-full font-semibold" onClick={onLogin}>
-                      {t('connect')}
-                    </Button>
-                  </section>
-                </div>
-              )}
+                      <Button
+                        onClick={disconnect}
+                        type={ButtonType.Ghost}
+                        className="w-full font-semibold"
+                      >
+                        {t('disconnectWallet')}
+                      </Button>
+                    </section>
+                  </>
+                ) : (
+                  <>
+                    <section className="flex flex-col" id="mobile-nav">
+                      <Link href={'/collections'}>
+                        <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                          {t('navigation.collections')}
+                        </a>
+                      </Link>
+                    </section>
+                    <section className="mt-auto flex" id="wallet-connect-action-mobile">
+                      <Button className="w-full font-semibold" onClick={onLogin}>
+                        {t('connect')}
+                      </Button>
+                    </section>
+                  </>
+                )}
+              </div>
             </nav>
           </div>
         </div>
