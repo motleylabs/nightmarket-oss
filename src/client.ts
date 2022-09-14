@@ -469,6 +469,9 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          previewPrice: {
+            read: asSOL,
+          },
         },
       },
       AhListing: {
@@ -476,6 +479,9 @@ const client = new ApolloClient({
         fields: {
           price: {
             read: asBN,
+          },
+          previewPrice: {
+            read: asSOL,
           },
           nftMarketplace: {
             read: asNftMarketplace,

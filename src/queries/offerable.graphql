@@ -1,0 +1,27 @@
+#import "./fragments/listing.graphql"
+
+query OfferableQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    image(width: 48)
+    collection {
+      floorPrice
+      nft {
+        name
+        address
+        mintAddress
+      }
+    }
+    listings {
+      ...ListingInfo
+      previewPrice @client
+    }
+    purchases {
+      id
+      price
+      previewPrice @client
+    }
+  }
+}

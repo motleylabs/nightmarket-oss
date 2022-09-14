@@ -80,7 +80,7 @@ export default function Modal(props: ModalProps) {
                   <XMarkIcon className="h-4 w-4 text-gray-900" />
                 </button>
                 {props.title && (
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
                     {props.title}
                   </Dialog.Title>
                 )}
