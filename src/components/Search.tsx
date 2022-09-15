@@ -1,4 +1,4 @@
-import React, { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
+import React, { FC, Fragment, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
@@ -41,52 +41,59 @@ export default function Search({ children }: SearchProps) {
   const router = useRouter();
 
   return (
-    <div className="relative flex w-full max-w-4xl flex-row items-center text-white">
-      <Combobox
-        value={selected}
-        onChange={(selection) => {
-          setSelected(selection);
+    <Combobox
+      value={selected}
+      onChange={(selection) => {
+        setSelected(selection);
 
-          switch (selection?.__typename) {
-            case 'MetadataJson':
-              if (!selection?.creatorAddress) {
-                router.push(`/collections/${selection.mintAddress}`);
-                break;
-              }
+        switch (selection?.__typename) {
+          case 'MetadataJson':
+            if (!selection?.creatorAddress) {
+              router.push(`/collections/${selection.mintAddress}`);
+              break;
+            }
 
-              router.push(`/nfts/${selection.mintAddress}`);
-              break;
-            case 'Nft':
-              router.push(`/nfts/${selection.mintAddress}`);
-              break;
-            case 'Wallet':
-              router.push(`/profiles/${selection.address}`);
-              break;
-            default:
-              console.error('Unknown content whilst searching');
-              break;
-          }
-        }}
-      >
-        {children}
-      </Combobox>
-    </div>
+            router.push(`/nfts/${selection.mintAddress}`);
+            break;
+          case 'Nft':
+            router.push(`/nfts/${selection.mintAddress}`);
+            break;
+          case 'Wallet':
+            router.push(`/profiles/${selection.address}`);
+            break;
+          default:
+            console.error('Unknown content whilst searching');
+            break;
+        }
+      }}
+    >
+      {children}
+    </Combobox>
   );
 }
 
 interface SearchInputProps {
   value: string;
+  className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  autofocus?: boolean;
 }
 
-function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JSX.Element {
+function SearchInput({
+  onChange,
+  onFocus,
+  onBlur,
+  value,
+  autofocus,
+  className,
+}: SearchInputProps): JSX.Element {
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className=" relative block w-full transition-all">
+    <div className={clsx(' relative block w-full transition-all', className)}>
       <button
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
@@ -108,6 +115,7 @@ function SearchInput({ onChange, onFocus, onBlur, value }: SearchInputProps): JS
         onChange={onChange}
         inputRef={searchInputRef}
         element={Combobox.Input}
+        autoFocus={autofocus}
       />
     </div>
   );
@@ -138,7 +146,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-12 z-50 max-h-96 w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 md:max-h-96">
         {searching ? (
           <>
             <SearchLoadingItem />

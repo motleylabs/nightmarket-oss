@@ -63,7 +63,7 @@ function TrendingCollection({
               alt={name}
               className="h-10 w-10 transform rounded-md object-cover duration-500 ease-in-out hover:scale-110"
             />
-            <h6 className="transform text-base font-semibold duration-500 ease-in-out hover:scale-105">
+            <h6 className="transform truncate overflow-ellipsis text-base font-semibold duration-500 ease-in-out hover:scale-105">
               {name}
             </h6>
           </a>
