@@ -72,7 +72,7 @@ function TrendingCollection({
       <td className="gap-2 pl-4 lg:pl-0">
         <div className="flex w-32 flex-row items-center justify-start gap-2">
           <p className="flex items-center text-base font-semibold">
-            <Icon.Sol /> {floor.toFixed(2)}
+            <Icon.Sol /> {asBasicNumber(floor)}
           </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
@@ -91,9 +91,11 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex w-32 flex-row items-center justify-start gap-2">
-          <Icon.Sol />
-          <p className="text-base font-semibold">{asBasicNumber(volume)}</p>
+        <div className="flex w-40 flex-row items-center justify-start gap-2">
+          <p className="flex items-center text-base font-semibold">
+            <Icon.Sol />
+            {asBasicNumber(volume)}
+          </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -111,8 +113,8 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex w-32 justify-start">
-          <p className="text-base font-normal">{sales}</p>
+        <div className="flex w-40 justify-start">
+          <p className="text-base font-normal">{asBasicNumber(sales)}</p>
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
@@ -146,17 +148,17 @@ function LoadingTrendingCollection() {
         <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
@@ -308,16 +310,16 @@ const Home: NextPage = () => {
             <table className="w-full table-auto border-spacing-x-24 divide-y divide-gray-800">
               <thead>
                 <tr>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300">
+                  <th className=" pb-2 text-left text-xs font-normal text-gray-300">
                     {t('trendingCollections.collection')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.floor')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.volume')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.sales')}
                   </th>
                   <th className="pb-2 text-right text-xs font-normal text-gray-300">

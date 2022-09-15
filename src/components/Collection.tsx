@@ -147,11 +147,17 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
       <h1 className="z-20 px-4 text-3xl">{collection.nft.name}</h1>
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
-        <div className="rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          {t('card.count', { amount: collection.nftCount })}
+        <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
+          <span className="text-xs text-gray-300">{t('card.supply')}</span>
+          <div className="flex items-center justify-center">
+            <Icon.Sol /> {collection.floorPrice}
+          </div>
         </div>
-        <div className="flex items-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <Icon.Sol /> {t('card.floor', { price: collection.floorPrice })}
+        <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
+          <span className="text-xs text-gray-300">{t('card.floor')}</span>
+          <div className="flex items-center justify-center">
+            <Icon.Sol /> {collection.floorPrice}
+          </div>
         </div>
       </div>
     </div>

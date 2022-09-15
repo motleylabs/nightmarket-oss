@@ -349,9 +349,9 @@ const client = new ApolloClient({
           listedCount: {
             read: asCompactNumber,
           },
-          holderCount: {
-            read: asCompactNumber,
-          },
+          // holderCount: {
+          //   read: asCompactNumber,
+          // },
         },
       },
       CollectedCollection: {

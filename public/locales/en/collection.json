@@ -3,7 +3,9 @@
     "title": "{{name}} Collection"
   },
   "card": {
-    "floor": "{{price}}",
+    "supply": "Supply",
+    "floor": "Floor",
+    "floorPrice": "{{price}}",
     "count": "{{amount}} NFTs"
   },
   "floorPrice": "Floor price",
