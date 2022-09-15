@@ -146,6 +146,7 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
             </>
           ) : (
             <Form
+              id="offerable-form"
               onSubmit={handleSubmitOffer(({ amount }) => {
                 console.log(amount);
               })}

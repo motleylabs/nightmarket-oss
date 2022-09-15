@@ -7,6 +7,7 @@ import BuyableQuery from './../queries/buyable.graphql';
 import { useLazyQuery } from '@apollo/client';
 import Button, { ButtonType } from './Button';
 import { Form } from './Form';
+import useBuyNow from '../hooks/buy';
 
 interface BuyableData {
   nft: Nft;
@@ -33,6 +34,8 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
+  const { buy, registerBuy, onBuyNow, handleSubmitBuy, onCancelBuy, buyFormState } = useBuyNow();
+
   const BuyableActions = () => {
     const onLogin = useLogin();
 
@@ -46,14 +49,19 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
       case 'buyer':
         return (
           <section id={'buy-buttons'} className="flex flex-col gap-4">
-            <Button className="font-semibold" block htmlType="submit" loading={false}>
+            <Button
+              className="font-semibold"
+              block
+              htmlType="submit"
+              loading={buyFormState.isSubmitting}
+            >
               {t('buyable.buyNowButton')}
             </Button>
             <Button
               className="font-semibold"
               block
               onClick={() => {
-                // onCancelBuy();
+                onCancelBuy();
                 setOpen(false);
               }}
               type={ButtonType.Secondary}
@@ -112,7 +120,7 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
               </section>
             </>
           ) : (
-            <Form onSubmit={() => {}} className="flex flex-col gap-6">
+            <Form onSubmit={handleSubmitBuy(onBuyNow)} className="flex flex-col gap-6">
               <section id={'preview-card'} className="flex flex-row gap-4">
                 <img
                   src={data?.nft.image}

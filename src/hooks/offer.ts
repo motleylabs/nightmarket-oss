@@ -24,10 +24,12 @@ export default function useMakeOffer(): MakeOfferContext {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
     reset,
+    getValues,
     formState: offerFormState,
   } = useForm<OfferForm>();
 
   const onMakeOffer = useCallback(() => {
+    console.log(getValues('amount'));
     if (connected) {
       return setMakeOffer(true);
     }
