@@ -18,7 +18,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { Area, AreaChart } from 'recharts';
-import { percentageDifference } from '../modules/number';
+import { asBasicNumber, percentageDifference } from '../modules/number';
 import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
@@ -70,8 +70,10 @@ function TrendingCollection({
         </Link>
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
-        <div className="flex flex-row items-center justify-center gap-2">
-          <p className="text-base font-semibold">{floor.toFixed(2)} SOL</p>
+        <div className="flex w-32 flex-row items-center justify-start gap-2">
+          <p className="flex items-center text-base font-semibold">
+            <Icon.Sol /> {floor.toFixed(2)}
+          </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -89,8 +91,9 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex flex-row items-center justify-center gap-2">
-          <p className="text-base font-semibold">{volume.toFixed(2)}</p>
+        <div className="flex w-32 flex-row items-center justify-start gap-2">
+          <Icon.Sol />
+          <p className="text-base font-semibold">{asBasicNumber(volume)}</p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -108,7 +111,7 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex w-32 justify-start">
           <p className="text-base font-normal">{sales}</p>
         </div>
       </td>

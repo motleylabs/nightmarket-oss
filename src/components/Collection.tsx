@@ -151,7 +151,7 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
           {t('card.count', { amount: collection.nftCount })}
         </div>
         <div className="flex items-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          {t('card.floor', { price: collection.floorPrice })} <Icon.Sol />
+          <Icon.Sol /> {t('card.floor', { price: collection.floorPrice })}
         </div>
       </div>
     </div>

@@ -134,7 +134,7 @@ function SolanaIcon({ className, width = 12, height = 12, gradient }: SolanaIcon
 
 Icon.Solana = SolanaIcon;
 
-function SolIcon({ className = 'w-4 h-4 ml-2' }: { className?: string }) {
+function SolIcon({ className = 'w-4 h-4 mr-2' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_1084_6329)">

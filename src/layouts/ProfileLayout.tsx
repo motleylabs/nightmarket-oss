@@ -107,7 +107,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
                 />
               ) : (
                 <span>
-                  {portfolioValue} <Icon.Sol />
+                  <Icon.Sol /> {portfolioValue}
                 </span>
               )}
             </div>

@@ -31,7 +31,7 @@ export function NftCard({ nft }: NftCardProps): JSX.Element {
         </div>
         <div className="flex flex-row items-center justify-between">
           <span className="flex items-center space-x-2 text-lg">
-            56.90 <Icon.Sol />
+            <Icon.Sol /> 56.90
           </span>
           <Button type={ButtonType.Primary} size={ButtonSize.Small}>
             {t('buy')}
