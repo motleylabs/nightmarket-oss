@@ -133,3 +133,64 @@ function SolanaIcon({ className, width = 12, height = 12, gradient }: SolanaIcon
 }
 
 Icon.Solana = SolanaIcon;
+
+function SolIcon({ className = 'w-4 h-4 ml-2' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clipPath="url(#clip0_1084_6329)">
+        <path
+          d="M2.48681 9.65948C2.5792 9.56708 2.70625 9.51318 2.84099 9.51318H15.0604C15.2837 9.51318 15.3954 9.78267 15.2375 9.94052L12.8237 12.3544C12.7313 12.4468 12.6042 12.5007 12.4695 12.5007H0.25004C0.0267485 12.5007 -0.0848973 12.2312 0.0729468 12.0733L2.48681 9.65948Z"
+          fill="url(#paint0_linear_1084_6329)"
+        ></path>
+        <path
+          d="M2.48681 0.646295C2.58305 0.553898 2.7101 0.5 2.84099 0.5H15.0604C15.2837 0.5 15.3954 0.76949 15.2375 0.927334L12.8237 3.34119C12.7313 3.43359 12.6042 3.48749 12.4695 3.48749H0.25004C0.0267485 3.48749 -0.0848973 3.218 0.0729468 3.06015L2.48681 0.646295Z"
+          fill="url(#paint1_linear_1084_6329)"
+        ></path>
+        <path
+          d="M12.8237 5.12286C12.7313 5.03046 12.6042 4.97656 12.4695 4.97656H0.25004C0.0267485 4.97656 -0.0848973 5.24605 0.0729468 5.4039L2.48681 7.81776C2.5792 7.91015 2.70625 7.96405 2.84099 7.96405H15.0604C15.2837 7.96405 15.3954 7.69456 15.2375 7.53672L12.8237 5.12286Z"
+          fill="url(#paint2_linear_1084_6329)"
+        ></path>
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_1084_6329"
+          x1="13.8931"
+          y1="-0.9413"
+          x2="5.43631"
+          y2="15.2569"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00FFA3"></stop>
+          <stop offset="1" stopColor="#DC1FFF"></stop>
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_1084_6329"
+          x1="10.1953"
+          y1="-2.87253"
+          x2="1.73851"
+          y2="13.3257"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00FFA3"></stop>
+          <stop offset="1" stopColor="#DC1FFF"></stop>
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_1084_6329"
+          x1="12.0325"
+          y1="-1.91421"
+          x2="3.57564"
+          y2="14.284"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00FFA3"></stop>
+          <stop offset="1" stopColor="#DC1FFF"></stop>
+        </linearGradient>
+        <clipPath id="clip0_1084_6329">
+          <rect width="15.3109" height="12" fill="white" transform="translate(0 0.5)"></rect>
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+Icon.Sol = SolIcon;

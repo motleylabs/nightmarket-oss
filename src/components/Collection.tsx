@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
 import { Collection } from '../graphql.types';
+import Icon from './Icon';
 
 export function Collection() {
   return <div />;
@@ -149,8 +150,8 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
         <div className="rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           {t('card.count', { amount: collection.nftCount })}
         </div>
-        <div className="rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          {t('card.floor', { price: collection.floorPrice })}
+        <div className="flex items-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
+          {t('card.floor', { price: collection.floorPrice })} <Icon.Sol />
         </div>
       </div>
     </div>
