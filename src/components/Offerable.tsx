@@ -9,6 +9,7 @@ import { Form } from './Form';
 import useMakeOffer from '../hooks/offer';
 import Icon from './Icon';
 import useLogin from '../hooks/login';
+import clsx from 'clsx';
 
 interface OfferableData {
   nft: Nft;
@@ -65,14 +66,25 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
           <>
             <section id={'offer-input'}>
               <Form.Label name={t('offerable.amount')}>
-                <Form.Input
-                  {...registerOffer('amount', { required: true })}
-                  autoFocus
-                  name={'amount'}
-                  className="input"
-                  error={offerFormState.errors.amount?.message}
-                  icon={<Icon.Solana height={20} width={24} gradient />}
-                />
+                {/* Temporarily broke out of component to make it work*/}
+                <div
+                  className={clsx(
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'input'
+                  )}
+                >
+                  <Icon.Solana height={20} width={24} gradient />
+                  <input
+                    {...registerOffer('amount', { required: true })}
+                    autoFocus
+                    className={clsx('w-full bg-transparent pl-2')}
+                  />
+                </div>
+                {offerFormState.errors.amount?.message && (
+                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                    {offerFormState.errors.amount?.message}
+                  </p>
+                )}
               </Form.Label>
             </section>
             <section id={'offer-buttons'} className="flex flex-col gap-4">
