@@ -31,7 +31,7 @@ interface ICurrencyContext {
 export const CurrencyContext = React.createContext<ICurrencyContext | null>(null);
 
 interface CurrencyProviderProps {
-  children: JSX.Element;
+  children: JSX.Element[];
 }
 
 export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Element {
