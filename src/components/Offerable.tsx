@@ -33,6 +33,11 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
     setOpen(true);
   };
 
+  const handleOffer = async ({ amount }: { amount: string }) => {
+    const offerAmount = Number(amount);
+    console.log(offerAmount);
+  };
+
   const [offerableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<OfferableData>(OfferableQuery);
 
@@ -61,9 +66,11 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
             <section id={'offer-input'}>
               <Form.Label name={t('offerable.amount')}>
                 <Form.Input
-                  {...registerOffer('amount')}
+                  {...registerOffer('amount', { required: true })}
                   autoFocus
+                  name={'amount'}
                   className="input"
+                  error={offerFormState.errors.amount?.message}
                   icon={<Icon.Solana height={20} width={24} gradient />}
                 />
               </Form.Label>
@@ -147,9 +154,7 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
           ) : (
             <Form
               id="offerable-form"
-              onSubmit={handleSubmitOffer(({ amount }) => {
-                console.log(amount);
-              })}
+              onSubmit={handleSubmitOffer(handleOffer)}
               className="flex flex-col gap-6"
             >
               <section id={'preview-card'} className="flex flex-row gap-4">

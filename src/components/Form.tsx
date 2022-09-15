@@ -6,6 +6,7 @@ import {
   LabelHTMLAttributes,
   cloneElement,
 } from 'react';
+import { FormState } from 'react-hook-form';
 
 export function Form({
   children,
@@ -33,9 +34,10 @@ Form.Label = FormLabel;
 interface FormInputProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   icon?: JSX.Element;
+  error?: string;
 }
 
-function FormInput({ className, icon, ...props }: FormInputProps): JSX.Element {
+function FormInput({ className, icon, error, ...props }: FormInputProps): JSX.Element {
   return (
     <div
       className={clsx(
@@ -45,6 +47,7 @@ function FormInput({ className, icon, ...props }: FormInputProps): JSX.Element {
     >
       {icon && cloneElement(icon, {})}
       <input {...props} className={clsx('w-full bg-transparent', { 'pl-2': icon })} />
+      {error && <p className="text-left text-xs text-red-500">{error}</p>}
     </div>
   );
 }
