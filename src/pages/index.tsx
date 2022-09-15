@@ -19,10 +19,10 @@ import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { Area, AreaChart } from 'recharts';
 import { percentageDifference } from '../modules/number';
-import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import { Offerable } from '../components/Offerable';
+import { Buyable } from '../components/Buyable';
 
 type FloorData = {
   price: number;
@@ -288,6 +288,16 @@ const Home: NextPage = () => {
               </button>
             )}
           </Offerable>
+          <Buyable variant={publicKey ? 'buyer' : 'viewer'}>
+            {({ buyNow }) => (
+              <button
+                className="rounded-md bg-gray-800 p-4 text-sm text-white"
+                onClick={() => buyNow('Hqa1C1327peoSvwvsRJZr4f69fMXvRo4CjnWEkMhbNLj')}
+              >
+                Click me to test buyable
+              </button>
+            )}
+          </Buyable>
         </section>
         <section className="mt-28">
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>

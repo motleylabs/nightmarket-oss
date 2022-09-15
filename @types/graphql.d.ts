@@ -1,4 +1,13 @@
 
+declare module '*/buyable.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const BuyableQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+    
+
 declare module '*/collection.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;

@@ -23,6 +23,11 @@ const nextConfig = {
         destination: '/profiles/:address/collected',
         permanent: true,
       },
+      {
+        source: '/nfts/:address',
+        destination: '/nfts/:address/details',
+        permanent: true,
+      },
     ];
   },
   eslint: {
