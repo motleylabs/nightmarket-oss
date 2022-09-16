@@ -1,10 +1,5 @@
 import clsx from 'clsx';
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  XMarkIcon,
-  FunnelIcon,
-} from '@heroicons/react/24/outline';
+import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 import Button from './Button';
@@ -14,15 +9,11 @@ export function Sidebar(): JSX.Element {
 }
 
 interface SidebarFilterIconProps {
-  width?: number;
-  height?: number;
   className?: string;
 }
 function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
   return (
     <svg
-      // width={width}
-      // height={height}
       viewBox={`0 0 24 24`}
       className={className}
       stroke="currentColor"
@@ -101,19 +92,14 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
       <aside
         className={clsx(
           'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-gray-900 pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
-          'scrollbar-thin scrollbar-thumb-gray-600',
+          'text-white scrollbar-thin scrollbar-thumb-gray-600',
           open && !disabled ? 'inline-block md:w-72 lg:w-96' : 'hidden'
         )}
       >
-        <div className="flex w-full justify-between px-2 pt-4 pb-2 text-white md:hidden">
-          <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
+        <div className="flex w-full justify-between px-2 pt-4 pb-2  md:hidden">
+          <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
           {t('filters')}
-          <XMarkIcon
-            onClick={onChange}
-            width={24}
-            height={24}
-            className="cursor-pointer stroke-white"
-          />
+          <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
         </div>
         {children}
         <div className="mt-24 md:hidden">

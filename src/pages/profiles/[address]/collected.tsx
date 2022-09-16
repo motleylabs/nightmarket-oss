@@ -125,18 +125,6 @@ export default function ProfileCollected({
     return subscription.unsubscribe;
   }, [watch, router.query.address, nftsQuery]);
 
-  console.log('render 1', walletProfileClientQuery.data);
-
-  // useEffect(() => {
-  //   if (
-  //     walletProfileClientQuery.data?.wallet?.collectedCollections &&
-  //     walletProfileClientQuery.data.wallet.collectedCollections.length === 0 &&
-  //     open
-  //   ) {
-  //     toggleSidebar();
-  //   }
-  // }, [nftsQuery.data?.collectedNfts]);
-
   return (
     <>
       <Toolbar>
