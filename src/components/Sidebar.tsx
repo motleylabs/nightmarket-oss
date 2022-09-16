@@ -1,5 +1,10 @@
 import clsx from 'clsx';
-import { ChevronRightIcon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  XMarkIcon,
+  FunnelIcon,
+} from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 import Button from './Button';
@@ -13,14 +18,14 @@ interface SidebarFilterIconProps {
   height?: number;
   className?: string;
 }
-function SidebarFilterIcon({ height, width, className }: SidebarFilterIconProps) {
+function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
   return (
     <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      // width={width}
+      // height={height}
+      viewBox={`0 0 24 24`}
       className={className}
-      fill="none"
+      stroke="currentColor"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -47,24 +52,19 @@ function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.
     <div className={clsx({ 'hidden md:block': open && !disabled })}>
       <button
         className={clsx(
-          'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between',
-          'rounded-full border-none bg-gray-800 py-2 px-4 text-white transition',
-          'hover:border-white md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
-          { 'md:w-72 lg:w-96': open && !disabled }
+          'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between rounded-full border-none bg-gray-800 py-2 px-4 text-white  transition',
+          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
+          open && !disabled && 'md:w-72 lg:w-96'
         )}
+        disabled={disabled}
         onClick={onChange}
       >
-        <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
+        <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
         <span className="md:hidden">{t('filters')}</span>
-        {open && !disabled ? (
-          <ChevronLeftIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
-        ) : (
-          <ChevronRightIcon
-            width={24}
-            height={24}
-            className="hidden stroke-white md:inline-block"
-          />
-        )}
+
+        <ChevronRightIcon
+          className={clsx('hidden h-6 w-6 md:inline-block', open && !disabled && 'rotate-180')}
+        />
       </button>
     </div>
   );
