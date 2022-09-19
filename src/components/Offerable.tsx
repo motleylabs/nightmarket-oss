@@ -29,6 +29,7 @@ interface OfferableProps {
 export function Offerable({ children, connected = false }: OfferableProps) {
   const { t } = useTranslation('common');
   const viewer = useReactiveVar(viewerVar);
+  const onLogin = useLogin();
 
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
@@ -52,67 +53,6 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     onCancelOffer,
     offerFormState,
   } = useMakeOffer();
-
-  const OfferableActions = () => {
-    const onLogin = useLogin();
-
-    if (connected) {
-      return (
-        <>
-          <section id={'offer-input'}>
-            <Form.Label name={t('offerable.amount')}>
-              {/* Temporarily broke out of component to make it work*/}
-              <div
-                className={clsx(
-                  'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                  'input'
-                )}
-              >
-                <Icon.Solana height={20} width={24} gradient />
-                <input
-                  {...registerOffer('amount', { required: true })}
-                  autoFocus
-                  className={clsx('w-full bg-transparent pl-2')}
-                />
-              </div>
-              {offerFormState.errors.amount?.message && (
-                <p className="whitespace-nowrap text-left text-xs text-red-500">
-                  {offerFormState.errors.amount?.message}
-                </p>
-              )}
-            </Form.Label>
-          </section>
-          <section id={'offer-buttons'} className="flex flex-col gap-4">
-            <Button
-              className="font-semibold"
-              block
-              htmlType="submit"
-              loading={offerFormState.isSubmitting}
-            >
-              {t('offer')}
-            </Button>
-            <Button
-              className="font-semibold"
-              block
-              onClick={() => {
-                onCancelOffer();
-                setOpen(false);
-              }}
-              type={ButtonType.Secondary}
-            >
-              {t('cancel')}
-            </Button>
-          </section>
-        </>
-      );
-    } else {
-      return (
-        <Button onClick={onLogin} className="font-semibold">
-          {t('offerable.connectToOffer')}
-        </Button>
-      );
-    }
-  };
 
   return (
     <div>
@@ -225,7 +165,58 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                   </p>
                 </div>
               </section>
-              <OfferableActions />
+              {connected ? (
+                <>
+                  <section id={'offer-input'}>
+                    <Form.Label name={t('offerable.amount')}>
+                      {/* Temporarily broke out of component to make it work*/}
+                      <div
+                        className={clsx(
+                          'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                          'input'
+                        )}
+                      >
+                        <Icon.Solana height={20} width={24} gradient />
+                        <input
+                          {...registerOffer('amount', { required: true })}
+                          autoFocus
+                          className={clsx('w-full bg-transparent pl-2')}
+                        />
+                      </div>
+                      {offerFormState.errors.amount?.message && (
+                        <p className="whitespace-nowrap text-left text-xs text-red-500">
+                          {offerFormState.errors.amount?.message}
+                        </p>
+                      )}
+                    </Form.Label>
+                  </section>
+                  <section id={'offer-buttons'} className="flex flex-col gap-4">
+                    <Button
+                      className="font-semibold"
+                      block
+                      htmlType="submit"
+                      loading={offerFormState.isSubmitting}
+                    >
+                      {t('offer')}
+                    </Button>
+                    <Button
+                      className="font-semibold"
+                      block
+                      onClick={() => {
+                        onCancelOffer();
+                        setOpen(false);
+                      }}
+                      type={ButtonType.Secondary}
+                    >
+                      {t('cancel')}
+                    </Button>
+                  </section>
+                </>
+              ) : (
+                <Button onClick={onLogin} className="font-semibold">
+                  {t('offerable.connectToOffer')}
+                </Button>
+              )}
             </Form>
           )}
         </div>

@@ -32,47 +32,12 @@ export function Buyable({ children, connected = false }: BuyableProps) {
     setOpen(true);
   };
   const viewer = useReactiveVar(viewerVar);
+  const onLogin = useLogin();
 
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
   const { buy, registerBuy, onBuyNow, handleSubmitBuy, onCancelBuy, buyFormState } = useBuyNow();
-
-  const BuyableActions = () => {
-    const onLogin = useLogin();
-
-    if (connected) {
-      return (
-        <section id={'buy-buttons'} className="flex flex-col gap-4">
-          <Button
-            className="font-semibold"
-            block
-            htmlType="submit"
-            loading={buyFormState.isSubmitting}
-          >
-            {t('buyable.buyNowButton')}
-          </Button>
-          <Button
-            className="font-semibold"
-            block
-            onClick={() => {
-              onCancelBuy();
-              setOpen(false);
-            }}
-            type={ButtonType.Secondary}
-          >
-            {t('cancel')}
-          </Button>
-        </section>
-      );
-    } else {
-      return (
-        <Button onClick={onLogin} className="font-semibold">
-          {t('buyable.connectToBuy')}
-        </Button>
-      );
-    }
-  };
 
   return (
     <div>
@@ -178,7 +143,35 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   </p>
                 </div>
               </section>
-              <BuyableActions />
+              <section id={'buy-buttons'} className="flex flex-col gap-4">
+                {connected ? (
+                  <>
+                    <Button
+                      className="font-semibold"
+                      block
+                      htmlType="submit"
+                      loading={buyFormState.isSubmitting}
+                    >
+                      {t('buyable.buyNowButton')}
+                    </Button>
+                    <Button
+                      className="font-semibold"
+                      block
+                      onClick={() => {
+                        onCancelBuy();
+                        setOpen(false);
+                      }}
+                      type={ButtonType.Secondary}
+                    >
+                      {t('cancel')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={onLogin} className="font-semibold">
+                    {t('buyable.connectToBuy')}
+                  </Button>
+                )}
+              </section>
             </Form>
           )}
         </div>
