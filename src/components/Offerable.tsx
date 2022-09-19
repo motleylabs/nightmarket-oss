@@ -177,7 +177,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                           'input'
                         )}
                       >
-                        <Icon.Solana height={20} width={24} gradient />
+                        <Icon.Sol />
                         <input
                           {...registerOffer('amount', { required: true })}
                           autoFocus
