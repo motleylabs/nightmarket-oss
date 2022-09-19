@@ -2,7 +2,7 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
-import { Nft } from '../graphql.types';
+import { Marketplace, Nft } from '../graphql.types';
 import Button, { ButtonType } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
@@ -14,6 +14,7 @@ import { viewerVar } from '../cache';
 
 interface OfferableData {
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 interface RenderProps {
@@ -33,7 +34,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
 
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
-    offerableQuery({ variables: { address: mintAddress } });
+    offerableQuery({ variables: { address: mintAddress, subdomain: 'haus' } });
     setOpen(true);
   };
 

@@ -43,7 +43,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         {/* TODO: add offer */}
         <div className="relative flex flex-row items-center justify-between">
           <span className="text-lg">56.90 SOL</span>
-          <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
+          <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
             {t('offer')}
           </Button>
         </div>

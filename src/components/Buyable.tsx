@@ -1,6 +1,6 @@
 import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
-import { Nft } from '../graphql.types';
+import { Marketplace, Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
@@ -12,6 +12,7 @@ import { viewerVar } from '../cache';
 
 interface BuyableData {
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 interface RenderProps {
@@ -28,7 +29,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
   const openBuyNow = (mintAddress: string) => {
-    buyableQuery({ variables: { address: mintAddress } });
+    buyableQuery({ variables: { address: mintAddress, subdomain: 'haus' } });
     setOpen(true);
   };
   const viewer = useReactiveVar(viewerVar);
@@ -125,13 +126,13 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     </p>
                   </div>
                 )}
-                {/* TODO: query for marketplace info */}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.marketplaceFee')}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    2% ({(data?.nft.collection?.floorPrice * 0.02).toFixed(2)} SOL)
+                    {data?.marketplace.auctionHouses[0].fee}%
+                    {/* TODO: calculate based on listing price */}
                   </p>
                 </div>
                 <div className="flex flex-row justify-between">

@@ -1,7 +1,17 @@
 #import "./fragments/listing.graphql"
 # TODO: add in listing rewards when indexed
 
-query BuyableQuery($address: String!) {
+query BuyableQuery($address: String!, $subdomain: String!) {
+  marketplace(subdomain: $subdomain) {
+    configAddress
+    auctionHouses {
+      address
+      sellerFeeBasisPoints
+      fee @client
+      treasuryMint
+    }
+  }
+
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
