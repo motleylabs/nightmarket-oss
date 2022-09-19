@@ -3,6 +3,7 @@ import { SVGProps, useMemo, cloneElement, Children } from 'react';
 import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
 import { CurrencyDollarIcon, HandRaisedIcon, TagIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import Icon from './Icon';
 
 export enum ActivityType {
   Purchase = 'purchase',
@@ -94,7 +95,11 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
 Activity.Tag = ActivityTag;
 
 function ActivityPrice({ amount }: { amount: Maybe<number> | undefined }): JSX.Element {
-  return <div>{amount} SOL</div>;
+  return (
+    <div className="flex items-center">
+      <Icon.Sol /> {amount}
+    </div>
+  );
 }
 
 Activity.Price = ActivityPrice;

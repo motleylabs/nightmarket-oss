@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
+import Icon from './Icon';
 
 interface NftCardProps {
   nft: Nft;
@@ -29,7 +30,9 @@ export function NftCard({ nft }: NftCardProps): JSX.Element {
           <span className="truncate">{nft.name}</span>
         </div>
         <div className="flex flex-row items-center justify-between">
-          <span className="text-lg">56.90 SOL</span>
+          <span className="flex items-center space-x-2 text-lg">
+            <Icon.Sol /> 56.90
+          </span>
           <Button type={ButtonType.Primary} size={ButtonSize.Small}>
             {t('buy')}
           </Button>

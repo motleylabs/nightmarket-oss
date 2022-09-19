@@ -12,6 +12,7 @@ import config from '../app.config';
 import { useQuery } from '@apollo/client';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
+import Icon from '../components/Icon';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -105,7 +106,9 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
                   className={clsx('h-4 w-20 animate-pulse rounded-md bg-gray-800 transition')}
                 />
               ) : (
-                <span>{portfolioValue} SOL</span>
+                <span>
+                  <Icon.Sol /> {portfolioValue}
+                </span>
               )}
             </div>
             <div className="flex flex-col justify-between">

@@ -148,7 +148,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
                   {...registerOffer('amount')}
                   autoFocus
                   className="input"
-                  icon={<Icon.Solana height={20} width={24} gradient />}
+                  icon={<Icon.Sol className="h-6 w-6" />}
                 />
               </Form.Label>
               <Button
@@ -211,7 +211,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
                   {...registerListNft('amount')}
                   autoFocus
                   className="input"
-                  icon={<Icon.Solana height={20} width={24} gradient />}
+                  icon={<Icon.Sol className="h-6 w-6" />}
                 />
               </Form.Label>
               <Button
