@@ -150,7 +150,7 @@ export default function CollectionCard({ collection }: CollectionCardProps): JSX
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
           <div className="flex items-center justify-center">
-            <Icon.Sol /> {collection.floorPrice}
+            <Icon.Sol /> {collection.compactNftCount}
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">

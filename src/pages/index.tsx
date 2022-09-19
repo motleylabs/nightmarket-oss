@@ -71,8 +71,12 @@ function TrendingCollection({
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
         <div className="flex w-32 flex-row items-center justify-start gap-2">
-          <p className="flex items-center text-base font-semibold">
-            <Icon.Sol /> {asBasicNumber(floor)}
+          <p
+            // Note to convert to local field when collection_trends objects available. // from Kyle
+            className="flex items-center text-base font-semibold"
+          >
+            <Icon.Sol />
+            {asBasicNumber(floor)}
           </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
@@ -379,10 +383,11 @@ const Home: NextPage = () => {
             <h1 className="mb-2  text-2xl">{t('topVolume.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               <Collection.Card.Skeleton />
               <Collection.Card.Skeleton className="hidden sm:inline-block" />
               <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
               <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
@@ -397,7 +402,7 @@ const Home: NextPage = () => {
                   spaceBetween: 4,
                 },
                 1024: {
-                  slidesPerView: 4,
+                  slidesPerView: 5,
                   spaceBetween: 4,
                 },
               }}
@@ -422,10 +427,11 @@ const Home: NextPage = () => {
             <h1 className="mb-2 text-2xl">{t('topMarketCap.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               <Collection.Card.Skeleton />
               <Collection.Card.Skeleton className="hidden sm:inline-block" />
               <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
               <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
@@ -440,7 +446,7 @@ const Home: NextPage = () => {
                   spaceBetween: 4,
                 },
                 1024: {
-                  slidesPerView: 4,
+                  slidesPerView: 5,
                   spaceBetween: 4,
                 },
               }}

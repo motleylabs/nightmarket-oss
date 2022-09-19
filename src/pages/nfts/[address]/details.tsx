@@ -75,7 +75,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               rel="nofollow noreferrer"
               href={`https://explorer.solana.com/address/${nft.mintAddress}`}
             >
-              <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
+              <Icon.Sol noGradient className="h-3.5 w-3.5" />
             </a>
             <a
               target="_blank"
@@ -95,7 +95,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               rel="nofollow noreferrer"
               href={`https://explorer.solana.com/address/${nft.address}`}
             >
-              <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
+              <Icon.Sol noGradient className="h-3.5 w-3.5" />
             </a>
             <a
               target="_blank"
@@ -116,7 +116,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
                 rel="nofollow noreferrer"
                 href={`https://explorer.solana.com/address/${nft.collection?.nft?.mintAddress}`}
               >
-                <Icon.Solana width={12} height={10} className="cursor-pointer fill-white" />
+                <Icon.Sol noGradient className="h-3.5 w-3.5" />
               </a>
               <a
                 target="_blank"
