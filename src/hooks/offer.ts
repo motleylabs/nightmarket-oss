@@ -1,11 +1,20 @@
 import { useCallback, useState } from 'react';
 import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import zod from 'zod';
 import useLogin from './login';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 interface OfferForm {
-  amount: number;
+  amount: string;
 }
+
+const schema = zod.object({
+  amount: zod
+    .string()
+    .min(1, `Must enter an amount`)
+    .regex(/^[0-9.]*$/, { message: `Must be a number` }),
+});
 
 interface MakeOfferContext {
   makeOffer: boolean;
@@ -24,10 +33,14 @@ export default function useMakeOffer(): MakeOfferContext {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
     reset,
+    getValues,
     formState: offerFormState,
-  } = useForm<OfferForm>();
+  } = useForm<OfferForm>({
+    resolver: zodResolver(schema),
+  });
 
   const onMakeOffer = useCallback(() => {
+    console.log(getValues('amount'));
     if (connected) {
       return setMakeOffer(true);
     }

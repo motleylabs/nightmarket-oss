@@ -18,7 +18,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { Area, AreaChart } from 'recharts';
-import { asBasicNumber, percentageDifference } from '../modules/number';
+import { percentageDifference, asBasicNumber } from '../modules/number';
 import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
@@ -353,7 +353,7 @@ const Home: NextPage = () => {
                       <tr key={`collection-${collection.mintAddress}-${i}`}>
                         <TrendingCollection
                           address={collection.nft.mintAddress}
-                          key={`collection-${collection.mintAddress}-${i}`}
+                          key={`collection-${collection.nft.mintAddress}-${i}`}
                           name={collection.nft.name}
                           image={collection.nft.image}
                           floor={collection.floorPrice}

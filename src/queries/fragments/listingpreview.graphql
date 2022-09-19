@@ -1,0 +1,8 @@
+fragment ListingPreview on AhListing {
+  id
+  seller
+  price
+  auctionHouse {
+    address
+  }
+}

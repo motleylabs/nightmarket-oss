@@ -29,6 +29,26 @@
     "collections": "Collections",
     "discover": "Discover"
   },
+  "offerable": {
+    "makeOffer": "Make an offer",
+    "floorPrice": "Current floor price",
+    "listPrice": "Current listed price",
+    "lastSoldPrice": "Last sold for",
+    "minimumOfferAmount": "Minimum offer amount",
+    "currentBalance": "Current wallet balance",
+    "amount": "Amount",
+    "connectToOffer": "Connect to make offers"
+  },
+  "buyable": {
+    "buyNow": "Buy now",
+    "earnSauce": "You'll earn",
+    "floorPrice": "Current floor price",
+    "listPrice": "Current listed price",
+    "currentBalance": "Current wallet balance",
+    "marketplaceFee": "Marketplace fee",
+    "buyNowButton": "Buy now and claim reward",
+    "connectToBuy": "Connect to purchase"
+  },
   "copyLink": "Copy link",
   "copied": "Copied",
   "shareTwitter": "Share to Twitter",

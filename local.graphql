@@ -14,6 +14,7 @@ type NftMarketplace {
 
 extend type AhListing {
   nftMarketplace: NftMarketplace
+  previewPrice: String
 }
 
 extend type Offer {
@@ -22,6 +23,10 @@ extend type Offer {
 
 extend type AuctionHouse {
   fee: Int
+}
+
+extend type Purchase {
+  previewPrice: String
 }
 
 extend type Nft {
