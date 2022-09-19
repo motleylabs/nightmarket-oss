@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
@@ -10,6 +10,7 @@ import useMakeOffer from '../hooks/offer';
 import Icon from './Icon';
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
+import { viewerVar } from '../cache';
 
 interface OfferableData {
   nft: Nft;
@@ -21,12 +22,13 @@ interface RenderProps {
 }
 
 interface OfferableProps {
-  variant?: 'viewer' | 'buyer' | 'owner';
+  connected?: boolean;
   children: (args: RenderProps) => any;
 }
 
-export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
+export function Offerable({ children, connected = false }: OfferableProps) {
   const { t } = useTranslation('common');
+  const viewer = useReactiveVar(viewerVar);
 
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
@@ -54,65 +56,61 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
   const OfferableActions = () => {
     const onLogin = useLogin();
 
-    switch (variant) {
-      case 'viewer':
-        return (
-          <Button onClick={onLogin} className="font-semibold">
-            {t('offerable.connectToOffer')}
-          </Button>
-        );
-      case 'buyer':
-        return (
-          <>
-            <section id={'offer-input'}>
-              <Form.Label name={t('offerable.amount')}>
-                {/* Temporarily broke out of component to make it work*/}
-                <div
-                  className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                    'input'
-                  )}
-                >
-                  <Icon.Solana height={20} width={24} gradient />
-                  <input
-                    {...registerOffer('amount', { required: true })}
-                    autoFocus
-                    className={clsx('w-full bg-transparent pl-2')}
-                  />
-                </div>
-                {offerFormState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
-                    {offerFormState.errors.amount?.message}
-                  </p>
+    if (connected) {
+      return (
+        <>
+          <section id={'offer-input'}>
+            <Form.Label name={t('offerable.amount')}>
+              {/* Temporarily broke out of component to make it work*/}
+              <div
+                className={clsx(
+                  'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                  'input'
                 )}
-              </Form.Label>
-            </section>
-            <section id={'offer-buttons'} className="flex flex-col gap-4">
-              <Button
-                className="font-semibold"
-                block
-                htmlType="submit"
-                loading={offerFormState.isSubmitting}
               >
-                {t('offer')}
-              </Button>
-              <Button
-                className="font-semibold"
-                block
-                onClick={() => {
-                  onCancelOffer();
-                  setOpen(false);
-                }}
-                type={ButtonType.Secondary}
-              >
-                {t('cancel')}
-              </Button>
-            </section>
-          </>
-        );
-      case 'owner':
-        setOpen(false);
-        return null;
+                <Icon.Solana height={20} width={24} gradient />
+                <input
+                  {...registerOffer('amount', { required: true })}
+                  autoFocus
+                  className={clsx('w-full bg-transparent pl-2')}
+                />
+              </div>
+              {offerFormState.errors.amount?.message && (
+                <p className="whitespace-nowrap text-left text-xs text-red-500">
+                  {offerFormState.errors.amount?.message}
+                </p>
+              )}
+            </Form.Label>
+          </section>
+          <section id={'offer-buttons'} className="flex flex-col gap-4">
+            <Button
+              className="font-semibold"
+              block
+              htmlType="submit"
+              loading={offerFormState.isSubmitting}
+            >
+              {t('offer')}
+            </Button>
+            <Button
+              className="font-semibold"
+              block
+              onClick={() => {
+                onCancelOffer();
+                setOpen(false);
+              }}
+              type={ButtonType.Secondary}
+            >
+              {t('cancel')}
+            </Button>
+          </section>
+        </>
+      );
+    } else {
+      return (
+        <Button onClick={onLogin} className="font-semibold">
+          {t('offerable.connectToOffer')}
+        </Button>
+      );
     }
   };
 
@@ -159,8 +157,8 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
                 <div className="h-10 w-full animate-pulse rounded-md border-2 border-gray-800 bg-gray-900" />
               </section>
               <section id={'loading-buttons'} className="flex flex-col gap-4">
-                <Button loading={true} />
-                <Button loading={true} type={ButtonType.Secondary} />
+                <Button loading />
+                <Button loading type={ButtonType.Secondary} />
               </section>
             </>
           ) : (
@@ -218,12 +216,13 @@ export function Offerable({ children, variant = 'viewer' }: OfferableProps) {
                     {data?.nft.collection?.floorPrice} SOL
                   </p>
                 </div>
-                {/* TODO: replace dummy wallet balance with viewer data */}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
                     {t('offerable.currentBalance')}
                   </p>
-                  <p className="text-base font-medium text-gray-300">10 SOL</p>
+                  <p className="text-base font-medium text-gray-300">
+                    {viewer?.solBalance || '-'} SOL
+                  </p>
                 </div>
               </section>
               <OfferableActions />

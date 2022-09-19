@@ -4,10 +4,11 @@ import { Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import Button, { ButtonType } from './Button';
 import { Form } from './Form';
 import useBuyNow from '../hooks/buy';
+import { viewerVar } from '../cache';
 
 interface BuyableData {
   nft: Nft;
@@ -19,17 +20,18 @@ interface RenderProps {
 }
 
 interface BuyableProps {
-  variant?: 'viewer' | 'buyer' | 'owner';
+  connected?: boolean;
   children: (args: RenderProps) => any;
 }
 
-export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
+export function Buyable({ children, connected = false }: BuyableProps) {
   const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
   const openBuyNow = (mintAddress: string) => {
     buyableQuery({ variables: { address: mintAddress } });
     setOpen(true);
   };
+  const viewer = useReactiveVar(viewerVar);
 
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
@@ -39,40 +41,36 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
   const BuyableActions = () => {
     const onLogin = useLogin();
 
-    switch (variant) {
-      case 'viewer':
-        return (
-          <Button onClick={onLogin} className="font-semibold">
-            {t('buyable.connectToBuy')}
+    if (connected) {
+      return (
+        <section id={'buy-buttons'} className="flex flex-col gap-4">
+          <Button
+            className="font-semibold"
+            block
+            htmlType="submit"
+            loading={buyFormState.isSubmitting}
+          >
+            {t('buyable.buyNowButton')}
           </Button>
-        );
-      case 'buyer':
-        return (
-          <section id={'buy-buttons'} className="flex flex-col gap-4">
-            <Button
-              className="font-semibold"
-              block
-              htmlType="submit"
-              loading={buyFormState.isSubmitting}
-            >
-              {t('buyable.buyNowButton')}
-            </Button>
-            <Button
-              className="font-semibold"
-              block
-              onClick={() => {
-                onCancelBuy();
-                setOpen(false);
-              }}
-              type={ButtonType.Secondary}
-            >
-              {t('cancel')}
-            </Button>
-          </section>
-        );
-      case 'owner':
-        setOpen(false);
-        return null;
+          <Button
+            className="font-semibold"
+            block
+            onClick={() => {
+              onCancelBuy();
+              setOpen(false);
+            }}
+            type={ButtonType.Secondary}
+          >
+            {t('cancel')}
+          </Button>
+        </section>
+      );
+    } else {
+      return (
+        <Button onClick={onLogin} className="font-semibold">
+          {t('buyable.connectToBuy')}
+        </Button>
+      );
     }
   };
 
@@ -162,6 +160,7 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
                     </p>
                   </div>
                 )}
+                {/* TODO: query for marketplace info */}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.marketplaceFee')}
@@ -170,12 +169,13 @@ export function Buyable({ children, variant = 'viewer' }: BuyableProps) {
                     2% ({(data?.nft.collection?.floorPrice * 0.02).toFixed(2)} SOL)
                   </p>
                 </div>
-                {/* TODO: replace dummy wallet balance with viewer data */}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.currentBalance')}
                   </p>
-                  <p className="text-base font-medium text-gray-300">10 SOL</p>
+                  <p className="text-base font-medium text-gray-300">
+                    {viewer?.solBalance || '-'} SOL
+                  </p>
                 </div>
               </section>
               <BuyableActions />

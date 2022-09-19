@@ -277,28 +277,6 @@ const Home: NextPage = () => {
           <h1 className="text-3xl md:text-5xl">{t('hero.title')}</h1>
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
-        <section>
-          <Offerable variant={publicKey ? 'buyer' : 'viewer'}>
-            {({ makeOffer }) => (
-              <button
-                className="rounded-md bg-gray-800 p-4 text-sm text-white"
-                onClick={() => makeOffer('Hqa1C1327peoSvwvsRJZr4f69fMXvRo4CjnWEkMhbNLj')}
-              >
-                Click me to test offerable
-              </button>
-            )}
-          </Offerable>
-          <Buyable variant={publicKey ? 'buyer' : 'viewer'}>
-            {({ buyNow }) => (
-              <button
-                className="rounded-md bg-gray-800 p-4 text-sm text-white"
-                onClick={() => buyNow('Hqa1C1327peoSvwvsRJZr4f69fMXvRo4CjnWEkMhbNLj')}
-              >
-                Click me to test buyable
-              </button>
-            )}
-          </Buyable>
-        </section>
         <section className="mt-28">
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
