@@ -48,6 +48,15 @@ declare module '*/listing.graphql' {
 }
     
 
+declare module '*/listingpreview.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const ListingPreview: DocumentNode;
+
+  export default defaultDocument;
+}
+    
+
 declare module '*/nft.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;

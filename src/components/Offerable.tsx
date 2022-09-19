@@ -34,7 +34,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
 
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
-    offerableQuery({ variables: { address: mintAddress, subdomain: 'haus' } });
+    offerableQuery({
+      variables: { address: mintAddress, subdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN },
+    });
     setOpen(true);
   };
 

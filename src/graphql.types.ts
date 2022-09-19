@@ -1446,6 +1446,7 @@ export type Wallet = {
   createdCollections: Array<CreatedCollection>;
   displayName?: Maybe<Scalars['String']>;
   nftCounts: WalletNftCount;
+  nfts: Array<Nft>;
   portfolioValue?: Maybe<Scalars['Int']>;
   previewBanner?: Maybe<Scalars['String']>;
   previewImage?: Maybe<Scalars['String']>;
@@ -1464,6 +1465,17 @@ export type WalletActivitiesArgs = {
 
 export type WalletNftCountsArgs = {
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;
+};
+
+
+export type WalletNftsArgs = {
+  auctionHouse?: InputMaybe<Scalars['String']>;
+  collections?: InputMaybe<Array<Scalars['String']>>;
+  limit: Scalars['Int'];
+  marketplaceProgram?: InputMaybe<Scalars['String']>;
+  offset: Scalars['Int'];
+  orderBy?: InputMaybe<OrderDirection>;
+  sortBy?: InputMaybe<WalletNftSort>;
 };
 
 export type WalletActivity = {
@@ -1500,3 +1512,9 @@ export type WalletNftCountListedArgs = {
 export type WalletNftCountOfferedArgs = {
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
+/** Sorts results by price or listed at */
+export enum WalletNftSort {
+  ListedAt = 'LISTED_AT',
+  Price = 'PRICE'
+}

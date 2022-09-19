@@ -15,6 +15,12 @@ interface NftCardProps {
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
+  const nightmarketListings = nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
+  );
+
+  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+
   return (
     <div className="overflow-clip rounded-md text-white shadow-lg transition hover:scale-[1.02]">
       <Link href={link} passHref>
@@ -41,12 +47,23 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             </div>
           </a>
         </Link>
-        {/* TODO: add offer */}
         <div className="relative flex flex-row items-center justify-between">
-          <span className="text-lg">56.90 SOL</span>
-          <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
-            {t('offer')}
-          </Button>
+          {listing ? (
+            <>
+              <span className="text-lg">{listing.previewPrice} SOL</span>
+              <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
+                {t('buy')}
+              </Button>
+            </>
+          ) : (
+            <>
+              {/* TODO: last sale price */}
+              <span className="text-lg"></span>
+              <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
+                {t('offer')}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

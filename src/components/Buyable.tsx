@@ -29,7 +29,9 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
   const openBuyNow = (mintAddress: string) => {
-    buyableQuery({ variables: { address: mintAddress, subdomain: 'haus' } });
+    buyableQuery({
+      variables: { address: mintAddress, subdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN },
+    });
     setOpen(true);
   };
   const viewer = useReactiveVar(viewerVar);
