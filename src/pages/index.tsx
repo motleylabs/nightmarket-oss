@@ -21,8 +21,6 @@ import { Area, AreaChart } from 'recharts';
 import { percentageDifference } from '../modules/number';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
-import { Offerable } from '../components/Offerable';
-import { Buyable } from '../components/Buyable';
 
 type FloorData = {
   price: number;
@@ -64,15 +62,21 @@ function TrendingCollection({
               alt={name}
               className="h-10 w-10 transform rounded-md object-cover duration-500 ease-in-out hover:scale-110"
             />
-            <h6 className="transform text-base font-semibold duration-500 ease-in-out hover:scale-105">
+            <h6 className="transform truncate overflow-ellipsis text-base font-semibold duration-500 ease-in-out hover:scale-105">
               {name}
             </h6>
           </a>
         </Link>
       </td>
       <td className="gap-2 pl-4 lg:pl-0">
-        <div className="flex flex-row items-center justify-center gap-2">
-          <p className="text-base font-semibold">{floor.toFixed(2)} SOL</p>
+        <div className="flex w-32 flex-row items-center justify-start gap-2">
+          <p
+            // Note to convert to local field when collection_trends objects available. // from Kyle
+            className="flex items-center text-base font-semibold"
+          >
+            <Icon.Sol />
+            {asBasicNumber(floor)}
+          </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -90,8 +94,11 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex flex-row items-center justify-center gap-2">
-          <p className="text-base font-semibold">{volume.toFixed(2)}</p>
+        <div className="flex w-40 flex-row items-center justify-start gap-2">
+          <p className="flex items-center text-base font-semibold">
+            <Icon.Sol />
+            {asBasicNumber(volume)}
+          </p>
           <p
             className={clsx(clsx, 'flex items-center gap-1 text-xs', {
               'text-[#12B76A]': priceChange >= 0,
@@ -109,8 +116,8 @@ function TrendingCollection({
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
-          <p className="text-base font-normal">{sales}</p>
+        <div className="flex w-40 justify-start">
+          <p className="text-base font-normal">{asBasicNumber(sales)}</p>
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
@@ -144,17 +151,17 @@ function LoadingTrendingCollection() {
         <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
       <td className="pl-4 lg:pl-0">
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
         </div>
       </td>
@@ -274,7 +281,9 @@ const Home: NextPage = () => {
       </Head>
       <main className="container mx-auto px-6 pb-6 lg:px-0">
         <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
-          <h1 className="text-3xl md:text-5xl">{t('hero.title')}</h1>
+          <h1 className="text-3xl md:text-5xl">
+            {t('hero.title')} <span className="text-orange-600 ">{t('hero.title2')}</span>.
+          </h1>
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
         <section className="mt-28">
@@ -304,16 +313,16 @@ const Home: NextPage = () => {
             <table className="w-full table-auto border-spacing-x-24 divide-y divide-gray-800">
               <thead>
                 <tr>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300">
+                  <th className=" pb-2 text-left text-xs font-normal text-gray-300">
                     {t('trendingCollections.collection')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.floor')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.volume')}
                   </th>
-                  <th className="pl-4 pb-2 text-center text-xs font-normal text-gray-300 lg:pl-0">
+                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
                     {t('trendingCollections.sales')}
                   </th>
                   <th className="pb-2 text-right text-xs font-normal text-gray-300">
@@ -373,10 +382,11 @@ const Home: NextPage = () => {
             <h1 className="mb-2  text-2xl">{t('topVolume.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               <Collection.Card.Skeleton />
               <Collection.Card.Skeleton className="hidden sm:inline-block" />
               <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
               <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
@@ -391,7 +401,7 @@ const Home: NextPage = () => {
                   spaceBetween: 4,
                 },
                 1024: {
-                  slidesPerView: 4,
+                  slidesPerView: 5,
                   spaceBetween: 4,
                 },
               }}
@@ -416,10 +426,11 @@ const Home: NextPage = () => {
             <h1 className="mb-2 text-2xl">{t('topMarketCap.title')}</h1>
           </header>
           {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               <Collection.Card.Skeleton />
               <Collection.Card.Skeleton className="hidden sm:inline-block" />
               <Collection.Card.Skeleton className="hidden md:inline-block" />
+              <Collection.Card.Skeleton className="hidden lg:inline-block" />
               <Collection.Card.Skeleton className="hidden lg:inline-block" />
             </div>
           ) : (
@@ -434,7 +445,7 @@ const Home: NextPage = () => {
                   spaceBetween: 4,
                 },
                 1024: {
-                  slidesPerView: 4,
+                  slidesPerView: 5,
                   spaceBetween: 4,
                 },
               }}

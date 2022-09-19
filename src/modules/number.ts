@@ -18,6 +18,15 @@ const USD_FORMATTER: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
+const BASIC_NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 0,
+});
+
+export function asBasicNumber(number: number) {
+  return BASIC_NUMBER_FORMATTER.format(number);
+}
+
 /**
  * Formats the USD amount in US-currency format (e.g. $123,456.78)
  *

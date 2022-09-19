@@ -10,6 +10,7 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWalle
   ) {
     floorPrice
     nftCount
+    compactNftCount @client
     volumeTotal
     holderCount
     nft {
@@ -29,6 +30,7 @@ query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWalle
   ) {
     floorPrice
     nftCount
+    compactNftCount @client
     nft {
       address
       mintAddress

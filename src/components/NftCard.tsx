@@ -3,6 +3,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
+import Icon from './Icon';
 
 interface NftCardProps {
   nft: Nft;

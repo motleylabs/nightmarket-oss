@@ -310,13 +310,12 @@ const client = new ApolloClient({
           activities: offsetLimitPagination(['$eventTypes']),
           compactNftCount: {
             read(_, { readField }): string {
-              const nftCount: number | undefined = readField('nftCount');
-
+              const nftCount: string | undefined = readField('nftCount');
               if (!nftCount) {
                 return '0';
               }
 
-              return asCompactNumber(nftCount);
+              return asCompactNumber(parseInt(nftCount));
             },
           },
           volumeTotal: {
@@ -349,9 +348,9 @@ const client = new ApolloClient({
           listedCount: {
             read: asCompactNumber,
           },
-          holderCount: {
-            read: asCompactNumber,
-          },
+          // holderCount: {
+          //   read: asCompactNumber,
+          // },
         },
       },
       CollectedCollection: {
