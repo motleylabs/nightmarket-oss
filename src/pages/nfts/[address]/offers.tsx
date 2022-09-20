@@ -155,11 +155,17 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 NftOffers.getLayout = function NftDetailsLayout({
   children,
   nft,
+  marketplace,
 }: NftDetailsLayoutProps): JSX.Element {
-  return <NftLayout nft={nft}>{children}</NftLayout>;
+  return (
+    <NftLayout nft={nft} marketplace={marketplace}>
+      {children}
+    </NftLayout>
+  );
 };

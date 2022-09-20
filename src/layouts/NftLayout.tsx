@@ -5,7 +5,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { ReactNode } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { Nft } from '../graphql.types';
+import { Marketplace, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
@@ -21,6 +21,7 @@ import config from '../app.config';
 interface NftLayoutProps {
   children: ReactNode;
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 interface NftMarketData {
@@ -37,7 +38,7 @@ enum NftPage {
   Activity = '/nfts/[address]/activity',
 }
 
-export default function NftLayout({ children, nft }: NftLayoutProps) {
+export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
   const viewer = useReactiveVar(viewerVar);
@@ -56,7 +57,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
     onCancelOffer,
     offerFormState,
   } = useMakeOffer();
-  const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft } =
+  const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft, onSubmit } =
     useListNft();
 
   const isOwner = viewer?.address === nft.owner?.address;
@@ -167,7 +168,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
         )}
         {listNft && (
           <Form
-            onSubmit={handleSubmitListNft(({ amount }) => {})}
+            onSubmit={handleSubmitListNft(onSubmit)}
             className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">

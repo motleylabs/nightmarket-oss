@@ -2,7 +2,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import client from '../../../client';
 import { NftQuery, NftActivitiesQuery } from './../../../queries/nft.graphql';
-import { Nft } from '../../../graphql.types';
+import { Marketplace, Nft } from '../../../graphql.types';
 import { ReactNode } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import config from '../../../app.config';
@@ -101,14 +101,20 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
   );
 }
 
-interface NftActivityLayoutProps {
+interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
+  marketplace: Marketplace;
 }
 
-NftActivity.getLayout = function NftActivityLayout({
+NftActivity.getLayout = function NftDetailsLayout({
   children,
   nft,
-}: NftActivityLayoutProps): JSX.Element {
-  return <NftLayout nft={nft}>{children}</NftLayout>;
+  marketplace,
+}: NftDetailsLayoutProps): JSX.Element {
+  return (
+    <NftLayout nft={nft} marketplace={marketplace}>
+      {children}
+    </NftLayout>
+  );
 };

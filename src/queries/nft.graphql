@@ -25,6 +25,7 @@ query NftQuery($address: String!, $subdomain: String!) {
     description
     owner {
       address
+      associatedTokenAccountAddress
       previewImage @client
       displayName @client
       profile {
