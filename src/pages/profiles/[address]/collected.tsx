@@ -25,6 +25,9 @@ import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
 import { Collection } from './../../../components/Collection';
 import { Listbox } from '@headlessui/react';
+import { Offerable } from '../../../components/Offerable';
+import { Buyable } from '../../../components/Buyable';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -84,6 +87,7 @@ export default function ProfileCollected({
   const { watch, control } = useForm<CollectionNFTForm>({
     defaultValues: { listed: ListedStatus.All, collections: [] },
   });
+  const { publicKey } = useWallet();
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
@@ -206,49 +210,55 @@ export default function ProfileCollected({
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
-          <List
-            expanded={open}
-            data={nftsQuery.data?.collectedNfts}
-            loading={nftsQuery.loading}
-            gap={4}
-            hasMore={hasMore}
-            grid={{
-              [ListGridSize.Default]: [1, 1],
-              [ListGridSize.Small]: [2, 2],
-              [ListGridSize.Medium]: [2, 3],
-              [ListGridSize.Large]: [3, 4],
-              [ListGridSize.ExtraLarge]: [4, 6],
-              [ListGridSize.Jumbo]: [6, 8],
-            }}
-            skeleton={NftCard.Skeleton}
-            onLoadMore={async (inView: boolean) => {
-              if (!inView) {
-                return;
-              }
+          <Offerable connected={Boolean(publicKey)}>
+            {({ makeOffer }) => (
+              <Buyable connected={Boolean(publicKey)}>
+                {({ buyNow }) => (
+                  <List
+                    expanded={open}
+                    data={nftsQuery.data?.collectedNfts}
+                    loading={nftsQuery.loading}
+                    gap={4}
+                    hasMore={hasMore}
+                    grid={{
+                      [ListGridSize.Default]: [1, 1],
+                      [ListGridSize.Small]: [2, 2],
+                      [ListGridSize.Medium]: [2, 3],
+                      [ListGridSize.Large]: [3, 4],
+                      [ListGridSize.ExtraLarge]: [4, 6],
+                      [ListGridSize.Jumbo]: [6, 8],
+                    }}
+                    skeleton={NftCard.Skeleton}
+                    onLoadMore={async (inView: boolean) => {
+                      if (!inView) {
+                        return;
+                      }
 
-              const {
-                data: { collectedNfts },
-              } = await nftsQuery.fetchMore({
-                variables: {
-                  ...nftsQuery.variables,
-                  offset: nftsQuery.data?.collectedNfts.length,
-                },
-              });
+                      const {
+                        data: { collectedNfts },
+                      } = await nftsQuery.fetchMore({
+                        variables: {
+                          ...nftsQuery.variables,
+                          offset: nftsQuery.data?.collectedNfts.length,
+                        },
+                      });
 
-              setHasMore(collectedNfts.length > 0);
-            }}
-            render={(nft, i) => (
-              <Link
-                href={`/nfts/${nft.mintAddress}/details`}
-                key={`${nft.mintAddress}-${i}`}
-                passHref
-              >
-                <a>
-                  <NftCard nft={nft} />
-                </a>
-              </Link>
+                      setHasMore(collectedNfts.length > 0);
+                    }}
+                    render={(nft, i) => (
+                      <NftCard
+                        key={`${nft.mintAddress}-${i}`}
+                        link={`/nfts/${nft.mintAddress}/details`}
+                        onMakeOffer={() => makeOffer(nft.mintAddress)}
+                        onBuy={() => buyNow(nft.mintAddress)}
+                        nft={nft}
+                      />
+                    )}
+                  />
+                )}
+              </Buyable>
             )}
-          />
+          </Offerable>
         </Sidebar.Content>
       </Sidebar.Page>
     </>
