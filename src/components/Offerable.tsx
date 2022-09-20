@@ -42,7 +42,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     const offerAmount = Number(amount);
-    console.log(offerAmount);
+    if (data?.nft && data?.marketplace) {
+      onMakeOffer({ amount, nft: data?.nft, marketplace: data.marketplace });
+    }
   };
 
   const [offerableQuery, { data, loading, refetch, previousData }] =

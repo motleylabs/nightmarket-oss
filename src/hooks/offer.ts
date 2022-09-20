@@ -3,10 +3,23 @@ import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-
 import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
 import useLogin from './login';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import {
+  createCreateOfferInstruction,
+  CreateOfferInstructionAccounts,
+  CreateOfferInstructionArgs,
+} from '@holaplex/mpl-reward-center';
+import { PublicKey, Transaction } from '@solana/web3.js';
 
 interface OfferForm {
   amount: string;
+}
+
+interface MakeOfferForm extends OfferForm {
+  nft: Nft;
+  marketplace: Marketplace;
 }
 
 const schema = zod.object({
@@ -20,13 +33,14 @@ interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: () => void;
+  onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => void;
   onCancelOffer: () => void;
   offerFormState: FormState<OfferForm>;
 }
 
 export default function useMakeOffer(): MakeOfferContext {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
+  const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
   const {
@@ -39,14 +53,86 @@ export default function useMakeOffer(): MakeOfferContext {
     resolver: zodResolver(schema),
   });
 
-  const onMakeOffer = useCallback(() => {
-    console.log(getValues('amount'));
-    if (connected) {
-      return setMakeOffer(true);
-    }
+  const onMakeOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+    console.log(amount);
+    if (connected && publicKey) {
+      const ah = marketplace.auctionHouses[0];
+      const auctionHouse = new PublicKey(ah.address);
+      const offerPrice = Number(amount);
+      const authority = new PublicKey(ah.authority);
+      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const tokenMint = new PublicKey(nft.mintAddress);
+      const metadata = new PublicKey(nft.address);
+      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-    return login();
-  }, [setMakeOffer, connected, login]);
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+      const [escrowPaymentAcc, escrowPaymentBump] =
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+
+      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouse,
+        associatedTokenAcc,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+      const [buyerTradeState, buyerTradeStateBump] =
+        await AuctionHouseProgram.findPublicBidTradeStateAddress(
+          publicKey,
+          auctionHouse,
+          treasuryMint,
+          tokenMint,
+          offerPrice,
+          1
+        );
+
+      const accounts: CreateOfferInstructionAccounts = {
+        wallet: publicKey,
+        offer: new PublicKey(''),
+        paymentAccount: publicKey,
+        transferAuthority: publicKey,
+        treasuryMint,
+        tokenAccount: associatedTokenAcc,
+        metadata,
+        escrowPaymentAccount: escrowPaymentAcc,
+        authority,
+        rewardCenter: new PublicKey(''),
+        auctionHouse,
+        auctionHouseFeeAccount: ahFeeAcc,
+        buyerTradeState,
+        ahAuctioneerPda: new PublicKey(''),
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+      };
+
+      const args: CreateOfferInstructionArgs = {
+        createOfferParams: {
+          tradeStateBump: buyerTradeStateBump,
+          escrowPaymentBump,
+          buyerPrice: offerPrice,
+          tokenSize: 1,
+        },
+      };
+
+      const instruction = createCreateOfferInstruction(accounts, args);
+      const tx = new Transaction();
+      tx.add(instruction);
+      const recentBlockhash = await connection.getLatestBlockhash();
+      tx.recentBlockhash = recentBlockhash.blockhash;
+      const txtId = await connection.sendRawTransaction(tx.serialize());
+
+      if (txtId) await connection.confirmTransaction(txtId, 'confirmed');
+
+      setMakeOffer(true);
+    } else {
+      return login();
+    }
+  };
   const onCancelOffer = useCallback(() => {
     reset();
     setMakeOffer(false);
