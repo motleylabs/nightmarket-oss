@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ChevronRightIcon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 import Button from './Button';
@@ -9,18 +9,14 @@ export function Sidebar(): JSX.Element {
 }
 
 interface SidebarFilterIconProps {
-  width?: number;
-  height?: number;
   className?: string;
 }
-function SidebarFilterIcon({ height, width, className }: SidebarFilterIconProps) {
+function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
   return (
     <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 24 24`}
       className={className}
-      fill="none"
+      stroke="currentColor"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -38,32 +34,28 @@ Sidebar.FilterIcon = SidebarFilterIcon;
 interface SidebarControlProps {
   open: boolean;
   onChange: () => void;
+  disabled?: boolean;
 }
 
-function SidebarControl({ open, onChange }: SidebarControlProps): JSX.Element {
+function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.Element {
   const { t } = useTranslation('common');
   return (
-    <div className={clsx({ 'hidden md:block': open })}>
+    <div className={clsx({ 'hidden md:block': open && !disabled })}>
       <button
         className={clsx(
-          'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between',
-          'rounded-full border-none bg-gray-800 py-2 px-4 text-white transition',
-          'hover:border-white md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
-          { 'md:w-72 lg:w-96': open }
+          'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between rounded-full border-none bg-gray-800 py-2 px-4 text-white  transition',
+          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
+          open && !disabled && 'md:w-72 lg:w-96'
         )}
+        disabled={disabled}
         onClick={onChange}
       >
-        <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
+        <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
         <span className="md:hidden">{t('filters')}</span>
-        {open ? (
-          <ChevronLeftIcon width={24} height={24} className="hidden stroke-white md:inline-block" />
-        ) : (
-          <ChevronRightIcon
-            width={24}
-            height={24}
-            className="hidden stroke-white md:inline-block"
-          />
-        )}
+
+        <ChevronRightIcon
+          className={clsx('hidden h-6 w-6 md:inline-block', open && !disabled && 'rotate-180')}
+        />
       </button>
     </div>
   );
@@ -90,28 +82,24 @@ interface SidebarPanel {
   children: ReactNode;
   open?: boolean;
   onChange: () => void;
+  disabled?: boolean;
 }
 
-function SidebarPanel({ children, open, onChange }: SidebarPanel): JSX.Element {
+function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX.Element {
   const { t } = useTranslation('common');
   return (
     <>
       <aside
         className={clsx(
           'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-gray-900 pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
-          'scrollbar-thin scrollbar-thumb-gray-600',
-          open ? 'inline-block md:w-72 lg:w-96' : 'hidden'
+          'text-white scrollbar-thin scrollbar-thumb-gray-600',
+          open && !disabled ? 'inline-block md:w-72 lg:w-96' : 'hidden'
         )}
       >
-        <div className="flex w-full justify-between px-2 pt-4 pb-2 text-white md:hidden">
-          <Sidebar.FilterIcon width={24} height={24} className="stroke-white" />
+        <div className="flex w-full justify-between px-2 pt-4 pb-2  md:hidden">
+          <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
           {t('filters')}
-          <XMarkIcon
-            onClick={onChange}
-            width={24}
-            height={24}
-            className="cursor-pointer stroke-white"
-          />
+          <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
         </div>
         {children}
         <div className="mt-24 md:hidden">

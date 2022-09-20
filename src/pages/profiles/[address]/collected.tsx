@@ -128,7 +128,11 @@ export default function ProfileCollected({
   return (
     <>
       <Toolbar>
-        <Sidebar.Control open={open} onChange={toggleSidebar} />
+        <Sidebar.Control
+          open={open}
+          onChange={toggleSidebar}
+          disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
+        />
         <Controller
           control={control}
           name="listed"
@@ -148,7 +152,10 @@ export default function ProfileCollected({
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel onChange={toggleSidebar}>
+        <Sidebar.Panel
+          onChange={toggleSidebar}
+          disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
+        >
           <div className="mt-4 flex flex-col gap-2">
             {walletProfileClientQuery.loading ? (
               <>
