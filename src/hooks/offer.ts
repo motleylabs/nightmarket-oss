@@ -10,6 +10,9 @@ import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
   CreateOfferInstructionArgs,
+  createUpdateOfferInstruction,
+  UpdateOfferInstructionAccounts,
+  UpdateOfferInstructionArgs,
 } from '@holaplex/mpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
@@ -35,7 +38,8 @@ interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => void;
+  onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
+  onUpdateOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
   onOpenOffer: () => void;
   onCloseOffer: () => void;
   onCancelOffer: () => void;
@@ -152,6 +156,98 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
+  const onUpdateOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+    if (connected && publicKey && signTransaction) {
+      const ah = marketplace.auctionHouses[0];
+      const auctionHouse = new PublicKey(ah.address);
+      const newOfferPrice = toLamports(Number(amount));
+      const authority = new PublicKey(ah.authority);
+      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const tokenMint = new PublicKey(nft.mintAddress);
+      const metadata = new PublicKey(nft.address);
+      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+      const [escrowPaymentAcc, escrowPaymentBump] =
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+
+      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouse,
+        associatedTokenAcc,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+      const [buyerTradeState, buyerTradeStateBump] =
+        await AuctionHouseProgram.findPublicBidTradeStateAddress(
+          publicKey,
+          auctionHouse,
+          treasuryMint,
+          tokenMint,
+          newOfferPrice,
+          1
+        );
+
+      const [rewardCenter] = await findRewardCenter(auctionHouse);
+
+      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
+
+      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+
+      const accounts: UpdateOfferInstructionAccounts = {
+        wallet: publicKey,
+        offer,
+        rewardCenter,
+        buyerTokenAccount: new PublicKey(''), // TODO
+        auctionHouse,
+        authority,
+        transferAuthority: publicKey,
+        treasuryMint,
+        tokenAccount: associatedTokenAcc,
+        auctionHouseFeeAccount: ahFeeAcc,
+        metadata,
+        escrowPaymentAccount: escrowPaymentAcc,
+        ahAuctioneerPda: auctioneer,
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+      };
+
+      const args: UpdateOfferInstructionArgs = {
+        updateOfferParams: {
+          newBuyerPrice: newOfferPrice,
+          escrowPaymentBump,
+        },
+      };
+
+      const instruction = createUpdateOfferInstruction(accounts, args);
+      const tx = new Transaction();
+      tx.add(instruction);
+      const recentBlockhash = await connection.getLatestBlockhash();
+      tx.recentBlockhash = recentBlockhash.blockhash;
+      tx.feePayer = publicKey;
+
+      try {
+        const signedTx = await signTransaction(tx);
+        const txtId = await connection.sendRawTransaction(signedTx.serialize());
+        if (txtId) {
+          await connection.confirmTransaction(txtId, 'confirmed');
+          console.log(`confirmed`);
+        }
+      } catch (err) {
+        console.error(`Error whilst making offer`, err);
+      } finally {
+        setMakeOffer(true);
+      }
+    } else {
+      return login();
+    }
+  };
+
   const onCancelOffer = () => {
     // TODO: cancel offer
   };
@@ -171,6 +267,8 @@ export default function useMakeOffer(): MakeOfferContext {
     makeOffer,
     onCloseOffer,
     onOpenOffer,
+
+    onUpdateOffer,
     onMakeOffer,
     onCancelOffer,
     handleSubmitOffer,
