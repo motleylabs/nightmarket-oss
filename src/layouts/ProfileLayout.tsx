@@ -1,6 +1,6 @@
-import { cloneElement, ReactElement, useMemo } from 'react';
+import { cloneElement, ReactElement, useCallback, useMemo, useState } from 'react';
 import { Wallet } from '../graphql.types';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
@@ -13,6 +13,7 @@ import { useQuery } from '@apollo/client';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
 import Icon from '../components/Icon';
+import { shortenAddress } from '../modules/address';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -25,6 +26,80 @@ export interface WalletProfileVariables {
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
+}
+
+function ProfileSummary({ wallet, pv }: { pv: string; wallet: Wallet }) {
+  const [copied, setCopied] = useState(false);
+  const copyWallet = useCallback(async () => {
+    if (wallet.address) {
+      await navigator.clipboard.writeText(wallet.address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [wallet.address]);
+
+  return (
+    <section className="flex flex-col gap-8 py-20">
+      <div className="flex flex-col items-center justify-center gap-4 md:flex-row  md:gap-6">
+        <Overview.Avatar src={wallet.previewImage as string} circle />
+        <div className="flex flex-col items-center gap-6 md:items-start">
+          <h1 className=" text-center text-3xl text-white md:text-left md:text-5xl">
+            {wallet.displayName}
+          </h1>
+          <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
+            <Overview.Figure figure={wallet.compactCreatedCount} label={'Created'} />
+            <Overview.Figure figure={wallet.compactOwnedCount} label={'Collected'} />
+            <Overview.Figure figure={wallet.compactFollowerCount} label={'Followers'} />
+            <Overview.Figure figure={wallet.compactFollowingCount} label={'Following'} />
+
+            <Overview.Actions>
+              <Button>Follow</Button>
+              {/* <Share
+                address={address}
+                twitterParams={{
+                  text: t('twitterShareText'),
+                  hashtags: ['nightmarket'],
+                  url: `${config.baseUrl}/profiles/${address}`,
+                }}
+              /> */}
+            </Overview.Actions>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-center gap-6 text-white">
+        <div className="flex gap-2 rounded-full border border-white py-1 px-2 text-xs">
+          {shortenAddress(wallet.address)}
+
+          <button
+            onClick={copyWallet}
+            className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
+          >
+            {copied ? <CheckIcon className="h-4 w-4 " /> : <Icon.Copy className="h-4 w-4" />}
+          </button>
+        </div>
+
+        <div className="flex gap-2 rounded-full border border-white py-1 px-2 text-xs">
+          <Icon.Twitter className="h-4 w-4" />
+          {wallet.displayName}
+        </div>
+      </div>
+      <div className="flex justify-center gap-10 text-white">
+        <PFigure figure={pv} label="Portfolio value" />
+        <PFigure figure="79" label="Total NFTs" />
+        <PFigure figure="23" label="Listed NFTs" />
+        <PFigure figure="56" label="Unlisted NFTs" />
+      </div>
+    </section>
+  );
+}
+
+function PFigure(props: { figure: string; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <span className="text-2xl font-bold">{props.figure}</span>
+      <div className="">{props.label}</div>
+    </div>
+  );
 }
 
 function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
@@ -68,6 +143,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <ProfileSummary wallet={wallet} pv={solToUsdString(portfolioValue)} />
       <Overview>
         <Overview.Hero>
           <Overview.Info

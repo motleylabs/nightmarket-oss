@@ -269,6 +269,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
       setTimeout(() => setCopied(false), 2000);
     }
   }, [publicKey]);
+
   const { setVisible } = useWalletModal();
 
   return (
