@@ -12,6 +12,8 @@ import {
   CreateOfferInstructionArgs,
 } from '@holaplex/mpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
+import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
+import { toLamports } from '../modules/sol';
 
 interface OfferForm {
   amount: string;
@@ -39,7 +41,7 @@ interface MakeOfferContext {
 }
 
 export default function useMakeOffer(): MakeOfferContext {
-  const { connected, publicKey } = useWallet();
+  const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
@@ -55,10 +57,10 @@ export default function useMakeOffer(): MakeOfferContext {
 
   const onMakeOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
     console.log(amount);
-    if (connected && publicKey) {
+    if (connected && publicKey && signTransaction) {
       const ah = marketplace.auctionHouses[0];
       const auctionHouse = new PublicKey(ah.address);
-      const offerPrice = Number(amount);
+      const offerPrice = toLamports(Number(amount));
       const authority = new PublicKey(ah.authority);
       const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
       const treasuryMint = new PublicKey(ah.treasuryMint);
@@ -92,9 +94,15 @@ export default function useMakeOffer(): MakeOfferContext {
           1
         );
 
+      const [rewardCenter] = await findRewardCenter(auctionHouse);
+
+      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
+
+      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+
       const accounts: CreateOfferInstructionAccounts = {
         wallet: publicKey,
-        offer: new PublicKey(''),
+        offer,
         paymentAccount: publicKey,
         transferAuthority: publicKey,
         treasuryMint,
@@ -102,11 +110,11 @@ export default function useMakeOffer(): MakeOfferContext {
         metadata,
         escrowPaymentAccount: escrowPaymentAcc,
         authority,
-        rewardCenter: new PublicKey(''),
+        rewardCenter,
         auctionHouse,
         auctionHouseFeeAccount: ahFeeAcc,
         buyerTradeState,
-        ahAuctioneerPda: new PublicKey(''),
+        ahAuctioneerPda: auctioneer,
         auctionHouseProgram: AuctionHouseProgram.PUBKEY,
       };
 
@@ -124,11 +132,20 @@ export default function useMakeOffer(): MakeOfferContext {
       tx.add(instruction);
       const recentBlockhash = await connection.getLatestBlockhash();
       tx.recentBlockhash = recentBlockhash.blockhash;
-      const txtId = await connection.sendRawTransaction(tx.serialize());
+      tx.feePayer = publicKey;
 
-      if (txtId) await connection.confirmTransaction(txtId, 'confirmed');
-
-      setMakeOffer(true);
+      try {
+        const signedTx = await signTransaction(tx);
+        const txtId = await connection.sendRawTransaction(signedTx.serialize());
+        if (txtId) {
+          await connection.confirmTransaction(txtId, 'confirmed');
+          console.log(`confirmed`);
+        }
+      } catch (err) {
+        console.log('Error whilst making offer', err);
+      } finally {
+        setMakeOffer(true);
+      }
     } else {
       return login();
     }

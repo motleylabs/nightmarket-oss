@@ -350,6 +350,7 @@ export type GenoHabitat = {
   active: Scalars['Boolean'];
   address: Scalars['PublicKey'];
   crystalsRefined: Scalars['Int'];
+  dailyKiHarvestingCap: Scalars['U64'];
   durability: Scalars['Int'];
   element: Scalars['Int'];
   expiryTimestamp: Scalars['DateTimeUtc'];
@@ -361,8 +362,10 @@ export type GenoHabitat = {
   harvesterOpenMarket: Scalars['Boolean'];
   harvesterRoyaltyBips: Scalars['Int'];
   harvesterSettingsCooldownTimestamp: Scalars['DateTimeUtc'];
+  hasMaxKi?: Maybe<Scalars['Boolean']>;
   isSubHabitat: Scalars['Boolean'];
-  kiHarvested: Scalars['I64'];
+  kiAvailableToHarvest?: Maybe<Scalars['U64']>;
+  kiHarvested: Scalars['U64'];
   level: Scalars['Int'];
   nextDayTimestamp: Scalars['DateTimeUtc'];
   nft?: Maybe<Nft>;
@@ -413,6 +416,10 @@ export type GenoHabitatsParams = {
   harvesterOpenMarket?: InputMaybe<Scalars['Boolean']>;
   /** Filter by harvester addresses */
   harvesters?: InputMaybe<Array<Scalars['String']>>;
+  hasAlchemist?: InputMaybe<Scalars['Boolean']>;
+  hasHarvester?: InputMaybe<Scalars['Boolean']>;
+  hasMaxKi?: InputMaybe<Scalars['Boolean']>;
+  isActivated?: InputMaybe<Scalars['Boolean']>;
   /** Maximum number of results to return (max 250) */
   limit: Scalars['Int'];
   /** Maximum habitat durability to return */
@@ -1120,6 +1127,10 @@ export type QueryRootGenoHabitatsArgs = {
   guilds?: InputMaybe<Array<Scalars['Int']>>;
   harvesterOpenMarket?: InputMaybe<Scalars['Boolean']>;
   harvesters?: InputMaybe<Array<Scalars['String']>>;
+  hasAlchemist?: InputMaybe<Scalars['Boolean']>;
+  hasHarvester?: InputMaybe<Scalars['Boolean']>;
+  hasMaxKi?: InputMaybe<Scalars['Boolean']>;
+  isActivated?: InputMaybe<Scalars['Boolean']>;
   limit: Scalars['Int'];
   maxDurability?: InputMaybe<Scalars['Int']>;
   maxExpiry?: InputMaybe<Scalars['DateTimeUtc']>;
