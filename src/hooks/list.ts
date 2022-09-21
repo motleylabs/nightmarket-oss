@@ -10,6 +10,11 @@ import {
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { Marketplace, Nft } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import {
+  findAuctioneer,
+  findListingAddress,
+  findRewardCenter,
+} from '../modules/reward-center/pdas';
 
 interface ListNftForm {
   amount: number;
@@ -59,7 +64,7 @@ export default function useListNft(): ListNftContext {
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
-        buyerPrice,
+        18446744073709551615,
         1
       );
 
@@ -76,12 +81,16 @@ export default function useListNft(): ListNftContext {
         1
       );
 
+      const [rewardCenter] = await findRewardCenter(auctionHouse);
+
+      const [listingAddress] = await findListingAddress(publicKey, metadata, rewardCenter);
+
+      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+
       const accounts: CreateListingInstructionAccounts = {
-        // TODO:
-        auctionHouseProgram: new PublicKey(''),
-        listing: new PublicKey(''),
-        rewardCenter: new PublicKey(''),
-        //
+        auctionHouseProgram: programAsSigner,
+        listing: listingAddress,
+        rewardCenter: rewardCenter,
         wallet: publicKey,
         tokenAccount: associatedTokenAccount,
         metadata: metadata,
@@ -90,10 +99,10 @@ export default function useListNft(): ListNftContext {
         auctionHouseFeeAccount: auctionHouseFeeAccount,
         sellerTradeState: sellerTradeState,
         freeSellerTradeState: freeTradeState,
-        // TODO:
-        ahAuctioneerPda: new PublicKey(''),
+        ahAuctioneerPda: auctioneer,
         programAsSigner: programAsSigner,
       };
+
       const args: CreateListingInstructionArgs = {
         createListingParams: {
           price: buyerPrice,
@@ -103,7 +112,9 @@ export default function useListNft(): ListNftContext {
           programAsSignerBump: programAsSignerBump,
         },
       };
+
       const instruction = createCreateListingInstruction(accounts, args);
+
       const tx = new Transaction();
       tx.add(instruction);
       const recentBlockhash = await connection.getLatestBlockhash();
