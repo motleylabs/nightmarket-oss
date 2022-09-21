@@ -5,7 +5,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { ReactNode } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { Nft } from '../graphql.types';
+import { Marketplace, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
@@ -21,6 +21,7 @@ import config from '../app.config';
 interface NftLayoutProps {
   children: ReactNode;
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 interface NftMarketData {
@@ -37,7 +38,7 @@ enum NftPage {
   Activity = '/nfts/[address]/activity',
 }
 
-export default function NftLayout({ children, nft }: NftLayoutProps) {
+export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
   const viewer = useReactiveVar(viewerVar);
@@ -52,12 +53,21 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
     makeOffer,
     registerOffer,
     onMakeOffer,
-    handleSubmitOffer,
     onCancelOffer,
+    handleSubmitOffer,
+    onOpenOffer,
+    onCloseOffer,
     offerFormState,
   } = useMakeOffer();
   const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft } =
     useListNft();
+
+  const handleOffer = async ({ amount }: { amount: string }) => {
+    console.log(amount);
+    if (nft) {
+      onMakeOffer({ amount, nft, marketplace });
+    }
+  };
 
   const isOwner = viewer?.address === nft.owner?.address;
   const notOwner = !isOwner;
@@ -107,7 +117,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
         <h1 className="mb-6 text-4xl font-semibold">{nft.name}</h1>
         {makeOffer && (
           <Form
-            onSubmit={handleSubmitOffer(({ amount }) => {})}
+            onSubmit={handleSubmitOffer(handleOffer)}
             className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
@@ -153,13 +163,13 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
               </Form.Label>
               <Button
                 block
-                htmlType="submit"
+                htmlType={'submit'}
                 className="mb-4"
                 loading={offerFormState.isSubmitting}
               >
                 {t('submitOffer')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCancelOffer}>
+              <Button type={ButtonType.Secondary} block onClick={onCloseOffer}>
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -239,7 +249,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
               <span>--</span>
             </div>
             {notOwner && (
-              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onMakeOffer}>
+              <Button onClick={onOpenOffer} type={ButtonType.Primary} size={ButtonSize.Large}>
                 {t('bid')}
               </Button>
             )}

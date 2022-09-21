@@ -36,6 +36,8 @@ interface MakeOfferContext {
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
   onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => void;
+  onOpenOffer: () => void;
+  onCloseOffer: () => void;
   onCancelOffer: () => void;
   offerFormState: FormState<OfferForm>;
 }
@@ -150,7 +152,16 @@ export default function useMakeOffer(): MakeOfferContext {
       return login();
     }
   };
-  const onCancelOffer = useCallback(() => {
+
+  const onCancelOffer = () => {
+    // TODO: cancel offer
+  };
+
+  const onOpenOffer = useCallback(() => {
+    setMakeOffer(true);
+  }, [setMakeOffer]);
+
+  const onCloseOffer = useCallback(() => {
     reset();
     setMakeOffer(false);
   }, [setMakeOffer, reset]);
@@ -159,6 +170,8 @@ export default function useMakeOffer(): MakeOfferContext {
     registerOffer,
     offerFormState,
     makeOffer,
+    onCloseOffer,
+    onOpenOffer,
     onMakeOffer,
     onCancelOffer,
     handleSubmitOffer,
