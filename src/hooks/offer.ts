@@ -58,7 +58,6 @@ export default function useMakeOffer(): MakeOfferContext {
   });
 
   const onMakeOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
-    console.log(amount);
     if (connected && publicKey && signTransaction) {
       const ah = marketplace.auctionHouses[0];
       const auctionHouse = new PublicKey(ah.address);

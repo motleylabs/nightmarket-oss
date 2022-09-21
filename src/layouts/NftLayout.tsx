@@ -63,8 +63,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     useListNft();
 
   const handleOffer = async ({ amount }: { amount: string }) => {
-    console.log(amount);
-    if (nft) {
+    if (amount && nft && marketplace) {
       onMakeOffer({ amount, nft, marketplace });
     }
   };
@@ -154,16 +153,36 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 )}
               </ul>
               <Form.Label name={t('amount')}>
-                <Form.Input
+                {/* Temporarily broke out of component to make it work*/}
+                <div
+                  className={clsx(
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'input'
+                  )}
+                >
+                  <Icon.Sol />
+                  <input
+                    {...registerOffer('amount', { required: true })}
+                    autoFocus
+                    className={clsx('w-full bg-transparent pl-2')}
+                  />
+                </div>
+                {offerFormState.errors.amount?.message && (
+                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                    {offerFormState.errors.amount?.message}
+                  </p>
+                )}
+                {/* <Form.Input
                   {...registerOffer('amount')}
                   autoFocus
+                  error={offerFormState.errors.amount?.message}
                   className="input"
                   icon={<Icon.Sol className="h-6 w-6" />}
-                />
+                /> */}
               </Form.Label>
               <Button
                 block
-                htmlType={'submit'}
+                onClick={handleSubmitOffer(handleOffer)}
                 className="mb-4"
                 loading={offerFormState.isSubmitting}
               >
