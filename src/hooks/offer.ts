@@ -13,6 +13,9 @@ import {
   createUpdateOfferInstruction,
   UpdateOfferInstructionAccounts,
   UpdateOfferInstructionArgs,
+  createCloseOfferInstruction,
+  CloseOfferInstructionAccounts,
+  CloseOfferInstructionArgs,
 } from '@holaplex/mpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
@@ -40,9 +43,9 @@ interface MakeOfferContext {
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
   onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
   onUpdateOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
+  onCancelOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
   onOpenOffer: () => void;
   onCloseOffer: () => void;
-  onCancelOffer: () => void;
   offerFormState: FormState<OfferForm>;
 }
 
@@ -239,7 +242,7 @@ export default function useMakeOffer(): MakeOfferContext {
           console.log(`confirmed`);
         }
       } catch (err) {
-        console.error(`Error whilst making offer`, err);
+        console.error(`Error whilst updating offer`, err);
       } finally {
         setMakeOffer(true);
       }
@@ -248,8 +251,89 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
-  const onCancelOffer = () => {
-    // TODO: cancel offer
+  const onCancelOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+    if (connected && publicKey && signTransaction) {
+      const ah = marketplace.auctionHouses[0];
+      const auctionHouse = new PublicKey(ah.address);
+      const offerPrice = toLamports(Number(amount));
+      const authority = new PublicKey(ah.authority);
+      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const tokenMint = new PublicKey(nft.mintAddress);
+      const metadata = new PublicKey(nft.address);
+      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+      const [escrowPaymentAcc, escrowPaymentBump] =
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+
+      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouse,
+        associatedTokenAcc,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+      const [rewardCenter] = await findRewardCenter(auctionHouse);
+
+      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
+
+      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+
+      const accounts: CloseOfferInstructionAccounts = {
+        wallet: publicKey,
+        offer,
+        treasuryMint,
+        tokenAccount: associatedTokenAcc,
+        receiptAccount: new PublicKey(''), // TODO
+        escrowPaymentAccount: escrowPaymentAcc,
+        metadata,
+        tokenMint,
+        authority,
+        rewardCenter,
+        auctionHouse,
+        auctionHouseFeeAccount: ahFeeAcc,
+        tradeState: sellerTradeState,
+        ahAuctioneerPda: auctioneer,
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+      };
+
+      const args: CloseOfferInstructionArgs = {
+        closeOfferParams: {
+          tradeStateBump,
+          escrowPaymentBump,
+          buyerPrice: offerPrice,
+          tokenSize: 1,
+        },
+      };
+
+      const instruction = createCloseOfferInstruction(accounts, args);
+      const tx = new Transaction();
+      tx.add(instruction);
+      const recentBlockhash = await connection.getLatestBlockhash();
+      tx.recentBlockhash = recentBlockhash.blockhash;
+      tx.feePayer = publicKey;
+
+      try {
+        const signedTx = await signTransaction(tx);
+        const txtId = await connection.sendRawTransaction(signedTx.serialize());
+        if (txtId) {
+          await connection.confirmTransaction(txtId, 'confirmed');
+          console.log(`confirmed`);
+        }
+      } catch (err) {
+        console.log('Error whilst closing offer', err);
+      } finally {
+        setMakeOffer(true);
+      }
+    } else {
+      login();
+    }
   };
 
   const onOpenOffer = useCallback(() => {
