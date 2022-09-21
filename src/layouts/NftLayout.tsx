@@ -17,6 +17,7 @@ import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
 import Share from '../components/Share';
 import config from '../app.config';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -41,6 +42,7 @@ enum NftPage {
 export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
+  const { publicKey } = useWallet();
   const viewer = useReactiveVar(viewerVar);
 
   const nftMarketInfoQuery = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
@@ -57,10 +59,23 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     onCancelOffer,
     offerFormState,
   } = useMakeOffer();
-  const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft, onSubmit } =
-    useListNft();
 
-  const isOwner = viewer?.address === nft.owner?.address;
+  const {
+    listNft,
+    onListNft,
+    onCancelListNft,
+    handleSubmitListNft,
+    registerListNft,
+    onSubmit,
+    setListNftFormValue,
+  } = useListNft();
+
+  setListNftFormValue('nft', nft);
+  setListNftFormValue('marketplace', marketplace);
+
+  // TODO: Use viewer to check owner once cache issue is resolved
+  // const isOwner = viewer === nft.owner?.address;
+  const isOwner = publicKey?.toBase58() === nft.owner?.address;
   const notOwner = !isOwner;
 
   const activeForm = makeOffer || listNft;

@@ -1,5 +1,11 @@
 import { useCallback, useState } from 'react';
-import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
+import {
+  useForm,
+  UseFormRegister,
+  UseFormHandleSubmit,
+  FormState,
+  UseFormSetValue,
+} from 'react-hook-form';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -15,6 +21,7 @@ import {
   findListingAddress,
   findRewardCenter,
 } from '../modules/reward-center/pdas';
+import BN from 'bn.js';
 
 interface ListNftForm {
   amount: number;
@@ -30,6 +37,7 @@ interface ListNftContext {
   onListNft: () => void;
   onCancelListNft: () => void;
   listNftState: FormState<ListNftForm>;
+  setListNftFormValue: UseFormSetValue<ListNftForm>;
 }
 
 export default function useListNft(): ListNftContext {
@@ -43,12 +51,13 @@ export default function useListNft(): ListNftContext {
     handleSubmit: handleSubmitListNft,
     reset,
     formState: listNftState,
+    setValue: setListNftFormValue,
   } = useForm<ListNftForm>();
 
   const onSubmit = async ({ amount, nft, marketplace }: ListNftForm) => {
     if (connected && publicKey) {
       const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah);
+      const auctionHouse = new PublicKey(ah.address);
       const buyerPrice = amount;
       const authority = new PublicKey(ah.authority);
       const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
@@ -64,7 +73,7 @@ export default function useListNft(): ListNftContext {
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
-        18446744073709551615,
+        new BN('18446744073709551615'),
         1
       );
 
@@ -146,5 +155,6 @@ export default function useListNft(): ListNftContext {
     onCancelListNft,
     handleSubmitListNft,
     onSubmit,
+    setListNftFormValue,
   };
 }

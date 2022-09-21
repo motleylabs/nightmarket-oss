@@ -10,6 +10,8 @@ query NftQuery($address: String!, $subdomain: String!) {
       sellerFeeBasisPoints
       fee @client
       treasuryMint
+      authority
+      auctionHouseFeeAccount
     }
   }
 
