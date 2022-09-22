@@ -1,8 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import {
-  WalletProfileQuery,
-  CollectedNFTsQuery,
-} from './../../../queries/profile.graphql';
+import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
 import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
@@ -72,7 +69,6 @@ interface CollectionNFTsVariables {
   address: string;
   offset: number;
   limit: number;
-  listed: boolean | null;
   collections?: (string | undefined)[] | null | undefined;
 }
 
@@ -94,7 +90,6 @@ export default function ProfileCollected({
     variables: {
       offset: 0,
       limit: 24,
-      listed: null,
       address: router.query.address as string,
     },
   });
@@ -105,18 +100,11 @@ export default function ProfileCollected({
         offset: 0,
         limit: 24,
         address: router.query.address as string,
-        listed: null,
         collections,
       };
 
       if (variables?.collections?.length === 0) {
         variables.collections = null;
-      }
-
-      if (listed === ListedStatus.Listed) {
-        variables.listed = true;
-      } else if (listed === ListedStatus.Unlisted) {
-        variables.listed = false;
       }
 
       nftsQuery.refetch(variables).then(({ data: { wallet } }) => {
@@ -134,23 +122,6 @@ export default function ProfileCollected({
           open={open}
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
-        />
-        <Controller
-          control={control}
-          name="listed"
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>
-                {t('all', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>
-                {t('listed', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>
-                {t('unlisted', { ns: 'common' })}
-              </ButtonGroup.Option>
-            </ButtonGroup>
-          )}
         />
       </Toolbar>
       <Sidebar.Page open={open}>

@@ -19,7 +19,6 @@ h6 {
   @apply text-white;
 }
 
-
 body,
 html {
   @apply bg-gray-900;
