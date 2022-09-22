@@ -39,7 +39,7 @@ function ProfileSummary({ wallet, pv }: { pv: string; wallet: Wallet }) {
   }, [wallet.address]);
 
   return (
-    <section className="flex flex-col gap-8 py-20">
+    <section className="flex flex-col gap-8 pt-20">
       <div className="flex flex-col items-center justify-center gap-4 md:flex-row  md:gap-6">
         <Overview.Avatar src={wallet.previewImage as string} circle />
         <div className="flex flex-col items-center gap-6 md:items-start">
@@ -49,11 +49,11 @@ function ProfileSummary({ wallet, pv }: { pv: string; wallet: Wallet }) {
           <div className="flex flex-col items-center gap-2 md:flex-row md:items-center">
             <Overview.Figure figure={wallet.compactCreatedCount} label={'Created'} />
             <Overview.Figure figure={wallet.compactOwnedCount} label={'Collected'} />
-            <Overview.Figure figure={wallet.compactFollowerCount} label={'Followers'} />
-            <Overview.Figure figure={wallet.compactFollowingCount} label={'Following'} />
+            {/* <Overview.Figure figure={wallet.compactFollowerCount} label={'Followers'} />
+            <Overview.Figure figure={wallet.compactFollowingCount} label={'Following'} /> */}
 
             <Overview.Actions>
-              <Button>Follow</Button>
+              {/* <Button>Follow</Button> */}
               {/* <Share
                 address={address}
                 twitterParams={{
@@ -144,6 +144,28 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <ProfileSummary wallet={wallet} pv={solToUsdString(portfolioValue)} />
+      <Overview.Tabs>
+        <Overview.Tab href={`/profiles/${address}/collected`}>{t('collected')}</Overview.Tab>
+        {/* <Overview.Tab href={`/profiles/${address}/created`}>{t('created')}</Overview.Tab> */}
+        <Overview.Tab href={`/profiles/${address}/activity`}>{t('activity')}</Overview.Tab>
+        <Overview.Tab href={`/profiles/${address}/analytics`}>{t('analytics')}</Overview.Tab>
+      </Overview.Tabs>
+      <Overview.Divider />
+      {cloneElement(children, { walletProfileClientQuery })}
+    </>
+  );
+
+  return (
+    <>
+      <Head>
+        <title>{t('metadata.title', { name: wallet.displayName })}</title>
+        <meta
+          name="description"
+          content={t('metadata.description', { name: wallet.displayName })}
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <ProfileSummary wallet={wallet} pv={solToUsdString(portfolioValue)} />
       <Overview>
         <Overview.Hero>
           <Overview.Info
@@ -199,7 +221,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         </Overview.Hero>
         <Overview.Tabs>
           <Overview.Tab href={`/profiles/${address}/collected`}>{t('collected')}</Overview.Tab>
-          <Overview.Tab href={`/profiles/${address}/created`}>{t('created')}</Overview.Tab>
+          {/* <Overview.Tab href={`/profiles/${address}/created`}>{t('created')}</Overview.Tab> */}
           <Overview.Tab href={`/profiles/${address}/activity`}>{t('activity')}</Overview.Tab>
           <Overview.Tab href={`/profiles/${address}/analytics`}>{t('analytics')}</Overview.Tab>
         </Overview.Tabs>

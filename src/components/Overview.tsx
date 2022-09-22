@@ -116,11 +116,7 @@ function Aside({ children }: OverviewProps): JSX.Element {
 Overview.Aside = Aside;
 
 function Tabs({ children }: OverviewProps): JSX.Element {
-  return (
-    <nav className="mt-10 flex flex-row justify-start overflow-auto sm:ml-4 md:ml-8 md:justify-start">
-      {children}
-    </nav>
-  );
+  return <nav className="mt-10 grid grid-cols-3 overflow-auto sm:ml-4 md:ml-8 ">{children}</nav>;
 }
 
 Overview.Tabs = Tabs;
