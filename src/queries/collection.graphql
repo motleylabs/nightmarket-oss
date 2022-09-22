@@ -24,12 +24,12 @@ query CollectionQuery($address: String!) {
     }
     nftCount
     floorPrice
-    # volumeTotal
+    volumeTotal
     compactFloorPrice @client
     compactVolumeTotal @client
     compactNftCount @client
     listedCount
-    # holderCount
+    holderCount
   }
 }
 
