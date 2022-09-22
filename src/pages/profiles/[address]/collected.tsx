@@ -1,9 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import {
-  WalletProfileQuery,
-  WalletProfileClientQuery,
-  CollectedNFTsQuery,
-} from './../../../queries/profile.graphql';
+import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
 import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
@@ -20,7 +16,6 @@ import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from './../../../components/List';
 import { Collection } from './../../../components/Collection';
@@ -67,14 +62,13 @@ interface CollectionNFTForm {
 }
 
 interface CollectionNFTsData {
-  collectedNfts: Nft[];
+  wallet: Wallet;
 }
 
 interface CollectionNFTsVariables {
+  address: string;
   offset: number;
   limit: number;
-  listed: boolean | null;
-  owner: string;
   collections?: (string | undefined)[] | null | undefined;
 }
 
@@ -96,8 +90,7 @@ export default function ProfileCollected({
     variables: {
       offset: 0,
       limit: 24,
-      listed: null,
-      owner: router.query.address as string,
+      address: router.query.address as string,
     },
   });
 
@@ -106,8 +99,7 @@ export default function ProfileCollected({
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
-        owner: router.query.address as string,
-        listed: null,
+        address: router.query.address as string,
         collections,
       };
 
@@ -115,14 +107,8 @@ export default function ProfileCollected({
         variables.collections = null;
       }
 
-      if (listed === ListedStatus.Listed) {
-        variables.listed = true;
-      } else if (listed === ListedStatus.Unlisted) {
-        variables.listed = false;
-      }
-
-      nftsQuery.refetch(variables).then(({ data: { collectedNfts } }) => {
-        setHasMore(collectedNfts.length > 0);
+      nftsQuery.refetch(variables).then(({ data: { wallet } }) => {
+        setHasMore(wallet.nfts.length > 0);
       });
     });
 
@@ -136,23 +122,6 @@ export default function ProfileCollected({
           open={open}
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
-        />
-        <Controller
-          control={control}
-          name="listed"
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>
-                {t('all', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>
-                {t('listed', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>
-                {t('unlisted', { ns: 'common' })}
-              </ButtonGroup.Option>
-            </ButtonGroup>
-          )}
         />
       </Toolbar>
       <Sidebar.Page open={open}>
@@ -216,7 +185,7 @@ export default function ProfileCollected({
                 {({ buyNow }) => (
                   <List
                     expanded={open}
-                    data={nftsQuery.data?.collectedNfts}
+                    data={nftsQuery.data?.wallet.nfts}
                     loading={nftsQuery.loading}
                     gap={4}
                     hasMore={hasMore}
@@ -235,15 +204,15 @@ export default function ProfileCollected({
                       }
 
                       const {
-                        data: { collectedNfts },
+                        data: { wallet },
                       } = await nftsQuery.fetchMore({
                         variables: {
                           ...nftsQuery.variables,
-                          offset: nftsQuery.data?.collectedNfts.length,
+                          offset: nftsQuery.data?.wallet.nfts.length,
                         },
                       });
 
-                      setHasMore(collectedNfts.length > 0);
+                      setHasMore(wallet.nfts.length > 0);
                     }}
                     render={(nft, i) => (
                       <NftCard
