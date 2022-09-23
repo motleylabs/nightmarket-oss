@@ -1,11 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  useForm,
-  UseFormRegister,
-  UseFormHandleSubmit,
-  FormState,
-  UseFormSetValue,
-} from 'react-hook-form';
+import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -31,16 +25,20 @@ interface ListNftForm {
 
 interface ListNftContext {
   listNft: boolean;
-  registerListNft: UseFormRegister<ListNftForm>;
-  handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
-  onSubmit: (form: ListNftForm) => Promise<void>;
-  onListNft: () => void;
-  onCancelListNft: () => void;
   listNftState: FormState<ListNftForm>;
-  setListNftFormValue: UseFormSetValue<ListNftForm>;
+  registerListNft: UseFormRegister<ListNftForm>;
+  onListNftClick: () => void;
+  onCancelListNftClick: () => void;
+  handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
+  onSubmitListNft: (form: ListNftForm) => Promise<void>;
 }
 
-export default function useListNft(): ListNftContext {
+interface ListNftDefaultValues {
+  nft: Nft;
+  marketplace: Marketplace;
+}
+
+export default function useListNft(defaultValues: ListNftDefaultValues): ListNftContext {
   const { connected, publicKey } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
@@ -51,10 +49,9 @@ export default function useListNft(): ListNftContext {
     handleSubmit: handleSubmitListNft,
     reset,
     formState: listNftState,
-    setValue: setListNftFormValue,
-  } = useForm<ListNftForm>();
+  } = useForm<ListNftForm>({ defaultValues });
 
-  const onSubmit = async ({ amount, nft, marketplace }: ListNftForm) => {
+  const onSubmitListNft = async ({ amount, nft, marketplace }: ListNftForm) => {
     if (connected && publicKey) {
       const ah = marketplace.auctionHouses[0];
       const auctionHouse = new PublicKey(ah.address);
@@ -134,7 +131,7 @@ export default function useListNft(): ListNftContext {
     }
   };
 
-  const onListNft = useCallback(() => {
+  const onListNftClick = useCallback(() => {
     if (connected) {
       return setListNft(true);
     }
@@ -142,19 +139,18 @@ export default function useListNft(): ListNftContext {
     return login();
   }, [setListNft, connected, login]);
 
-  const onCancelListNft = useCallback(() => {
+  const onCancelListNftClick = useCallback(() => {
     reset();
     setListNft(false);
   }, [setListNft, reset]);
 
   return {
-    registerListNft,
-    listNftState,
     listNft,
-    onListNft,
-    onCancelListNft,
+    listNftState,
+    registerListNft,
+    onListNftClick,
+    onCancelListNftClick,
     handleSubmitListNft,
-    onSubmit,
-    setListNftFormValue,
+    onSubmitListNft,
   };
 }

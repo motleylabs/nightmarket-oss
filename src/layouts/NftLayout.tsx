@@ -62,16 +62,12 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
 
   const {
     listNft,
-    onListNft,
-    onCancelListNft,
+    onListNftClick,
+    onCancelListNftClick,
     handleSubmitListNft,
     registerListNft,
-    onSubmit,
-    setListNftFormValue,
-  } = useListNft();
-
-  setListNftFormValue('nft', nft);
-  setListNftFormValue('marketplace', marketplace);
+    onSubmitListNft: onSubmit,
+  } = useListNft({ nft, marketplace });
 
   // TODO: Use viewer to check owner once cache issue is resolved
   // const isOwner = viewer === nft.owner?.address;
@@ -238,7 +234,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               >
                 {t('listNft')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCancelListNft}>
+              <Button type={ButtonType.Secondary} block onClick={onCancelListNftClick}>
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -266,7 +262,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <span>--</span>
             </div>
             {isOwner && (
-              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNft}>
+              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNftClick}>
                 {t('listNft')}
               </Button>
             )}
