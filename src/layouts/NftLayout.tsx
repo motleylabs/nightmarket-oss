@@ -5,7 +5,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { ReactNode } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { Nft } from '../graphql.types';
+import { Marketplace, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
@@ -17,10 +17,12 @@ import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
 import Share from '../components/Share';
 import config from '../app.config';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface NftLayoutProps {
   children: ReactNode;
   nft: Nft;
+  marketplace: Marketplace;
 }
 
 interface NftMarketData {
@@ -37,9 +39,10 @@ enum NftPage {
   Activity = '/nfts/[address]/activity',
 }
 
-export default function NftLayout({ children, nft }: NftLayoutProps) {
+export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
+  const { publicKey } = useWallet();
   const viewer = useReactiveVar(viewerVar);
 
   const nftMarketInfoQuery = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
@@ -56,10 +59,19 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
     onCancelOffer,
     offerFormState,
   } = useMakeOffer();
-  const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft } =
-    useListNft();
 
-  const isOwner = viewer?.address === nft.owner?.address;
+  const {
+    listNft,
+    onListNftClick,
+    onCancelListNftClick,
+    handleSubmitListNft,
+    registerListNft,
+    onSubmitListNft: onSubmit,
+  } = useListNft({ nft, marketplace });
+
+  // TODO: Use viewer to check owner once cache issue is resolved
+  // const isOwner = viewer === nft.owner?.address;
+  const isOwner = publicKey?.toBase58() === nft.owner?.address;
   const notOwner = !isOwner;
 
   const activeForm = makeOffer || listNft;
@@ -167,7 +179,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
         )}
         {listNft && (
           <Form
-            onSubmit={handleSubmitListNft(({ amount }) => {})}
+            onSubmit={handleSubmitListNft(onSubmit)}
             className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
@@ -222,7 +234,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
               >
                 {t('listNft')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCancelListNft}>
+              <Button type={ButtonType.Secondary} block onClick={onCancelListNftClick}>
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -250,7 +262,7 @@ export default function NftLayout({ children, nft }: NftLayoutProps) {
               <span>--</span>
             </div>
             {isOwner && (
-              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNft}>
+              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNftClick}>
                 {t('listNft')}
               </Button>
             )}
