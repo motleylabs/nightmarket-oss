@@ -10,12 +10,9 @@ import {
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { Marketplace, Nft } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import {
-  findAuctioneer,
-  findListingAddress,
-  findRewardCenter,
-} from '../modules/reward-center/pdas';
+
 import BN from 'bn.js';
+import { RewardCenterProgram } from '../modules/reward-center/RewardCenterProgram';
 
 interface ListNftForm {
   amount: number;
@@ -87,11 +84,15 @@ export default function useListNft(defaultValues: ListNftDefaultValues): ListNft
         1
       );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenter(auctionHouse);
 
-      const [listingAddress] = await findListingAddress(publicKey, metadata, rewardCenter);
+      const [listingAddress] = await RewardCenterProgram.findListingAddress(
+        publicKey,
+        metadata,
+        rewardCenter
+      );
 
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneer(auctionHouse, rewardCenter);
 
       const accounts: CreateListingInstructionAccounts = {
         auctionHouseProgram: programAsSigner,
