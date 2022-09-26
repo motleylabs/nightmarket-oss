@@ -1,6 +1,12 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useCallback, useState } from 'react';
-import { FormState, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form';
+import {
+  FormState,
+  useForm,
+  UseFormHandleSubmit,
+  UseFormRegister,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { AhListing, Marketplace, Nft } from '../graphql.types';
 import useLogin from './login';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +19,6 @@ import {
 } from '@holaplex/mpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { toLamports } from '../modules/sol';
 import {
   findAuctioneer,
   findListingAddress,
@@ -22,7 +27,7 @@ import {
 } from '../modules/reward-center/pdas';
 
 interface BuyForm {
-  amount: number;
+  amount?: number;
 }
 
 interface BuyListedForm extends BuyForm {
@@ -42,6 +47,7 @@ interface BuyContext {
   buy: boolean;
   registerBuy: UseFormRegister<BuyForm>;
   handleSubmitBuy: UseFormHandleSubmit<BuyForm>;
+  setValue: UseFormSetValue<BuyForm>;
   onBuyNow: ({ amount, nft, marketplace }: BuyListedForm) => Promise<void>;
   onOpenBuy: () => void;
   onCancelBuy: () => void;
@@ -58,11 +64,13 @@ export default function useBuyNow(): BuyContext {
     handleSubmit: handleSubmitBuy,
     reset,
     formState: buyFormState,
+    setValue,
   } = useForm<BuyForm>({
     resolver: zodResolver(schema),
   });
 
-  const onBuyNow = async ({ amount, nft, marketplace, ahListing }: BuyListedForm) => {
+  const onBuyNow = async ({ nft, marketplace, ahListing }: BuyListedForm) => {
+    console.log(`hello`);
     if (connected && publicKey && signTransaction && nft.owner?.address) {
       // TODO buy flow
       const ah = marketplace.auctionHouses[0];
@@ -198,6 +206,7 @@ export default function useBuyNow(): BuyContext {
 
   return {
     registerBuy,
+    setValue,
     buyFormState,
     buy,
     onBuyNow,

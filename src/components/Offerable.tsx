@@ -55,6 +55,8 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     onMakeOffer,
     handleSubmitOffer,
     onCancelOffer,
+    onCloseOffer,
+    onOpenOffer,
     offerFormState,
   } = useMakeOffer();
 
@@ -207,7 +209,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCancelOffer();
+                        onCloseOffer();
                         setOpen(false);
                       }}
                       type={ButtonType.Secondary}
