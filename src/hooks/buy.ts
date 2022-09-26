@@ -51,7 +51,7 @@ interface BuyContext {
   setValue: UseFormSetValue<BuyForm>;
   onBuyNow: ({ amount, nft, marketplace }: BuyListedForm) => Promise<void>;
   onOpenBuy: () => void;
-  onCancelBuy: () => void;
+  onCloseBuy: () => void;
   buyFormState: FormState<BuyForm>;
 }
 
@@ -71,7 +71,6 @@ export default function useBuyNow(): BuyContext {
   });
 
   const onBuyNow = async ({ nft, marketplace, ahListing }: BuyListedForm) => {
-    console.log(`hello`);
     if (connected && publicKey && signTransaction && nft.owner?.address) {
       // TODO buy flow
       const ah = marketplace.auctionHouses[0];
@@ -201,7 +200,7 @@ export default function useBuyNow(): BuyContext {
     setBuy(true);
   }, [setBuy]);
 
-  const onCancelBuy = useCallback(() => {
+  const onCloseBuy = useCallback(() => {
     reset();
     setBuy(false);
   }, [setBuy, reset]);
@@ -213,7 +212,7 @@ export default function useBuyNow(): BuyContext {
     buy,
     onBuyNow,
     onOpenBuy,
-    onCancelBuy,
+    onCloseBuy,
     handleSubmitBuy,
   };
 }

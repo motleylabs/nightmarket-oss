@@ -40,23 +40,18 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
-  const { onBuyNow, handleSubmitBuy, onCancelBuy, buyFormState, setValue } = useBuyNow();
+  const nightmarketListings = data?.nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
+  );
+  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+
+  const { onBuyNow, handleSubmitBuy, onCloseBuy, buyFormState, setValue } = useBuyNow();
   useEffect(() => {
-    const nightmarketListings = data?.nft.listings?.filter(
-      (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
-    );
-    const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
     setValue('amount', listing?.price.toString());
     // TODO: handle form errors somehow
-  }, [setValue, data?.nft, data?.marketplace]);
+  }, [setValue, listing]);
 
   const handleBuy = async () => {
-    console.log(`hit`);
-    const nightmarketListings = data?.nft.listings?.filter(
-      (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
-    );
-    const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
-
     if (data?.nft && data.marketplace && data.nft.listings && listing) {
       onBuyNow({ marketplace: data.marketplace, nft: data.nft, ahListing: listing });
     }
@@ -181,7 +176,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCancelBuy();
+                        onCloseBuy();
                         setOpen(false);
                       }}
                       type={ButtonType.Secondary}
