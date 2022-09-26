@@ -62,6 +62,12 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     offerFormState,
   } = useMakeOffer();
 
+  const { listNft, handleSubmitListNft, registerListNft, onCancelListNftClick, onListNftClick } =
+    useListNft({
+      nft,
+      marketplace,
+    });
+
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (amount && nft && marketplace) {
       onMakeOffer({ amount, nft, marketplace });
@@ -196,7 +202,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         )}
         {listNft && (
           <Form
-            onSubmit={handleSubmitListNft(onSubmit)}
+            onSubmit={handleSubmitListNft(() => {})}
             className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
