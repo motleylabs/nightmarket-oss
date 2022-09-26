@@ -60,6 +60,9 @@ query CollectionNFTsQuery(
     attributes: $attributes
   ) {
     ...NftInfo
+    owner {
+      address
+    }
   }
 }
 
