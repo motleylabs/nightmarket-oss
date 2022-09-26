@@ -40,3 +40,13 @@ export async function findOfferAddress(
     REWARD_CENTER_PROGRAM
   );
 }
+
+export async function findPurchaseTicketAddress(
+  listing: PublicKey,
+  offer: PublicKey
+): Promise<[PublicKey, number]> {
+  return await PublicKey.findProgramAddress(
+    [Buffer.from('listing'), listing.toBuffer(), offer.toBuffer()],
+    REWARD_CENTER_PROGRAM
+  );
+}

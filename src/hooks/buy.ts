@@ -23,6 +23,7 @@ import {
   findAuctioneer,
   findListingAddress,
   findOfferAddress,
+  findPurchaseTicketAddress,
   findRewardCenter,
 } from '../modules/reward-center/pdas';
 
@@ -128,6 +129,7 @@ export default function useBuyNow(): BuyContext {
       const [listing] = await findListingAddress(seller, metadata, rewardCenter);
       const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
       const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+      const [purchaseTicket] = await findPurchaseTicketAddress(listing, offer);
 
       const accounts: ExecuteSaleInstructionAccounts = {
         buyer: publicKey,
@@ -137,7 +139,7 @@ export default function useBuyNow(): BuyContext {
         listing,
         offer,
         payer: publicKey,
-        purchaseTicket: new PublicKey(''), // TODO
+        purchaseTicket,
         tokenAccount: associatedTokenAcc,
         tokenMint,
         metadata,
