@@ -11,7 +11,14 @@ import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
 import ProfileCard from '../components/ProfileCard';
-import { Collection as CollectionType, Wallet } from '../graphql.types';
+import {
+  Collection as CollectionType,
+  CollectionInterval,
+  CollectionSort,
+  CollectionTrend,
+  OrderDirection,
+  Wallet,
+} from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 
@@ -53,6 +60,7 @@ function TrendingCollection({
     floorTrend[0].price,
     floorTrend[floorTrend.length - 1].price
   );
+
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
   return (
     <>
@@ -183,7 +191,7 @@ interface GetHomePageData {
 }
 
 interface TrendingCollectionData {
-  collectionsFeaturedByVolume: CollectionType[];
+  collectionTrends: CollectionTrend[];
 }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
@@ -215,8 +223,9 @@ interface TrendingCollectionForm {
 }
 
 interface TrendingCollectionVariables {
-  startDate: string;
-  endDate: string;
+  sortBy: CollectionSort;
+  timeFrame: CollectionInterval;
+  orderDirection: OrderDirection;
 }
 
 const Home: NextPage = () => {
@@ -239,8 +248,9 @@ const Home: NextPage = () => {
     TrendingCollectionQuery,
     {
       variables: {
-        startDate: dayAgoUTC,
-        endDate: nowUTC,
+        sortBy: CollectionSort.Volume,
+        timeFrame: CollectionInterval.OneDay,
+        orderDirection: OrderDirection.Desc,
       },
     }
   );
@@ -248,27 +258,21 @@ const Home: NextPage = () => {
   useEffect(() => {
     const subscription = watch(({ filter }) => {
       let variables: TrendingCollectionVariables = {
-        startDate: dayAgoUTC,
-        endDate: nowUTC,
+        sortBy: CollectionSort.Volume,
+        timeFrame: CollectionInterval.OneDay,
+        orderDirection: OrderDirection.Desc,
       };
       switch (filter) {
         case DateOption.DAY:
-          const dayAgo = subDays(now, 1);
-          const dayAgoUTC = formatISO(dayAgo);
-          variables.startDate = dayAgoUTC;
+          variables.timeFrame = CollectionInterval.OneDay;
           break;
         case DateOption.WEEK:
-          const weekAgo = startOfDay(subDays(now, 7));
-          const weekAgoUTC = formatISO(weekAgo);
-          variables.startDate = weekAgoUTC;
+          variables.timeFrame = CollectionInterval.SevenDay;
           break;
         case DateOption.MONTH:
-          const monthAgo = startOfDay(subMonths(now, 1));
-          const monthAgoUTC = formatISO(monthAgo);
-          variables.startDate = monthAgoUTC;
+          variables.timeFrame = CollectionInterval.ThirtyDay;
           break;
       }
-
       trendingCollectionsQuery.refetch(variables);
     });
     return subscription.unsubscribe;
@@ -349,31 +353,31 @@ const Home: NextPage = () => {
                     </tr>
                   </>
                 ) : (
-                  trendingCollectionsQuery.data?.collectionsFeaturedByVolume.map(
-                    (collection, i) => (
-                      <tr key={`collection-${collection.mintAddress}-${i}`}>
-                        <TrendingCollection
-                          address={collection.nft.mintAddress}
-                          key={`collection-${collection.nft.mintAddress}-${i}`}
-                          name={collection.nft.name}
-                          image={collection.nft.image}
-                          floor={collection.floorPrice}
-                          volume={collection.volumeTotal}
-                          sales={collection.holderCount}
-                          marketcap={Number(collection.floorPrice) * Number(collection.nftCount)}
-                          floorTrend={[
-                            { price: Math.random() * 10 },
-                            { price: Math.random() * 50 },
-                            { price: Math.random() * 20 },
-                            { price: Math.random() * 60 },
-                            { price: Math.random() * 40 },
-                            { price: Math.random() * 100 },
-                            { price: collection.floorPrice }, // TODO: get historical floor data into query
-                          ]}
-                        />
-                      </tr>
-                    )
-                  )
+                  trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => (
+                    <tr key={`collection-${trend.collection?.mintAddress}-${i}`}>
+                      <TrendingCollection
+                        address={trend.collection?.nft.mintAddress ?? ''}
+                        key={`collection-${trend.collection?.nft.mintAddress}-${i}`}
+                        name={trend.collection?.nft.name ?? ''}
+                        image={trend.collection?.nft.image ?? ''}
+                        floor={trend.collection?.floorPrice}
+                        volume={trend.collection?.volumeTotal}
+                        sales={trend.collection?.holderCount}
+                        marketcap={
+                          Number(trend.collection?.floorPrice) * Number(trend.collection?.nftCount)
+                        }
+                        floorTrend={[
+                          { price: Math.random() * 10 },
+                          { price: Math.random() * 50 },
+                          { price: Math.random() * 20 },
+                          { price: Math.random() * 60 },
+                          { price: Math.random() * 40 },
+                          { price: Math.random() * 100 },
+                          { price: trend.collection?.floorPrice }, // TODO: get historical floor data into query
+                        ]}
+                      />
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

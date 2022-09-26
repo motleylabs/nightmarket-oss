@@ -1,20 +1,26 @@
-query TrendingCollectionsQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!) {
-  collectionsFeaturedByVolume(
-    startDate: $startDate
-    endDate: $endDate
+query TrendingCollectionsQuery(
+  $sortBy: CollectionSort!
+  $timeFrame: CollectionInterval!
+  $orderDirection: OrderDirection!
+) {
+  collectionTrends(
+    sortBy: $sortBy
+    timeFrame: $timeFrame
+    orderDirection: $orderDirection
     limit: 12
     offset: 0
-    orderDirection: DESC
   ) {
-    floorPrice
-    nftCount
-    volumeTotal
-    holderCount
-    nft {
-      address
-      mintAddress
-      name
-      image
+    collection {
+      floorPrice
+      nftCount
+      volumeTotal
+      holderCount
+      nft {
+        address
+        mintAddress
+        name
+        image
+      }
     }
   }
 }
