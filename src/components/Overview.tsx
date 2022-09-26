@@ -115,8 +115,21 @@ function Aside({ children }: OverviewProps): JSX.Element {
 
 Overview.Aside = Aside;
 
-function Tabs({ children }: OverviewProps): JSX.Element {
-  return <nav className="mt-10 grid grid-cols-3 overflow-auto sm:ml-4 md:ml-8 ">{children}</nav>;
+interface OverviewTabsProps {
+  children: JSX.Element[];
+}
+
+function Tabs({ children }: OverviewTabsProps): JSX.Element {
+  return (
+    <nav
+      className={clsx(
+        'mt-10 grid overflow-auto ',
+        children.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+      )}
+    >
+      {children}
+    </nav>
+  );
 }
 
 Overview.Tabs = Tabs;
