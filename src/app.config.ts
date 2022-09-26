@@ -11,7 +11,7 @@ interface AppConfig {
 }
 
 const config: AppConfig = {
-  baseUrl: 'https://holaplex.com', // could also be an ENV variable
+  baseUrl: 'https://nightmarket.io', // could also be an ENV variable
   graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL as string,
   solanaRPCUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL as string,
   marketplaceSubdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN as string,
