@@ -73,20 +73,16 @@ query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
 }
 
 query CollectedNFTsQuery(
-  $owner: PublicKey!
-  $collections: [PublicKey!]
+  $address: PublicKey!
+  $collections: [String!]
   $limit: Int!
   $offset: Int!
-  $listed: Boolean
 ) {
-  collectedNfts: nfts(
-    owners: [$owner]
-    collections: $collections
-    limit: $limit
-    offset: $offset
-    listed: $listed
-  ) {
-    ...NftInfo
+  wallet(address: $address) {
+    address
+    nfts(collections: $collections, limit: $limit, offset: $offset) {
+      ...NftInfo
+    }
   }
 }
 

@@ -17,6 +17,7 @@ import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
 import Share from '../components/Share';
 import config from '../app.config';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -41,6 +42,7 @@ enum NftPage {
 export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
+  const { publicKey } = useWallet();
   const viewer = useReactiveVar(viewerVar);
 
   const nftMarketInfoQuery = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
@@ -59,8 +61,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     onCloseOffer,
     offerFormState,
   } = useMakeOffer();
-  const { listNft, onListNft, onCancelListNft, handleSubmitListNft, registerListNft } =
-    useListNft();
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (amount && nft && marketplace) {
@@ -196,7 +196,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         )}
         {listNft && (
           <Form
-            onSubmit={handleSubmitListNft(({ amount }) => {})}
+            onSubmit={handleSubmitListNft(onSubmit)}
             className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
@@ -251,7 +251,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               >
                 {t('listNft')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCancelListNft}>
+              <Button type={ButtonType.Secondary} block onClick={onCancelListNftClick}>
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -279,7 +279,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <span>--</span>
             </div>
             {isOwner && (
-              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNft}>
+              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNftClick}>
                 {t('listNft')}
               </Button>
             )}
