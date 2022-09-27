@@ -304,12 +304,30 @@ export type CollectionTrend = {
   __typename?: 'CollectionTrend';
   collection?: Maybe<Collection>;
   floorPrice: Scalars['U64'];
+  oneDayFloorPriceChange: Scalars['U64'];
   oneDaySalesCount: Scalars['U64'];
+  oneDaySalesCountChange: Scalars['U64'];
   oneDayVolume: Scalars['U64'];
+  oneDayVolumeChange: Scalars['U64'];
+  prevOneDayFloorPrice: Scalars['U64'];
+  prevOneDaySalesCount: Scalars['U64'];
+  prevOneDayVolume: Scalars['U64'];
+  prevSevenDayFloorPrice: Scalars['U64'];
+  prevSevenDaySalesCount: Scalars['U64'];
+  prevSevenDayVolume: Scalars['U64'];
+  prevThirtyDayFloorPrice: Scalars['U64'];
+  prevThirtyDaySalesCount: Scalars['U64'];
+  prevThirtyDayVolume: Scalars['U64'];
+  sevenDayFloorPriceChange: Scalars['U64'];
   sevenDaySalesCount: Scalars['U64'];
+  sevenDaySalesCountChange: Scalars['U64'];
   sevenDayVolume: Scalars['U64'];
+  sevenDayVolumeChange: Scalars['U64'];
+  thirtyDayFloorPriceChange: Scalars['U64'];
   thirtyDaySalesCount: Scalars['U64'];
+  thirtyDaySalesCountChange: Scalars['U64'];
   thirtyDayVolume: Scalars['U64'];
+  thirtyDayVolumeChange: Scalars['U64'];
 };
 
 export type ConnectionCounts = {

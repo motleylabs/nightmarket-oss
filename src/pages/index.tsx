@@ -42,6 +42,7 @@ interface TrendingCollectionProps {
   marketcap: number;
   address: string;
   floorTrend: FloorData[];
+  timeFrame: CollectionInterval;
 }
 
 function TrendingCollection({
@@ -52,12 +53,24 @@ function TrendingCollection({
   sales,
   floorTrend,
   address,
+  timeFrame,
 }: TrendingCollectionProps) {
-  const priceChange = floorTrend[floorTrend.length - 1].price - floorTrend[0].price;
-  const priceChangePercentage = percentageDifference(
-    floorTrend[0].price,
-    floorTrend[floorTrend.length - 1].price
-  );
+  let currFloorPrice = floorTrend[floorTrend.length - 1].price;
+  let prevFloorPrice = 0;
+  switch (timeFrame) {
+    case CollectionInterval.OneDay:
+      prevFloorPrice = floorTrend[2].price;
+      break;
+    case CollectionInterval.SevenDay:
+      prevFloorPrice = floorTrend[1].price;
+      break;
+    case CollectionInterval.ThirtyDay:
+      prevFloorPrice = floorTrend[0].price;
+      break;
+  }
+  const priceChange = currFloorPrice - prevFloorPrice;
+  const priceChangePercentage =
+    prevFloorPrice === 0 ? 0 : percentageDifference(prevFloorPrice, currFloorPrice);
 
   const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
   return (
@@ -222,7 +235,7 @@ const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
 
-  const { watch, control } = useForm<TrendingCollectionForm>({
+  const { watch, control, getValues } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
@@ -374,14 +387,12 @@ const Home: NextPage = () => {
                               Number(trend.collection.nftCount)
                             }
                             floorTrend={[
-                              { price: Math.random() * 10 },
-                              { price: Math.random() * 50 },
-                              { price: Math.random() * 20 },
-                              { price: Math.random() * 60 },
-                              { price: Math.random() * 40 },
-                              { price: Math.random() * 100 },
-                              { price: trend.collection.floorPrice }, // TODO: get historical floor data into query
+                              { price: Number(trend.prevThirtyDayFloorPrice) },
+                              { price: Number(trend.prevSevenDayFloorPrice) },
+                              { price: Number(trend.prevOneDayFloorPrice) },
+                              { price: Number(trend.floorPrice) },
                             ]}
+                            timeFrame={getValues().filter}
                           />
                         </tr>
                       );

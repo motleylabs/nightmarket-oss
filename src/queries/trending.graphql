@@ -10,6 +10,10 @@ query TrendingCollectionsQuery(
     limit: 12
     offset: 0
   ) {
+    prevThirtyDayFloorPrice
+    prevSevenDayFloorPrice
+    prevOneDayFloorPrice
+    floorPrice
     collection {
       floorPrice
       nftCount
