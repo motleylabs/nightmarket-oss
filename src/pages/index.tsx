@@ -1,6 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useEffect } from 'react';
-import { subDays, formatISO } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -11,7 +10,6 @@ import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
 import {
-  Collection as CollectionType,
   CollectionInterval,
   CollectionSort,
   CollectionTrend,
@@ -185,8 +183,8 @@ function LoadingTrendingCollection() {
 }
 
 interface GetHomePageData {
-  collectionsFeaturedByVolume: CollectionType[];
-  collectionsFeaturedByMarketCap: CollectionType[];
+  collectionsFeaturedByVolume: CollectionTrend[];
+  collectionsFeaturedByMarketCap: CollectionTrend[];
   followWallets: Wallet[];
 }
 
@@ -204,11 +202,6 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
     ])),
   },
 });
-
-const now = new Date();
-const nowUTC = formatISO(now);
-const dayAgo = subDays(now, 1);
-const dayAgoUTC = formatISO(dayAgo);
 
 interface TrendingCollectionForm {
   filter: CollectionInterval;
@@ -235,8 +228,6 @@ const Home: NextPage = () => {
 
   const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery, {
     variables: {
-      startDate: dayAgoUTC,
-      endDate: nowUTC,
       userWallet: publicKey?.toBase58(),
     },
   });
@@ -366,31 +357,35 @@ const Home: NextPage = () => {
                     </tr>
                   </>
                 ) : (
-                  trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => (
-                    <tr key={`collection-${trend.collection?.mintAddress}-${i}`}>
-                      <TrendingCollection
-                        address={trend.collection?.nft.mintAddress ?? ''}
-                        key={`collection-${trend.collection?.nft.mintAddress}-${i}`}
-                        name={trend.collection?.nft.name ?? ''}
-                        image={trend.collection?.nft.image ?? ''}
-                        floor={trend.collection?.floorPrice}
-                        volume={trend.collection?.volumeTotal}
-                        sales={trend.collection?.holderCount}
-                        marketcap={
-                          Number(trend.collection?.floorPrice) * Number(trend.collection?.nftCount)
-                        }
-                        floorTrend={[
-                          { price: Math.random() * 10 },
-                          { price: Math.random() * 50 },
-                          { price: Math.random() * 20 },
-                          { price: Math.random() * 60 },
-                          { price: Math.random() * 40 },
-                          { price: Math.random() * 100 },
-                          { price: trend.collection?.floorPrice }, // TODO: get historical floor data into query
-                        ]}
-                      />
-                    </tr>
-                  ))
+                  trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+                    if (trend.collection)
+                      return (
+                        <tr key={`collection-${trend.collection.mintAddress}-${i}`}>
+                          <TrendingCollection
+                            address={trend.collection.nft.mintAddress}
+                            key={`collection-${trend.collection.nft.mintAddress}-${i}`}
+                            name={trend.collection.nft.name}
+                            image={trend.collection?.nft.image}
+                            floor={trend.collection.floorPrice}
+                            volume={trend.collection.volumeTotal}
+                            sales={trend.collection.holderCount}
+                            marketcap={
+                              Number(trend.collection.floorPrice) *
+                              Number(trend.collection.nftCount)
+                            }
+                            floorTrend={[
+                              { price: Math.random() * 10 },
+                              { price: Math.random() * 50 },
+                              { price: Math.random() * 20 },
+                              { price: Math.random() * 60 },
+                              { price: Math.random() * 40 },
+                              { price: Math.random() * 100 },
+                              { price: trend.collection.floorPrice }, // TODO: get historical floor data into query
+                            ]}
+                          />
+                        </tr>
+                      );
+                  })
                 )}
               </tbody>
             </table>
@@ -426,16 +421,17 @@ const Home: NextPage = () => {
               }}
               slidesPerView={1}
             >
-              {homeQueryResult.data?.collectionsFeaturedByVolume.map((collection) => {
-                return (
-                  <SwiperSlide key={collection.nft.address} className="p-2">
-                    <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
-                      <a>
-                        <Collection.Card collection={collection} />
-                      </a>
-                    </Link>
-                  </SwiperSlide>
-                );
+              {homeQueryResult.data?.collectionsFeaturedByVolume.map((trend) => {
+                if (trend.collection)
+                  return (
+                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
+                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
+                        <a>
+                          <Collection.Card collection={trend.collection} />
+                        </a>
+                      </Link>
+                    </SwiperSlide>
+                  );
               })}
             </Carousel>
           )}
@@ -470,16 +466,17 @@ const Home: NextPage = () => {
               }}
               slidesPerView={1}
             >
-              {homeQueryResult.data?.collectionsFeaturedByMarketCap.map((collection) => {
-                return (
-                  <SwiperSlide key={collection.nft.address} className="p-2">
-                    <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
-                      <a>
-                        <Collection.Card collection={collection} />
-                      </a>
-                    </Link>
-                  </SwiperSlide>
-                );
+              {homeQueryResult.data?.collectionsFeaturedByMarketCap.map((trend) => {
+                if (trend.collection)
+                  return (
+                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
+                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
+                        <a>
+                          <Collection.Card collection={trend.collection} />
+                        </a>
+                      </Link>
+                    </SwiperSlide>
+                  );
               })}
             </Carousel>
           )}
