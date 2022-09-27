@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useEffect } from 'react';
-import { subDays, formatISO, subHours, subMonths, startOfDay } from 'date-fns';
+import { subDays, formatISO } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -10,7 +10,6 @@ import TrendingCollectionQuery from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
-import ProfileCard from '../components/ProfileCard';
 import {
   Collection as CollectionType,
   CollectionInterval,
@@ -30,6 +29,7 @@ import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
+import { TableHeaderGroup } from '../components/TableHeaderGroup';
 
 type FloorData = {
   price: number;
@@ -205,21 +205,14 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
   },
 });
 
-enum DateOption {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-}
-
-const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
-
 const now = new Date();
 const nowUTC = formatISO(now);
 const dayAgo = subDays(now, 1);
 const dayAgoUTC = formatISO(dayAgo);
 
 interface TrendingCollectionForm {
-  filter: DateOption;
+  filter: CollectionInterval;
+  sort: CollectionSort;
 }
 
 interface TrendingCollectionVariables {
@@ -228,12 +221,16 @@ interface TrendingCollectionVariables {
   orderDirection: OrderDirection;
 }
 
+const DEFAULT_TIME_FRAME: CollectionInterval = CollectionInterval.SevenDay;
+const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
+const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
+
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
 
   const { watch, control } = useForm<TrendingCollectionForm>({
-    defaultValues: { filter: DEFAULT_DATE_OPTION },
+    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
   const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery, {
@@ -248,31 +245,20 @@ const Home: NextPage = () => {
     TrendingCollectionQuery,
     {
       variables: {
-        sortBy: CollectionSort.Volume,
-        timeFrame: CollectionInterval.OneDay,
-        orderDirection: OrderDirection.Desc,
+        sortBy: DEFAULT_SORT,
+        timeFrame: DEFAULT_TIME_FRAME,
+        orderDirection: DEFAULT_ORDER,
       },
     }
   );
 
   useEffect(() => {
-    const subscription = watch(({ filter }) => {
+    const subscription = watch(({ filter, sort }) => {
       let variables: TrendingCollectionVariables = {
-        sortBy: CollectionSort.Volume,
-        timeFrame: CollectionInterval.OneDay,
-        orderDirection: OrderDirection.Desc,
+        sortBy: sort ?? DEFAULT_SORT,
+        timeFrame: filter ?? DEFAULT_TIME_FRAME,
+        orderDirection: DEFAULT_ORDER,
       };
-      switch (filter) {
-        case DateOption.DAY:
-          variables.timeFrame = CollectionInterval.OneDay;
-          break;
-        case DateOption.WEEK:
-          variables.timeFrame = CollectionInterval.SevenDay;
-          break;
-        case DateOption.MONTH:
-          variables.timeFrame = CollectionInterval.ThirtyDay;
-          break;
-      }
       trendingCollectionsQuery.refetch(variables);
     });
     return subscription.unsubscribe;
@@ -301,13 +287,13 @@ const Home: NextPage = () => {
                 name={'filter'}
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
-                    <ButtonGroup.Option value={DateOption.DAY}>
+                    <ButtonGroup.Option value={CollectionInterval.OneDay}>
                       {t('trendingCollections.filters.day')}
                     </ButtonGroup.Option>
-                    <ButtonGroup.Option value={DateOption.WEEK}>
+                    <ButtonGroup.Option value={CollectionInterval.SevenDay}>
                       {t('trendingCollections.filters.week')}
                     </ButtonGroup.Option>
-                    <ButtonGroup.Option value={DateOption.MONTH}>
+                    <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
                       {t('trendingCollections.filters.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
@@ -317,25 +303,52 @@ const Home: NextPage = () => {
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
             <table className="w-full table-auto border-spacing-x-24 divide-y divide-gray-800">
-              <thead>
-                <tr>
-                  <th className=" pb-2 text-left text-xs font-normal text-gray-300">
-                    {t('trendingCollections.collection')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.floor')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.volume')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.sales')}
-                  </th>
-                  <th className="pb-2 text-right text-xs font-normal text-gray-300">
-                    {t('trendingCollections.trend')}
-                  </th>
-                </tr>
-              </thead>
+              <Controller
+                control={control}
+                name={'sort'}
+                render={({ field: { onChange, value } }) => (
+                  <TableHeaderGroup value={value} onChange={onChange} className="pt-4">
+                    <TableHeaderGroup.Option
+                      value={DEFAULT_SORT}
+                      active={false}
+                      disabled
+                      classname="pb-2 justify-start"
+                    >
+                      {t('trendingCollections.collection')}
+                    </TableHeaderGroup.Option>
+
+                    <TableHeaderGroup.Option
+                      value={CollectionSort.Floor}
+                      active={value === CollectionSort.Floor}
+                      classname="pl-4 pb-2 lg:pl-0 justify-start"
+                    >
+                      {t('trendingCollections.floor')}
+                    </TableHeaderGroup.Option>
+                    <TableHeaderGroup.Option
+                      value={CollectionSort.Volume}
+                      active={value === CollectionSort.Volume}
+                      classname="pl-4 pb-2 lg:pl-0 justify-start"
+                    >
+                      {t('trendingCollections.volume')}
+                    </TableHeaderGroup.Option>
+                    <TableHeaderGroup.Option
+                      value={CollectionSort.NumberSales}
+                      active={value === CollectionSort.NumberSales}
+                      classname="pl-4 pb-2 lg:pl-0 justify-start"
+                    >
+                      {t('trendingCollections.sales')}
+                    </TableHeaderGroup.Option>
+                    <TableHeaderGroup.Option
+                      value={DEFAULT_SORT}
+                      active={false}
+                      disabled
+                      classname="pb-2 justify-end"
+                    >
+                      {t('trendingCollections.trend')}
+                    </TableHeaderGroup.Option>
+                  </TableHeaderGroup>
+                )}
+              />
               <tbody className="mt-2 divide-y divide-gray-800">
                 {trendingCollectionsQuery.loading ? (
                   <>
