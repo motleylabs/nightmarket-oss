@@ -81,13 +81,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               )}
             </>
           )}
-          <span className="truncate">{nft.name}</span>
-        </div>
-        <div className="flex flex-row items-center justify-between">
-          {nft.listing && <span className="text-lg">{nft.listing?.solPrice} SOL</span>}
-          <Button type={ButtonType.Primary} size={ButtonSize.Small}>
-            {t('buy')}
-          </Button>
         </div>
       </div>
     </div>
