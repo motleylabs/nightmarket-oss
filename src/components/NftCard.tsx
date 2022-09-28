@@ -1,6 +1,8 @@
+import { useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
 import Icon from './Icon';
@@ -19,7 +21,11 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
     (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
   );
 
+  const viewer = useReactiveVar(viewerVar);
+
   const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+
+  const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
   return (
     <div className="overflow-clip rounded-md text-white shadow-lg transition hover:scale-[1.02]">
@@ -48,29 +54,33 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
           </a>
         </Link>
         <div className="relative flex flex-row items-center justify-between">
-          {listing ? (
+          {isOwner ? (
             <>
-              <span className="text-lg">{listing.previewPrice} SOL</span>
-              <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
-                {t('buy')}
+              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
+              <Button disabled type={ButtonType.Ghost} size={ButtonSize.Small}>
+                {t('owned')}
               </Button>
             </>
           ) : (
             <>
-              {/* TODO: last sale price */}
-              <span className="text-lg"></span>
-              <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
-                {t('offer')}
-              </Button>
+              {listing ? (
+                <>
+                  <span className="text-lg">{listing?.previewPrice} SOL</span>
+                  <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
+                    {t('buy')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* TODO: last sale price */}
+                  <span className="text-lg"></span>
+                  <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
+                    {t('offer')}
+                  </Button>
+                </>
+              )}
             </>
           )}
-          <span className="truncate">{nft.name}</span>
-        </div>
-        <div className="flex flex-row items-center justify-between">
-          {nft.listing && <span className="text-lg">{nft.listing?.solPrice} SOL</span>}
-          <Button type={ButtonType.Primary} size={ButtonSize.Small}>
-            {t('buy')}
-          </Button>
         </div>
       </div>
     </div>

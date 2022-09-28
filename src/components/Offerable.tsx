@@ -41,8 +41,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   };
 
   const handleOffer = async ({ amount }: { amount: string }) => {
-    const offerAmount = Number(amount);
-    console.log(offerAmount);
+    if (data?.nft && data?.marketplace) {
+      onMakeOffer({ amount, nft: data?.nft, marketplace: data.marketplace });
+    }
   };
 
   const [offerableQuery, { data, loading, refetch, previousData }] =
@@ -54,6 +55,8 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     onMakeOffer,
     handleSubmitOffer,
     onCancelOffer,
+    onCloseOffer,
+    onOpenOffer,
     offerFormState,
   } = useMakeOffer();
 
@@ -206,7 +209,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCancelOffer();
+                        onCloseOffer();
                         setOpen(false);
                       }}
                       type={ButtonType.Secondary}

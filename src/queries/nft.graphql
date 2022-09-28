@@ -12,6 +12,7 @@ query NftQuery($address: String!, $subdomain: String!) {
       treasuryMint
       authority
       auctionHouseFeeAccount
+      auctionHouseTreasury
     }
   }
 
@@ -110,6 +111,9 @@ query NftMarketInfoQuery($address: String!) {
     mintAddress
     listings {
       ...ListingInfo
+      previewPrice @client
+      tradeState
+      tradeStateBump
     }
   }
 }

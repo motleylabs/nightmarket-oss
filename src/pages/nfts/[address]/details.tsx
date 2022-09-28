@@ -173,7 +173,7 @@ NftDetails.getLayout = function NftDetailsLayout({
   marketplace,
 }: NftDetailsLayoutProps): JSX.Element {
   return (
-    <NftLayout nft={nft} marketplace={marketplace}>
+    <NftLayout marketplace={marketplace} nft={nft}>
       {children}
     </NftLayout>
   );

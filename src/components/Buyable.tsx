@@ -1,5 +1,5 @@
 import { useTranslation } from 'next-i18next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Marketplace, Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
@@ -40,7 +40,22 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
-  const { buy, registerBuy, onBuyNow, handleSubmitBuy, onCancelBuy, buyFormState } = useBuyNow();
+  const nightmarketListings = data?.nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
+  );
+  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+
+  const { onBuyNow, handleSubmitBuy, onCloseBuy, buyFormState, setValue } = useBuyNow();
+  useEffect(() => {
+    setValue('amount', listing?.price.toString());
+    // TODO: handle form errors somehow
+  }, [setValue, listing]);
+
+  const handleBuy = async () => {
+    if (data?.nft && data.marketplace && data.nft.listings && listing) {
+      onBuyNow({ marketplace: data.marketplace, nft: data.nft, ahListing: listing });
+    }
+  };
 
   return (
     <div>
@@ -86,7 +101,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               </section>
             </>
           ) : (
-            <Form onSubmit={handleSubmitBuy(onBuyNow)} className="flex flex-col gap-6">
+            <Form onSubmit={handleSubmitBuy(handleBuy)} className="flex flex-col gap-6">
               <section id={'preview-card'} className="flex flex-row gap-4">
                 <img
                   src={data?.nft.image}
@@ -161,7 +176,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCancelBuy();
+                        onCloseBuy();
                         setOpen(false);
                       }}
                       type={ButtonType.Secondary}
