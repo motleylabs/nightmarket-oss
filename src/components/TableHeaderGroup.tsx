@@ -17,9 +17,15 @@ export function TableHeaderGroup<T>({
   className,
 }: TableHeaderGroupProps<T>): JSX.Element {
   return (
-    <RadioGroup value={value} onChange={onChange} className={clsx('table-header-group', className)}>
-      {children}
-    </RadioGroup>
+    <thead>
+      <RadioGroup
+        value={value}
+        onChange={onChange}
+        className={clsx('table-header-group', className)}
+      >
+        {children}
+      </RadioGroup>
+    </thead>
   );
 }
 

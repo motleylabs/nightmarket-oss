@@ -46,6 +46,17 @@ extend type Collection {
   compactNftCount: String
 }
 
+extend type CollectionTrend {
+  compactNftCount: String
+  compactFloorPrice: String
+  compactOneDayVolume: String
+  compactOneDaySalesCount: String
+  compactSevenDayVolume: String
+  compactSevenDaySalesCount: String
+  compactThirtyDayVolume: String
+  compactThirtyDaySalesCount: String
+}
+
 extend type NftActivity {
   solPrice: Int
   timeSince: String

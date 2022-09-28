@@ -10,15 +10,29 @@ query TrendingCollectionsQuery(
     limit: 12
     offset: 0
   ) {
-    prevThirtyDayFloorPrice
-    prevSevenDayFloorPrice
-    prevOneDayFloorPrice
     floorPrice
+    compactFloorPrice @client
+    nftCount
+    compactNftCount @client
+    oneDayVolume
+    compactOneDayVolume @client
+    sevenDayVolume
+    compactSevenDayVolume @client
+    thirtyDayVolume
+    compactThirtyDayVolume @client
+    oneDayFloorPriceChange
+    sevenDayFloorPriceChange
+    thirtyDayFloorPriceChange
+    oneDayVolumeChange
+    sevenDayVolumeChange
+    thirtyDayVolumeChange
+    oneDaySalesCount
+    compactOneDaySalesCount @client
+    sevenDaySalesCount
+    compactSevenDaySalesCount @client
+    thirtyDaySalesCount
+    compactThirtyDaySalesCount @client
     collection {
-      floorPrice
-      nftCount
-      volumeTotal
-      holderCount
       nft {
         address
         mintAddress

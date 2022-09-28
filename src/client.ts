@@ -301,6 +301,90 @@ const client = new ApolloClient({
           },
         },
       },
+      CollectionTrend: {
+        fields: {
+          compactNftCount: {
+            read(_, { readField }): string {
+              const nftCount: string | undefined = readField('nftCount');
+              if (!nftCount) {
+                return '0';
+              }
+
+              return asCompactNumber(parseInt(nftCount));
+            },
+          },
+          compactOneDayVolume: {
+            read(_, { readField }): string {
+              const oneDayVolume: string | undefined = readField('oneDayVolume');
+              if (!oneDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(oneDayVolume)));
+            },
+          },
+          compactOneDaySalesCount: {
+            read(_, { readField }): string {
+              const oneDaySalesCount: number | undefined = readField('oneDaySalesCount');
+              if (!oneDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(oneDaySalesCount);
+            },
+          },
+          compactSevenDayVolume: {
+            read(_, { readField }): string {
+              const sevenDayVolume: string | undefined = readField('sevenDayVolume');
+              if (!sevenDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(sevenDayVolume)));
+            },
+          },
+          compactSevenDaySalesCount: {
+            read(_, { readField }): string {
+              const sevenDaySalesCount: number | undefined = readField('sevenDaySalesCount');
+              if (!sevenDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(sevenDaySalesCount);
+            },
+          },
+          compactThirtyDayVolume: {
+            read(_, { readField }): string {
+              const thirtyDayVolume: string | undefined = readField('thirtyDayVolume');
+              if (!thirtyDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(thirtyDayVolume)));
+            },
+          },
+          compactThirtyDaySalesCount: {
+            read(_, { readField }): string {
+              const thirtyDaySalesCount: number | undefined = readField('thirtyDaySalesCount');
+              if (!thirtyDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(thirtyDaySalesCount);
+            },
+          },
+          compactFloorPrice: {
+            read(_, { readField }): string {
+              const floorPrice: string | undefined = readField('floorPrice');
+              if (!floorPrice) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(floorPrice)));
+            },
+          },
+        },
+      },
       Collection: {
         fields: {
           floorPrice: {

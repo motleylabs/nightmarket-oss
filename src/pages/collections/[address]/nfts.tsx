@@ -35,6 +35,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       address: params?.address,
     },
   });
+  console.log(data);
   const collection: Collection = data.collection;
 
   if (collection === null) {
