@@ -373,7 +373,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 >
                   <Icon.Sol />
                   <input
-                    {...registerListNft('amount', { required: true })}
+                    // {...registerListNft('amount', { required: true })}
                     autoFocus
                     className={clsx('w-full bg-transparent pl-2')}
                   />
