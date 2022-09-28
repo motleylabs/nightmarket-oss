@@ -8,6 +8,11 @@
     "floorPrice": "{{price}}",
     "count": "{{amount}} NFTs"
   },
+  "sort": {
+    "priceHighToLow": "Price High to Low",
+    "priceLowToHigh": "Price Low to High",
+    "recentlyListed": "Recently listed"
+  },
   "floorPrice": "Floor price",
   "estimatedValue": "Est. value",
   "supply": "Supply",

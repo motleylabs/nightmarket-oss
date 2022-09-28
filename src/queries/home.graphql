@@ -1,63 +1,43 @@
-#import "./fragments/profile.graphql"
-
-query HomePageQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!, $userWallet: PublicKey) {
-  collectionsFeaturedByVolume(
-    startDate: $startDate
-    endDate: $endDate
+query HomePageQuery {
+  collectionsFeaturedByVolume: collectionTrends(
+    sortBy: VOLUME
+    timeFrame: ONE_DAY
+    orderDirection: DESC
     limit: 12
     offset: 0
-    orderDirection: DESC
   ) {
     floorPrice
+    compactFloorPrice @client
     nftCount
     compactNftCount @client
-    volumeTotal
-    holderCount
-    nft {
-      address
-      mintAddress
-      name
-      image
+    collection {
+      nft {
+        address
+        mintAddress
+        name
+        image
+      }
     }
   }
 
-  collectionsFeaturedByMarketCap(
-    startDate: $startDate
-    endDate: $endDate
+  collectionsFeaturedByMarketCap: collectionTrends(
+    sortBy: MARKETCAP
+    timeFrame: ONE_DAY
+    orderDirection: DESC
     limit: 12
     offset: 0
-    orderDirection: DESC
   ) {
-    floorPrice
     nftCount
     compactNftCount @client
-    nft {
-      address
-      mintAddress
-      name
-      image
-    }
-  }
-
-  followWallets(wallet: $userWallet, limit: 18, offset: 0) {
-    address
-    displayName @client
-    previewImage @client
-    previewBanner @client
-    compactFollowerCount @client
-    compactFollowingCount @client
-    compactOwnedCount @client
-    compactCreatedCount @client
-    connectionCounts {
-      toCount
-      fromCount
-    }
-    profile {
-      ...ProfileInfo
-    }
-    nftCounts {
-      owned
-      created
+    floorPrice
+    compactFloorPrice @client
+    collection {
+      nft {
+        address
+        mintAddress
+        name
+        image
+      }
     }
   }
 }

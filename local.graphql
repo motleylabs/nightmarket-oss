@@ -15,6 +15,7 @@ type NftMarketplace {
 extend type AhListing {
   nftMarketplace: NftMarketplace
   previewPrice: String
+  solPrice: Int
 }
 
 extend type Offer {
@@ -33,6 +34,7 @@ extend type Nft {
   shortAddress: String
   shortMintAddress: String
   royalties: Int
+  listing: AhListing
 }
 
 extend type Offer {
@@ -44,6 +46,17 @@ extend type Collection {
   compactVolumeTotal: String
   compactFloorPrice: String
   compactNftCount: String
+}
+
+extend type CollectionTrend {
+  compactNftCount: String
+  compactFloorPrice: String
+  compactOneDayVolume: String
+  compactOneDaySalesCount: String
+  compactSevenDayVolume: String
+  compactSevenDaySalesCount: String
+  compactThirtyDayVolume: String
+  compactThirtyDaySalesCount: String
 }
 
 extend type NftActivity {
