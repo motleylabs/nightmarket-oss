@@ -1,20 +1,44 @@
-query TrendingCollectionsQuery($startDate: DateTimeUtc!, $endDate: DateTimeUtc!) {
-  collectionsFeaturedByVolume(
-    startDate: $startDate
-    endDate: $endDate
+query TrendingCollectionsQuery(
+  $sortBy: CollectionSort!
+  $timeFrame: CollectionInterval!
+  $orderDirection: OrderDirection!
+) {
+  collectionTrends(
+    sortBy: $sortBy
+    timeFrame: $timeFrame
+    orderDirection: $orderDirection
     limit: 12
     offset: 0
-    orderDirection: DESC
   ) {
     floorPrice
+    compactFloorPrice @client
     nftCount
-    volumeTotal
-    holderCount
-    nft {
-      address
-      mintAddress
-      name
-      image
+    compactNftCount @client
+    oneDayVolume
+    compactOneDayVolume @client
+    sevenDayVolume
+    compactSevenDayVolume @client
+    thirtyDayVolume
+    compactThirtyDayVolume @client
+    oneDayFloorPriceChange
+    sevenDayFloorPriceChange
+    thirtyDayFloorPriceChange
+    oneDayVolumeChange
+    sevenDayVolumeChange
+    thirtyDayVolumeChange
+    oneDaySalesCount
+    compactOneDaySalesCount @client
+    sevenDaySalesCount
+    compactSevenDaySalesCount @client
+    thirtyDaySalesCount
+    compactThirtyDaySalesCount @client
+    collection {
+      nft {
+        address
+        mintAddress
+        name
+        image
+      }
     }
   }
 }

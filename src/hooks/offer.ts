@@ -58,7 +58,6 @@ export default function useMakeOffer(): MakeOfferContext {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
     reset,
-    getValues,
     formState: offerFormState,
   } = useForm<OfferForm>({
     resolver: zodResolver(schema),

@@ -1,5 +1,6 @@
 #import "./profile.graphql"
 #import "./listingpreview.graphql"
+#import "./listing.graphql"
 
 fragment NftInfo on Nft {
   image
@@ -31,5 +32,16 @@ fragment NftInfo on Nft {
   listings {
     ...ListingPreview
     previewPrice @client
+  }
+}
+
+fragment NftListingInfo on Nft {
+  ...NftInfo
+
+  listing @client {
+    ...ListingInfo
+  }
+  listings {
+    ...ListingInfo
   }
 }
