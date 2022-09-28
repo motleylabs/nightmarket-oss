@@ -14,6 +14,7 @@ import {
   NftMarketplace,
   AuctionHouse,
   Wallet,
+  AhListing,
 } from './graphql.types';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -393,6 +394,7 @@ const client = new ApolloClient({
             },
           },
           activities: offsetLimitPagination(['$eventTypes']),
+          nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),
           compactNftCount: {
             read(_, { readField }): string {
               const nftCount: string | undefined = readField('nftCount');
@@ -433,9 +435,6 @@ const client = new ApolloClient({
           listedCount: {
             read: asCompactNumber,
           },
-          // holderCount: {
-          //   read: asCompactNumber,
-          // },
         },
       },
       CollectedCollection: {
@@ -525,6 +524,14 @@ const client = new ApolloClient({
               return sellerFeeBasisPoints / 100;
             },
           },
+          listing: {
+            read(_, { readField }): AhListing | undefined {
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              return listings?.find(
+                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
+              );
+            },
+          },
         },
       },
       Creator: {
@@ -569,6 +576,9 @@ const client = new ApolloClient({
           },
           nftMarketplace: {
             read: asNftMarketplace,
+          },
+          solPrice: {
+            read: asSOL,
           },
         },
       },

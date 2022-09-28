@@ -14,7 +14,6 @@ import {
   CollectionSort,
   CollectionTrend,
   OrderDirection,
-  Wallet,
   Maybe,
 } from '../graphql.types';
 import Carousel from '../components/Carousel';
@@ -22,28 +21,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import { Area, AreaChart } from 'recharts';
-import { percentageDifference, asBasicNumber } from '../modules/number';
 import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
-import { TableHeaderGroup } from '../components/TableHeaderGroup';
-
-type FloorData = {
-  price: number;
-};
-
-interface TrendingCollectionProps {
-  name: string;
-  image: string;
-  floor: number;
-  volume: number;
-  sales: number;
-  marketcap: number;
-  address: string;
-  timeFrame: CollectionInterval;
-}
 
 function LoadingTrendingCollection() {
   return (
