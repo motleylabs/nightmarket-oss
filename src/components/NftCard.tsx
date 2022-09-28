@@ -25,7 +25,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
 
   const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
 
-  const isOwner = viewer?.address === nft.owner?.address;
+  const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
   return (
     <div className="overflow-clip rounded-md text-white shadow-lg transition hover:scale-[1.02]">
@@ -56,7 +56,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         <div className="relative flex flex-row items-center justify-between">
           {isOwner ? (
             <>
-              <span className="text-lg">{listing.previewPrice} SOL</span>
+              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
               <Button disabled type={ButtonType.Ghost} size={ButtonSize.Small}>
                 {t('owned')}
               </Button>
@@ -65,7 +65,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             <>
               {listing ? (
                 <>
-                  <span className="text-lg">{listing.previewPrice} SOL</span>
+                  <span className="text-lg">{listing?.previewPrice} SOL</span>
                   <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
                     {t('buy')}
                   </Button>
@@ -74,7 +74,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 <>
                   {/* TODO: last sale price */}
                   <span className="text-lg"></span>
-                  <Button onClick={onMakeOffer} type={ButtonType.Secondary} size={ButtonSize.Small}>
+                  <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
                     {t('offer')}
                   </Button>
                 </>
