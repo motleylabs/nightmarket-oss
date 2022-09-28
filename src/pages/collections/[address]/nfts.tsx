@@ -9,15 +9,13 @@ import { useForm, Controller } from 'react-hook-form';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AttributeFilter, Collection, Nft, Scalars } from '../../../graphql.types';
+import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
 import { Listbox } from '@headlessui/react';
@@ -25,6 +23,7 @@ import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
+import { ControlledSelect } from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -35,6 +34,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       address: params?.address,
     },
   });
+  console.log(data);
   const collection: Collection = data.collection;
 
   if (collection === null) {
@@ -52,15 +52,17 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 }
 
 interface CollectionNFTsData {
-  nfts: Nft[];
+  collection: Collection;
 }
 
 interface CollectionNFTsVariables {
   offset: number;
   limit: number;
-  collection: string;
-  listed: boolean | null;
+  address: string;
+  //listed: boolean | null;
   attributes: AttributeFilter[] | null;
+  sortBy: NftSort;
+  order: OrderDirection;
 }
 
 interface CollectionAttributeGroupsData {
@@ -79,17 +81,45 @@ enum ListedStatus {
 interface CollectionNFTForm {
   listed: ListedStatus;
   attributes: { [key: string]: string[] };
+  sortBySelect: SortOption;
+}
+
+enum SortType {
+  RecentlyListed,
+  PriceLowToHigh,
+  PriceHighToLow,
+}
+interface SortOption {
+  label: string;
+  value: SortType;
 }
 
 export default function CollectionNfts() {
   const { t } = useTranslation(['collection', 'common']);
-  const { watch, control, getValues } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All },
-  });
+
   const { publicKey } = useWallet();
+
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [hasMore, setHasMore] = useState(true);
+
+  const sortOptions: SortOption[] = [
+    {
+      value: SortType.PriceHighToLow,
+      label: t('sort.priceHighToLow'),
+    },
+    {
+      value: SortType.PriceLowToHigh,
+      label: t('sort.priceLowToHigh'),
+    },
+    { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
+  ];
+
+  const [sortOption, setSortOption] = useState<SortOption>(sortOptions[0]);
+
+  const { watch, control, getValues } = useForm<CollectionNFTForm>({
+    defaultValues: { listed: ListedStatus.All, sortBySelect: sortOption },
+  });
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -104,20 +134,26 @@ export default function CollectionNfts() {
     variables: {
       offset: 0,
       limit: 24,
-      listed: null,
-      collection: router.query.address as string,
+      address: router.query.address as string,
       attributes: null,
+      order:
+        sortOption?.value === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc,
+      sortBy: sortOption?.value === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
     },
   });
 
   useEffect(() => {
-    const subscription = watch(({ listed, attributes }) => {
+    const subscription = watch(({ attributes, sortBySelect }) => {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
-        collection: router.query.address as string,
-        listed: null,
+        address: router.query.address as string,
         attributes: null,
+        sortBy: sortBySelect?.value === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
+        order:
+          sortBySelect?.value === SortType.PriceLowToHigh
+            ? OrderDirection.Asc
+            : OrderDirection.Desc,
       };
 
       const nextAttributes = Object.entries(attributes || {}).reduce(
@@ -135,14 +171,9 @@ export default function CollectionNfts() {
         variables.attributes = nextAttributes;
       }
 
-      if (listed === ListedStatus.Listed) {
-        variables.listed = true;
-      } else if (listed === ListedStatus.Unlisted) {
-        variables.listed = false;
-      }
 
-      nftsQuery.refetch(variables).then(({ data: { nfts } }) => {
-        setHasMore(nfts.length > 0);
+      nftsQuery.refetch(variables).then(({ data: { collection } }) => {
+        setHasMore(collection.nfts.length > 0);
       });
     });
 
@@ -153,7 +184,7 @@ export default function CollectionNfts() {
     <>
       <Toolbar>
         <Sidebar.Control open={open} onChange={toggleSidebar} />
-        <Controller
+        {/* <Controller
           control={control}
           name="listed"
           render={({ field: { onChange, value } }) => (
@@ -169,7 +200,8 @@ export default function CollectionNfts() {
               </ButtonGroup.Option>
             </ButtonGroup>
           )}
-        />
+        /> */}
+        <ControlledSelect control={control} id="sortBySelect" options={sortOptions} />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
@@ -221,7 +253,6 @@ export default function CollectionNfts() {
             )}
           </div>
         </Sidebar.Panel>
-
         <Sidebar.Content>
           <Offerable connected={Boolean(publicKey)}>
             {({ makeOffer }) => (
@@ -229,7 +260,7 @@ export default function CollectionNfts() {
                 {({ buyNow }) => (
                   <List
                     expanded={open}
-                    data={nftsQuery.data?.nfts}
+                    data={nftsQuery.data?.collection.nfts}
                     loading={nftsQuery.loading}
                     hasMore={hasMore}
                     gap={4}
@@ -246,17 +277,17 @@ export default function CollectionNfts() {
                       if (!inView) {
                         return;
                       }
-
+                      
                       const {
-                        data: { nfts },
+                        data: { collection },
                       } = await nftsQuery.fetchMore({
                         variables: {
                           ...nftsQuery.variables,
-                          offset: nftsQuery.data?.nfts.length,
+                          offset: nftsQuery.data?.collection.nfts.length,
                         },
                       });
 
-                      setHasMore(nfts.length > 0);
+                      setHasMore(collection.nfts.length > 0);
                     }}
                     render={(nft, i) => (
                       <NftCard
