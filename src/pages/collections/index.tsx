@@ -263,7 +263,11 @@ const Collections: NextPage = () => {
                 passHref
               >
                 <a>
-                  <CollectionUI.Card collection={collection} />
+                  <CollectionUI.Card
+                    nft={collection.nft}
+                    nftCount={collection.compactNftCount}
+                    floorPrice={collection.compactFloorPrice}
+                  />
                 </a>
               </Link>
             )}
