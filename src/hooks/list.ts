@@ -67,7 +67,7 @@ export default function useListNft(defaultValues: ListNftDefaultValues): ListNft
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
-        new BN('18446744073709551615'),
+        new BN('18446744073709551615').toNumber(),
         1
       );
 
