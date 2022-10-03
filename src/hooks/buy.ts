@@ -26,6 +26,7 @@ import {
   findPurchaseTicketAddress,
   findRewardCenter,
 } from '../modules/reward-center/pdas';
+import config from '../app.config';
 
 interface BuyForm {
   amount?: number;
@@ -130,11 +131,45 @@ export default function useBuyNow(): BuyContext {
       const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
       const [purchaseTicket] = await findPurchaseTicketAddress(listing, offer);
 
+      const token = new PublicKey(config.rewardCenter.token);
+
+      const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        publicKey
+      );
+
+      const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        buyerRewardTokenAccount,
+        publicKey,
+        publicKey
+      );
+
+      const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        seller
+      );
+
+      const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        sellerRewardTokenAccount,
+        seller,
+        publicKey
+      );
+
       const accounts: ExecuteSaleInstructionAccounts = {
         buyer: publicKey,
-        buyerRewardTokenAccount: new PublicKey(''), // TODO
+        buyerRewardTokenAccount,
         seller,
-        sellerRewardTokenAccount: new PublicKey(''), // TODO
+        sellerRewardTokenAccount,
         listing,
         offer,
         payer: publicKey,
@@ -154,7 +189,7 @@ export default function useBuyNow(): BuyContext {
         buyerTradeState,
         freeSellerTradeState,
         rewardCenter,
-        rewardCenterRewardTokenAccount: new PublicKey(''), // TODO
+        rewardCenterRewardTokenAccount: new PublicKey(config.rewardCenter.ata), // TODO
         ahAuctioneerPda: auctioneer,
         programAsSigner,
         auctionHouseProgram: AuctionHouseProgram.PUBKEY,
@@ -174,6 +209,8 @@ export default function useBuyNow(): BuyContext {
       const instruction = createExecuteSaleInstruction(accounts, args);
       const tx = new Transaction();
 
+      tx.add(buyerATAInstruction);
+      tx.add(sellerATAInstruction);
       tx.add(instruction);
       const recentBlockhash = await connection.getLatestBlockhash();
       tx.recentBlockhash = recentBlockhash.blockhash;

@@ -65,6 +65,12 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     offerFormState,
   } = useMakeOffer();
 
+  const handleOffer = async ({ amount }: { amount: string }) => {
+    if (amount && nft && marketplace) {
+      onMakeOffer({ amount, nft, marketplace });
+    }
+  };
+
   const {
     buy,
     registerBuy,
@@ -86,17 +92,16 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
     listNft,
     handleSubmitListNft,
     registerListNft,
+    onSubmitListNft,
     onCancelListNftClick,
     onListNftClick,
     listNftState,
-  } = useListNft({
-    nft,
-    marketplace,
-  });
+  } = useListNft();
 
-  const handleOffer = async ({ amount }: { amount: string }) => {
+  const handleList = async ({ amount }: { amount: string }) => {
+    console.log(`list`, amount);
     if (amount && nft && marketplace) {
-      onMakeOffer({ amount, nft, marketplace });
+      onSubmitListNft({ amount, nft, marketplace });
     }
   };
 
@@ -378,7 +383,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         )}
         {listNft && (
           <Form
-            onSubmit={handleSubmitListNft(() => {})}
+            onSubmit={handleSubmitListNft(handleList)}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
@@ -426,7 +431,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 >
                   <Icon.Sol />
                   <input
-                    // {...registerListNft('amount', { required: true })}
+                    {...registerListNft('amount', { required: true })}
                     autoFocus
                     className={clsx('w-full bg-transparent pl-2')}
                   />

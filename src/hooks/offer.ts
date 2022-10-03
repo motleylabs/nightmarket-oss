@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Marketplace, Nft } from '../graphql.types';
+import { Marketplace, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import {
   createCreateOfferInstruction,
@@ -13,13 +13,15 @@ import {
   createUpdateOfferInstruction,
   UpdateOfferInstructionAccounts,
   UpdateOfferInstructionArgs,
-  createCancelOfferInstruction,
-  CancelOfferInstructionAccounts,
-  CancelOfferInstructionArgs,
-} from '@holaplex/hpl-reward-center';
+  createCloseOfferInstruction,
+  CloseOfferInstructionAccounts,
+  CloseOfferInstructionArgs,
+} from '@holaplex/mpl-reward-center';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
 import { toLamports } from '../modules/sol';
+import config from '../app.config';
 
 interface OfferForm {
   amount: string;
@@ -28,6 +30,10 @@ interface OfferForm {
 interface MakeOfferForm extends OfferForm {
   nft: Nft;
   marketplace: Marketplace;
+}
+
+interface CancelOfferForm extends MakeOfferForm {
+  ahOffer: Offer;
 }
 
 const schema = zod.object({
@@ -43,7 +49,7 @@ interface MakeOfferContext {
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
   onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
   onUpdateOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
-  onCancelOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
+  onCancelOffer: ({ amount, nft, marketplace, ahOffer }: CancelOfferForm) => Promise<void>;
   onOpenOffer: () => void;
   onCloseOffer: () => void;
   offerFormState: FormState<OfferForm>;
@@ -202,6 +208,24 @@ export default function useMakeOffer(): MakeOfferContext {
 
       const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
 
+      const token = new PublicKey(config.rewardCenter.token);
+
+      const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        publicKey
+      );
+
+      const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        buyerRewardTokenAccount,
+        publicKey,
+        publicKey
+      );
+
       const accounts: UpdateOfferInstructionAccounts = {
         wallet: publicKey,
         offer,
@@ -250,7 +274,7 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
-  const onCancelOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+  const onCancelOffer = async ({ amount, nft, marketplace, ahOffer }: CancelOfferForm) => {
     if (connected && publicKey && signTransaction) {
       const ah = marketplace.auctionHouses[0];
       const auctionHouse = new PublicKey(ah.address);
@@ -267,6 +291,9 @@ export default function useMakeOffer(): MakeOfferContext {
 
       const [escrowPaymentAcc, escrowPaymentBump] =
         await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+
+      const [buyerReceiptTokenAccount] =
+        await AuctionHouseProgram.findAssociatedTokenAccountAddress(tokenMint, publicKey);
 
       const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
@@ -289,7 +316,7 @@ export default function useMakeOffer(): MakeOfferContext {
         offer,
         treasuryMint,
         tokenAccount: associatedTokenAcc,
-        receiptAccount: new PublicKey(''), // TODO
+        receiptAccount: buyerReceiptTokenAccount,
         escrowPaymentAccount: escrowPaymentAcc,
         metadata,
         tokenMint,

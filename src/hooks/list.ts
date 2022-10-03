@@ -13,9 +13,13 @@ import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 
 import BN from 'bn.js';
 import { RewardCenterProgram } from '../modules/reward-center/RewardCenterProgram';
+import { toLamports } from '../modules/sol';
 
 interface ListNftForm {
-  amount: number;
+  amount: string;
+}
+
+interface ListingDetailsForm extends ListNftForm {
   nft: Nft;
   marketplace: Marketplace;
 }
@@ -27,7 +31,7 @@ interface ListNftContext {
   onListNftClick: () => void;
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
-  onSubmitListNft: (form: ListNftForm) => Promise<void>;
+  onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
 }
 
 interface ListNftDefaultValues {
@@ -35,8 +39,8 @@ interface ListNftDefaultValues {
   marketplace: Marketplace;
 }
 
-export default function useListNft(defaultValues: ListNftDefaultValues): ListNftContext {
-  const { connected, publicKey } = useWallet();
+export default function useListNft(): ListNftContext {
+  const { connected, publicKey, signTransaction } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
 
@@ -46,13 +50,13 @@ export default function useListNft(defaultValues: ListNftDefaultValues): ListNft
     handleSubmit: handleSubmitListNft,
     reset,
     formState: listNftState,
-  } = useForm<ListNftForm>({ defaultValues });
+  } = useForm<ListNftForm>();
 
-  const onSubmitListNft = async ({ amount, nft, marketplace }: ListNftForm) => {
-    if (connected && publicKey) {
+  const onSubmitListNft = async ({ amount, nft, marketplace }: ListingDetailsForm) => {
+    if (connected && publicKey && signTransaction) {
       const ah = marketplace.auctionHouses[0];
       const auctionHouse = new PublicKey(ah.address);
-      const buyerPrice = amount;
+      const buyerPrice = toLamports(Number(amount));
       const authority = new PublicKey(ah.authority);
       const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
       const treasuryMint = new PublicKey(ah.treasuryMint);
@@ -67,7 +71,7 @@ export default function useListNft(defaultValues: ListNftDefaultValues): ListNft
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
-        new BN('18446744073709551615').toNumber(),
+        buyerPrice,
         1
       );
 
@@ -126,9 +130,20 @@ export default function useListNft(defaultValues: ListNftDefaultValues): ListNft
       tx.add(instruction);
       const recentBlockhash = await connection.getLatestBlockhash();
       tx.recentBlockhash = recentBlockhash.blockhash;
-      const txtId = await connection.sendRawTransaction(tx.serialize());
+      tx.feePayer = publicKey;
 
-      if (txtId) await connection.confirmTransaction(txtId, 'confirmed');
+      try {
+        const signedTx = await signTransaction(tx);
+        const txtId = await connection.sendRawTransaction(tx.serialize());
+        if (txtId) {
+          await connection.confirmTransaction(txtId, 'confirmed');
+          console.log(`confirmed`);
+        }
+      } catch (err) {
+        console.log('Error whilst listing nft', err);
+      } finally {
+        setListNft(true);
+      }
     }
   };
 
