@@ -1,5 +1,6 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
+#import "./fragments/listing.graphql"
 
 query CollectionQuery($address: String!) {
   collection(address: $address) {
@@ -35,6 +36,9 @@ query CollectionQuery($address: String!) {
 
 query CollectionAttributeGroupsQuery($address: String!) {
   collection(address: $address) {
+    nft {
+      mintAddress
+    }
     attributeGroups {
       name
       variants {
@@ -46,20 +50,17 @@ query CollectionAttributeGroupsQuery($address: String!) {
 }
 
 query CollectionNFTsQuery(
-  $collection: PublicKey!
+  $address: String!
   $limit: Int!
   $offset: Int!
-  $listed: Boolean
+  $order: OrderDirection
+  $sortBy: NftSort
   $attributes: [AttributeFilter!]
 ) {
-  nfts(
-    collections: [$collection]
-    limit: $limit
-    offset: $offset
-    listed: $listed
-    attributes: $attributes
-  ) {
-    ...NftInfo
+  collection(address: $address) {
+    nfts(limit: $limit, offset: $offset, order: $order, sortBy: $sortBy, attributes: $attributes) {
+      ...NftListingInfo
+    }
   }
 }
 

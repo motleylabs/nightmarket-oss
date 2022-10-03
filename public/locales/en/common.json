@@ -55,6 +55,7 @@
   "purchase": "Sold",
   "listing": "Listed",
   "offer": "Offer",
+  "owned": "Owned",
   "viewProfile": "View profile",
   "switchWallet": "Switch wallet",
   "disconnectWallet": "Disconnect wallet"

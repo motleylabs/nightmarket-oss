@@ -9,6 +9,9 @@ query BuyableQuery($address: String!, $subdomain: String!) {
       sellerFeeBasisPoints
       fee @client
       treasuryMint
+      authority
+      auctionHouseFeeAccount
+      auctionHouseTreasury
     }
   }
 
@@ -28,11 +31,17 @@ query BuyableQuery($address: String!, $subdomain: String!) {
     listings {
       ...ListingInfo
       previewPrice @client
+      tradeState
+      tradeStateBump
     }
     purchases {
       id
       price
       previewPrice @client
+    }
+    owner {
+      address
+      associatedTokenAccountAddress
     }
   }
 }

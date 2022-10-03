@@ -14,6 +14,7 @@ import {
   NftMarketplace,
   AuctionHouse,
   Wallet,
+  AhListing,
 } from './graphql.types';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -301,6 +302,90 @@ const client = new ApolloClient({
           },
         },
       },
+      CollectionTrend: {
+        fields: {
+          compactNftCount: {
+            read(_, { readField }): string {
+              const nftCount: string | undefined = readField('nftCount');
+              if (!nftCount) {
+                return '0';
+              }
+
+              return asCompactNumber(parseInt(nftCount));
+            },
+          },
+          compactOneDayVolume: {
+            read(_, { readField }): string {
+              const oneDayVolume: string | undefined = readField('oneDayVolume');
+              if (!oneDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(oneDayVolume)));
+            },
+          },
+          compactOneDaySalesCount: {
+            read(_, { readField }): string {
+              const oneDaySalesCount: number | undefined = readField('oneDaySalesCount');
+              if (!oneDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(oneDaySalesCount);
+            },
+          },
+          compactSevenDayVolume: {
+            read(_, { readField }): string {
+              const sevenDayVolume: string | undefined = readField('sevenDayVolume');
+              if (!sevenDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(sevenDayVolume)));
+            },
+          },
+          compactSevenDaySalesCount: {
+            read(_, { readField }): string {
+              const sevenDaySalesCount: number | undefined = readField('sevenDaySalesCount');
+              if (!sevenDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(sevenDaySalesCount);
+            },
+          },
+          compactThirtyDayVolume: {
+            read(_, { readField }): string {
+              const thirtyDayVolume: string | undefined = readField('thirtyDayVolume');
+              if (!thirtyDayVolume) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(thirtyDayVolume)));
+            },
+          },
+          compactThirtyDaySalesCount: {
+            read(_, { readField }): string {
+              const thirtyDaySalesCount: number | undefined = readField('thirtyDaySalesCount');
+              if (!thirtyDaySalesCount) {
+                return '0';
+              }
+
+              return asCompactNumber(thirtyDaySalesCount);
+            },
+          },
+          compactFloorPrice: {
+            read(_, { readField }): string {
+              const floorPrice: string | undefined = readField('floorPrice');
+              if (!floorPrice) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(floorPrice)));
+            },
+          },
+        },
+      },
       Collection: {
         fields: {
           floorPrice: {
@@ -309,6 +394,7 @@ const client = new ApolloClient({
             },
           },
           activities: offsetLimitPagination(['$eventTypes']),
+          nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),
           compactNftCount: {
             read(_, { readField }): string {
               const nftCount: string | undefined = readField('nftCount');
@@ -349,9 +435,6 @@ const client = new ApolloClient({
           listedCount: {
             read: asCompactNumber,
           },
-          // holderCount: {
-          //   read: asCompactNumber,
-          // },
         },
       },
       CollectedCollection: {
@@ -441,6 +524,14 @@ const client = new ApolloClient({
               return sellerFeeBasisPoints / 100;
             },
           },
+          listing: {
+            read(_, { readField }): AhListing | undefined {
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              return listings?.find(
+                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
+              );
+            },
+          },
         },
       },
       Creator: {
@@ -485,6 +576,9 @@ const client = new ApolloClient({
           },
           nftMarketplace: {
             read: asNftMarketplace,
+          },
+          solPrice: {
+            read: asSOL,
           },
         },
       },

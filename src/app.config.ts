@@ -8,6 +8,7 @@ interface AppConfig {
     discord?: string;
     medium?: string;
   };
+  auctionHouseAddress: string;
 }
 
 const config: AppConfig = {
@@ -20,6 +21,7 @@ const config: AppConfig = {
     discord: '#',
     medium: '#',
   },
+  auctionHouseAddress: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
 };
 
 export default config;

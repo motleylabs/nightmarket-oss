@@ -1,6 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
 import { useEffect } from 'react';
-import { subDays, formatISO, subHours, subMonths, startOfDay } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -10,140 +9,22 @@ import TrendingCollectionQuery from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
 import { Collection } from '../components/Collection';
-import ProfileCard from '../components/ProfileCard';
-import { Collection as CollectionType, Wallet } from '../graphql.types';
+import {
+  CollectionInterval,
+  CollectionSort,
+  CollectionTrend,
+  OrderDirection,
+  Maybe,
+} from '../graphql.types';
 import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import { Area, AreaChart } from 'recharts';
-import { percentageDifference, asBasicNumber } from '../modules/number';
 import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
-
-type FloorData = {
-  price: number;
-};
-
-interface TrendingCollectionProps {
-  name: string;
-  image: string;
-  floor: number;
-  volume: number;
-  sales: number;
-  marketcap: number;
-  address: string;
-  floorTrend: FloorData[];
-}
-
-function TrendingCollection({
-  name,
-  image,
-  floor,
-  volume,
-  sales,
-  floorTrend,
-  address,
-}: TrendingCollectionProps) {
-  const priceChange = floorTrend[floorTrend.length - 1].price - floorTrend[0].price;
-  const priceChangePercentage = percentageDifference(
-    floorTrend[0].price,
-    floorTrend[floorTrend.length - 1].price
-  );
-  const trendColor = priceChange >= 0 ? '#12B76A' : '#F04438';
-  return (
-    <>
-      <td>
-        <Link href={`/collections/${address}`}>
-          <a className="flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0">
-            <img
-              src={image}
-              alt={name}
-              className="h-10 w-10 transform rounded-md object-cover duration-500 ease-in-out hover:scale-110"
-            />
-            <h6 className="transform truncate overflow-ellipsis text-base font-semibold duration-500 ease-in-out hover:scale-105">
-              {name}
-            </h6>
-          </a>
-        </Link>
-      </td>
-      <td className="gap-2 pl-4 lg:pl-0">
-        <div className="flex w-32 flex-row items-center justify-start gap-2">
-          <p
-            // Note to convert to local field when collection_trends objects available. // from Kyle
-            className="flex items-center text-base font-semibold"
-          >
-            <Icon.Sol />
-            {asBasicNumber(floor)}
-          </p>
-          <p
-            className={clsx(clsx, 'flex items-center gap-1 text-xs', {
-              'text-[#12B76A]': priceChange >= 0,
-              'text-[#F04438]': priceChange < 0,
-            })}
-          >
-            <ArrowUpIcon
-              className={clsx(clsx, 'h-2 w-2', {
-                'rotate-180 transform': priceChange < 0,
-                'rotate-0 transform': priceChange >= 0,
-              })}
-            />
-            {priceChangePercentage.toFixed(1)}%
-          </p>
-        </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex w-40 flex-row items-center justify-start gap-2">
-          <p className="flex items-center text-base font-semibold">
-            <Icon.Sol />
-            {asBasicNumber(volume)}
-          </p>
-          <p
-            className={clsx(clsx, 'flex items-center gap-1 text-xs', {
-              'text-[#12B76A]': priceChange >= 0,
-              'text-[#F04438]': priceChange < 0,
-            })}
-          >
-            <ArrowUpIcon
-              className={clsx(clsx, 'h-2 w-2', {
-                'rotate-180 transform': priceChange < 0,
-                'rotate-0 transform': priceChange >= 0,
-              })}
-            />
-            {priceChangePercentage.toFixed(1)}%
-          </p>
-        </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex w-40 justify-start">
-          <p className="text-base font-normal">{asBasicNumber(sales)}</p>
-        </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex items-center justify-end">
-          <AreaChart
-            key={`${address}-collection-trend-chart`}
-            width={120}
-            height={40}
-            data={floorTrend}
-          >
-            <Area
-              dataKey="price"
-              stroke={trendColor}
-              strokeWidth={1}
-              fill={trendColor}
-              fillOpacity={0.2}
-              type="monotone"
-            ></Area>
-          </AreaChart>
-        </div>
-      </td>
-    </>
-  );
-}
 
 function LoadingTrendingCollection() {
   return (
@@ -177,13 +58,12 @@ function LoadingTrendingCollection() {
 }
 
 interface GetHomePageData {
-  collectionsFeaturedByVolume: CollectionType[];
-  collectionsFeaturedByMarketCap: CollectionType[];
-  followWallets: Wallet[];
+  collectionsFeaturedByVolume: CollectionTrend[];
+  collectionsFeaturedByMarketCap: CollectionTrend[];
 }
 
 interface TrendingCollectionData {
-  collectionsFeaturedByVolume: CollectionType[];
+  collectionTrends: CollectionTrend[];
 }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
@@ -197,78 +77,59 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
   },
 });
 
-enum DateOption {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-}
-
-const DEFAULT_DATE_OPTION: DateOption = DateOption.DAY;
-
-const now = new Date();
-const nowUTC = formatISO(now);
-const dayAgo = subDays(now, 1);
-const dayAgoUTC = formatISO(dayAgo);
-
 interface TrendingCollectionForm {
-  filter: DateOption;
+  filter: CollectionInterval;
+  sort: CollectionSort;
 }
 
 interface TrendingCollectionVariables {
-  startDate: string;
-  endDate: string;
+  sortBy: CollectionSort;
+  timeFrame: CollectionInterval;
+  orderDirection: OrderDirection;
 }
+
+interface SelectedTrend {
+  salesCount: Maybe<string> | undefined;
+  volume: Maybe<string> | undefined;
+  volumeChange: number;
+  floorPrice: Maybe<string> | undefined;
+  floorPriceChange: number;
+}
+
+const DEFAULT_TIME_FRAME: CollectionInterval = CollectionInterval.SevenDay;
+const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
+const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
 
-  const { watch, control } = useForm<TrendingCollectionForm>({
-    defaultValues: { filter: DEFAULT_DATE_OPTION },
+  const { watch, control, getValues } = useForm<TrendingCollectionForm>({
+    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
-  const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery, {
-    variables: {
-      startDate: dayAgoUTC,
-      endDate: nowUTC,
-      userWallet: publicKey?.toBase58(),
-    },
-  });
+  const timeFrame = watch('filter');
+
+  const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery);
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
     TrendingCollectionQuery,
     {
       variables: {
-        startDate: dayAgoUTC,
-        endDate: nowUTC,
+        sortBy: DEFAULT_SORT,
+        timeFrame: DEFAULT_TIME_FRAME,
+        orderDirection: DEFAULT_ORDER,
       },
     }
   );
 
   useEffect(() => {
-    const subscription = watch(({ filter }) => {
+    const subscription = watch(({ filter, sort }) => {
       let variables: TrendingCollectionVariables = {
-        startDate: dayAgoUTC,
-        endDate: nowUTC,
+        sortBy: sort ?? DEFAULT_SORT,
+        timeFrame: filter ?? DEFAULT_TIME_FRAME,
+        orderDirection: DEFAULT_ORDER,
       };
-      switch (filter) {
-        case DateOption.DAY:
-          const dayAgo = subDays(now, 1);
-          const dayAgoUTC = formatISO(dayAgo);
-          variables.startDate = dayAgoUTC;
-          break;
-        case DateOption.WEEK:
-          const weekAgo = startOfDay(subDays(now, 7));
-          const weekAgoUTC = formatISO(weekAgo);
-          variables.startDate = weekAgoUTC;
-          break;
-        case DateOption.MONTH:
-          const monthAgo = startOfDay(subMonths(now, 1));
-          const monthAgoUTC = formatISO(monthAgo);
-          variables.startDate = monthAgoUTC;
-          break;
-      }
-
       trendingCollectionsQuery.refetch(variables);
     });
     return subscription.unsubscribe;
@@ -297,13 +158,13 @@ const Home: NextPage = () => {
                 name={'filter'}
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
-                    <ButtonGroup.Option value={DateOption.DAY}>
+                    <ButtonGroup.Option value={CollectionInterval.OneDay}>
                       {t('trendingCollections.filters.day')}
                     </ButtonGroup.Option>
-                    <ButtonGroup.Option value={DateOption.WEEK}>
+                    <ButtonGroup.Option value={CollectionInterval.SevenDay}>
                       {t('trendingCollections.filters.week')}
                     </ButtonGroup.Option>
-                    <ButtonGroup.Option value={DateOption.MONTH}>
+                    <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
                       {t('trendingCollections.filters.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
@@ -313,25 +174,26 @@ const Home: NextPage = () => {
           </header>
           <div className=" scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
             <table className="w-full table-auto border-spacing-x-24 divide-y divide-gray-800">
-              <thead>
-                <tr>
-                  <th className=" pb-2 text-left text-xs font-normal text-gray-300">
-                    {t('trendingCollections.collection')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.floor')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.volume')}
-                  </th>
-                  <th className="pl-4 pb-2 text-left text-xs font-normal text-gray-300 lg:pl-0">
-                    {t('trendingCollections.sales')}
-                  </th>
-                  <th className="pb-2 text-right text-xs font-normal text-gray-300">
-                    {t('trendingCollections.trend')}
-                  </th>
-                </tr>
-              </thead>
+              <Controller
+                control={control}
+                name="sort"
+                render={({ field: { onChange, value } }) => (
+                  <thead className="table-header-group">
+                    <tr className="text-left text-xs font-normal text-gray-300 hover:text-gray-200">
+                      <th className="justify-start pb-2">{t('trendingCollections.collection')}</th>
+                      <th className="justify-start pl-4 pb-2 lg:pl-0">
+                        {t('trendingCollections.floor')}
+                      </th>
+                      <th className="justify-start pl-4 pb-2 lg:pl-0">
+                        {t('trendingCollections.volume')}
+                      </th>
+                      <th className="justify-start pl-4 pb-2 lg:pl-0">
+                        {t('trendingCollections.sales')}
+                      </th>
+                    </tr>
+                  </thead>
+                )}
+              />
               <tbody className="mt-2 divide-y divide-gray-800">
                 {trendingCollectionsQuery.loading ? (
                   <>
@@ -349,31 +211,111 @@ const Home: NextPage = () => {
                     </tr>
                   </>
                 ) : (
-                  trendingCollectionsQuery.data?.collectionsFeaturedByVolume.map(
-                    (collection, i) => (
-                      <tr key={`collection-${collection.mintAddress}-${i}`}>
-                        <TrendingCollection
-                          address={collection.nft.mintAddress}
-                          key={`collection-${collection.nft.mintAddress}-${i}`}
-                          name={collection.nft.name}
-                          image={collection.nft.image}
-                          floor={collection.floorPrice}
-                          volume={collection.volumeTotal}
-                          sales={collection.holderCount}
-                          marketcap={Number(collection.floorPrice) * Number(collection.nftCount)}
-                          floorTrend={[
-                            { price: Math.random() * 10 },
-                            { price: Math.random() * 50 },
-                            { price: Math.random() * 20 },
-                            { price: Math.random() * 60 },
-                            { price: Math.random() * 40 },
-                            { price: Math.random() * 100 },
-                            { price: collection.floorPrice }, // TODO: get historical floor data into query
-                          ]}
-                        />
-                      </tr>
-                    )
-                  )
+                  trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+                    let selectedTrend: SelectedTrend;
+
+                    switch (timeFrame) {
+                      case CollectionInterval.OneDay:
+                        selectedTrend = {
+                          floorPrice: trend.compactFloorPrice,
+                          floorPriceChange: trend.oneDayFloorPriceChange,
+                          volume: trend.compactOneDayVolume,
+                          volumeChange: trend.oneDayVolumeChange,
+                          salesCount: trend.compactOneDaySalesCount,
+                        };
+                        break;
+                      case CollectionInterval.SevenDay:
+                        selectedTrend = {
+                          floorPrice: trend.compactFloorPrice,
+                          floorPriceChange: trend.sevenDayFloorPriceChange,
+                          volume: trend.compactSevenDayVolume,
+                          volumeChange: trend.sevenDayVolumeChange,
+                          salesCount: trend.compactSevenDaySalesCount,
+                        };
+                        break;
+                      case CollectionInterval.ThirtyDay:
+                        selectedTrend = {
+                          floorPrice: trend.compactFloorPrice,
+                          floorPriceChange: trend.thirtyDayFloorPriceChange,
+                          volume: trend.compactThirtyDayVolume,
+                          volumeChange: trend.thirtyDayVolumeChange,
+                          salesCount: trend.compactThirtyDaySalesCount,
+                        };
+                        break;
+                    }
+
+                    if (trend.collection)
+                      return (
+                        <tr key={`collection-${trend.collection.nft.mintAddress}-${i}`}>
+                          <td>
+                            <Link href={`/collections/${trend.collection.nft.mintAddress}`}>
+                              <a className="flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0">
+                                <img
+                                  src={trend.collection.nft.image}
+                                  alt={trend.collection.nft.name}
+                                  className="h-10 w-10 transform rounded-md object-cover duration-500 ease-in-out hover:scale-110"
+                                />
+                                <h6 className="transform truncate overflow-ellipsis text-base font-semibold duration-500 ease-in-out hover:scale-105">
+                                  {trend.collection.nft.name}
+                                </h6>
+                              </a>
+                            </Link>
+                          </td>
+                          <td className="gap-2 pl-4 lg:pl-0">
+                            <div className="flex w-32 flex-row items-center justify-start gap-2">
+                              <p
+                                // Note to convert to local field when collection_trends objects available. // from Kyle
+                                className="flex items-center text-base font-semibold"
+                              >
+                                <Icon.Sol />
+                                {trend.compactFloorPrice}
+                              </p>
+                              <p
+                                className={clsx(clsx, 'flex items-center gap-1 text-xs', {
+                                  'text-[#12B76A]': selectedTrend.floorPriceChange >= 0,
+                                  'text-[#F04438]': selectedTrend.floorPriceChange < 0,
+                                })}
+                              >
+                                <ArrowUpIcon
+                                  className={clsx(clsx, 'h-2 w-2', {
+                                    'rotate-180 transform': selectedTrend.floorPriceChange < 0,
+                                    'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
+                                  })}
+                                />
+                                {selectedTrend.floorPriceChange}%
+                              </p>
+                            </div>
+                          </td>
+                          <td className="pl-4 lg:pl-0">
+                            <div className="flex w-40 flex-row items-center justify-start gap-2">
+                              <p className="flex items-center text-base font-semibold">
+                                <Icon.Sol />
+                                {selectedTrend.volume}
+                              </p>
+                              <p
+                                className={clsx(clsx, 'flex items-center gap-1 text-xs', {
+                                  'text-[#12B76A]': selectedTrend.volumeChange >= 0,
+                                  'text-[#F04438]': selectedTrend.volumeChange < 0,
+                                })}
+                              >
+                                <ArrowUpIcon
+                                  className={clsx(clsx, 'h-2 w-2', {
+                                    'rotate-180 transform': selectedTrend.volumeChange < 0,
+                                    'rotate-0 transform': selectedTrend.volumeChange >= 0,
+                                  })}
+                                />
+                                {selectedTrend.volumeChange}%
+                              </p>
+                            </div>
+                          </td>
+                          <td className="pl-4 lg:pl-0">
+                            <div className="flex w-40 justify-start">
+                              <p className="text-base font-normal">{selectedTrend.salesCount}</p>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                  })
                 )}
               </tbody>
             </table>
@@ -409,16 +351,21 @@ const Home: NextPage = () => {
               }}
               slidesPerView={1}
             >
-              {homeQueryResult.data?.collectionsFeaturedByVolume.map((collection) => {
-                return (
-                  <SwiperSlide key={collection.nft.address} className="p-2">
-                    <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
-                      <a>
-                        <Collection.Card collection={collection} />
-                      </a>
-                    </Link>
-                  </SwiperSlide>
-                );
+              {homeQueryResult.data?.collectionsFeaturedByVolume.map((trend) => {
+                if (trend.collection)
+                  return (
+                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
+                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
+                        <a>
+                          <Collection.Card
+                            nft={trend.collection.nft}
+                            floorPrice={trend.compactFloorPrice}
+                            nftCount={trend.compactNftCount}
+                          />
+                        </a>
+                      </Link>
+                    </SwiperSlide>
+                  );
               })}
             </Carousel>
           )}
@@ -453,70 +400,25 @@ const Home: NextPage = () => {
               }}
               slidesPerView={1}
             >
-              {homeQueryResult.data?.collectionsFeaturedByMarketCap.map((collection) => {
-                return (
-                  <SwiperSlide key={collection.nft.address} className="p-2">
-                    <Link href={`/collections/${collection.nft.mintAddress}/nfts`}>
-                      <a>
-                        <Collection.Card collection={collection} />
-                      </a>
-                    </Link>
-                  </SwiperSlide>
-                );
+              {homeQueryResult.data?.collectionsFeaturedByMarketCap.map((trend) => {
+                if (trend.collection)
+                  return (
+                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
+                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
+                        <a>
+                          <Collection.Card
+                            nft={trend.collection.nft}
+                            floorPrice={trend.compactFloorPrice}
+                            nftCount={trend.compactNftCount}
+                          />
+                        </a>
+                      </Link>
+                    </SwiperSlide>
+                  );
               })}
             </Carousel>
           )}
         </section>
-        {/* <section className="mt-28">
-          <header className="mb-4 flex w-full flex-row justify-between border-b border-gray-800">
-            <h1 className="mb-2 text-2xl">{t('followWallets.title')}</h1>
-          </header>
-          {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <ProfileCard.Skeleton />
-              <ProfileCard.Skeleton />
-              <ProfileCard.Skeleton className="hidden md:inline-block" />
-              <ProfileCard.Skeleton className="hidden md:inline-block" />
-              <ProfileCard.Skeleton className="hidden lg:inline-block" />
-              <ProfileCard.Skeleton className="hidden lg:inline-block" />
-            </div>
-          ) : (
-            <Carousel
-              breakpoints={{
-                640: {
-                  slidesPerView: 1,
-                  spaceBetween: 4,
-                },
-                768: {
-                  slidesPerView: 2,
-                  spaceBetween: 4,
-                },
-                1024: {
-                  slidesPerView: 3,
-                  spaceBetween: 4,
-                },
-              }}
-              grid={{
-                rows: 2,
-                fill: 'row',
-              }}
-              slidesPerView={1}
-              spaceBetween={4}
-            >
-              {homeQueryResult.data?.followWallets.map((wallet) => {
-                return (
-                  <SwiperSlide key={wallet.address} className="p-2">
-                    <Link href={`/profiles/${wallet.address}/collected`}>
-                      <a>
-                        <ProfileCard wallet={wallet} />
-                      </a>
-                    </Link>
-                  </SwiperSlide>
-                );
-              })}
-            </Carousel>
-          )}
-        </section> */}
       </main>
       <footer className=" bg-gray-800 py-20">
         <div className="container mx-auto grid grid-cols-3 items-center ">

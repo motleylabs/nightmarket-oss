@@ -5,6 +5,7 @@ import {
   FormHTMLAttributes,
   LabelHTMLAttributes,
   cloneElement,
+  forwardRef,
 } from 'react';
 import { FormState } from 'react-hook-form';
 
@@ -52,4 +53,5 @@ function FormInput({ className, icon, error, ...props }: FormInputProps): JSX.El
   );
 }
 
-Form.Input = FormInput;
+// TODO: figure out how to properly forward refs for this input component
+Form.Input = forwardRef(FormInput);

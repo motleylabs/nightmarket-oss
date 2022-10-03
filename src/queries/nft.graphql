@@ -10,6 +10,9 @@ query NftQuery($address: String!, $subdomain: String!) {
       sellerFeeBasisPoints
       fee @client
       treasuryMint
+      authority
+      auctionHouseFeeAccount
+      auctionHouseTreasury
     }
   }
 
@@ -25,6 +28,7 @@ query NftQuery($address: String!, $subdomain: String!) {
     description
     owner {
       address
+      associatedTokenAccountAddress
       previewImage @client
       displayName @client
       profile {
@@ -107,6 +111,9 @@ query NftMarketInfoQuery($address: String!) {
     mintAddress
     listings {
       ...ListingInfo
+      previewPrice @client
+      tradeState
+      tradeStateBump
     }
   }
 }
