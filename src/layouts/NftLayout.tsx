@@ -125,7 +125,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <img
           src={nft.image}
           alt="nft image"
-          className=" top-10 z-10 w-full rounded-lg object-cover md:sticky"
+          className=" top-10 z-10 w-full rounded-lg object-cover"
         />
       </div>
       <div className="col-span-12 bg-gray-900 pt-0 md:col-span-6 md:pl-10 md:pt-20 lg:col-span-5">
@@ -447,6 +447,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             )}
           </div>
         </div>
+      </div>
+      <div className="align-self-start col-span-12 mb-10 md:col-span-6 md:pr-10 lg:col-span-7">
         <div className="mb-10 flex flex-row items-center justify-center">
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
             <Link href={`/nfts/${nft.mintAddress}/details`} passHref>

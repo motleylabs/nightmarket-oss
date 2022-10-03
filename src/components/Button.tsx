@@ -54,11 +54,11 @@ const Button = ({
     <button
       className={clsx(
         clsx,
-        'focus:shadow-outline flex grow-0 items-center justify-center text-center transition-transform duration-150',
+        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center transition-transform duration-150',
         className,
         {
           'w-full': block,
-          'bg-orange-600 text-white': type === ButtonType.Primary,
+          'theme-primary-gradient text-white': type === ButtonType.Primary,
           'bg-gray-800 text-white hover:bg-gray-700 ': type === ButtonType.Secondary,
           'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
           'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
@@ -67,8 +67,6 @@ const Button = ({
           'py-2 px-6': size === ButtonSize.Large,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
-          'rounded-full': circle,
-          'rounded-md': !circle,
           'h-10 w-10': circle && ButtonSize.Small,
         }
       )}
