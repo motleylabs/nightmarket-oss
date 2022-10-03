@@ -53,7 +53,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
 
   const handleBuy = async () => {
     if (data?.nft && data.marketplace && data.nft.listings && listing) {
-      onBuyNow({ marketplace: data.marketplace, nft: data.nft, ahListing: listing });
+      await onBuyNow({ marketplace: data.marketplace, nft: data.nft, ahListing: listing });
     }
   };
 

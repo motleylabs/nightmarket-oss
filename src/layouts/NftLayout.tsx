@@ -67,7 +67,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (amount && nft && marketplace) {
-      onMakeOffer({ amount, nft, marketplace });
+      await onMakeOffer({ amount, nft, marketplace });
     }
   };
 
@@ -84,7 +84,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
 
   const handleBuy = async () => {
     if (nft && marketplace && listing) {
-      onBuyNow({ nft, marketplace, ahListing: listing });
+      await onBuyNow({ nft, marketplace, ahListing: listing });
     }
   };
 
