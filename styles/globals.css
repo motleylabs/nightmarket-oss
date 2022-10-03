@@ -24,7 +24,7 @@ html {
   @apply bg-gray-900;
 }
 
-.theme-primary-gradient {
+.bg-primary {
   @apply bg-gradient-to-r from-[#F85C04] to-[#7C1E05];
 }
 
