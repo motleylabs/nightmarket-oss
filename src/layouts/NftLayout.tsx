@@ -101,7 +101,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
   const handleList = async ({ amount }: { amount: string }) => {
     console.log(`list`, amount);
     if (amount && nft && marketplace) {
-      onSubmitListNft({ amount, nft, marketplace });
+      await onSubmitListNft({ amount, nft, marketplace });
     }
   };
 
@@ -448,12 +448,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                   icon={<Icon.Sol className="h-6 w-6" />}
                 /> */}
               </Form.Label>
-              <Button
-                block
-                htmlType="submit"
-                className="mb-4"
-                loading={offerFormState.isSubmitting}
-              >
+              <Button block htmlType="submit" className="mb-4" loading={listNftState.isSubmitting}>
                 {t('listNft')}
               </Button>
               <Button
