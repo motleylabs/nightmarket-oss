@@ -210,27 +210,11 @@ export default function useMakeOffer(): MakeOfferContext {
 
       const token = new PublicKey(config.rewardCenter.token);
 
-      const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        token,
-        publicKey
-      );
-
-      const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        token,
-        buyerRewardTokenAccount,
-        publicKey,
-        publicKey
-      );
-
       const accounts: UpdateOfferInstructionAccounts = {
         wallet: publicKey,
         offer,
         rewardCenter,
-        buyerTokenAccount: new PublicKey(''), // TODO
+        buyerTokenAccount: associatedTokenAcc,
         auctionHouse,
         authority,
         transferAuthority: publicKey,
