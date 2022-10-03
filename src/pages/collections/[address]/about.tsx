@@ -31,6 +31,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     },
   };
 }
+
 export default function CollectionAboutPage(props: { collection: Collection }) {
   const { t } = useTranslation(['collection', 'common']);
 

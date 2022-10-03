@@ -41,6 +41,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     },
   };
 }
+
 interface ProfileActivitiesData {
   wallet: Wallet;
 }
