@@ -115,20 +115,20 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
   const activeForm = makeOffer || listNft;
 
   return (
-    <main className="relative mx-auto mt-8 grid max-w-7xl grid-cols-12 justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
+    <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
       <Head>
         <title>{nft.name}</title>
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="align-self-start col-span-12 mb-10 md:col-span-6 md:pr-10 lg:col-span-7">
+      <div className="align-self-start mb-10 md:pr-10 lg:w-1/2">
         <img
           src={nft.image}
           alt="nft image"
           className=" top-10 z-10 w-full rounded-lg object-cover"
         />
       </div>
-      <div className="col-span-12 bg-gray-900 pt-0 md:col-span-6 md:pl-10 md:pt-20 lg:col-span-5">
+      <div className="bg-gray-900 pt-0 md:pl-10 md:pt-20 lg:w-1/2">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.collection ? (
             <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
@@ -138,7 +138,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                   className="aspect-square w-10 rounded-md object-cover"
                   alt="collection image"
                 />
-                <h2 className="text-xl">{nft.collection.nft.name}</h2>
+                <h2 className="text-2xl">{nft.collection.nft.name}</h2>
               </a>
             </Link>
           ) : (
@@ -409,7 +409,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             'md:hidden': activeForm,
           })}
         >
-          <div className="flex flex-row items-center justify-between p-4">
+          <div className="flex flex-row items-center justify-between gap-10 p-4">
             {listing && (
               <div className="flex flex-col justify-between text-gray-300">
                 <span>{t('listed')}</span>
@@ -448,7 +448,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           </div>
         </div>
       </div>
-      <div className="align-self-start col-span-12 mb-10 md:col-span-6 md:pr-10 lg:col-span-7">
+      <div className="align-self-start mb-10 md:pr-10 lg:w-1/2">
         <div className="mb-10 flex flex-row items-center justify-center">
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
             <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
