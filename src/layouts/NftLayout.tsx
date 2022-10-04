@@ -128,7 +128,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           className=" top-10 z-10 w-full rounded-lg object-cover"
         />
       </div>
-      <div className="w-full pt-0 lg:w-1/2 lg:pt-20 lg:pl-10">
+      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.collection ? (
             <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
