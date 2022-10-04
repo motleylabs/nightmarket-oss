@@ -6,16 +6,9 @@ import { CollectionQuery } from './../../../queries/collection.graphql';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { percentageDifference } from '../../../modules/number';
-import { ButtonGroup } from '../../../components/ButtonGroup';
-import { Controller, useForm } from 'react-hook-form';
-import { ChartCard, StyledLineChart } from '../../../components/ChartTemplate';
-
-enum DateOption {
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-}
+import { useForm } from 'react-hook-form';
+import { ChartCard, DateRangeOption, StyledLineChart } from '../../../components/ChartTemplate';
+import { useTranslation } from 'next-i18next';
 
 const floorPriceData = Array.from({ length: 24 }, (v, i) => ({
   label: i > 12 ? i - 12 : i,
@@ -56,7 +49,11 @@ const holdersVsTokensHeldData = [
 ];
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, [
+    'collection',
+    'common',
+    'analytics',
+  ]);
 
   const { data } = await client.query({
     query: CollectionQuery,
@@ -81,21 +78,46 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 }
 
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
+  const { t } = useTranslation('analytics');
+
+  const { watch, control } = useForm({
+    defaultValues: {
+      floorPriceDateRange: DateRangeOption.DAY,
+      listingCountDateRange: DateRangeOption.DAY,
+      priceDistributionDateRange: DateRangeOption.DAY,
+      holdersVsHeldDateRange: DateRangeOption.DAY,
+    },
+  });
+
   return (
     <div className="px-10 pt-6 pb-20">
-      <ChartCard title="Floor price" chart={<StyledLineChart data={floorPriceData} />} />
+      <ChartCard
+        id="floorPriceDateRange"
+        control={control}
+        title={t('collection.floorPriceChartTitle')}
+        chart={<StyledLineChart data={floorPriceData} />}
+      />
 
       <div className=" grid grid-cols-2 gap-8 py-8">
-        <ChartCard title="Listed count" chart={<StyledLineChart data={listedCountData} />} />
+        <ChartCard
+          id="listingCountDateRange"
+          control={control}
+          title={t('collection.listedCountChartTitle')}
+          chart={<StyledLineChart data={listedCountData} />}
+        />
 
         <ChartCard
-          title="Price distribution"
+          id="priceDistributionDateRange"
+          control={control}
+          title={t('collection.priceDistributionChartTitle')}
           chart={<StyledLineChart data={priceDistributionData} />}
         />
       </div>
 
       <ChartCard
-        title="Holders vs Tokens held"
+        id="holdersVsHeldDateRange"
+        control={control}
+        title={t('collection.holdersVsTokensHeldChartTitle')}
         chart={
           <ResponsiveContainer width={'100%'} height={500}>
             <BarChart width={400} height={400} data={holdersVsTokensHeldData}>

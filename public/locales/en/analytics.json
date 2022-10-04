@@ -1,0 +1,9 @@
+{
+  "collection": {
+    "floorPriceChartTitle": "Floor price",
+    "listedCountChartTitle": "Listed count",
+    "priceDistributionChartTitle": "Price distribution",
+    "holdersVsTokensHeldChartTitle": "Holders vs Tokens held"
+  },
+  "profile": {}
+}
