@@ -4,6 +4,8 @@ import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
 } from '../../../layouts/ProfileLayout';
+import { ControlledSelect } from '../../../components/Select';
+
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet, Nft } from '../../../graphql.types';
@@ -23,6 +25,7 @@ import { Listbox } from '@headlessui/react';
 import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
+import DropdownMenu from '../../../components/DropdownMenu';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -59,6 +62,10 @@ enum ListedStatus {
 interface CollectionNFTForm {
   listed: ListedStatus;
   collections: (string | undefined)[] | null | undefined;
+  sort: {
+    value: string;
+    label: string;
+  };
 }
 
 interface CollectionNFTsData {
@@ -79,7 +86,11 @@ export default function ProfileCollected({
 }) {
   const { t } = useTranslation(['collection', 'common']);
   const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All, collections: [] },
+    defaultValues: {
+      listed: ListedStatus.All,
+      collections: [],
+      sort: { value: 'recentlyListed', label: 'Recently listed' },
+    },
   });
   const { publicKey } = useWallet();
   const router = useRouter();
@@ -118,10 +129,22 @@ export default function ProfileCollected({
   return (
     <>
       <Toolbar>
+        {/* <DropdownMenu 
+        items={[{label: "Price: High to low", },]}
+      />  */}
         <Sidebar.Control
           open={open}
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
+        />
+        <ControlledSelect
+          id="sort"
+          control={control}
+          options={[
+            { value: 'recentlyListed', label: 'Recently listed' },
+            { value: 'priceLowHigh', label: 'Price: Low to High' },
+            { value: 'priceHighLow', label: 'Price: High to Low' },
+          ]}
         />
       </Toolbar>
       <Sidebar.Page open={open}>

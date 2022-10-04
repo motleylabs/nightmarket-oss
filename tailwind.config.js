@@ -16,8 +16,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontSize: {
+        sm: ['0.75rem', '1rem'],
+        // base: '1rem',
+      },
       fontFamily: {
-        sans: ['Inter ', ...defaultTheme.fontFamily.sans],
+        // https://github.com/WCYS-Co/Hauora-Sans // not yet bundled
+        sans: ['Hauora-Sans', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {

@@ -1,8 +1,9 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Maybe } from './../graphql.types';
+import { RadioGroup } from '@headlessui/react';
 
 interface OverviewProps {
   children: ReactNode;
@@ -123,8 +124,8 @@ function Tabs({ children }: OverviewTabsProps): JSX.Element {
   return (
     <nav
       className={clsx(
-        'mt-10 grid overflow-auto ',
-        children.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+        'mx-auto mt-10 flex  overflow-auto'
+        // children.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
       )}
     >
       {children}
@@ -133,6 +134,159 @@ function Tabs({ children }: OverviewTabsProps): JSX.Element {
 }
 
 Overview.Tabs = Tabs;
+
+function Tabs2({ children }: OverviewTabsProps) {
+  const router = useRouter();
+  console.log('rout', router.pathname, router.query);
+
+  return (
+    <nav className={clsx('relative mx-auto flex flex-row items-center   justify-center')}>
+      <ButtonGroup value={router.pathname} onChange={() => {}} className="top-5 z-20 md:absolute ">
+        <Link href={`/profiles/${router.query.address}/collected`} passHref>
+          <a>
+            <ButtonGroupOption value={'/profiles/[address]/collected'}>
+              {'Collected'}
+            </ButtonGroupOption>
+          </a>
+        </Link>
+        <Link href={`/profiles/${router.query.address}/activity`} passHref>
+          <a>
+            <ButtonGroupOption value={'/profiles/[address]/activity'}>
+              {'Activity'}
+            </ButtonGroupOption>
+          </a>
+        </Link>
+        {/* <Link href={`/profiles/${router.query.address}/analytics`} passHref>
+          <a>
+            <ButtonGroupOption value={'/profiles/[address]/analytics'}>
+              {'Analytics'}
+            </ButtonGroupOption>
+          </a>
+        </Link> */}
+      </ButtonGroup>
+
+      {/* {children} */}
+    </nav>
+  );
+}
+
+Overview.Tabs2 = Tabs2;
+
+export function SegmentedControl() {
+  const [selectedTab, setSelectedTab] = useState('segment1');
+  return (
+    <div className={'rounded-lg bg-gray-200 p-[2px]'}>
+      <div className={'relative flex items-center'}>
+        {/* <!-- tab dividers --> */}
+        <div className={'absolute w-full'}>
+          <div className={'m-auto flex w-1/3 justify-between'}>
+            <div
+              className={clsx(
+                'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
+                { 'opacity-100': selectedTab === 'segment3' }
+              )}
+            ></div>
+            <div
+              className={clsx(
+                'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
+                { 'opacity-100': selectedTab === 'segment1' }
+              )}
+            ></div>
+          </div>
+        </div>
+
+        {/* <!-- white sliding tab block --> */}
+        <div
+          className={clsx(
+            'absolute inset-y-0 left-0 flex w-1/3 transform rounded-md bg-white shadow transition-all duration-200 ease-in-out',
+            {
+              'translate-x-0': selectedTab === 'segment1',
+              'translate-x-full': selectedTab === 'segment2',
+              'translate-x-[200%]': selectedTab === 'segment3',
+            }
+          )}
+        ></div>
+
+        {/* <!-- clickable buttons --> */}
+        <div
+          className={
+            'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+          }
+          onClick={() => setSelectedTab('segment1')}
+        >
+          Segment 1
+        </div>
+        <div
+          className={
+            'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+          }
+          onClick={() => setSelectedTab('segment2')}
+        >
+          Segment 2
+        </div>
+        <div
+          className={
+            'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+          }
+          onClick={() => setSelectedTab('segment3')}
+        >
+          Segment 3
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ButtonGroupProps<T> {
+  children: ReactNode;
+  value: T;
+  onChange: (value: T | undefined) => void;
+  className?: string;
+}
+
+function ButtonGroup<T>({
+  children,
+  value,
+  onChange,
+  className,
+}: ButtonGroupProps<T>): JSX.Element {
+  return (
+    <RadioGroup
+      value={value}
+      onChange={onChange}
+      className={clsx(
+        'flex max-w-full flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1',
+        className
+      )}
+    >
+      {children}
+    </RadioGroup>
+  );
+}
+
+interface ButtonGroupButtonProps<T> {
+  children: ReactNode;
+  active?: boolean;
+  value: T;
+}
+
+function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): JSX.Element {
+  return (
+    <RadioGroup.Option
+      value={value}
+      className={({ checked }) =>
+        clsx(
+          'flex h-10 w-40 flex-row items-center justify-center rounded-full  font-semibold',
+          checked
+            ? 'rounded-full bg-gray-800 text-white'
+            : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+        )
+      }
+    >
+      {children}
+    </RadioGroup.Option>
+  );
+}
 
 interface TabProps {
   href: string;

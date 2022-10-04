@@ -40,21 +40,20 @@ interface SidebarControlProps {
 function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.Element {
   const { t } = useTranslation('common');
   return (
-    <div className={clsx({ 'hidden md:block': open && !disabled })}>
+    <div className={clsx('block rounded-full bg-gray-800 ', { 'block    ': open && !disabled })}>
       <button
         className={clsx(
-          'fixed bottom-8 left-1/2 z-40 -ml-[51px] flex flex-none flex-row justify-between rounded-full border-none bg-gray-800 py-2 px-4 text-white  transition',
-          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0 md:border md:border-solid md:border-gray-900 md:bg-transparent',
-          open && !disabled && 'md:w-72 lg:w-96'
+          ' bottom-8 left-1/2 z-40  flex flex-none flex-row items-center justify-between gap-4 rounded-full border border-gray-800 py-3  px-4 text-white transition  hover:border-white',
+          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0   md:bg-transparent',
+          open && !disabled && ''
         )}
         disabled={disabled}
         onClick={onChange}
       >
-        <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
-        <span className="md:hidden">{t('filters')}</span>
-
+        <Sidebar.FilterIcon className={clsx('h-5 w-5')} />
+        <span className="sr-only">{t('filters')}</span>
         <ChevronRightIcon
-          className={clsx('hidden h-6 w-6 md:inline-block', open && !disabled && 'rotate-180')}
+          className={clsx('hidden h-5 w-5 md:inline-block', open && !disabled && 'rotate-180')}
         />
       </button>
     </div>

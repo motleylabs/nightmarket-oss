@@ -17,14 +17,14 @@ export default function Select<T>(props: {
         <div className="relative">
           <Listbox.Button
             className={clsx(
-              'relative w-full cursor-default rounded-md border border-gray-700 bg-gray-900 py-2 pl-4 pr-10 text-left text-base text-white shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
-              open && 'border-white'
+              'relative w-full cursor-pointer rounded-full border  border-gray-800 bg-gray-800 py-3 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2  focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
+              open && ''
             )}
           >
             <span className="block truncate">
               {props.options.find((o) => o.value === props.value.value)?.label}
             </span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
               <ChevronDownIcon
                 className={clsx('h-5 w-5 text-white', open && 'rotate-180 transition-transform')}
                 aria-hidden="true"
