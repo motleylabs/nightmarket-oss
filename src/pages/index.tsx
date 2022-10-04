@@ -282,7 +282,7 @@ const Home: NextPage = () => {
                                     'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
                                   })}
                                 />
-                                {selectedTrend.floorPriceChange}%
+                                {Math.abs(selectedTrend.floorPriceChange)}%
                               </p>
                             </div>
                           </td>
@@ -304,7 +304,7 @@ const Home: NextPage = () => {
                                     'rotate-0 transform': selectedTrend.volumeChange >= 0,
                                   })}
                                 />
-                                {selectedTrend.volumeChange}%
+                                {Math.abs(selectedTrend.volumeChange)}%
                               </p>
                             </div>
                           </td>
