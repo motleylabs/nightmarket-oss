@@ -116,7 +116,7 @@ export default function ProfileAnalyticsPage({
         title={t('profile.totalAssetBreakdownChartTitle')}
         control={control}
         chart={
-          <ResponsiveContainer width={'100%'} height={500}>
+          <ResponsiveContainer width="100%" height={500}>
             <BarChart
               layout="vertical"
               data={collectedCollectionData}

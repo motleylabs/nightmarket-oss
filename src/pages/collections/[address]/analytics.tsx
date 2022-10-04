@@ -119,7 +119,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
         dateRangeId="holdersVsHeldDateRange"
         control={control}
         chart={
-          <ResponsiveContainer width={'100%'} height={500}>
+          <ResponsiveContainer width="100%" height={500}>
             <BarChart width={400} height={400} data={holdersVsTokensHeldData}>
               <YAxis dataKey={'y'} tickCount={6} axisLine={false} />
 
