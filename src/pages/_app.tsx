@@ -244,7 +244,7 @@ function NavigationBar() {
         ) : viewerQueryResult.data ? (
           <ProfilePopover wallet={viewerQueryResult.data.wallet} />
         ) : (
-          <Button onClick={onLogin} className="hidden h-[42px] font-semibold md:inline-block">
+          <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
             {t('connect')}
           </Button>
         )}
