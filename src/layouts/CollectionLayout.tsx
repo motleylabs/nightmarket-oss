@@ -73,7 +73,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 circle
                 icon={<ArrowPathIcon width={14} height={14} className="stroke-gray-300" />}
                 size={ButtonSize.Small}
-                type={ButtonType.Secondary}
+                type={ButtonType.Tertiary}
               />
             </div>
           </Overview.Aside>
