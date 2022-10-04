@@ -25,7 +25,7 @@ html {
 }
 
 .bg-gradient {
-  @apply bg-gradient-to-r from-themeprimary-900 to-themeprimary-700;
+  @apply to-themeprimary-600 bg-gradient-to-r from-themeprimary-900;
 }
 
 .input {

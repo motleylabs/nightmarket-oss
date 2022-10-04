@@ -28,7 +28,8 @@ module.exports = {
       },
       colors: {
         themeprimary: {
-          700: '#7C1E05',
+          600: '#7C1E05',
+          700: '#DA6C1D',
           800: '#EC9D08',
           900: '#F85C04',
         },
