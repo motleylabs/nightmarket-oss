@@ -121,14 +121,14 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="align-self-start mb-10 md:pr-10 lg:w-1/2">
+      <div className="align-self-start mb-10 lg:w-1/2 lg:pr-10">
         <img
           src={nft.image}
           alt="nft image"
           className=" top-10 z-10 w-full rounded-lg object-cover"
         />
       </div>
-      <div className="bg-gray-900 pt-0 md:pl-10 md:pt-20 lg:w-1/2">
+      <div className="w-full pt-0 lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.collection ? (
             <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
@@ -405,7 +405,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           </Form>
         )}
         <div
-          className={clsx('mb-10 flex flex-col gap-4 rounded-md p-6 shadow-xl', {
+          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-themebg-700 p-6', {
             'md:hidden': activeForm,
           })}
         >

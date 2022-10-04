@@ -21,11 +21,11 @@ h6 {
 
 body,
 html {
-  @apply bg-gray-900;
+  @apply bg-themebg-900;
 }
 
-.bg-primary {
-  @apply bg-gradient-to-r from-[#F85C04] to-[#7C1E05];
+.bg-gradient {
+  @apply bg-gradient-to-r from-themeprimary-900 to-themeprimary-700;
 }
 
 .input {
