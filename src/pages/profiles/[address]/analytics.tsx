@@ -10,10 +10,13 @@ import ProfileLayout, {
 } from '../../../layouts/ProfileLayout';
 import { BarChart, CartesianGrid, ResponsiveContainer, Bar, XAxis, YAxis } from 'recharts';
 import { QueryResult } from '@apollo/client';
-import { ChartCard, StyledLineChart } from '../../../components/ChartTemplate';
+import { ChartCard, DateRangeOption, StyledLineChart } from '../../../components/ChartTemplate';
+import { useTranslation } from 'next-i18next';
+import { useForm } from 'react-hook-form';
+import { formatDistanceToNow, subDays } from 'date-fns';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'analytics']);
 
   const {
     data: { wallet },
@@ -37,6 +40,10 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     },
   };
 }
+const walletValueData = Array.from({ length: 24 }).map((_, i) => ({
+  label: formatDistanceToNow(subDays(Date.now(), 24 - i)),
+  price: Math.floor(Math.random() * 25),
+}));
 
 const listedCountData = Array.from({ length: 24 }).map((_, i) => ({
   label: i > 12 ? i - 12 : i,
@@ -56,6 +63,16 @@ export default function ProfileAnalyticsPage({
 }: {
   walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
 }) {
+  const { t } = useTranslation('analytics');
+
+  const { watch, control } = useForm({
+    defaultValues: {
+      walletValueDateRange: DateRangeOption.DAY,
+      listingCountDataRange: DateRangeOption.DAY,
+      nftsBoughtVsNftsSoldDateRange: DateRangeOption.DAY,
+    },
+  });
+
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
@@ -89,26 +106,15 @@ export default function ProfileAnalyticsPage({
   return (
     <div className="px-10 pt-6 pb-20">
       <ChartCard
-        title="Wallet value"
-        chart={
-          <StyledLineChart
-            data={[
-              { price: 60 },
-              { price: 70 },
-              { price: 65 },
-              { price: 40 },
-              { price: 70 },
-              { price: 75 },
-              { price: 80 },
-              { price: 90 },
-            ]}
-          />
-        }
+        title={t('profile.walletValueChartTitle')}
+        control={control}
+        dateRangeId="walletValueDateRange"
+        chart={<StyledLineChart data={walletValueData} />}
       />
 
       <ChartCard
-        title="Total asset breakdown"
-        noDateRange
+        title={t('profile.totalAssetBreakdownChartTitle')}
+        control={control}
         chart={
           <ResponsiveContainer width={'100%'} height={500}>
             <BarChart
@@ -138,10 +144,17 @@ export default function ProfileAnalyticsPage({
         }
       />
       <div className=" grid grid-cols-2 gap-8 py-8">
-        <ChartCard title="Listed count" chart={<StyledLineChart data={listedCountData} />} />
+        <ChartCard
+          title={t('profile.listedCountChartTitle')}
+          dateRangeId="listedCountDateRange"
+          control={control}
+          chart={<StyledLineChart data={listedCountData} />}
+        />
 
         <ChartCard
-          title="NFTs bought vs NFTs sold"
+          title={t('profile.nftsBoughtVsNftsSoldChartTitle')}
+          dateRangeId="nftsBoughtVsNftsSoldDateRange"
+          control={control}
           chart={<StyledLineChart data={nftsBoughtAndNftsSold} />}
         />
       </div>

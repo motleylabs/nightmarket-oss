@@ -32,10 +32,9 @@ export function StyledLineChart(props: {
 }
 
 export function ChartCard(props: {
-  id: string;
-  control: any;
   title: string;
-  noDateRange?: boolean;
+  control: any;
+  dateRangeId?: string;
   chart: ReactNode;
 }) {
   return (
@@ -45,21 +44,19 @@ export function ChartCard(props: {
           <h2>{props.title}</h2>
           <p className="text-xs text-gray-400">{/* Might put something in here later */}</p>
         </div>
-        <Controller
-          control={props.control}
-          name={props.id}
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup
-              className={clsx(props.noDateRange && 'hidden')}
-              value={value}
-              onChange={onChange}
-            >
-              <ButtonGroup.Option value={DateRangeOption.DAY}>1D</ButtonGroup.Option>
-              <ButtonGroup.Option value={DateRangeOption.WEEK}>1W</ButtonGroup.Option>
-              <ButtonGroup.Option value={DateRangeOption.MONTH}>1M</ButtonGroup.Option>
-            </ButtonGroup>
-          )}
-        />
+        {props.dateRangeId && (
+          <Controller
+            control={props.control}
+            name={props.dateRangeId}
+            render={({ field: { onChange, value } }) => (
+              <ButtonGroup value={value} onChange={onChange}>
+                <ButtonGroup.Option value={DateRangeOption.DAY}>1D</ButtonGroup.Option>
+                <ButtonGroup.Option value={DateRangeOption.WEEK}>1W</ButtonGroup.Option>
+                <ButtonGroup.Option value={DateRangeOption.MONTH}>1M</ButtonGroup.Option>
+              </ButtonGroup>
+            )}
+          />
+        )}
       </div>
       {props.chart}
     </div>

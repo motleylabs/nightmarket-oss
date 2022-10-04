@@ -92,32 +92,32 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
   return (
     <div className="px-10 pt-6 pb-20">
       <ChartCard
-        id="floorPriceDateRange"
-        control={control}
         title={t('collection.floorPriceChartTitle')}
+        dateRangeId="floorPriceDateRange"
+        control={control}
         chart={<StyledLineChart data={floorPriceData} />}
       />
 
       <div className=" grid grid-cols-2 gap-8 py-8">
         <ChartCard
-          id="listingCountDateRange"
-          control={control}
           title={t('collection.listedCountChartTitle')}
+          dateRangeId="listingCountDateRange"
+          control={control}
           chart={<StyledLineChart data={listedCountData} />}
         />
 
         <ChartCard
-          id="priceDistributionDateRange"
-          control={control}
           title={t('collection.priceDistributionChartTitle')}
+          dateRangeId="priceDistributionDateRange"
+          control={control}
           chart={<StyledLineChart data={priceDistributionData} />}
         />
       </div>
 
       <ChartCard
-        id="holdersVsHeldDateRange"
-        control={control}
         title={t('collection.holdersVsTokensHeldChartTitle')}
+        dateRangeId="holdersVsHeldDateRange"
+        control={control}
         chart={
           <ResponsiveContainer width={'100%'} height={500}>
             <BarChart width={400} height={400} data={holdersVsTokensHeldData}>
