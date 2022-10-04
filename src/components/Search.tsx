@@ -98,7 +98,7 @@ function SearchInput({
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
       >
-        <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
+        <MagnifyingGlassIcon className="h-5 w-5 text-themetext-700" aria-hidden="true" />
       </button>
       <DebounceInput
         minLength={2}
@@ -106,7 +106,7 @@ function SearchInput({
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        className="block w-full rounded-md border border-gray-800 bg-transparent py-2 pl-10 pr-2 text-base text-white transition-all focus:border-white focus:placeholder-gray-500 focus:outline-none focus:ring-white md:py-2"
+        className="block w-full bg-transparent py-2 pl-10 pr-2 text-base text-themetext-900 transition-all focus:placeholder-themetext-600 focus:outline-none md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
@@ -191,7 +191,7 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 
   return (
     <>
-      <h6 className="mb-2 border-b border-gray-500 pt-4 pb-2 text-base font-medium text-gray-300">
+      <h6 className="mb-2 border-b border-themeborder-700 pt-4 pb-2 text-base font-medium text-gray-300">
         {title}
       </h6>
       {children({ result })}

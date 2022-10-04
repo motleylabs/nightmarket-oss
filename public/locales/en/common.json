@@ -16,7 +16,7 @@
     "profiles": "Profiles",
     "wallet": "Wallet",
     "nfts": "NFTs",
-    "placeholder": "Search collections, profiles, and wallets",
+    "placeholder": "Search for collections, NFTs or wallets...",
     "empty": "No results found"
   },
   "profileMenu": {

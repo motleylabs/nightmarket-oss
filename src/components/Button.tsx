@@ -78,12 +78,11 @@ const Button = ({
           'w-full': block,
           'bg-gradient text-themetext-900':
             type === ButtonType.Primary || type === ButtonType.Secondary,
-          'bg-themebg-700 text-themetext-900 hover:bg-themebg-600 ': type === ButtonType.Secondary,
-          'bg-themebg-600 text-themetext-800': type === ButtonType.Tertiary,
+          'bg-themebg-700 text-themetext-900': type === ButtonType.Tertiary,
           'border border-themebg-700 bg-none text-themetext-900': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
-          'py-2 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
+          'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
           'p-[1px]': type === ButtonType.Secondary,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
@@ -100,7 +99,7 @@ const Button = ({
         <div
           className={clsx('h-full w-full rounded-full text-themeprimary-700', secondaryBgColor, {
             'py-1 px-4': !circle && size === ButtonSize.Small,
-            'py-2 px-6': size === ButtonSize.Large,
+            'py-3 px-6': size === ButtonSize.Large,
           })}
         >
           {content}

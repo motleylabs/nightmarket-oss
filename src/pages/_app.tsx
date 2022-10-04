@@ -76,10 +76,10 @@ function NavigationBar() {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-30  w-full  px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+        'sticky top-0 z-30  w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
-        'bg-[#38383833]'
+        'bg-themebg-900'
       )}
     >
       {/* Night Market logo */}
@@ -111,7 +111,7 @@ function NavigationBar() {
             setSearchExpanded(true);
           }}
         >
-          <MagnifyingGlassIcon className="h-5 w-5 text-white" aria-hidden="true" />
+          <MagnifyingGlassIcon className="h-5 w-5 text-themetext-700" aria-hidden="true" />
         </button>
         <Search>
           <div

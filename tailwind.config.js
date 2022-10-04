@@ -46,6 +46,9 @@ module.exports = {
           800: '#0B0A0E',
           900: '#000000',
         },
+        themeborder: {
+          700: '#2B2A30',
+        },
         orange: {
           200: '#2C2119',
           500: '#DA6C1D',

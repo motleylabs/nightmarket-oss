@@ -3,7 +3,6 @@ import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/re
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { Fragment, useState } from 'react';
-import config from '../app.config';
 import Button, { ButtonSize, ButtonType } from './Button';
 
 export default function Share(props: {
@@ -30,9 +29,9 @@ export default function Share(props: {
       <Popover.Button as="div">
         <Button
           circle
-          icon={<ArrowUpTrayIcon width={14} height={14} />}
+          icon={<ArrowUpTrayIcon width={20} height={20} />}
           size={ButtonSize.Small}
-          type={ButtonType.Secondary}
+          type={ButtonType.Tertiary}
         />
       </Popover.Button>
       <Transition
@@ -54,7 +53,7 @@ export default function Share(props: {
             className="w-52
         overflow-hidden
         rounded-md
-        bg-gray-800
+        bg-themebg-800
         p-4
         text-white
       "
@@ -65,7 +64,7 @@ export default function Share(props: {
                   <CheckIcon className="h-4 w-4" /> <span className="pl-5">{t('copied')}</span>
                 </div>
               ) : (
-                <button onClick={copyPubKey} className="flex items-center hover:text-gray-300">
+                <button onClick={copyPubKey} className="flex items-center hover:text-themetext-700">
                   <DocumentDuplicateIcon className="h-4 w-4" />
                   <span className="pl-5">{t('copyLink')}</span>
                 </button>
@@ -78,7 +77,7 @@ export default function Share(props: {
                 )}&hashtags=${props.twitterParams.hashtags.join(',')}&url=${
                   props.twitterParams.url
                 }`}
-                className="flex items-center pt-4 hover:text-gray-300"
+                className="flex items-center pt-4 hover:text-themetext-700"
                 target="_blank"
                 rel="noreferrer"
               >
