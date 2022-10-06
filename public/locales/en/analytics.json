@@ -1,0 +1,14 @@
+{
+  "collection": {
+    "floorPriceChartTitle": "Floor price",
+    "listedCountChartTitle": "Listed count",
+    "priceDistributionChartTitle": "Price distribution",
+    "holdersVsTokensHeldChartTitle": "Holders vs Tokens held"
+  },
+  "profile": {
+    "walletValueChartTitle": "Wallet value",
+    "totalAssetBreakdownChartTitle": "Total asset breakdown",
+    "listedCountChartTitle": "Listed count",
+    "nftsBoughtVsNftsSoldChartTitle": "NFTs bought vs NFTs sold "
+  }
+}
