@@ -25,6 +25,8 @@ import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
+import Button, { ButtonType } from '../components/Button';
+import HeroCreative from '../components/HeroCreative';
 
 function LoadingTrendingCollection() {
   return (
@@ -143,12 +145,26 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto px-6 pb-6 lg:px-0">
-        <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
-          <h1 className="text-3xl md:text-5xl">
-            {t('hero.title')} <span className="text-primary-850 ">{t('hero.title2')}</span>.
-          </h1>
-          <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
-        </section>
+        <div className="mt-8 flex gap-20 md:mt-32">
+          <section className="flex w-full flex-col gap-4 text-left md:w-1/2">
+            <h1 className="text-3xl lg:text-5xl">{t('hero.title')}</h1>
+            <h2 className="text-base text-themetext-600 lg:text-2xl">{t('hero.subtitle1')}</h2>
+            <h2 className="text-base text-themetext-600 lg:text-2xl">{t('hero.subtitle2')}</h2>
+            <div className="flex gap-6 lg:gap-8">
+              <Button className="w-full md:w-auto">{t('exporeNfts')}</Button>
+              <Button
+                className="w-full md:w-auto"
+                type={ButtonType.Secondary}
+                secondaryBgColor="bg-themebg-900"
+              >
+                {t('sellNfts')}
+              </Button>
+            </div>
+          </section>
+          <section className="hidden w-1/2 md:flex">
+            <HeroCreative nfts={[] as any} />
+          </section>
+        </div>
         <section className="mt-28">
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
