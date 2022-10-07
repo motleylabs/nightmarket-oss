@@ -161,7 +161,8 @@ const Home: NextPage = () => {
               </Button>
             </div>
           </section>
-          <section className="hidden w-1/2 md:flex">
+          <section className="hidden w-1/2 md:flex md:justify-center">
+            {/* TODO: Add live data when available */}
             <HeroCreative nfts={[] as any} />
           </section>
         </div>
