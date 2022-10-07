@@ -18,7 +18,7 @@ const HeroImage = ({ nft, classname, hPosition, vPosition }: HeroImageProps): JS
       />
       <div
         className={clsx(
-          'absolute flex h-14 w-28 flex-col rounded-2xl bg-themebg-800 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
+          'absolute flex h-14 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
           {
             '-ml-16': hPosition === 'left',
             'right-0 -mr-20': hPosition === 'right',
@@ -27,9 +27,9 @@ const HeroImage = ({ nft, classname, hPosition, vPosition }: HeroImageProps): JS
           }
         )}
       >
-        <span className="truncate text-xs text-themetext-500">Sold 1min ago</span>
-        <span className="text-xs text-themeprimary-900 lg:text-sm">+22 $SAUCE</span>
-        <span className=" truncate text-xs text-themetext-500">to buyer and seller</span>
+        <span className="truncate text-xs text-gray-500">Sold 1min ago</span>
+        <span className=" text-xs text-orange-600 lg:text-sm ">+22 $SAUCE</span>
+        <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
       </div>
     </div>
   );

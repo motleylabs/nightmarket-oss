@@ -82,7 +82,7 @@ const Button = ({
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
           'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
-          'p-[1px]': type === ButtonType.Secondary,
+          'p-px': type === ButtonType.Secondary,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
           'h-10 w-10': circle && ButtonSize.Small,
