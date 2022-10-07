@@ -1,4 +1,5 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -16,8 +17,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontSize: {
+        sm: ['0.75rem', '1rem'],
+        // base: '1rem',
+      },
       fontFamily: {
-        sans: ['Inter ', ...defaultTheme.fontFamily.sans],
+        // https://github.com/WCYS-Co/Hauora-Sans // not yet bundled
+        sans: ['Hauora-Sans', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {
@@ -71,5 +77,20 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwind-scrollbar')],
+  plugins: [
+    require('tailwind-scrollbar'),
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        '.no-scrollbar::-webkit-scrollbar': {
+          display: 'none',
+        },
+        /* Hide scrollbar for IE, Edge and Firefox */
+        '.no-scrollbar': {
+          '-ms-overflow-style': 'none' /* IE and Edge */,
+          'scrollbar-width': 'none' /* Firefox */,
+        },
+      });
+    }),
+  ],
 };

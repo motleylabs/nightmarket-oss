@@ -1,18 +1,17 @@
-import { cloneElement, ReactElement, useMemo } from 'react';
+import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
 import { Wallet } from '../graphql.types';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
-
-import Button, { ButtonSize, ButtonType } from '../components/Button';
 import Head from 'next/head';
-import Share from '../components/Share';
-import config from '../app.config';
 import { useQuery } from '@apollo/client';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
 import Icon from '../components/Icon';
+import { shortenAddress } from '../modules/address';
+import useClipboard from '../hooks/clipboard';
+import { useRouter } from 'next/router';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -27,10 +26,21 @@ interface ProfileLayout {
   wallet: Wallet;
 }
 
+function ProfileFigure(props: { figure: ReactNode; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="text-sm font-medium text-gray-300">{props.label}</div>
+      <span className="font-semibold">{props.figure}</span>
+    </div>
+  );
+}
+
 function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
+  const router = useRouter();
 
+  const { copied, copyText } = useClipboard(address);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
 
   const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
@@ -42,8 +52,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     }
   );
 
-  const loading = !currenciesReady || walletProfileClientQuery.loading;
-
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
@@ -51,7 +59,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     );
 
     if (!total) {
-      return undefined;
+      return 0;
     }
 
     const multiplier = Math.pow(10, 2);
@@ -68,68 +76,92 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Overview>
-        <Overview.Hero>
-          <Overview.Info
-            avatar={<Overview.Avatar src={wallet.previewImage as string} circle />}
-            title={<Overview.Title>{wallet.displayName}</Overview.Title>}
-          >
-            <Overview.Actions>
-              <Share
-                address={address}
-                twitterParams={{
-                  text: t('twitterShareText'),
-                  hashtags: ['nightmarket'],
-                  url: `${config.baseUrl}/profiles/${address}`,
-                }}
-              />
-            </Overview.Actions>
-            <Overview.Figures>
-              <Overview.Figure figure={wallet.compactCreatedCount} label={t('created')} />
-              <Overview.Figure figure={wallet.compactOwnedCount} label={t('collected')} />
-            </Overview.Figures>
-          </Overview.Info>
-          <Overview.Aside>
-            <div className="flex flex-col gap-4 md:gap-6 xl:gap-4">
-              <span className="text-gray-300">{t('portfolioValue')}</span>
-              {loading ? (
-                <span
-                  className={clsx('h-7 w-20 animate-pulse rounded-md bg-gray-800 transition')}
+      <section className="mx-4 my-8 flex flex-col ">
+        <div className="mb-8 flex  items-center justify-center gap-4  md:flex-row md:gap-6 ">
+          <Overview.Avatar src={wallet.previewImage as string} circle />
+          <div className="flex flex-col items-center gap-6 md:items-start">
+            <h1 className=" text-center text-3xl font-semibold text-white md:text-left md:text-4xl">
+              {wallet.displayName}
+            </h1>
+            <div className="flex items-center gap-4 text-gray-300  md:items-center">
+              {/* <Overview.Figure figure={wallet.compactCreatedCount} label={'Created'} />
+              <Overview.Figure figure={wallet.compactOwnedCount} label={'Collected'} /> */}
+              <div
+                onClick={copyText}
+                className="group flex cursor-pointer gap-1 text-sm  font-medium"
+              >
+                {wallet.shortAddress}
+                <button className="ml-auto flex cursor-pointer items-center">
+                  {copied ? <CheckIcon className="h-3 w-3 " /> : <Icon.Copy className="h-3 w-3" />}
+                </button>
+              </div>
+
+              <a
+                href={'https://twitter.com/' + wallet.displayName}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <div className="flex cursor-pointer items-center gap-1 rounded-full text-sm">
+                  {wallet.displayName}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-3 w-3">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path
+                      fill="currentColor"
+                      d="M15.3 5.55a2.9 2.9 0 0 0-2.9 2.847l-.028 1.575a.6.6 0 0 1-.68.583l-1.561-.212c-2.054-.28-4.022-1.226-5.91-2.799-.598 3.31.57 5.603 3.383 7.372l1.747 1.098a.6.6 0 0 1 .034.993L7.793 18.17c.947.059 1.846.017 2.592-.131 4.718-.942 7.855-4.492 7.855-10.348 0-.478-1.012-2.141-2.94-2.141zm-4.9 2.81a4.9 4.9 0 0 1 8.385-3.355c.711-.005 1.316.175 2.669-.645-.335 1.64-.5 2.352-1.214 3.331 0 7.642-4.697 11.358-9.463 12.309-3.268.652-8.02-.419-9.382-1.841.694-.054 3.514-.357 5.144-1.55C5.16 15.7-.329 12.47 3.278 3.786c1.693 1.977 3.41 3.323 5.15 4.037 1.158.475 1.442.465 1.973.538z"
+                    />
+                  </svg>
+                </div>
+              </a>
+              {/* <Overview.Figure figure={wallet.compactFollowerCount} label={'Followers'} /> */}
+              {/* <Overview.Figure figure={wallet.compactFollowingCount} label={'Following'} />  */}
+
+              {/* <Button>Follow</Button> */}
+              {/* <Overview.Actions>
+                <Share
+                  address={address}
+                  twitterParams={{
+                    text: t('twitterShareText'),
+                    hashtags: ['nightmarket'],
+                    url: `${config.baseUrl}/profiles/${address}`,
+                  }}
                 />
-              ) : (
-                <span className={clsx('text-xl md:text-lg lg:text-xl')}>
-                  {currenciesReady && portfolioValue && solToUsdString(portfolioValue)}
-                </span>
-              )}
-              {loading ? (
-                <span
-                  className={clsx('h-4 w-20 animate-pulse rounded-md bg-gray-800 transition')}
-                />
-              ) : (
-                <span>
-                  <Icon.Sol /> {portfolioValue}
-                </span>
-              )}
+              </Overview.Actions> */}
             </div>
-            <div className="flex flex-col justify-between">
-              <Button
-                circle
-                icon={<ArrowPathIcon width={14} height={14} className="stroke-gray-300" />}
-                size={ButtonSize.Small}
-                type={ButtonType.Secondary}
-              />
-            </div>
-          </Overview.Aside>
-        </Overview.Hero>
-        <Overview.Tabs>
-          <Overview.Tab href={`/profiles/${address}/collected`}>{t('collected')}</Overview.Tab>
-          <Overview.Tab href={`/profiles/${address}/created`}>{t('created')}</Overview.Tab>
-          <Overview.Tab href={`/profiles/${address}/activity`}>{t('activity')}</Overview.Tab>
-          <Overview.Tab href={`/profiles/${address}/analytics`}>{t('analytics')}</Overview.Tab>
-        </Overview.Tabs>
-        <Overview.Divider />
-        {cloneElement(children, { walletProfileClientQuery })}
-      </Overview>
+          </div>
+        </div>
+
+        <div className="  grid grid-cols-2  justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-16 md:grid-cols-4 ">
+          <ProfileFigure
+            figure={(currenciesReady && portfolioValue && solToUsdString(portfolioValue)) || '0'}
+            label="Net Worth"
+          />
+          <ProfileFigure label="Total NFTs" figure={wallet.nftCounts.owned} />
+          <ProfileFigure label="Listed NFTs" figure={wallet.nftCounts.listed || 0} />
+          <ProfileFigure
+            label="$SAUCE earned"
+            figure={
+              <div className="flex items-center gap-2">
+                <Icon.Sauce />
+                824
+              </div>
+            }
+          />
+        </div>
+      </section>
+      {/* <SegmentedControl /> */}
+      <Overview.Tabs>
+        <Overview.Tab
+          label="NFTs"
+          href={`/profiles/${router.query.address}/collected`}
+          active={router.pathname.includes('collected')}
+        />
+        <Overview.Tab
+          label={t('activity')}
+          href={`/profiles/${router.query.address}/activity`}
+          active={router.pathname.includes('activity')}
+        />
+      </Overview.Tabs>
+      {cloneElement(children, { walletProfileClientQuery })}
     </>
   );
 }

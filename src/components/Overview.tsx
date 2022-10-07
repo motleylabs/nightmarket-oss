@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Maybe } from './../graphql.types';
 
 interface OverviewProps {
@@ -115,9 +114,18 @@ function Aside({ children }: OverviewProps): JSX.Element {
 
 Overview.Aside = Aside;
 
-function Tabs({ children }: OverviewProps): JSX.Element {
+interface OverviewTabsProps {
+  children: JSX.Element[];
+}
+
+function Tabs({ children }: OverviewTabsProps) {
   return (
-    <nav className="mt-10 flex flex-row justify-start overflow-auto sm:ml-4 md:ml-8 md:justify-start">
+    <nav
+      className={clsx(
+        'relative z-20 mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
+        `grid-cols-${children.length}`
+      )}
+    >
       {children}
     </nav>
   );
@@ -125,36 +133,138 @@ function Tabs({ children }: OverviewProps): JSX.Element {
 
 Overview.Tabs = Tabs;
 
-interface TabProps {
-  href: string;
-  children: ReactNode;
-  icon?: (props: { className: string }) => JSX.Element;
-}
-
-function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
-  const router = useRouter();
-
+function Tab(props: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} passHref>
-      <a
-        className={clsx(
-          'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',
-          router.asPath === href
-            ? ' border-white'
-            : 'border-gray-800  text-gray-300 hover:text-white'
-        )}
-      >
-        {Icon && <Icon className="mr-4 h-5 w-5" />}
-        {children}
+    <Link href={props.href} passHref>
+      <a>
+        <div
+          className={clsx(
+            'flex h-10  flex-row items-center justify-center rounded-full  font-semibold',
+            props.active
+              ? 'rounded-full bg-gray-800 text-white'
+              : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+          )}
+        >
+          {props.label}
+        </div>
       </a>
     </Link>
   );
 }
-
 Overview.Tab = Tab;
+
+// NB: Keeping this until changes are finished on the collection page
+// function Tabs({ children }: OverviewTabsProps): JSX.Element {
+//   return (
+//     <nav
+//       className={clsx(
+//         'mx-auto mt-10 flex  overflow-auto'
+//         // children.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
+//       )}
+//     >
+//       {children}
+//     </nav>
+//   );
+// }
+
+// Overview.Tabs = Tabs;
+
+// interface TabProps {
+//   href: string;
+//   children: ReactNode;
+//   icon?: (props: { className: string }) => JSX.Element;
+// }
+
+// function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
+//   const router = useRouter();
+
+//   return (
+//     <Link href={href} passHref>
+//       <a
+//         className={clsx(
+//           'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',
+//           router.asPath === href
+//             ? ' border-white'
+//             : 'border-gray-800  text-gray-300 hover:text-white'
+//         )}
+//       >
+//         {Icon && <Icon className="mr-4 h-5 w-5" />}
+//         {children}
+//       </a>
+//     </Link>
+//   );
+// }
+
+// Overview.Tab = Tab;
 
 function Divider(): JSX.Element {
   return <div className="-z-10 -mt-[1px] h-[1px] bg-gray-800" />;
 }
 
 Overview.Divider = Divider;
+
+// save for later
+// export function SegmentedControl() {
+//   const [selectedTab, setSelectedTab] = useState('segment1');
+//   return (
+//     <div className={'rounded-lg bg-gray-200 p-[2px]'}>
+//       <div className={'relative flex items-center'}>
+//         {/* <!-- tab dividers --> */}
+//         <div className={'absolute w-full'}>
+//           <div className={'m-auto flex w-1/3 justify-between'}>
+//             <div
+//               className={clsx(
+//                 'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
+//                 { 'opacity-100': selectedTab === 'segment3' }
+//               )}
+//             ></div>
+//             <div
+//               className={clsx(
+//                 'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
+//                 { 'opacity-100': selectedTab === 'segment1' }
+//               )}
+//             ></div>
+//           </div>
+//         </div>
+
+//         {/* <!-- white sliding tab block --> */}
+//         <div
+//           className={clsx(
+//             'absolute inset-y-0 left-0 flex w-1/3 transform rounded-md bg-white shadow transition-all duration-200 ease-in-out',
+//             {
+//               'translate-x-0': selectedTab === 'segment1',
+//               'translate-x-full': selectedTab === 'segment2',
+//               'translate-x-[200%]': selectedTab === 'segment3',
+//             }
+//           )}
+//         ></div>
+
+//         {/* <!-- clickable buttons --> */}
+//         <div
+//           className={
+//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+//           }
+//           onClick={() => setSelectedTab('segment1')}
+//         >
+//           Segment 1
+//         </div>
+//         <div
+//           className={
+//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+//           }
+//           onClick={() => setSelectedTab('segment2')}
+//         >
+//           Segment 2
+//         </div>
+//         <div
+//           className={
+//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
+//           }
+//           onClick={() => setSelectedTab('segment3')}
+//         >
+//           Segment 3
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }

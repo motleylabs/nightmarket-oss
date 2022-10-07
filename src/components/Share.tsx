@@ -3,6 +3,7 @@ import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/re
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { Fragment, useState } from 'react';
+import useClipboard from '../hooks/clipboard';
 import Button, { ButtonSize, ButtonType } from './Button';
 
 export default function Share(props: {
@@ -14,15 +15,9 @@ export default function Share(props: {
   };
   forceDirection?: 'left';
 }) {
-  const [copied, setCopied] = useState(false);
   const { t } = useTranslation('common');
-  const copyPubKey = async () => {
-    if (props.address) {
-      await navigator.clipboard.writeText(props.address);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+
+  const { copyText, copied } = useClipboard(props.twitterParams.url);
 
   return (
     <Popover>
@@ -64,7 +59,7 @@ export default function Share(props: {
                   <CheckIcon className="h-4 w-4" /> <span className="pl-5">{t('copied')}</span>
                 </div>
               ) : (
-                <button onClick={copyPubKey} className="flex items-center hover:text-gray-300">
+                <button onClick={copyText} className="flex items-center hover:text-gray-300">
                   <DocumentDuplicateIcon className="h-4 w-4" />
                   <span className="pl-5">{t('copyLink')}</span>
                 </button>

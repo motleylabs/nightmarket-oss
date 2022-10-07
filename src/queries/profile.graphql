@@ -13,6 +13,7 @@ query WalletProfileQuery($address: PublicKey!) {
     compactFollowerCount @client
     compactFollowingCount @client
     displayName @client
+    shortAddress @client
     previewImage @client
     connectionCounts {
       fromCount

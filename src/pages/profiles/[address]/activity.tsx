@@ -5,7 +5,6 @@ import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
@@ -15,6 +14,7 @@ import Link from 'next/link';
 import { InView } from 'react-intersection-observer';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
+import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -61,13 +61,22 @@ enum ActivityFilter {
 }
 
 interface ProfileActivityForm {
-  type: ActivityFilter;
+  type: { value: ActivityFilter; label: string };
 }
 
 export default function ProfileActivity(): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
+
+  const activityFilterOptions = [
+    { label: t('allActivity'), value: ActivityFilter.All },
+    { label: t('offers'), value: ActivityFilter.Offers },
+    { label: t('sales'), value: ActivityFilter.Sales },
+  ];
+
   const { watch, control } = useForm<ProfileActivityForm>({
-    defaultValues: { type: ActivityFilter.All },
+    defaultValues: {
+      type: activityFilterOptions[0],
+    },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
@@ -93,7 +102,7 @@ export default function ProfileActivity(): JSX.Element {
         eventTypes: null,
       };
 
-      switch (type) {
+      switch (type?.value) {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
@@ -118,21 +127,16 @@ export default function ProfileActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div />
-        <Controller
-          control={control}
-          name="type"
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ActivityFilter.All}>{t('all')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Listings}>
-                {t('listings')}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Offers}>{t('offers')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Sales}>{t('sales')}</ButtonGroup.Option>
-            </ButtonGroup>
-          )}
-        />
+        <div className="hidden md:block" />
+        <div className="col-span-2 md:col-span-1">
+          <Controller
+            control={control}
+            name="type"
+            render={({ field: { onChange, value } }) => (
+              <Select value={value} onChange={onChange} options={activityFilterOptions} />
+            )}
+          />
+        </div>
       </Toolbar>
       <div className="mt-4 flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (

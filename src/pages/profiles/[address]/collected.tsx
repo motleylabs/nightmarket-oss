@@ -4,6 +4,7 @@ import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
 } from '../../../layouts/ProfileLayout';
+import { ControlledSelect } from '../../../components/Select';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet, Nft } from '../../../graphql.types';
@@ -11,7 +12,6 @@ import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
@@ -23,6 +23,8 @@ import { Listbox } from '@headlessui/react';
 import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
+import Link from 'next/link';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -59,6 +61,10 @@ enum ListedStatus {
 interface CollectionNFTForm {
   listed: ListedStatus;
   collections: (string | undefined)[] | null | undefined;
+  listedFilter: {
+    value: string;
+    label: string;
+  };
 }
 
 interface CollectionNFTsData {
@@ -77,9 +83,18 @@ export default function ProfileCollected({
 }: {
   walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
 }) {
-  const { t } = useTranslation(['collection', 'common']);
+  const { t } = useTranslation(['common', 'collection']);
+  const nftListedFilterOptions = [
+    { value: ListedStatus.All, label: t('all') },
+    { value: ListedStatus.Listed, label: t('listed') },
+    { value: ListedStatus.Unlisted, label: t('unlisted') },
+  ];
   const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All, collections: [] },
+    defaultValues: {
+      listed: ListedStatus.All,
+      collections: [],
+      listedFilter: nftListedFilterOptions[0],
+    },
   });
   const { publicKey } = useWallet();
   const router = useRouter();
@@ -123,6 +138,7 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         />
+        <ControlledSelect id="listedFilter" control={control} options={nftListedFilterOptions} />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel
@@ -154,10 +170,19 @@ export default function ProfileCollected({
                             <Collection.Option
                               selected={selected}
                               avatar={
-                                <Collection.Option.Avatar
-                                  src={cc.collection?.nft.image as string}
-                                  figure={cc.nftsOwned.toString()}
-                                />
+                                <Link
+                                  passHref
+                                  href={`/collections/${cc.collection?.nft.mintAddress}`}
+                                >
+                                  <a className="group relative">
+                                    <Collection.Option.Avatar
+                                      src={cc.collection?.nft.image as string}
+                                      figure={cc.nftsOwned.toString()}
+                                    />
+                                    <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
+                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
+                                  </a>
+                                </Link>
                               }
                               header={
                                 <Collection.Option.Title>
@@ -190,7 +215,7 @@ export default function ProfileCollected({
                     gap={4}
                     hasMore={hasMore}
                     grid={{
-                      [ListGridSize.Default]: [1, 1],
+                      [ListGridSize.Default]: [2, 2],
                       [ListGridSize.Small]: [2, 2],
                       [ListGridSize.Medium]: [2, 3],
                       [ListGridSize.Large]: [3, 4],
