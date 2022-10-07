@@ -1,5 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -105,6 +105,7 @@ const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
+  const trendingCollectionsRef = useRef(null);
 
   const { watch, control, getValues } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
@@ -124,6 +125,10 @@ const Home: NextPage = () => {
       },
     }
   );
+
+  const onExploreNftsClick = () => {
+    trendingCollectionsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
@@ -151,7 +156,9 @@ const Home: NextPage = () => {
             <h2 className="text-base text-themetext-600 lg:text-2xl">{t('hero.subtitle1')}</h2>
             <h2 className="text-base text-themetext-600 lg:text-2xl">{t('hero.subtitle2')}</h2>
             <div className="flex gap-6 lg:gap-8">
-              <Button className="w-full md:w-auto">{t('exporeNfts')}</Button>
+              <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
+                {t('exporeNfts')}
+              </Button>
               <Button
                 className="w-full md:w-auto"
                 type={ButtonType.Secondary}
@@ -166,7 +173,7 @@ const Home: NextPage = () => {
             <HeroCreative nfts={[] as any} />
           </section>
         </div>
-        <section className="mt-28">
+        <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
