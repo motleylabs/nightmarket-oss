@@ -61,7 +61,7 @@ enum ListedStatus {
 interface CollectionNFTForm {
   listed: ListedStatus;
   collections: (string | undefined)[] | null | undefined;
-  sort: {
+  listedFilter: {
     value: string;
     label: string;
   };
@@ -83,12 +83,17 @@ export default function ProfileCollected({
 }: {
   walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
 }) {
-  const { t } = useTranslation(['collection', 'common']);
+  const { t } = useTranslation(['common', 'collection']);
+  const nftListedFilterOptions = [
+    { value: ListedStatus.All, label: t('all') },
+    { value: ListedStatus.Listed, label: t('listed') },
+    { value: ListedStatus.Unlisted, label: t('unlisted') },
+  ];
   const { watch, control } = useForm<CollectionNFTForm>({
     defaultValues: {
       listed: ListedStatus.All,
       collections: [],
-      sort: { value: 'recentlyListed', label: 'Recently listed' },
+      listedFilter: nftListedFilterOptions[0],
     },
   });
   const { publicKey } = useWallet();
@@ -133,16 +138,7 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         />
-        <ControlledSelect
-          id="sort"
-          control={control}
-          options={[
-            { value: 'showAll', label: 'All' },
-            { value: 'recentlyListed', label: 'Recently listed' },
-            { value: 'priceLowHigh', label: 'Price: Low to High' },
-            { value: 'priceHighLow', label: 'Price: High to Low' },
-          ]}
-        />
+        <ControlledSelect id="listedFilter" control={control} options={nftListedFilterOptions} />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel

@@ -8,9 +8,12 @@
   "connect": "Connect",
   "filters": "Collections",
   "buy": "Buy",
-  "all": "All",
+  "all": "Show all",
   "listed": "Listed",
   "unlisted": "Unlisted",
+  "allActivity": "All activity",
+  "offers": "Offers",
+  "sales": "Sales",
   "search": {
     "collection": "Collection",
     "profiles": "Profiles",

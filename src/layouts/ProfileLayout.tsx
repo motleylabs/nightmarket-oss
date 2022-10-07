@@ -90,7 +90,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
                 onClick={copyText}
                 className="group flex cursor-pointer gap-1 text-sm  font-medium"
               >
-                {shortenAddress(wallet.address)}
+                {wallet.shortAddress}
                 <button className="ml-auto flex cursor-pointer items-center">
                   {copied ? <CheckIcon className="h-3 w-3 " /> : <Icon.Copy className="h-3 w-3" />}
                 </button>

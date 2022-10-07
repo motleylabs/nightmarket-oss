@@ -66,12 +66,16 @@ interface ProfileActivityForm {
 
 export default function ProfileActivity(): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
+
+  const activityFilterOptions = [
+    { label: t('allActivity'), value: ActivityFilter.All },
+    { label: t('offers'), value: ActivityFilter.Offers },
+    { label: t('sales'), value: ActivityFilter.Sales },
+  ];
+
   const { watch, control } = useForm<ProfileActivityForm>({
     defaultValues: {
-      type: {
-        value: ActivityFilter.All,
-        label: 'All',
-      },
+      type: activityFilterOptions[0],
     },
   });
   const router = useRouter();
@@ -129,15 +133,7 @@ export default function ProfileActivity(): JSX.Element {
             control={control}
             name="type"
             render={({ field: { onChange, value } }) => (
-              <Select
-                value={value}
-                onChange={onChange}
-                options={[
-                  { label: 'All activity', value: ActivityFilter.All },
-                  { label: 'Offers', value: ActivityFilter.Offers },
-                  { label: 'Sales', value: ActivityFilter.Sales },
-                ]}
-              />
+              <Select value={value} onChange={onChange} options={activityFilterOptions} />
             )}
           />
         </div>

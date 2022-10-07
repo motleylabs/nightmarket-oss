@@ -32,9 +32,7 @@ function CollectionOption({
     <div
       className={clsx(
         'group relative mb-2 rounded-2xl border border-transparent p-px',
-        selected
-          ? 'bg-gradient-to-r from-[#F85C04] to-[#7C1E05]'
-          : 'border-gray-800 bg-gray-800 hover:border-white'
+        selected ? 'bg-gradient' : 'border-gray-800 bg-gray-800 hover:border-white'
       )}
     >
       <div
