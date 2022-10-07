@@ -1,13 +1,10 @@
-import { cloneElement, ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
+import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
 import { Wallet } from '../graphql.types';
 import { ArrowPathIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
-import { Overview, SegmentedControl } from './../components/Overview';
-import Button, { ButtonSize, ButtonType } from '../components/Button';
+import { Overview } from './../components/Overview';
 import Head from 'next/head';
-import Share from '../components/Share';
-import config from '../app.config';
 import { useQuery } from '@apollo/client';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
@@ -106,7 +103,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
               >
                 <div className="flex cursor-pointer items-center gap-1 rounded-full text-sm">
                   {wallet.displayName}
-                  {/* <Icon.Twitter className="h-4 w-4" /> */}
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-3 w-3">
                     <path fill="none" d="M0 0h24v24H0z" />
                     <path
@@ -141,7 +137,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           />
           <ProfileFigure label="Total NFTs" figure={wallet.nftCounts.owned} />
           <ProfileFigure label="Listed NFTs" figure={wallet.nftCounts.listed || 0} />
-          {/* <ProfileFigure figure="56" label="Unlisted NFTs" /> */}
           <ProfileFigure
             label="$SAUCE earned"
             figure={

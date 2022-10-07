@@ -5,7 +5,6 @@ import ProfileLayout, {
   WalletProfileVariables,
 } from '../../../layouts/ProfileLayout';
 import { ControlledSelect } from '../../../components/Select';
-
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet, Nft } from '../../../graphql.types';
@@ -13,7 +12,6 @@ import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { Sidebar } from '../../../components/Sidebar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
@@ -130,9 +128,6 @@ export default function ProfileCollected({
   return (
     <>
       <Toolbar>
-        {/* <DropdownMenu 
-        items={[{label: "Price: High to low", },]}
-      />  */}
         <Sidebar.Control
           open={open}
           onChange={toggleSidebar}
@@ -154,7 +149,7 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
-          <div className="mt-4 flex flex-col gap-2 ">
+          <div className="mt-4 flex flex-col gap-2">
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />
@@ -189,7 +184,7 @@ export default function ProfileCollected({
                                       figure={cc.nftsOwned.toString()}
                                     />
                                     <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
-                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2   group-hover:visible" />
+                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
                                   </a>
                                 </Link>
                               }

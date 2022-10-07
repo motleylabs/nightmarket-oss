@@ -1,9 +1,7 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Maybe } from './../graphql.types';
-import { RadioGroup } from '@headlessui/react';
 
 interface OverviewProps {
   children: ReactNode;
@@ -125,7 +123,7 @@ function Tabs({ children }: OverviewTabsProps) {
     <nav
       className={clsx(
         'relative z-20 mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
-        `grid-cols-${children.length}`
+        `grid-cols-${children.length}` // generally an antipattern in Tailwind, but I think it makes sense here
       )}
     >
       {children}
@@ -155,6 +153,7 @@ function Tab(props: { href: string; label: string; active: boolean }) {
 }
 Overview.Tab = Tab;
 
+// NB: Keeping this until changes are finished on the collection page
 // function Tabs({ children }: OverviewTabsProps): JSX.Element {
 //   return (
 //     <nav

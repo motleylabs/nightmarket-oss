@@ -28,20 +28,20 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
   return (
-    <div className="group  overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
+    <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
       <Link href={link} passHref>
-        <a>
+        <a className="overflow-hidden">
           <img
             src={nft.image}
             alt={`Nft image for ${nft.mintAddress}`}
             className={clsx(
-              'aspect-square w-full  object-cover '
-              // 'group-hover:scale-[1.02]'
+              'aspect-square w-full  object-cover',
+              'group-hover:scale-[1.02]' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
             )}
           />
         </a>
       </Link>
-      <div className="p-4">
+      <div className="z-20 p-4">
         <Link href={link} passHref>
           <a>
             <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">

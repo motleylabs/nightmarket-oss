@@ -31,17 +31,15 @@ function CollectionOption({
   return (
     <div
       className={clsx(
-        'group relative',
-        'mb-2 rounded-2xl border border-transparent p-px',
+        'group relative mb-2 rounded-2xl border border-transparent p-px',
         selected
-          ? 'bg-gradient-to-r from-[#F85C04] to-[#7C1E05] '
-          : ' border-gray-800 bg-gray-800 hover:border-white'
+          ? 'bg-gradient-to-r from-[#F85C04] to-[#7C1E05]'
+          : 'border-gray-800 bg-gray-800 hover:border-white'
       )}
     >
       <div
         className={clsx(
           'flex h-full w-full cursor-pointer rounded-xl  bg-gray-800 p-2 transition ',
-          selected ? ' ' : '',
           className
         )}
       >

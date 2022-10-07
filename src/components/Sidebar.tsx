@@ -51,17 +51,13 @@ function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.
         onClick={onChange}
       >
         <Sidebar.FilterIcon className={clsx('mr-2 hidden h-5 w-5 md:inline-block')} />
-        {/* <span className="md:hidden">{t('filters')}</span> */}
-        <span className="">Collections</span>
-        <ChevronDownIcon
+        <span className="">{t('filters')}</span>
+        <ChevronRightIcon
           className={clsx(
-            'ml-2 h-5 w-5 md:inline-block md:-rotate-90',
-            open && !disabled && 'md:-rotate-180'
+            'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
+            open && !disabled && 'md:rotate-180'
           )}
         />
-        {/* <ChevronRightIcon
-          className={clsx('h-5 w-5 md:inline-block', open && !disabled && 'rotate-180')}
-        /> */}
       </button>
     </div>
   );

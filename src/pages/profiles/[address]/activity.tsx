@@ -5,7 +5,6 @@ import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
@@ -15,7 +14,7 @@ import Link from 'next/link';
 import { InView } from 'react-intersection-observer';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
-import Select, { ControlledSelect } from '../../../components/Select';
+import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -129,16 +128,10 @@ export default function ProfileActivity(): JSX.Element {
           <Controller
             control={control}
             name="type"
-            render={({
-              field: { onChange, name, value },
-              fieldState: { isDirty }, //optional
-              formState: { errors }, //optional, but necessary if you want to show an error message
-            }) => (
+            render={({ field: { onChange, value } }) => (
               <Select
                 value={value}
                 onChange={onChange}
-                // extraButtonClassNames={props.extraButtonClassNames}
-                // extraListClassNames={props.extraListClassNames}
                 options={[
                   { label: 'All activity', value: ActivityFilter.All },
                   { label: 'Offers', value: ActivityFilter.Offers },
