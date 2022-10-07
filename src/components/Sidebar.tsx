@@ -91,7 +91,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-themebg-900 pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
+          'fixed inset-0 z-30 h-full flex-none overflow-y-auto bg-black pr-4  md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)]',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           open && !disabled ? 'inline-block md:w-72 lg:w-96' : 'hidden'
         )}

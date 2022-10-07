@@ -20,7 +20,7 @@ export function ButtonGroup<T>({
       value={value}
       onChange={onChange}
       className={clsx(
-        'flex max-w-full flex-row items-center justify-start gap-2 rounded-full border border-themebg-600 px-1 py-1',
+        'flex max-w-full flex-row items-center justify-start gap-2 rounded-full border border-gray-750 px-1 py-1',
         className
       )}
     >
@@ -43,8 +43,8 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
         clsx(
           'flex h-10 w-28 flex-row items-center justify-center rounded-full text-sm md:text-base',
           checked
-            ? 'rounded-full bg-themebg-800 text-themetext-900'
-            : 'cursor-pointer bg-transparent text-themetext-700 hover:bg-themebg-700 hover:text-themetext-800'
+            ? 'rounded-full bg-gray-950 text-white'
+            : 'cursor-pointer bg-transparent text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )
       }
     >

@@ -79,7 +79,7 @@ function NavigationBar() {
         'sticky top-0 z-30  w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
-        'bg-themebg-900'
+        'bg-black'
       )}
     >
       {/* Night Market logo */}
@@ -111,7 +111,7 @@ function NavigationBar() {
             setSearchExpanded(true);
           }}
         >
-          <MagnifyingGlassIcon className="h-5 w-5 text-themetext-700" aria-hidden="true" />
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
         </button>
         <Search>
           <div
@@ -277,7 +277,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
         <img
           className={clsx(
             'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
-            'animate-draw-border border-2 border-orange-600 duration-100'
+            'animate-draw-border border-2 border-primary-850 duration-100'
           )}
           src={props.wallet.previewImage as string}
           alt="profile image"
@@ -439,7 +439,7 @@ function MobileNavMenu({
               <section className="flex flex-col" id="wallet-profile-viewer-mobile">
                 <div className="flex items-center p-4 ">
                   <img
-                    className="inline-block h-8 w-8 rounded-full border-2 border-orange-600 transition"
+                    className="inline-block h-8 w-8 rounded-full border-2 border-primary-850 transition"
                     src={viewerQueryResult.data.wallet.previewImage as string}
                     alt="profile image"
                   />

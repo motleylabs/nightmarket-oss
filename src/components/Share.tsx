@@ -53,7 +53,7 @@ export default function Share(props: {
             className="w-52
         overflow-hidden
         rounded-md
-        bg-themebg-800
+        bg-gray-950
         p-4
         text-white
       "
@@ -64,7 +64,7 @@ export default function Share(props: {
                   <CheckIcon className="h-4 w-4" /> <span className="pl-5">{t('copied')}</span>
                 </div>
               ) : (
-                <button onClick={copyPubKey} className="flex items-center hover:text-themetext-700">
+                <button onClick={copyPubKey} className="flex items-center hover:text-gray-300">
                   <DocumentDuplicateIcon className="h-4 w-4" />
                   <span className="pl-5">{t('copyLink')}</span>
                 </button>
@@ -77,7 +77,7 @@ export default function Share(props: {
                 )}&hashtags=${props.twitterParams.hashtags.join(',')}&url=${
                   props.twitterParams.url
                 }`}
-                className="flex items-center pt-4 hover:text-themetext-700"
+                className="flex items-center pt-4 hover:text-gray-300"
                 target="_blank"
                 rel="noreferrer"
               >

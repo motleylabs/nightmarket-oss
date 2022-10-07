@@ -157,56 +157,56 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {buy && (
           <Form
             onSubmit={handleSubmitBuy(handleBuy)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-themebg-700 md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-themeborder-700 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
             <div className="mt-4 flex flex-col gap-4 px-6 pt-8 pb-6 md:pt-0">
               <div id={'rewards'}>
-                <div className="flex flex-row items-center justify-between rounded-md bg-themeprimary-600 p-4">
+                <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-themeprimary-700">{400} $SAUCE</p>
+                  <p className="text-primary-700">{400} $SAUCE</p>
                 </div>
               </div>
               <div id={'prices'} className="flex flex-col gap-2">
                 <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {t('buyable.floorPrice', { ns: 'common' })}
                   </p>
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {nft.collection?.floorPrice} SOL
                   </p>
                 </div>
                 {listing && (
                   <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-themetext-700">
+                    <p className="text-base font-medium text-gray-300">
                       {t('buyable.listPrice', { ns: 'common' })}
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
-                    <p className="text-base font-medium text-themetext-700">
+                    <p className="text-base font-medium text-gray-300">
                       {listing.previewPrice} SOL
                     </p>
                   </div>
                 )}
                 <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {t('buyable.marketplaceFee', { ns: 'common' })}
                   </p>
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {marketplace.auctionHouses[0].fee}%
                     {/* TODO: calculate based on listing price */}
                   </p>
                 </div>
                 <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {t('buyable.currentBalance', { ns: 'common' })}
                   </p>
-                  <p className="text-base font-medium text-themetext-700">
+                  <p className="text-base font-medium text-gray-300">
                     {viewer?.solBalance || '-'} SOL
                   </p>
                 </div>
@@ -245,9 +245,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {makeOffer && (
           <Form
             onSubmit={handleSubmitOffer(handleOffer)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-themebg-700 md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-themeborder-700 p-6 text-center text-lg font-semibold text-themetext-900 md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
               {t('placeBid')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -262,7 +262,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                   {nft.collection && <h4>{nft.collection.nft.name}</h4>}
                 </div>
               </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-themetext-700">
+              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
                 {nft.collection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
@@ -284,7 +284,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 {/* Temporarily broke out of component to make it work*/}
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-themeborder-700 bg-themebg-700 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -325,9 +325,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {listNft && (
           <Form
             onSubmit={handleSubmitListNft(() => {})}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-themebg-700 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-themeborder-700 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('listNft')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -343,7 +343,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 </div>
               </div>
               <div className="mt-6 flex flex-row items-center justify-between p-4">
-                <div className="flex flex-col justify-between text-themetext-700">
+                <div className="flex flex-col justify-between text-gray-300">
                   <span>{t('highestOffer')}</span>
                   <span>--</span>
                 </div>
@@ -351,7 +351,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                   {t('accept')}
                 </Button>
               </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-themetext-700">
+              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
                 {nft.collection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
@@ -366,7 +366,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-themeborder-700 bg-themebg-700 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -404,19 +404,19 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           </Form>
         )}
         <div
-          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-themebg-700 p-6', {
+          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-gray-800 p-6', {
             'md:hidden': activeForm,
           })}
         >
           <div className="flex flex-row items-center justify-between gap-10 p-4">
             {listing && (
-              <div className="flex flex-col justify-between text-themetext-700">
+              <div className="flex flex-col justify-between text-gray-300">
                 <span>{t('listed')}</span>
                 <span className="font-semibold text-white">{listing.previewPrice} SOL</span>
               </div>
             )}
             {!listing && (
-              <div className="flex flex-col justify-between text-themetext-700">
+              <div className="flex flex-col justify-between text-gray-300">
                 <span>{t('neverSold')}</span>
                 <span>--</span>
               </div>
@@ -435,7 +435,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             )}
           </div>
           <div className="flex flex-row items-center justify-between p-4">
-            <div className="flex flex-col justify-between text-themetext-700">
+            <div className="flex flex-col justify-between text-gray-300">
               <span>{t('lastSale')}</span>
               <span>--</span>
             </div>

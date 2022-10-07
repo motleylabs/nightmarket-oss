@@ -55,18 +55,18 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
             {nft.attributes?.map((attribute) => (
               <div
-                className="flex flex-col justify-between gap-2 rounded-lg bg-themebg-700 p-4"
+                className="flex flex-col justify-between gap-2 rounded-lg bg-gray-800 p-4"
                 key={attribute.traitType}
               >
-                <span className=" text-sm text-themetext-700">{attribute.traitType}</span>
-                <span className="truncate text-themetext-900">{attribute.value}</span>
+                <span className=" text-sm text-gray-300">{attribute.traitType}</span>
+                <span className="truncate text-white">{attribute.value}</span>
               </div>
             ))}
           </div>
         </>
       )}
-      <h3 className="mb-4 text-xl text-themetext-900">{t('details')}</h3>
-      <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-themetext-700">
+      <h3 className="mb-4 text-xl text-white">{t('details')}</h3>
+      <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-gray-300">
         <li className="flex items-center justify-between">
           <div>{t('mintAddress')}</div>
           <div className="flex flex-row items-center gap-1">
@@ -82,7 +82,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               rel="nofollow noreferrer"
               href={`https://solscan.io/token/${nft.mintAddress}`}
             >
-              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-themetext-900" />
+              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
             </a>
             {nft.shortMintAddress}
           </div>
@@ -102,7 +102,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               rel="nofollow noreferrer"
               href={`https://solscan.io/token/${nft.address}`}
             >
-              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-themetext-900" />
+              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
             </a>
             {nft.shortAddress}
           </div>
@@ -123,11 +123,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
                 rel="nofollow noreferrer"
                 href={`https://solscan.io/token/${nft.collection?.nft?.mintAddress}`}
               >
-                <Icon.SolScan
-                  width={12}
-                  height={12}
-                  className="cursor-pointer fill-themetext-900"
-                />
+                <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
               </a>
               {nft.collection?.nft?.shortMintAddress}
             </div>
@@ -139,7 +135,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
             <a className="flex flex-row items-center gap-1">
               <img
                 src={nft.owner?.previewImage as string}
-                className="h-6 w-6 rounded-full border border-themebg-700 object-cover"
+                className="h-6 w-6 rounded-full border border-gray-800 object-cover"
                 alt="nft owner avatar image"
               />
               <span>{nft.owner?.displayName}</span>
@@ -157,8 +153,8 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
       </ul>
       {nft.collection && (
         <>
-          <h3 className="mb-4 text-xl text-themetext-900">{t('collection')}</h3>
-          <p className="text-themetext-700">{nft?.collection?.nft.description}</p>
+          <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
+          <p className="text-gray-300">{nft?.collection?.nft.description}</p>
         </>
       )}
     </>

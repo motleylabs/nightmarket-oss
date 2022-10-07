@@ -40,7 +40,7 @@ const Button = ({
   className,
   block = false,
   circle = false,
-  secondaryBgColor = 'bg-themebg-700',
+  secondaryBgColor = 'bg-gray-800',
   onClick,
 }: ButtonProps): JSX.Element => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
@@ -76,10 +76,9 @@ const Button = ({
         className,
         {
           'w-full': block,
-          'bg-gradient text-themetext-900':
-            type === ButtonType.Primary || type === ButtonType.Secondary,
-          'bg-themebg-700 text-themetext-900': type === ButtonType.Tertiary,
-          'border border-themebg-700 bg-none text-themetext-900': type === ButtonType.Ghost,
+          'bg-gradient text-white': type === ButtonType.Primary || type === ButtonType.Secondary,
+          'bg-gray-800 text-white': type === ButtonType.Tertiary,
+          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
           'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
@@ -97,7 +96,7 @@ const Button = ({
         content
       ) : (
         <div
-          className={clsx('h-full w-full rounded-full text-themeprimary-700', secondaryBgColor, {
+          className={clsx('h-full w-full rounded-full text-primary-700', secondaryBgColor, {
             'py-1 px-4': !circle && size === ButtonSize.Small,
             'py-3 px-6': size === ButtonSize.Large,
           })}
