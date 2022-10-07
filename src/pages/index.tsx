@@ -105,7 +105,7 @@ const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
   const { publicKey } = useWallet();
-  const trendingCollectionsRef = useRef(null);
+  const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
 
   const { watch, control, getValues } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
