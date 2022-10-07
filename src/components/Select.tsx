@@ -51,7 +51,7 @@ export default function Select<T>(props: {
                   key={optionIdx}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 px-4 ${
-                      active ? 'bg-orange-600 text-white' : 'text-white'
+                      active ? 'bg-primary-850 text-white' : 'text-white'
                     }`
                   }
                   value={option}

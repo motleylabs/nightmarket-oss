@@ -25,6 +25,8 @@ import { Listbox } from '@headlessui/react';
 import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
+import Link from 'next/link';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -177,10 +179,19 @@ export default function ProfileCollected({
                             <Collection.Option
                               selected={selected}
                               avatar={
-                                <Collection.Option.Avatar
-                                  src={cc.collection?.nft.image as string}
-                                  figure={cc.nftsOwned.toString()}
-                                />
+                                <Link
+                                  passHref
+                                  href={`/collections/${cc.collection?.nft.mintAddress}`}
+                                >
+                                  <a className="group relative">
+                                    <Collection.Option.Avatar
+                                      src={cc.collection?.nft.image as string}
+                                      figure={cc.nftsOwned.toString()}
+                                    />
+                                    <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
+                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2   group-hover:visible" />
+                                  </a>
+                                </Link>
                               }
                               header={
                                 <Collection.Option.Title>

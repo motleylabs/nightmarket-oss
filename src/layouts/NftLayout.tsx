@@ -8,7 +8,6 @@ import clsx from 'clsx';
 import { Marketplace, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonSize, ButtonType } from './../components/Button';
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import useMakeOffer from '../hooks/offer';
 import useListNft from '../hooks/list';
 import { Form } from '../components/Form';
@@ -121,14 +120,14 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="align-self-start mb-10 md:pr-10 lg:w-1/2">
+      <div className="align-self-start mb-10 lg:w-1/2 lg:pr-10">
         <img
           src={nft.image}
           alt="nft image"
           className=" top-10 z-10 w-full rounded-lg object-cover"
         />
       </div>
-      <div className="bg-gray-900 pt-0 md:pl-10 md:pt-20 lg:w-1/2">
+      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.collection ? (
             <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
@@ -158,20 +157,20 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {buy && (
           <Form
             onSubmit={handleSubmitBuy(handleBuy)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
             <div className="mt-4 flex flex-col gap-4 px-6 pt-8 pb-6 md:pt-0">
               <div id={'rewards'}>
-                <div className="flex flex-row items-center justify-between rounded-md bg-orange-200 p-4">
+                <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-orange-500">{400} $SAUCE</p>
+                  <p className="text-primary-700">{400} $SAUCE</p>
                 </div>
               </div>
               <div id={'prices'} className="flex flex-col gap-2">
@@ -246,9 +245,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {makeOffer && (
           <Form
             onSubmit={handleSubmitOffer(handleOffer)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
               {t('placeBid')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -285,7 +284,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 {/* Temporarily broke out of component to make it work*/}
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -326,9 +325,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {listNft && (
           <Form
             onSubmit={handleSubmitListNft(() => {})}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-900 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('listNft')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -367,7 +366,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -405,7 +404,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           </Form>
         )}
         <div
-          className={clsx('mb-10 flex flex-col gap-4 rounded-md p-6 shadow-xl', {
+          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-gray-800 p-6', {
             'md:hidden': activeForm,
           })}
         >
@@ -424,7 +423,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             )}
 
             {notOwner && !listing && (
-              <Button onClick={onOpenOffer} type={ButtonType.Primary} size={ButtonSize.Large}>
+              <Button onClick={onOpenOffer} type={ButtonType.Secondary} size={ButtonSize.Large}>
                 {t('bid')}
               </Button>
             )}

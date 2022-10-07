@@ -65,7 +65,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           </div>
         </>
       )}
-      <h3 className="mb-4 text-xl">{t('details')}</h3>
+      <h3 className="mb-4 text-xl text-white">{t('details')}</h3>
       <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-gray-300">
         <li className="flex items-center justify-between">
           <div>{t('mintAddress')}</div>
@@ -153,7 +153,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
       </ul>
       {nft.collection && (
         <>
-          <h3 className="mb-4 text-xl">{t('collection')}</h3>
+          <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
           <p className="text-gray-300">{nft?.collection?.nft.description}</p>
         </>
       )}

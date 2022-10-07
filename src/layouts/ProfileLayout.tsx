@@ -154,18 +154,18 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         </div>
       </section>
       {/* <SegmentedControl /> */}
-      <Overview.Tabs2>
-        <Overview.Tab2
+      <Overview.Tabs>
+        <Overview.Tab
           label="NFTs"
           href={`/profiles/${router.query.address}/collected`}
           active={router.pathname.includes('collected')}
         />
-        <Overview.Tab2
-          label="Activity"
+        <Overview.Tab
+          label={t('activity')}
           href={`/profiles/${router.query.address}/activity`}
           active={router.pathname.includes('activity')}
         />
-      </Overview.Tabs2>
+      </Overview.Tabs>
       {cloneElement(children, { walletProfileClientQuery })}
     </>
   );

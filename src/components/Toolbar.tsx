@@ -10,7 +10,7 @@ export function Toolbar({ children, className }: ToolbarProps): JSX.Element {
   return (
     <header
       className={clsx(
-        'top-0 z-10 my-4 mx-4 grid grid-cols-2 items-center justify-between gap-4 bg-gray-900 md:sticky md:mx-10 md:flex',
+        'top-0 z-10 my-4 mx-4 grid grid-cols-2 items-center justify-between gap-4 bg-black md:sticky md:mx-10 md:flex',
         className
       )}
     >

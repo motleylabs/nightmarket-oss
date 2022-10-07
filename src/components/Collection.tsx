@@ -31,6 +31,7 @@ function CollectionOption({
   return (
     <div
       className={clsx(
+        'group relative',
         'mb-2 rounded-2xl border border-transparent p-px',
         selected
           ? 'bg-gradient-to-r from-[#F85C04] to-[#7C1E05] '

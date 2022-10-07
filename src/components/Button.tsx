@@ -26,6 +26,7 @@ interface ButtonProps {
   className?: string;
   onClick?: () => any;
   circle?: boolean;
+  secondaryBgColor?: string;
 }
 
 const Button = ({
@@ -39,6 +40,7 @@ const Button = ({
   className,
   block = false,
   circle = false,
+  secondaryBgColor = 'bg-gray-800',
   onClick,
 }: ButtonProps): JSX.Element => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
@@ -50,30 +52,8 @@ const Button = ({
     }
   }, [type]);
 
-  return (
-    <button
-      className={clsx(
-        clsx,
-        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center transition-transform duration-150',
-        className,
-        {
-          'w-full': block,
-          'bg-primary text-white': type === ButtonType.Primary,
-          'bg-gray-800 text-white hover:bg-gray-700 ': type === ButtonType.Secondary,
-          'bg-gray-700 text-gray-300': type === ButtonType.Tertiary,
-          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
-          'text-xs md:text-sm': size === ButtonSize.Small,
-          'py-1 px-4': !circle && size === ButtonSize.Small,
-          'py-2 px-6': size === ButtonSize.Large,
-          'opacity-75': disabled,
-          'hover:scale-[1.02]': !disabled,
-          'h-10 w-10': circle && ButtonSize.Small,
-        }
-      )}
-      disabled={disabled}
-      type={htmlType}
-      onClick={onClick}
-    >
+  const content = (
+    <>
       {loading && (
         <TailSpin
           height="20px"
@@ -85,6 +65,45 @@ const Button = ({
       )}
       {icon && icon}
       {children}
+    </>
+  );
+
+  return (
+    <button
+      className={clsx(
+        clsx,
+        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center transition-transform duration-150',
+        className,
+        {
+          'w-full': block,
+          'bg-gradient text-white': type === ButtonType.Primary || type === ButtonType.Secondary,
+          'bg-gray-800 text-white': type === ButtonType.Tertiary,
+          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
+          'text-xs md:text-sm': size === ButtonSize.Small,
+          'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
+          'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
+          'p-[1px]': type === ButtonType.Secondary,
+          'opacity-75': disabled,
+          'hover:scale-[1.02]': !disabled,
+          'h-10 w-10': circle && ButtonSize.Small,
+        }
+      )}
+      disabled={disabled}
+      type={htmlType}
+      onClick={onClick}
+    >
+      {!(type === ButtonType.Secondary) ? (
+        content
+      ) : (
+        <div
+          className={clsx('h-full w-full rounded-full text-primary-700', secondaryBgColor, {
+            'py-1 px-4': !circle && size === ButtonSize.Small,
+            'py-3 px-6': size === ButtonSize.Large,
+          })}
+        >
+          {content}
+        </div>
+      )}
     </button>
   );
 };

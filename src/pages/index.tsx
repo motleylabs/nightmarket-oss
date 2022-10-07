@@ -145,7 +145,7 @@ const Home: NextPage = () => {
       <main className="container mx-auto px-6 pb-6 lg:px-0">
         <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
           <h1 className="text-3xl md:text-5xl">
-            {t('hero.title')} <span className="text-orange-600 ">{t('hero.title2')}</span>.
+            {t('hero.title')} <span className="text-primary-850 ">{t('hero.title2')}</span>.
           </h1>
           <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
         </section>
@@ -282,7 +282,7 @@ const Home: NextPage = () => {
                                     'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
                                   })}
                                 />
-                                {selectedTrend.floorPriceChange}%
+                                {Math.abs(selectedTrend.floorPriceChange)}%
                               </p>
                             </div>
                           </td>
@@ -304,7 +304,7 @@ const Home: NextPage = () => {
                                     'rotate-0 transform': selectedTrend.volumeChange >= 0,
                                   })}
                                 />
-                                {selectedTrend.volumeChange}%
+                                {Math.abs(selectedTrend.volumeChange)}%
                               </p>
                             </div>
                           </td>

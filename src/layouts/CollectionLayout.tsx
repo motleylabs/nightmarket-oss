@@ -9,6 +9,7 @@ import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
 import config from '../app.config';
 import Share from '../components/Share';
+import { useRouter } from 'next/router';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -19,6 +20,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
   const address = collection.nft.mintAddress;
+  const router = useRouter();
+
   const loading = !currenciesReady;
   return (
     <>
@@ -73,16 +76,27 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 circle
                 icon={<ArrowPathIcon width={14} height={14} className="stroke-gray-300" />}
                 size={ButtonSize.Small}
-                type={ButtonType.Secondary}
+                type={ButtonType.Tertiary}
               />
             </div>
           </Overview.Aside>
         </Overview.Hero>
         <Overview.Tabs>
-          <Overview.Tab href={`/collections/${address}/nfts`}>{t('nfts')}</Overview.Tab>
-          <Overview.Tab href={`/collections/${address}/activity`}>{t('activity')}</Overview.Tab>
-          <Overview.Tab href={`/collections/${address}/analytics`}>{t('analytics')}</Overview.Tab>
-          <Overview.Tab href={`/collections/${address}/about`}>{t('about')}</Overview.Tab>
+          <Overview.Tab
+            label={t('nfts')}
+            href={`/collections/${address}/nfts`}
+            active={router.pathname.includes('nfts')}
+          />
+          <Overview.Tab
+            label="Activity"
+            href={`/collections/${address}/activity`}
+            active={router.pathname.includes('activity')}
+          />
+          <Overview.Tab
+            label={t('analytics')}
+            href={`/collections/${address}/analytics`}
+            active={router.pathname.includes('analytics')}
+          />
         </Overview.Tabs>
         <Overview.Divider />
         {children}
