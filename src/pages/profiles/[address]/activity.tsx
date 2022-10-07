@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { InView } from 'react-intersection-observer';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
+import Select, { ControlledSelect } from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -60,13 +61,18 @@ enum ActivityFilter {
 }
 
 interface ProfileActivityForm {
-  type: ActivityFilter;
+  type: { value: ActivityFilter; label: string };
 }
 
 export default function ProfileActivity(): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
   const { watch, control } = useForm<ProfileActivityForm>({
-    defaultValues: { type: ActivityFilter.All },
+    defaultValues: {
+      type: {
+        value: ActivityFilter.All,
+        label: 'All',
+      },
+    },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
@@ -92,7 +98,7 @@ export default function ProfileActivity(): JSX.Element {
         eventTypes: null,
       };
 
-      switch (type) {
+      switch (type?.value) {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
@@ -117,21 +123,30 @@ export default function ProfileActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div />
-        <Controller
-          control={control}
-          name="type"
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ActivityFilter.All}>{t('all')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Listings}>
-                {t('listings')}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Offers}>{t('offers')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Sales}>{t('sales')}</ButtonGroup.Option>
-            </ButtonGroup>
-          )}
-        />
+        <div className="hidden md:block" />
+        <div className="col-span-2 md:col-span-1">
+          <Controller
+            control={control}
+            name="type"
+            render={({
+              field: { onChange, name, value },
+              fieldState: { isDirty }, //optional
+              formState: { errors }, //optional, but necessary if you want to show an error message
+            }) => (
+              <Select
+                value={value}
+                onChange={onChange}
+                // extraButtonClassNames={props.extraButtonClassNames}
+                // extraListClassNames={props.extraListClassNames}
+                options={[
+                  { label: 'All activity', value: ActivityFilter.All },
+                  { label: 'Offers', value: ActivityFilter.Offers },
+                  { label: 'Sales', value: ActivityFilter.Sales },
+                ]}
+              />
+            )}
+          />
+        </div>
       </Toolbar>
       <div className="mt-4 flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (

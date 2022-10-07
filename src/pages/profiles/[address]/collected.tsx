@@ -25,7 +25,6 @@ import { Listbox } from '@headlessui/react';
 import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
-import DropdownMenu from '../../../components/DropdownMenu';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -141,6 +140,7 @@ export default function ProfileCollected({
           id="sort"
           control={control}
           options={[
+            { value: 'showAll', label: 'All' },
             { value: 'recentlyListed', label: 'Recently listed' },
             { value: 'priceLowHigh', label: 'Price: Low to High' },
             { value: 'priceHighLow', label: 'Price: High to Low' },
@@ -152,7 +152,7 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col gap-2 ">
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />
@@ -213,7 +213,7 @@ export default function ProfileCollected({
                     gap={4}
                     hasMore={hasMore}
                     grid={{
-                      [ListGridSize.Default]: [1, 1],
+                      [ListGridSize.Default]: [2, 2],
                       [ListGridSize.Small]: [2, 2],
                       [ListGridSize.Medium]: [2, 3],
                       [ListGridSize.Large]: [3, 4],

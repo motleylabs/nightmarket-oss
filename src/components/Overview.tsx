@@ -135,37 +135,56 @@ function Tabs({ children }: OverviewTabsProps): JSX.Element {
 
 Overview.Tabs = Tabs;
 
+function Tab2(props: { href: string; label: string; active: boolean }) {
+  return (
+    <Link href={props.href} passHref>
+      <a>
+        <div
+          className={clsx(
+            'flex h-10  flex-row items-center justify-center rounded-full  font-semibold',
+            props.active
+              ? 'rounded-full bg-gray-800 text-white'
+              : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+          )}
+        >
+          {props.label}
+        </div>
+      </a>
+    </Link>
+  );
+}
+
+Overview.Tab2 = Tab2;
+
 function Tabs2({ children }: OverviewTabsProps) {
   const router = useRouter();
-  console.log('rout', router.pathname, router.query);
 
   return (
-    <nav className={clsx('relative mx-auto flex flex-row items-center   justify-center')}>
-      <ButtonGroup value={router.pathname} onChange={() => {}} className="top-5 z-20 md:absolute ">
-        <Link href={`/profiles/${router.query.address}/collected`} passHref>
-          <a>
-            <ButtonGroupOption value={'/profiles/[address]/collected'}>
-              {'Collected'}
-            </ButtonGroupOption>
-          </a>
-        </Link>
-        <Link href={`/profiles/${router.query.address}/activity`} passHref>
-          <a>
-            <ButtonGroupOption value={'/profiles/[address]/activity'}>
-              {'Activity'}
-            </ButtonGroupOption>
-          </a>
-        </Link>
-        {/* <Link href={`/profiles/${router.query.address}/analytics`} passHref>
-          <a>
-            <ButtonGroupOption value={'/profiles/[address]/analytics'}>
-              {'Analytics'}
-            </ButtonGroupOption>
-          </a>
-        </Link> */}
-      </ButtonGroup>
+    <nav
+      className={clsx(
+        'relative z-20 mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
+        `grid-cols-${children.length}`
+      )}
+    >
+      {/* <Tab2
+        label="NFTs"
+        href={`/profiles/${router.query.address}/collected`}
+        active={router.pathname.includes('collected')}
+      />
+      <Tab2
+        label="Activity"
+        href={`/profiles/${router.query.address}/activity`}
+        active={router.pathname.includes('activity')}
+      />
 
-      {/* {children} */}
+      <Tab2
+        label="Offers"
+        href={`/profiles/${router.query.address}/offers`}
+        active={router.pathname.includes('offers')}
+      /> */}
+      {/* <div className="flex max-w-full flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1"></div> */}
+
+      {children}
     </nav>
   );
 }
@@ -276,7 +295,7 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
       value={value}
       className={({ checked }) =>
         clsx(
-          'flex h-10 w-40 flex-row items-center justify-center rounded-full  font-semibold',
+          'flex h-10  flex-row items-center justify-center rounded-full  font-semibold',
           checked
             ? 'rounded-full bg-gray-800 text-white'
             : 'cursor-pointer bg-gray-900 text-gray-300 hover:bg-gray-800 hover:text-gray-200'

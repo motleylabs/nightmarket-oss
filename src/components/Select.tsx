@@ -9,15 +9,18 @@ import { Controller } from 'react-hook-form';
 export default function Select<T>(props: {
   value: { label: string; value: T }; // TODO make better types, somethng with extend or similar
   onChange: any;
+  extraButtonClassNames?: string;
+  extraListClassNames?: string;
   options: { label: string; value: T }[];
 }) {
   return (
     <Listbox value={props.value} onChange={props.onChange}>
       {({ open }) => (
-        <div className="relative">
+        <div className="relative ">
           <Listbox.Button
             className={clsx(
-              'relative w-full cursor-pointer rounded-full border  border-gray-800 bg-gray-800 py-3 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2  focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
+              'relative flex w-full flex-grow cursor-pointer rounded-full border border-gray-800 bg-gray-800 py-3 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2  focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
+              props.extraButtonClassNames,
               open && ''
             )}
           >
@@ -37,7 +40,12 @@ export default function Select<T>(props: {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md  bg-gray-900 text-base shadow-lg ring-1 ring-black ring-opacity-5  focus:outline-none">
+            <Listbox.Options
+              className={clsx(
+                'border-ima absolute z-30  mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-900 text-base shadow-lg ring-1 ring-black ring-opacity-5  focus:outline-none',
+                props.extraListClassNames
+              )}
+            >
               {props.options.map((option, optionIdx) => (
                 <Listbox.Option
                   key={optionIdx}
@@ -68,6 +76,8 @@ export default function Select<T>(props: {
 export function ControlledSelect(props: {
   id: string;
   control: any;
+  extraButtonClassNames?: string;
+  extraListClassNames?: string;
   required?: boolean;
   options: {
     value: any;
@@ -83,7 +93,15 @@ export function ControlledSelect(props: {
         field: { onChange, name, value },
         fieldState: { isDirty }, //optional
         formState: { errors }, //optional, but necessary if you want to show an error message
-      }) => <Select value={value} onChange={onChange} options={props.options} />}
+      }) => (
+        <Select
+          value={value}
+          onChange={onChange}
+          extraButtonClassNames={props.extraButtonClassNames}
+          extraListClassNames={props.extraListClassNames}
+          options={props.options}
+        />
+      )}
     />
   );
 }

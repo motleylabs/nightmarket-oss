@@ -31,20 +31,29 @@ function CollectionOption({
   return (
     <div
       className={clsx(
-        'mb-2 flex cursor-pointer rounded-md border border-gray-800 p-2 transition hover:scale-[1.02]',
-        selected && 'bg-gray-700',
-        className
+        'mb-2 rounded-2xl border border-transparent p-px',
+        selected
+          ? 'bg-gradient-to-r from-[#F85C04] to-[#7C1E05] '
+          : ' border-gray-800 bg-gray-800 hover:border-white'
       )}
     >
-      {avatar}
-      <div className="flex w-full flex-col justify-between overflow-hidden px-3">
-        {header}
-        <div className="flex items-end justify-between">
-          <div className="-mb-1 flex flex-col">
-            <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
-            <Price price={floorPrice} />
+      <div
+        className={clsx(
+          'flex h-full w-full cursor-pointer rounded-xl  bg-gray-800 p-2 transition ',
+          selected ? ' ' : '',
+          className
+        )}
+      >
+        {avatar}
+        <div className="flex w-full flex-col justify-between overflow-hidden px-3">
+          {header}
+          <div className="flex items-end justify-between">
+            <div className="-mb-1 flex flex-col">
+              <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
+              <Price price={floorPrice} />
+            </div>
+            {children}
           </div>
-          {children}
         </div>
       </div>
     </div>
@@ -63,7 +72,7 @@ function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Ele
     <div className="relative flex aspect-square h-16 w-16">
       <img
         src={src}
-        className="absolute top-0 left-0 h-full w-full rounded object-cover"
+        className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
         alt="collection avatar"
       />
       {figure && (
