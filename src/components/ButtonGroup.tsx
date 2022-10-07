@@ -43,7 +43,7 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
         clsx(
           'flex h-10 w-28 flex-row items-center justify-center rounded-full text-sm md:text-base',
           checked
-            ? 'rounded-full bg-gray-950 text-white'
+            ? 'rounded-full bg-gray-900 text-white'
             : 'cursor-pointer bg-transparent text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )
       }

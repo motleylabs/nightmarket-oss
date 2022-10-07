@@ -4,17 +4,24 @@ import { Nft } from '../graphql.types';
 interface HeroImageProps {
   nft?: Nft;
   classname?: string;
+  imgUrlTemp: string; // to be removed once live data arrives
   hPosition: 'left' | 'right';
   vPosition: 'top' | 'bottom';
 }
 
-const HeroImage = ({ nft, classname, hPosition, vPosition }: HeroImageProps): JSX.Element => {
+const HeroImage = ({
+  nft,
+  imgUrlTemp,
+  classname,
+  hPosition,
+  vPosition,
+}: HeroImageProps): JSX.Element => {
   return (
     <div className={clsx('realtive', classname)}>
       <img
         className="h-32 w-32 rounded-2xl object-contain lg:h-48 lg:w-48"
         alt="nft name"
-        src="https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000"
+        src={imgUrlTemp}
       />
       <div
         className={clsx(
@@ -43,18 +50,21 @@ const HeroCreative = ({ nfts }: HeroCreativeProps): JSX.Element => {
   return (
     <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px]">
       <HeroImage
+        imgUrlTemp="https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000"
         nft={nfts[0]}
         classname="bottom-0 right-1/2 absolute z-10 -mr-16 lg:-mr-24"
         hPosition="left"
         vPosition="bottom"
       />
       <HeroImage
+        imgUrlTemp="https://metadata.degods.com/g/3097.png"
         nft={nfts[0]}
         classname="bottom-1/2 -mb-14 lg:-mb-4 left-0 absolute"
         hPosition="left"
         vPosition="top"
       />
       <HeroImage
+        imgUrlTemp="https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png"
         nft={nfts[0]}
         classname="bottom-1/2 -mb-20 lg:-mb-14 right-0 absolute"
         hPosition="right"
