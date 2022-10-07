@@ -27,6 +27,8 @@ import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
 import Button, { ButtonType } from '../components/Button';
 import HeroCreative from '../components/HeroCreative';
+import useLogin from '../hooks/login';
+import Router from 'next/router';
 
 function LoadingTrendingCollection() {
   return (
@@ -104,8 +106,9 @@ const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
-  const { publicKey } = useWallet();
+  const { publicKey, connected } = useWallet();
   const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
+  const onLogin = useLogin();
 
   const { watch, control, getValues } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
@@ -128,6 +131,14 @@ const Home: NextPage = () => {
 
   const onExploreNftsClick = () => {
     trendingCollectionsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const onSellNftsClick = () => {
+    if (connected && publicKey) {
+      Router.push(`/profiles/${publicKey}`);
+    } else {
+      onLogin();
+    }
   };
 
   useEffect(() => {
@@ -163,6 +174,7 @@ const Home: NextPage = () => {
                 className="w-full md:w-auto"
                 type={ButtonType.Secondary}
                 secondaryBgColor="bg-themebg-900"
+                onClick={onSellNftsClick}
               >
                 {t('sellNfts')}
               </Button>
