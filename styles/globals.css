@@ -21,14 +21,18 @@ h6 {
 
 body,
 html {
-  @apply bg-gray-900;
+  @apply bg-black;
+}
+
+.bg-gradient {
+  @apply bg-gradient-to-r from-primary-900 to-primary-600;
 }
 
 .input {
-  @apply rounded-md border border-gray-800;
+  @apply rounded-md border border-gray-725;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
-  @apply bg-gray-900 font-sans;
+  @apply bg-gray-950 font-sans;
 }
 
 .wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {

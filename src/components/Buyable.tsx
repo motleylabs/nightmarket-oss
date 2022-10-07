@@ -75,7 +75,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'loading-rewards'}>
-                <div className="h-10 rounded-md bg-orange-200 bg-opacity-50" />
+                <div className="bg-primary-500 h-10 rounded-md bg-opacity-50" />
               </section>
               <section id={'loading-prices'} className="flex flex-col gap-2">
                 <div className="flex flex-row justify-between gap-2">
@@ -116,14 +116,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'rewards'}>
-                <div className="flex flex-row items-center justify-between rounded-md bg-orange-200 p-4">
+                <div className="bg-primary-500 flex flex-row items-center justify-between rounded-md p-4">
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
                   <p>
-                    {t('buyable.earnSauce')} <span className="text-orange-500">{400} $SAUCE</span>
+                    {t('buyable.earnSauce')} <span className="text-primary-700">{400} $SAUCE</span>
                   </p>
                 </div>
               </section>

@@ -27,23 +27,31 @@ module.exports = {
         md: '0.25rem',
       },
       colors: {
-        orange: {
-          200: '#2C2119',
-          500: '#DA6C1D',
-          600: '#E15A0A',
+        primary: {
+          500: '#2C2119',
+          600: '#7C1E05',
+          650: '#C6580A',
+          700: '#DA6C1D',
+          850: '#E15A0A',
+          800: '#EC9D08',
+          900: '#F85C04',
         },
         gray: {
           25: '#FEFEFE',
           50: '#F4F4F4',
           100: '#E0E0E0',
           200: '#C6C6C6',
-          300: '#A8A8A8',
+          300: '#A8A8A8', // Part of new theme
           400: '#8D8D8D',
+          450: '#828282', // Part of new theme
           500: '#707070',
           600: '#525252',
           700: '#383838',
-          800: '#262626',
+          725: '#2B2A30', // Part of new theme
+          750: '#262626', // Part of new theme
+          800: '#17161C', // Part of new theme
           900: '#191919',
+          950: '#0B0A0E', // Part of new theme
         },
       },
       keyframes: {

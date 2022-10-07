@@ -55,17 +55,17 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
             {nft.attributes?.map((attribute) => (
               <div
-                className="flex flex-col justify-between gap-2 rounded-md border border-gray-800 p-2"
+                className="flex flex-col justify-between gap-2 rounded-lg bg-gray-800 p-4"
                 key={attribute.traitType}
               >
                 <span className=" text-sm text-gray-300">{attribute.traitType}</span>
-                <span className="text-white">{attribute.value}</span>
+                <span className="truncate text-white">{attribute.value}</span>
               </div>
             ))}
           </div>
         </>
       )}
-      <h3 className="mb-4 text-xl">{t('details')}</h3>
+      <h3 className="mb-4 text-xl text-white">{t('details')}</h3>
       <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-gray-300">
         <li className="flex items-center justify-between">
           <div>{t('mintAddress')}</div>
@@ -153,7 +153,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
       </ul>
       {nft.collection && (
         <>
-          <h3 className="mb-4 text-xl">{t('collection')}</h3>
+          <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
           <p className="text-gray-300">{nft?.collection?.nft.description}</p>
         </>
       )}
