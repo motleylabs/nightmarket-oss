@@ -72,7 +72,7 @@ interface SidebarPageProps {
 
 function SidebarPage({ children, open }: SidebarPageProps): JSX.Element {
   return (
-    <section className="mx-4 mb-6 flex  gap-4 md:mx-10">
+    <section className="mx-4 mb-6 flex gap-6 md:mx-10">
       {Children.map(children, (child) => cloneElement(child, { open }))}
     </section>
   );

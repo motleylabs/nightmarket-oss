@@ -212,7 +212,7 @@ export default function ProfileCollected({
                     expanded={open}
                     data={nftsQuery.data?.wallet.nfts}
                     loading={nftsQuery.loading}
-                    gap={4}
+                    gap={6}
                     hasMore={hasMore}
                     grid={{
                       [ListGridSize.Default]: [2, 2],
