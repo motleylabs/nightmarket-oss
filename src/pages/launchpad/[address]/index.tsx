@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Icon from '../../../components/Icon'
 import Link from "next/link";
+import clsx from 'clsx';
 
 const testPreview = [
     {
@@ -42,6 +43,9 @@ const testPreview = [
 ]
 
 export default function LaunchpadPage() {
+
+    const mintedPercentage = 103/500 * 100
+
     return (
         <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
             <Head>
@@ -106,8 +110,11 @@ export default function LaunchpadPage() {
                                 <p className="text-xs text-gray-300 font-normal">Minting</p>
                                 <div className="flex flex-row gap-2 items-center">
                                     <p className="text-base font-bold">103/500</p>
-                                    <div className="rounded-full w-32 bg-gray-700 h-2">
-                                        
+                                    <div className="rounded-full w-32 bg-gray-700 h-2 flex">
+                                        <div className={clsx(
+                                            "bg-orange-500 h-full rounded-full",
+                                            `w-[${mintedPercentage.toFixed(0)}%]`,
+                                        )}/>
                                     </div>
                                 </div>
                             </div>
