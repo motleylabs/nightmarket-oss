@@ -44,9 +44,10 @@ module.exports = {
         },
         gray: {
           25: '#FEFEFE',
-          50: '#F4F4F4',
+          50: '#F2F2F2', // Part of new theme
           100: '#E0E0E0',
           200: '#C6C6C6',
+          250: '#BDBDBD', // Part of new theme
           300: '#A8A8A8', // Part of new theme
           400: '#8D8D8D',
           450: '#828282', // Part of new theme

@@ -7,7 +7,7 @@ query TrendingCollectionsQuery(
     sortBy: $sortBy
     timeFrame: $timeFrame
     orderDirection: $orderDirection
-    limit: 12
+    limit: 10
     offset: 0
   ) {
     floorPrice
