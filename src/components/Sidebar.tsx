@@ -32,12 +32,13 @@ function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
 Sidebar.FilterIcon = SidebarFilterIcon;
 
 interface SidebarControlProps {
+  label: string;
   open: boolean;
   onChange: () => void;
   disabled?: boolean;
 }
 
-function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.Element {
+function SidebarControl({ open, label, onChange, disabled }: SidebarControlProps): JSX.Element {
   const { t } = useTranslation('common');
   return (
     <div className={clsx('relative')}>
@@ -50,8 +51,8 @@ function SidebarControl({ open, onChange, disabled }: SidebarControlProps): JSX.
         disabled={disabled}
         onClick={onChange}
       >
-        <Sidebar.FilterIcon className={clsx('mr-2 hidden h-5 w-5 md:inline-block')} />
-        <span className="">{t('filters')}</span>
+        {/* <Sidebar.FilterIcon className={clsx('mr-2 hidden h-5 w-5 md:inline-block')} /> */}
+        <span className="">{label}</span>
         <ChevronRightIcon
           className={clsx(
             'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
@@ -93,7 +94,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:flex md:max-h-[calc(100vh-74px)] md:px-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:max-w-xs' : 'hidden'

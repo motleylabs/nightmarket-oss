@@ -82,7 +82,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               rel="nofollow noreferrer"
               href={`https://solscan.io/token/${nft.mintAddress}`}
             >
-              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
+              <Icon.SolScan width={12} height={12} className="cursor-pointer fill-gray-500" />
             </a>
             {nft.shortMintAddress}
           </div>
