@@ -26,7 +26,6 @@ interface ButtonProps {
   className?: string;
   onClick?: () => any;
   circle?: boolean;
-  secondaryBgColor?: string;
 }
 
 const Button = ({
@@ -40,7 +39,6 @@ const Button = ({
   className,
   block = false,
   circle = false,
-  secondaryBgColor = 'bg-gray-800',
   onClick,
 }: ButtonProps): JSX.Element => {
   const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
@@ -76,7 +74,8 @@ const Button = ({
         className,
         {
           'w-full': block,
-          'bg-gradient text-white': type === ButtonType.Primary || type === ButtonType.Secondary,
+          'bg-gradient font-bold text-white':
+            type === ButtonType.Primary || type === ButtonType.Secondary,
           'bg-gray-800 text-white': type === ButtonType.Tertiary,
           'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
@@ -96,7 +95,7 @@ const Button = ({
         content
       ) : (
         <div
-          className={clsx('h-full w-full rounded-full text-primary-700', secondaryBgColor, {
+          className={clsx('h-full w-full rounded-full bg-black text-primary-700', {
             'py-1 px-4': !circle && size === ButtonSize.Small,
             'py-3 px-6': size === ButtonSize.Large,
           })}
