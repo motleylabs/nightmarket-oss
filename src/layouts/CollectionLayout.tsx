@@ -62,7 +62,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               <Icon.Sol noGradient /> {collection.compactFloorPrice}
             </CollectionFigure>
             <CollectionFigure label="30 Day Volume">
-              <Icon.Sol /> {collection.compactVolumeTotal}
+              <Icon.Sol noGradient /> {collection.compactVolumeTotal}
             </CollectionFigure>
             <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
             <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>
