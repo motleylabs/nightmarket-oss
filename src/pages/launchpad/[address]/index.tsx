@@ -54,20 +54,20 @@ export default function LaunchpadPage() {
                 <meta name="description" content="Launchpad test description"></meta>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <div className="align-self-start mb-10 lg:w-1/2 flex flex-col gap-10">
+            <div className="align-self-start mb-10 lg:w-1/2 w-full flex flex-col gap-10">
                 <img src={'/images/launchpad/motley-launchpad-nft.png'} alt={"launchpad image"} className="top-10 z-10 w-full rounded-lg object-cover"/>
                 
             </div>
-            <div className="top-20 w-full pt-0 lg:sticky lg:w-1/2 lg:pl-10 gap-6 flex flex-col">
+            <div className="top-20 w-full pt-0 lg:sticky lg:w-1/2 lg:pl-10 gap-6 flex flex-col mb-10">
                 <h6 className="text-2xl font-bold">Mint phases</h6>
-                {/* TODO: make into a component that contains minting logic */}
+                {/* TODO: modify launchpad id system/props to match whatever integration needed */}
                 <Launchpad launchpadId={"testLaunch"}>
                     <Launchpad.Finished title={"Founders mint"} price={2.5} minted={25} supply={25} mintType={MintOption.Standard} soldOut={true} soldOutTimeMilliseconds={200000}/>
                     <Launchpad.Active title={"Allowlist mint"} price={3} minted={100} supply={500} hasAccess={false} mintType={MintOption.Standard}/>
                     <Launchpad.Upcoming title={"Public mint"} price={3} supply={9000} isPublic={true} mintType={MintOption.Dynamic} mintDate={addDays(new Date(), 1)}/>
                 </Launchpad>
             </div>
-            <div className="align-self-start mb-10 md-pr-10 lg:w-1/2 flex flex-col gap-4">
+            <div className="align-self-start mb-10 md-pr-10 lg:w-1/2 flex flex-col gap-4 w-full">
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-row gap-4 justify-between items-center">
                         <h4 className="text-3xl font-bold">Team Motley</h4>
