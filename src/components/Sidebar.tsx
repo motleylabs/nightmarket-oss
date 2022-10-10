@@ -44,14 +44,13 @@ function SidebarControl({ open, label, onChange, disabled }: SidebarControlProps
     <div className={clsx('relative')}>
       <button
         className={clsx(
-          'z-40  flex w-full flex-grow  items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-3  px-4 text-white transition  hover:border-white',
-          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0   ',
+          'z-40 flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-3 px-4 text-white transition hover:border-white',
+          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
           open && !disabled && ''
         )}
         disabled={disabled}
         onClick={onChange}
       >
-        {/* <Sidebar.FilterIcon className={clsx('mr-2 hidden h-5 w-5 md:inline-block')} /> */}
         <span className="">{label}</span>
         <ChevronRightIcon
           className={clsx(
@@ -94,7 +93,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px]  md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'

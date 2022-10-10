@@ -42,7 +42,7 @@ function AttributeOptionHeader({
 }): JSX.Element {
   return (
     <>
-      <span className=" font-semibold text-white">{group.name}</span>
+      <span className="font-semibold text-white">{group.name}</span>
       <div className="flex items-center ">
         <span className="mr-4 flex h-5 w-5 items-center justify-center rounded bg-gray-700 text-sm font-medium text-white">
           {group.variants.length}

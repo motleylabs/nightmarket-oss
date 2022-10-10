@@ -184,30 +184,13 @@ export default function CollectionNfts() {
     <>
       <Toolbar>
         <Sidebar.Control label={t('filters')} open={open} onChange={toggleSidebar} />
-        {/* <Controller
-          control={control}
-          name="listed"
-          render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>
-                {t('all', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>
-                {t('listed', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>
-                {t('unlisted', { ns: 'common' })}
-              </ButtonGroup.Option>
-            </ButtonGroup>
-          )}
-        /> */}
         <ControlledSelect control={control} id="sortBySelect" options={sortOptions} />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
-          <div className="mt-4 flex  w-full flex-col gap-2 ">
-            <div className="flex w-full justify-between rounded-2xl bg-gray-800 p-4 font-semibold ">
-              Show unlisted{' '}
+          <div className="mt-4 flex w-full flex-col gap-2">
+            <div className="flex w-full justify-between rounded-2xl bg-gray-800 p-4 font-semibold">
+              Show unlisted
               <Controller
                 control={control}
                 name="listed"
