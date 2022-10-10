@@ -2,13 +2,14 @@ query TrendingCollectionsQuery(
   $sortBy: CollectionSort!
   $timeFrame: CollectionInterval!
   $orderDirection: OrderDirection!
+  $offset: Int!
 ) {
   collectionTrends(
     sortBy: $sortBy
     timeFrame: $timeFrame
     orderDirection: $orderDirection
     limit: 10
-    offset: 0
+    offset: $offset
   ) {
     floorPrice
     compactFloorPrice @client

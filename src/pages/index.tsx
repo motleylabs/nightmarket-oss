@@ -89,6 +89,7 @@ interface TrendingCollectionVariables {
   sortBy: CollectionSort;
   timeFrame: CollectionInterval;
   orderDirection: OrderDirection;
+  offset: number;
 }
 
 interface SelectedTrend {
@@ -140,9 +141,19 @@ const Home: NextPage = () => {
         sortBy: DEFAULT_SORT,
         timeFrame: DEFAULT_TIME_FRAME,
         orderDirection: DEFAULT_ORDER,
+        offset: 0,
       },
     }
   );
+
+  const onShowMoreTrends = () => {
+    trendingCollectionsQuery.fetchMore({
+      variables: {
+        ...trendingCollectionsQuery.variables,
+        offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
+      },
+    });
+  };
 
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
@@ -150,6 +161,7 @@ const Home: NextPage = () => {
         sortBy: sort?.value ?? DEFAULT_SORT,
         timeFrame: filter ?? DEFAULT_TIME_FRAME,
         orderDirection: DEFAULT_ORDER,
+        offset: 0,
       };
       trendingCollectionsQuery.refetch(variables);
     });
@@ -401,7 +413,12 @@ const Home: NextPage = () => {
               )}
             </div>
           </div>
-          <Button type={ButtonType.Secondary} secondaryBgColor="bg-black" className="mx-auto mt-8">
+          <Button
+            type={ButtonType.Secondary}
+            secondaryBgColor="bg-black"
+            className="mx-auto mt-8"
+            onClick={onShowMoreTrends}
+          >
             {t('trendingCollections.showMoreCollections')}
           </Button>
         </section>
