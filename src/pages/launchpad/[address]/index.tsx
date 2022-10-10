@@ -2,6 +2,9 @@ import Head from "next/head";
 import Icon from '../../../components/Icon'
 import Link from "next/link";
 import clsx from 'clsx';
+import Button, { ButtonType } from "../../../components/Button";
+import Launchpad, { MintOption } from "../../../components/Launchpad";
+import { addDays } from "date-fns";
 
 const testPreview = [
     {
@@ -44,8 +47,6 @@ const testPreview = [
 
 export default function LaunchpadPage() {
 
-    const mintedPercentage = 103/500 * 100
-
     return (
         <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
             <Head>
@@ -55,6 +56,18 @@ export default function LaunchpadPage() {
             </Head>
             <div className="align-self-start mb-10 lg:w-1/2 flex flex-col gap-10">
                 <img src={'/images/launchpad/motley-launchpad-nft.png'} alt={"launchpad image"} className="top-10 z-10 w-full rounded-lg object-cover"/>
+                
+            </div>
+            <div className="top-20 w-full pt-0 lg:sticky lg:w-1/2 lg:pl-10 gap-6 flex flex-col">
+                <h6 className="text-2xl font-bold">Mint phases</h6>
+                {/* TODO: make into a component that contains minting logic */}
+                <Launchpad launchpadId={"testLaunch"}>
+                    <Launchpad.Finished title={"Founders mint"} price={2.5} minted={25} supply={25} mintType={MintOption.Standard} soldOut={true} soldOutTimeMilliseconds={200000}/>
+                    <Launchpad.Active title={"Allowlist mint"} price={3} minted={100} supply={500} hasAccess={false} mintType={MintOption.Standard}/>
+                    <Launchpad.Upcoming title={"Public mint"} price={3} supply={9000} isPublic={true} mintType={MintOption.Dynamic} mintDate={addDays(new Date(), 1)}/>
+                </Launchpad>
+            </div>
+            <div className="align-self-start mb-10 md-pr-10 lg:w-1/2 flex flex-col gap-4">
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-row gap-4 justify-between items-center">
                         <h4 className="text-3xl font-bold">Team Motley</h4>
@@ -89,36 +102,6 @@ export default function LaunchpadPage() {
                         {testPreview.map((previewItem, i) => (
                             <img src={previewItem?.image} alt={`preview-image-${i}`} className="rounded-lg object-cover"/>
                         ))}
-                    </div>
-                </div>
-            </div>
-            <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pl-10 flex flex-col gap-6">
-                <h6 className="text-2xl font-bold">Mint phases</h6>
-                {/* TODO: make into a component that contains minting logic */}
-                <div className="flex flex-col justify-between rounded-lg border-2 border-primary-700 p-4 bg-gray-900">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-row gap-2 items-center">
-                            <div className="rounded-full w-2 h-2 bg-primary-700"/>
-                            <p className="text-xs text-gray-300 font-semibold"> You are not on the allowlist</p>
-                        </div>
-                        <div className="text-xl text-white font-bold flex flex-row justify-between">
-                            <h6>Allowlist mint</h6>
-                            <p><span className="text-xs text-gray-300 font-normal">Price</span> 3 SOL</p>
-                        </div>
-                        <div className="flex flex-row items-center justify-between">
-                            <div className="flex flex-col gap-2">
-                                <p className="text-xs text-gray-300 font-normal">Minting</p>
-                                <div className="flex flex-row gap-2 items-center">
-                                    <p className="text-base font-bold">103/500</p>
-                                    <div className="rounded-full w-32 bg-gray-700 h-2 flex">
-                                        <div className={clsx(
-                                            "bg-orange-500 h-full rounded-full",
-                                            `w-[${mintedPercentage.toFixed(0)}%]`,
-                                        )}/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
