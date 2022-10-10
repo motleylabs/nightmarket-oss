@@ -6,6 +6,7 @@ import Button, { ButtonType } from "../../../components/Button";
 import Launchpad, { MintOption } from "../../../components/Launchpad";
 import { addDays } from "date-fns";
 import Footer from "../../../components/Footer";
+import Drop from "../../../components/Drop";
 
 const testPreview = [
     {
@@ -98,6 +99,8 @@ export default function LaunchpadPage() {
                             </div>
                         </div>
                     </div>
+                    {/* TODO: move to hero page when ready */}
+                    <Drop title={"Team Motley"} description={"I want to be the very best that noone ever was... To catch them is my real test... and to train them is my cause!!!"} price={128} supply={10000} image={'/images/launchpad/motley-launchpad-nft.png'} link={'/launchpad/test'}/>
                     <div className="flex flex-col gap-2">
                         <h6 className="text-2xl font-bold">Preview</h6>
                         <div className="grid grid-cols-6 gap-4">
