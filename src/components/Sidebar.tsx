@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ChevronDownIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
 import Button from './Button';
@@ -94,10 +94,10 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:flex md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px]  md:max-h-[calc(100vh-74px)] md:px-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
-          open && !disabled ? 'w-full md:max-w-xs' : 'hidden'
+          open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'
         )}
       >
         <div className="flex w-full justify-between px-2 pt-4 pb-2  md:hidden">
