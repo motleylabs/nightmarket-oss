@@ -25,38 +25,42 @@ import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
-import { LargeNumberLike } from 'crypto';
 import Button, { ButtonType } from '../components/Button';
 import { ControlledSelect } from '../components/Select';
 
 function LoadingTrendingCollection() {
   return (
-    <>
-      <td className="flex flex-row items-center gap-6 py-2 pl-4 lg:pl-0">
-        <div className="h-10 w-10 animate-pulse rounded-md bg-gray-800" />
-        <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex justify-start">
-          <div className="h-4 w-16 animate-pulse rounded-md bg-gray-800" />
+    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 lg:gap-7">
+      {/* Collection Image */}
+      <div className="h-16 w-16 rounded-lg bg-gray-725 md:h-12 md:w-12" />
+      <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+        {/* Collection Name */}
+        <div className="lg:w-40">
+          <div className="h-6 w-20 rounded-md bg-gray-725" />
         </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex justify-start">
-          <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        {/* Data Points */}
+        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
         </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex justify-start">
-          <div className="h-4 w-12 animate-pulse rounded-md bg-gray-800" />
+        {/* Nfts */}
+        <div className="hidden gap-4 lg:flex">
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
         </div>
-      </td>
-      <td className="pl-4 lg:pl-0">
-        <div className="flex justify-end">
-          <div className="h-4 w-36 animate-pulse rounded-md bg-gray-800" />
-        </div>
-      </td>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -111,7 +115,6 @@ const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
   const { t } = useTranslation('home');
-  const { publicKey } = useWallet();
 
   const sortOptions: SortOption[] = [
     { value: CollectionSort.Volume, label: t('trendingCollections.sort.byVolumeTraded') },
