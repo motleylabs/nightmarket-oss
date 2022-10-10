@@ -207,9 +207,6 @@ const Home: NextPage = () => {
         <div className="mt-8 flex gap-20 md:mt-32">
           <section className="flex w-full flex-col  text-left md:w-1/2">
             <h1 className="mb-4 font-serif text-3xl lg:text-5xl ">{t('hero.title')}</h1>
-            {/* <h2 className="text-base font-medium text-gray-450 lg:text-2xl">
-              {t('hero.subtitle1')}
-            </h2> */}
             <h2 className="text-base text-gray-450 lg:text-2xl ">{t('hero.subtitle2')}</h2>
             <div className="mt-16 flex gap-6 lg:gap-8">
               <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
