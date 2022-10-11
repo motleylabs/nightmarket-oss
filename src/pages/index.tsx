@@ -25,7 +25,7 @@ import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import config from '../app.config';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { ControlledSelect } from '../components/Select';
 
 function LoadingTrendingCollection() {
@@ -287,124 +287,129 @@ const Home: NextPage = () => {
                     }
 
                     const ShowcaseNft = ({ image, name, price }: ShowcaseNftProps) => (
-                      <div className="flex w-16 flex-col items-center hover:scale-110">
+                      <div className="group flex w-16 flex-col items-center hover:scale-110">
                         <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-                        <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1">
+                        <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
                           <Icon.Sol className="h-3 w-3" noGradient />
-                          <span className="text-sm text-gray-50 ">{price}</span>
+                          <span className="text-sm text-gray-50">{price}</span>
                         </div>
+                        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+                          Buy
+                        </Button>
                       </div>
                     );
                     return (
-                      <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 text-white lg:gap-7">
-                        <Link href={`/collections/${trend.collection.nft.mintAddress}`}>
-                          <a>
+                      <Link href={`/collections/${trend.collection.nft.mintAddress}`}>
+                        <a>
+                          <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 text-white lg:gap-7">
                             <img
                               src={trend.collection.nft.image}
                               alt={trend.collection.nft.name}
                               className="h-16 w-16 rounded-lg object-cover hover:scale-110 md:h-12 md:w-12 "
                             />
-                          </a>
-                        </Link>
-                        <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                          <div className="lg:w-40">{trend.collection.nft.name}</div>
-                          <div className="flex lg:w-96 lg:justify-between lg:gap-8">
-                            <DataPoint
-                              value={trend.compactFloorPrice}
-                              mainIcon={<Icon.Sol noGradient />}
-                              name={t('trendingCollections.globalFloor')}
-                              status={
-                                <p
-                                  className={clsx(
-                                    clsx,
-                                    'flex items-center gap-1 text-xs md:text-sm',
-                                    {
-                                      'text-[#12B76A]': selectedTrend.floorPriceChange >= 0,
-                                      'text-[#F04438]': selectedTrend.floorPriceChange < 0,
-                                    }
-                                  )}
-                                >
-                                  {Math.abs(selectedTrend.floorPriceChange)}%
-                                  <ArrowUpIcon
-                                    className={clsx(clsx, 'h-2 w-2', {
-                                      'rotate-180 transform': selectedTrend.floorPriceChange < 0,
-                                      'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
-                                    })}
-                                  />
-                                </p>
-                              }
-                            />
-                            <DataPoint
-                              value={selectedTrend.volume}
-                              mainIcon={<Icon.Sol noGradient />}
-                              name={volumeLabel}
-                              status={
-                                <p
-                                  className={clsx(
-                                    clsx,
-                                    'flex items-center gap-1 text-xs md:text-sm',
-                                    {
-                                      'text-[#12B76A]': selectedTrend.volumeChange >= 0,
-                                      'text-[#F04438]': selectedTrend.volumeChange < 0,
-                                    }
-                                  )}
-                                >
-                                  {Math.abs(selectedTrend.volumeChange)}%
-                                  <ArrowUpIcon
-                                    className={clsx(clsx, 'h-2 w-2', {
-                                      'rotate-180 transform': selectedTrend.volumeChange < 0,
-                                      'rotate-0 transform': selectedTrend.volumeChange >= 0,
-                                    })}
-                                  />
-                                </p>
-                              }
-                            />
-                            {/* //TODO: Add real value and status */}
-                            <DataPoint
-                              value={'128'}
-                              name={t('trendingCollections.sauceEarned')}
-                              status={
-                                <p
-                                  className={clsx(
-                                    clsx,
-                                    'flex items-center gap-1 text-xs md:text-sm',
-                                    {
-                                      'text-[#12B76A]': 12 >= 0,
-                                      'text-[#F04438]': 12 < 0,
-                                    }
-                                  )}
-                                >
-                                  {Math.abs(12)}%
-                                  <ArrowUpIcon
-                                    className={clsx(clsx, 'h-2 w-2', {
-                                      'rotate-180 transform': 12 < 0,
-                                      'rotate-0 transform': 12 >= 0,
-                                    })}
-                                  />
-                                </p>
-                              }
-                            />
+
+                            <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                              <div className="lg:w-40">{trend.collection.nft.name}</div>
+                              <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+                                <DataPoint
+                                  value={trend.compactFloorPrice}
+                                  mainIcon={<Icon.Sol noGradient />}
+                                  name={t('trendingCollections.globalFloor')}
+                                  status={
+                                    <p
+                                      className={clsx(
+                                        clsx,
+                                        'flex items-center gap-1 text-xs md:text-sm',
+                                        {
+                                          'text-[#12B76A]': selectedTrend.floorPriceChange >= 0,
+                                          'text-[#F04438]': selectedTrend.floorPriceChange < 0,
+                                        }
+                                      )}
+                                    >
+                                      {Math.abs(selectedTrend.floorPriceChange)}%
+                                      <ArrowUpIcon
+                                        className={clsx(clsx, 'h-2 w-2', {
+                                          'rotate-180 transform':
+                                            selectedTrend.floorPriceChange < 0,
+                                          'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
+                                        })}
+                                      />
+                                    </p>
+                                  }
+                                />
+                                <DataPoint
+                                  value={selectedTrend.volume}
+                                  mainIcon={<Icon.Sol noGradient />}
+                                  name={volumeLabel}
+                                  status={
+                                    <p
+                                      className={clsx(
+                                        clsx,
+                                        'flex items-center gap-1 text-xs md:text-sm',
+                                        {
+                                          'text-[#12B76A]': selectedTrend.volumeChange >= 0,
+                                          'text-[#F04438]': selectedTrend.volumeChange < 0,
+                                        }
+                                      )}
+                                    >
+                                      {Math.abs(selectedTrend.volumeChange)}%
+                                      <ArrowUpIcon
+                                        className={clsx(clsx, 'h-2 w-2', {
+                                          'rotate-180 transform': selectedTrend.volumeChange < 0,
+                                          'rotate-0 transform': selectedTrend.volumeChange >= 0,
+                                        })}
+                                      />
+                                    </p>
+                                  }
+                                />
+                                {/* //TODO: Add real value and status */}
+                                <DataPoint
+                                  value={'128'}
+                                  name={t('trendingCollections.sauceEarned')}
+                                  status={
+                                    <p
+                                      className={clsx(
+                                        clsx,
+                                        'flex items-center gap-1 text-xs md:text-sm',
+                                        {
+                                          'text-[#12B76A]': 12 >= 0,
+                                          'text-[#F04438]': 12 < 0,
+                                        }
+                                      )}
+                                    >
+                                      {Math.abs(12)}%
+                                      <ArrowUpIcon
+                                        className={clsx(clsx, 'h-2 w-2', {
+                                          'rotate-180 transform': 12 < 0,
+                                          'rotate-0 transform': 12 >= 0,
+                                        })}
+                                      />
+                                    </p>
+                                  }
+                                />
+                              </div>
+                              {/* TODO: Add real data */}
+                              <div className="hidden gap-4 lg:flex">
+                                <ShowcaseNft
+                                  image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
+                                  name="abc"
+                                  price={26}
+                                />
+                                <ShowcaseNft
+                                  image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
+                                  name="abc"
+                                  price={26}
+                                />
+                                <ShowcaseNft
+                                  image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
+                                  name="abc"
+                                  price={26}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          {/* TODO: Add real data */}
-                          <div className="hidden gap-4 lg:flex">
-                            <ShowcaseNft
-                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <ShowcaseNft
-                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <ShowcaseNft
-                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                              name="abc"
-                              price={26}
-                            />
-                          </div>
-                        </div>
-                      </div>
+                        </a>
+                      </Link>
                     );
                   }
                 })
