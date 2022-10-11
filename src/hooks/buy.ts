@@ -7,7 +7,7 @@ import {
   UseFormRegister,
   UseFormSetValue,
 } from 'react-hook-form';
-import { AhListing, Marketplace, Nft } from '../graphql.types';
+import { AhListing, AuctionHouse, Nft } from '../graphql.types';
 import useLogin from './login';
 import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
@@ -34,7 +34,7 @@ interface BuyForm {
 
 interface BuyListedForm extends BuyForm {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
   ahListing: AhListing;
 }
 
@@ -71,19 +71,19 @@ export default function useBuyNow(): BuyContext {
     resolver: zodResolver(schema),
   });
 
-  const onBuyNow = async ({ nft, marketplace, ahListing }: BuyListedForm) => {
+  const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
     if (connected && publicKey && signTransaction && nft.owner?.address) {
       // TODO buy flow
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
+
+      const auctionHouse = new PublicKey(auctionHouse.address);
       const listedPrice = ahListing.price.toNumber();
       const seller = new PublicKey(nft?.owner?.address);
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const auctionHouseTreasury = new PublicKey(ah.auctionHouseTreasury);
+      const authority = new PublicKey(auctionHouse.authority);
+      const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const auctionHouseTreasury = new PublicKey(auctionHouse.auctionHouseTreasury);
       const sellerTradeState = new PublicKey(ahListing.tradeState);
       const sellerTradeStateBump = ahListing.tradeStateBump;
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
@@ -212,15 +212,22 @@ export default function useBuyNow(): BuyContext {
       tx.add(buyerATAInstruction);
       tx.add(sellerATAInstruction);
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {

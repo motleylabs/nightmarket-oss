@@ -2,7 +2,7 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
@@ -11,10 +11,11 @@ import Icon from './Icon';
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
 import { viewerVar } from '../cache';
+import config from './../app.config';
 
 interface OfferableData {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface RenderProps {
@@ -35,15 +36,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
     offerableQuery({
-      variables: { address: mintAddress, subdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN },
+      variables: { address: mintAddress, auctionHouse: config.auctionHouse },
     });
     setOpen(true);
-  };
-
-  const handleOffer = async ({ amount }: { amount: string }) => {
-    if (data?.nft && data?.marketplace) {
-      await onMakeOffer({ amount, nft: data?.nft, marketplace: data.marketplace });
-    }
   };
 
   const [offerableQuery, { data, loading, refetch, previousData }] =
@@ -59,6 +54,12 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     onOpenOffer,
     offerFormState,
   } = useMakeOffer();
+
+  const handleOffer = async ({ amount }: { amount: string }) => {
+    if (data?.nft && data?.auctionHouse) {
+      await onMakeOffer({ amount, nft: data?.nft, auctionHouse: data.auctionHOuse });
+    }
+  };
 
   return (
     <>

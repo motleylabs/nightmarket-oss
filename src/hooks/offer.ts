@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Marketplace, Nft, Offer } from '../graphql.types';
+import { AuctionHouse, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import {
   createCreateOfferInstruction,
@@ -29,7 +29,7 @@ interface OfferForm {
 
 interface MakeOfferForm extends OfferForm {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface CancelOfferForm extends MakeOfferForm {
@@ -47,9 +47,9 @@ interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
-  onUpdateOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
-  onCancelOffer: ({ amount, nft, marketplace, ahOffer }: CancelOfferForm) => Promise<void>;
+  onMakeOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
+  onUpdateOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
+  onCancelOffer: ({ amount, nft, auctionHouse, ahOffer }: CancelOfferForm) => Promise<void>;
   onOpenOffer: () => void;
   onCloseOffer: () => void;
   offerFormState: FormState<OfferForm>;
@@ -69,14 +69,13 @@ export default function useMakeOffer(): MakeOfferContext {
     resolver: zodResolver(schema),
   });
 
-  const onMakeOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+  const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
+      const auctionHouseAddress = new PublicKey(auctionHouse.address);
       const offerPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const authority = new PublicKey(auctionHouse.authority);
+      const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
@@ -85,11 +84,11 @@ export default function useMakeOffer(): MakeOfferContext {
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
       const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
       const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
-        auctionHouse,
+        auctionHouseAddress,
         associatedTokenAcc,
         treasuryMint,
         tokenMint,
@@ -100,18 +99,18 @@ export default function useMakeOffer(): MakeOfferContext {
       const [buyerTradeState, buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
           publicKey,
-          auctionHouse,
+          auctionHouseAddress,
           treasuryMint,
           tokenMint,
           offerPrice,
           1
         );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
+      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
 
       const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
 
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
 
       const accounts: CreateOfferInstructionAccounts = {
         wallet: publicKey,
@@ -124,7 +123,7 @@ export default function useMakeOffer(): MakeOfferContext {
         escrowPaymentAccount: escrowPaymentAcc,
         authority,
         rewardCenter,
-        auctionHouse,
+        auctionHouse: auctionHouseAddress,
         auctionHouseFeeAccount: ahFeeAcc,
         buyerTradeState,
         ahAuctioneerPda: auctioneer,
@@ -143,15 +142,23 @@ export default function useMakeOffer(): MakeOfferContext {
       const instruction = createCreateOfferInstruction(accounts, args);
       const tx = new Transaction();
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {
@@ -164,14 +171,13 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
-  const onUpdateOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
+  const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
+      const auctionHouseAddress = new PublicKey(auctionHouse.address);
       const newOfferPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const authority = new PublicKey(auctionHouse.authority);
+      const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
@@ -180,11 +186,11 @@ export default function useMakeOffer(): MakeOfferContext {
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
       const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
       const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
-        auctionHouse,
+        auctionHouseAddress,
         associatedTokenAcc,
         treasuryMint,
         tokenMint,
@@ -195,27 +201,27 @@ export default function useMakeOffer(): MakeOfferContext {
       const [buyerTradeState, buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
           publicKey,
-          auctionHouse,
+          auctionHouseAddress,
           treasuryMint,
           tokenMint,
           newOfferPrice,
           1
         );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
+      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
 
       const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
 
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
 
-      const token = new PublicKey(config.rewardCenter.token);
+      // const token = new PublicKey(config.rewardCenter.token);
 
       const accounts: UpdateOfferInstructionAccounts = {
         wallet: publicKey,
         offer,
         rewardCenter,
         buyerTokenAccount: associatedTokenAcc,
-        auctionHouse,
+        auctionHouse: auctionHouseAddress,
         authority,
         transferAuthority: publicKey,
         treasuryMint,
@@ -237,15 +243,22 @@ export default function useMakeOffer(): MakeOfferContext {
       const instruction = createUpdateOfferInstruction(accounts, args);
       const tx = new Transaction();
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {
@@ -258,14 +271,13 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
-  const onCancelOffer = async ({ amount, nft, marketplace, ahOffer }: CancelOfferForm) => {
+  const onCancelOffer = async ({ amount, nft, auctionHouse, ahOffer }: CancelOfferForm) => {
     if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
+      const auctionHouseAddress = new PublicKey(auctionHouse.address);
       const offerPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const authority = new PublicKey(auctionHouse.authority);
+      const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
@@ -274,14 +286,14 @@ export default function useMakeOffer(): MakeOfferContext {
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
       const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
       const [buyerReceiptTokenAccount] =
         await AuctionHouseProgram.findAssociatedTokenAccountAddress(tokenMint, publicKey);
 
       const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
-        auctionHouse,
+        auctionHouseAddress,
         associatedTokenAcc,
         treasuryMint,
         tokenMint,
@@ -289,11 +301,11 @@ export default function useMakeOffer(): MakeOfferContext {
         1
       );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
+      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
 
       const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
 
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
+      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
 
       const accounts: CancelOfferInstructionAccounts = {
         wallet: publicKey,
@@ -306,7 +318,7 @@ export default function useMakeOffer(): MakeOfferContext {
         tokenMint,
         authority,
         rewardCenter,
-        auctionHouse,
+        auctionHouse: auctionHouseAddress,
         auctionHouseFeeAccount: ahFeeAcc,
         tradeState: sellerTradeState,
         ahAuctioneerPda: auctioneer,
@@ -325,15 +337,22 @@ export default function useMakeOffer(): MakeOfferContext {
       const instruction = createCancelOfferInstruction(accounts, args);
       const tx = new Transaction();
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {

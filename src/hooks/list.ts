@@ -128,15 +128,22 @@ export default function useListNft(): ListNftContext {
 
       const tx = new Transaction();
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(tx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {

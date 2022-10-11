@@ -1,6 +1,6 @@
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
@@ -9,10 +9,11 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { Form } from './Form';
 import useBuyNow from '../hooks/buy';
 import { viewerVar } from '../cache';
+import config from './../app.config';
 
 interface BuyableData {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface RenderProps {
@@ -30,7 +31,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [open, setOpen] = useState(false);
   const openBuyNow = (mintAddress: string) => {
     buyableQuery({
-      variables: { address: mintAddress, subdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN },
+      variables: { address: mintAddress, auctionHouse: config.auctionHouse },
     });
     setOpen(true);
   };
@@ -40,10 +41,10 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
-  const nightmarketListings = data?.nft.listings?.filter(
-    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
+  const marketplaceListings = data?.nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === config.auctionHouse
   );
-  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+  const listing = marketplaceListings?.sort((a, b) => a.price - b.price)[0];
 
   const { onBuyNow, handleSubmitBuy, onCloseBuy, buyFormState, setValue } = useBuyNow();
   useEffect(() => {
@@ -52,8 +53,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   }, [setValue, listing]);
 
   const handleBuy = async () => {
-    if (data?.nft && data.marketplace && data.nft.listings && listing) {
-      await onBuyNow({ marketplace: data.marketplace, nft: data.nft, ahListing: listing });
+    if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
+      await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });
     }
   };
 

@@ -1,16 +1,13 @@
 #import "./fragments/listing.graphql"
 
-query OfferableQuery($address: String!, $subdomain: String!) {
-  marketplace(subdomain: $subdomain) {
-    configAddress
-    auctionHouses {
-      address
-      sellerFeeBasisPoints
-      fee @client
-      treasuryMint
-      authority
-      auctionHouseFeeAccount
-    }
+query OfferableQuery($address: String!, $auctionHouse: String!) {
+  auctionHouse(address: $auctionHouse) {
+    address
+    sellerFeeBasisPoints
+    fee @client
+    treasuryMint
+    authority
+    auctionHouseFeeAccount
   }
 
   nft: nftByMintAddress(address: $address) {

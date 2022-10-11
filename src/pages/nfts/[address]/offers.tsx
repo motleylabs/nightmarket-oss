@@ -29,7 +29,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     query: NftQuery,
     variables: {
       address: params?.address,
-      subdomain: config.marketplaceSubdomain,
+      auctionHouse: config.auctionHouse,
     },
   });
 

@@ -2,18 +2,15 @@
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
 
-query NftQuery($address: String!, $subdomain: String!) {
-  marketplace(subdomain: $subdomain) {
-    configAddress
-    auctionHouses {
-      address
-      sellerFeeBasisPoints
-      fee @client
-      treasuryMint
-      authority
-      auctionHouseFeeAccount
-      auctionHouseTreasury
-    }
+query NftQuery($address: String!, $auctionHouse: String!) {
+  auctionHouse(address: $auctionHouse) {
+    address
+    sellerFeeBasisPoints
+    fee @client
+    treasuryMint
+    authority
+    auctionHouseFeeAccount
+    auctionHouseTreasury
   }
 
   nft: nftByMintAddress(address: $address) {
