@@ -26,8 +26,7 @@
     },
     "sort": {
       "byVolumeTraded": "By volume traded",
-      "byFloorPrice": "By floor price",
-      "bySauceEarned": "By $SAUCE earned"
+      "byFloorPrice": "By floor price"
     },
     "showMoreCollections": "Show more collections"
   },

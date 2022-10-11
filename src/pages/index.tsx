@@ -122,11 +122,6 @@ const Home: NextPage = () => {
       value: CollectionSort.Floor,
       label: t('trendingCollections.sort.byFloorPrice'),
     },
-    //TODO: Replace value with sauce earned
-    {
-      value: CollectionSort.Floor,
-      label: t('trendingCollections.sort.bySauceEarned'),
-    },
   ];
 
   const { watch, control, getValues } = useForm<TrendingCollectionForm>({
@@ -210,7 +205,7 @@ const Home: NextPage = () => {
                   </ButtonGroup>
                 )}
               />
-              <div className="hidden flex-grow sm:w-60 sm:flex-grow-0 lg:block">
+              <div className="hidden flex-grow sm:w-48 sm:flex-grow-0 lg:block">
                 <ControlledSelect control={control} id="sort" options={sortOptions} />
               </div>
             </div>
