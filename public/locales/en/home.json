@@ -11,25 +11,7 @@
   "topVolume": {
     "title": "Top volume"
   },
-  "trendingCollections": {
-    "title": "Trending collections",
-    "collection": "Collection",
-    "globalFloor": "Global floor",
-    "24hVolume": "24h volume",
-    "7dVolume": "7d volume",
-    "30dVolume": "30d volume",
-    "sauceEarned": "$SAUCE earned",
-    "filters": {
-      "day": "1 Day",
-      "week": "1 Week",
-      "month": "1 Month"
-    },
-    "sort": {
-      "byVolumeTraded": "By volume traded",
-      "byFloorPrice": "By floor price"
-    },
-    "showMoreCollections": "Show more collections"
-  },
+
   "topMarketCap": {
     "title": "Top marketcap"
   },

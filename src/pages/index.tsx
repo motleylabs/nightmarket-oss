@@ -28,42 +28,6 @@ import config from '../app.config';
 import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { ControlledSelect } from '../components/Select';
 
-function LoadingTrendingCollection() {
-  return (
-    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 lg:gap-7">
-      {/* Collection Image */}
-      <div className="h-16 w-16 rounded-lg bg-gray-725 md:h-12 md:w-12" />
-      <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-        {/* Collection Name */}
-        <div className="lg:w-40">
-          <div className="h-6 w-20 rounded-md bg-gray-725" />
-        </div>
-        {/* Data Points */}
-        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
-          <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-          </div>
-          <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-          </div>
-          <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-          </div>
-        </div>
-        {/* Nfts */}
-        <div className="hidden gap-4 lg:flex">
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionTrend[];
   collectionsFeaturedByMarketCap: CollectionTrend[];
@@ -114,13 +78,16 @@ const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
 const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
-  const { t } = useTranslation('home');
+  const { t } = useTranslation(['home', 'collection']);
 
   const sortOptions: SortOption[] = [
-    { value: CollectionSort.Volume, label: t('trendingCollections.sort.byVolumeTraded') },
+    {
+      value: CollectionSort.Volume,
+      label: t('collection:trendingCollectionsSort.byVolumeTraded'),
+    },
     {
       value: CollectionSort.Floor,
-      label: t('trendingCollections.sort.byFloorPrice'),
+      label: t('collection:trendingCollectionsSort.byFloorPrice'),
     },
   ];
 
@@ -186,7 +153,7 @@ const Home: NextPage = () => {
               'mb-5 flex w-full flex-col items-center justify-between gap-4 md:mb-16 md:flex-row'
             }
           >
-            <h1 className="m-0 text-2xl">{t('trendingCollections.title')}</h1>
+            <h1 className="m-0 text-2xl">{t('collection:trendingCollections')}</h1>
             <div className="mx-auto flex flex-row items-center gap-4 md:mx-0">
               <Controller
                 control={control}
@@ -194,13 +161,13 @@ const Home: NextPage = () => {
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
                     <ButtonGroup.Option value={CollectionInterval.OneDay}>
-                      {t('trendingCollections.filters.day')}
+                      {t('collection:filters.day')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.SevenDay}>
-                      {t('trendingCollections.filters.week')}
+                      {t('collection:filters.week')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
-                      {t('trendingCollections.filters.month')}
+                      {t('collection:filters.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
@@ -210,219 +177,125 @@ const Home: NextPage = () => {
               </div>
             </div>
           </header>
-          <div className="scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
-            <div className="w-full">
-              {trendingCollectionsQuery.loading ? (
-                <>
-                  <LoadingTrendingCollection />
+          <Collection.List>
+            {trendingCollectionsQuery.loading ? (
+              <>
+                <Collection.List.Loading />
+                <Collection.List.Loading />
+                <Collection.List.Loading />
+                <Collection.List.Loading />
+              </>
+            ) : (
+              trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+                let selectedTrend: SelectedTrend;
+                let volumeLabel: string;
 
-                  <LoadingTrendingCollection />
+                switch (timeFrame) {
+                  case CollectionInterval.OneDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.oneDayFloorPriceChange,
+                      volume: trend.compactOneDayVolume,
+                      volumeChange: trend.oneDayVolumeChange,
+                      salesCount: trend.compactOneDaySalesCount,
+                    };
+                    volumeLabel = t('collection:24hVolume');
+                    break;
+                  case CollectionInterval.SevenDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.sevenDayFloorPriceChange,
+                      volume: trend.compactSevenDayVolume,
+                      volumeChange: trend.sevenDayVolumeChange,
+                      salesCount: trend.compactSevenDaySalesCount,
+                    };
+                    volumeLabel = t('collection:7dVolume');
+                    break;
+                  case CollectionInterval.ThirtyDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.thirtyDayFloorPriceChange,
+                      volume: trend.compactThirtyDayVolume,
+                      volumeChange: trend.thirtyDayVolumeChange,
+                      salesCount: trend.compactThirtyDaySalesCount,
+                    };
+                    volumeLabel = t('collection:30dVolume');
+                    break;
+                }
 
-                  <LoadingTrendingCollection />
+                if (trend.collection) {
+                  return (
+                    <Collection.List.Row mindAddress={trend.collection.nft.mintAddress}>
+                      <Collection.List.Col classname="w-16 h-16 md:h-12 md:w-12 hover:scale-110">
+                        <img
+                          src={trend.collection.nft.image}
+                          alt={trend.collection.nft.name}
+                          className="h-full w-full rounded-lg object-cover "
+                        />
+                      </Collection.List.Col>
+                      <Collection.List.Col classname="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                        <div className="lg:w-40">{trend.collection.nft.name}</div>
+                        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+                          <Collection.List.DataPoint
+                            value={trend.compactFloorPrice}
+                            icon={<Icon.Sol noGradient />}
+                            name={t('collection:globalFloor')}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.floorPriceChange}
+                              />
+                            }
+                          />
+                          <Collection.List.DataPoint
+                            value={selectedTrend.volume}
+                            icon={<Icon.Sol noGradient />}
+                            name={volumeLabel}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.volumeChange}
+                              />
+                            }
+                          />
 
-                  <LoadingTrendingCollection />
-                </>
-              ) : (
-                trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
-                  let selectedTrend: SelectedTrend;
-                  let volumeLabel: string;
-
-                  switch (timeFrame) {
-                    case CollectionInterval.OneDay:
-                      selectedTrend = {
-                        floorPrice: trend.compactFloorPrice,
-                        floorPriceChange: trend.oneDayFloorPriceChange,
-                        volume: trend.compactOneDayVolume,
-                        volumeChange: trend.oneDayVolumeChange,
-                        salesCount: trend.compactOneDaySalesCount,
-                      };
-                      volumeLabel = t('trendingCollections.24hVolume');
-                      break;
-                    case CollectionInterval.SevenDay:
-                      selectedTrend = {
-                        floorPrice: trend.compactFloorPrice,
-                        floorPriceChange: trend.sevenDayFloorPriceChange,
-                        volume: trend.compactSevenDayVolume,
-                        volumeChange: trend.sevenDayVolumeChange,
-                        salesCount: trend.compactSevenDaySalesCount,
-                      };
-                      volumeLabel = t('trendingCollections.7dVolume');
-                      break;
-                    case CollectionInterval.ThirtyDay:
-                      selectedTrend = {
-                        floorPrice: trend.compactFloorPrice,
-                        floorPriceChange: trend.thirtyDayFloorPriceChange,
-                        volume: trend.compactThirtyDayVolume,
-                        volumeChange: trend.thirtyDayVolumeChange,
-                        salesCount: trend.compactThirtyDaySalesCount,
-                      };
-                      volumeLabel = t('trendingCollections.30dVolume');
-                      break;
-                  }
-
-                  if (trend.collection) {
-                    interface DataPointProps {
-                      mainIcon?: ReactElement;
-                      name: string;
-                      value: Maybe<string> | undefined;
-                      status?: ReactElement;
-                    }
-                    const DataPoint = ({ mainIcon, name, value, status }: DataPointProps) => (
-                      <div className="flex w-28 flex-col gap-1 sm:w-full">
-                        <div className="text-xs text-gray-250 md:text-sm">{name}</div>
-                        <div className="flex w-32 flex-row items-center justify-start gap-2">
-                          <p className="flex items-center text-sm font-semibold md:text-base">
-                            {mainIcon}
-                            {value}
-                          </p>
-                          {status}
+                          {/* //TODO: Add real data */}
+                          <Collection.List.DataPoint
+                            value={'128'}
+                            name={t('collection:sauceEarned')}
+                            status={<Collection.List.DataPoint.Status value={12} />}
+                          />
                         </div>
-                      </div>
-                    );
-
-                    interface ShowcaseNftProps {
-                      image: string;
-                      name: string;
-                      price: number;
-                    }
-
-                    const ShowcaseNft = ({ image, name, price }: ShowcaseNftProps) => (
-                      <div className="group flex w-16 flex-col items-center hover:scale-110">
-                        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-                        <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
-                          <Icon.Sol className="h-3 w-3" noGradient />
-                          <span className="text-sm text-gray-50">{price}</span>
+                        {/* TODO: Add real data */}
+                        <div className="hidden gap-4 lg:flex">
+                          <Collection.List.ShowcaseNft
+                            image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
+                            name="abc"
+                            price={26}
+                          />
+                          <Collection.List.ShowcaseNft
+                            image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
+                            name="abc"
+                            price={26}
+                          />
+                          <Collection.List.ShowcaseNft
+                            image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
+                            name="abc"
+                            price={26}
+                          />
                         </div>
-                        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-                          Buy
-                        </Button>
-                      </div>
-                    );
-                    return (
-                      <Link href={`/collections/${trend.collection.nft.mintAddress}`}>
-                        <a>
-                          <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 text-white lg:gap-7">
-                            <img
-                              src={trend.collection.nft.image}
-                              alt={trend.collection.nft.name}
-                              className="h-16 w-16 rounded-lg object-cover hover:scale-110 md:h-12 md:w-12 "
-                            />
-
-                            <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                              <div className="lg:w-40">{trend.collection.nft.name}</div>
-                              <div className="flex lg:w-96 lg:justify-between lg:gap-8">
-                                <DataPoint
-                                  value={trend.compactFloorPrice}
-                                  mainIcon={<Icon.Sol noGradient />}
-                                  name={t('trendingCollections.globalFloor')}
-                                  status={
-                                    <p
-                                      className={clsx(
-                                        clsx,
-                                        'flex items-center gap-1 text-xs md:text-sm',
-                                        {
-                                          'text-[#12B76A]': selectedTrend.floorPriceChange >= 0,
-                                          'text-[#F04438]': selectedTrend.floorPriceChange < 0,
-                                        }
-                                      )}
-                                    >
-                                      {Math.abs(selectedTrend.floorPriceChange)}%
-                                      <ArrowUpIcon
-                                        className={clsx(clsx, 'h-2 w-2', {
-                                          'rotate-180 transform':
-                                            selectedTrend.floorPriceChange < 0,
-                                          'rotate-0 transform': selectedTrend.floorPriceChange >= 0,
-                                        })}
-                                      />
-                                    </p>
-                                  }
-                                />
-                                <DataPoint
-                                  value={selectedTrend.volume}
-                                  mainIcon={<Icon.Sol noGradient />}
-                                  name={volumeLabel}
-                                  status={
-                                    <p
-                                      className={clsx(
-                                        clsx,
-                                        'flex items-center gap-1 text-xs md:text-sm',
-                                        {
-                                          'text-[#12B76A]': selectedTrend.volumeChange >= 0,
-                                          'text-[#F04438]': selectedTrend.volumeChange < 0,
-                                        }
-                                      )}
-                                    >
-                                      {Math.abs(selectedTrend.volumeChange)}%
-                                      <ArrowUpIcon
-                                        className={clsx(clsx, 'h-2 w-2', {
-                                          'rotate-180 transform': selectedTrend.volumeChange < 0,
-                                          'rotate-0 transform': selectedTrend.volumeChange >= 0,
-                                        })}
-                                      />
-                                    </p>
-                                  }
-                                />
-                                {/* //TODO: Add real value and status */}
-                                <DataPoint
-                                  value={'128'}
-                                  name={t('trendingCollections.sauceEarned')}
-                                  status={
-                                    <p
-                                      className={clsx(
-                                        clsx,
-                                        'flex items-center gap-1 text-xs md:text-sm',
-                                        {
-                                          'text-[#12B76A]': 12 >= 0,
-                                          'text-[#F04438]': 12 < 0,
-                                        }
-                                      )}
-                                    >
-                                      {Math.abs(12)}%
-                                      <ArrowUpIcon
-                                        className={clsx(clsx, 'h-2 w-2', {
-                                          'rotate-180 transform': 12 < 0,
-                                          'rotate-0 transform': 12 >= 0,
-                                        })}
-                                      />
-                                    </p>
-                                  }
-                                />
-                              </div>
-                              {/* TODO: Add real data */}
-                              <div className="hidden gap-4 lg:flex">
-                                <ShowcaseNft
-                                  image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                                  name="abc"
-                                  price={26}
-                                />
-                                <ShowcaseNft
-                                  image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                                  name="abc"
-                                  price={26}
-                                />
-                                <ShowcaseNft
-                                  image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                                  name="abc"
-                                  price={26}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      </Link>
-                    );
-                  }
-                })
-              )}
-            </div>
-          </div>
+                      </Collection.List.Col>
+                    </Collection.List.Row>
+                  );
+                }
+              })
+            )}
+          </Collection.List>
           <Button
             type={ButtonType.Secondary}
             secondaryBgColor="bg-black"
             className="mx-auto mt-8"
             onClick={onShowMoreTrends}
           >
-            {t('trendingCollections.showMoreCollections')}
+            {t('collection:showMoreCollections')}
           </Button>
         </section>
         <section className="mt-28">
