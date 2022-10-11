@@ -22,8 +22,8 @@ module.exports = {
         // base: '1rem',
       },
       fontFamily: {
-        // https://github.com/WCYS-Co/Hauora-Sans // not yet bundled
-        sans: ['Hauora-Sans', 'Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['Brice', ...defaultTheme.fontFamily.serif],
+        sans: ['Hauora', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {
