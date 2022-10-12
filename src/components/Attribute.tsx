@@ -1,5 +1,6 @@
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { AttributeGroup, AttributeVariant } from '../graphql.types';
+import { asTitleCase } from '../modules/string';
 
 export function Attribute() {
   return <div />;
@@ -14,7 +15,7 @@ function AttributeOption({
 }): JSX.Element {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-white">{variant.name}</span>
+      <span className="text-sm text-white">{asTitleCase(variant.name)}</span>
       <div className="flex items-center gap-4">
         <span className="text-sm text-white">{variant.count}</span>
         {selected ? (
@@ -42,7 +43,7 @@ function AttributeOptionHeader({
 }): JSX.Element {
   return (
     <>
-      <span className="font-semibold text-white">{group.name}</span>
+      <span className="font-semibold text-white">{asTitleCase(group.name)}</span>
       <div className="flex items-center ">
         <span className="mr-4 flex h-5 w-5 items-center justify-center rounded bg-gray-700 text-sm font-medium text-white">
           {group.variants.length}
