@@ -15,7 +15,11 @@
   "topVolume": {
     "title": "Top volume"
   },
-
+  "drops": {
+    "title": "Upcoming drops",
+    "launchButton": "Launch with us",
+    "more": "More launches coming soon"
+  },
   "topMarketCap": {
     "title": "Top marketcap"
   },

@@ -21,10 +21,11 @@ import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
 import config from '../app.config';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from '../components/Button';
 import useLogin from '../hooks/login';
 import Router from 'next/router';
 import Footer from '../components/Footer';
+import Drop from '../components/Drop';
 
 interface TrendingCollectionData {
   collectionTrends: CollectionTrend[];
@@ -37,6 +38,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
       'home',
       'collection',
       'profile',
+      'launchpad',
     ])),
   },
 });
@@ -194,6 +196,33 @@ const Home: NextPage = () => {
             />
           </Hero.Aside>
         </Hero>
+        <section className="mt-28 scroll-mt-20">
+          <header className="mb-12 flex w-full flex-row justify-between gap-4">
+            <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
+          </header>
+          <div className="flex flex-col items-center justify-start gap-12 md:flex-row">
+            <Drop
+              title={'Team Motley'}
+              description={
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi'
+              }
+              price={128}
+              supply={10000}
+              image={'/images/launchpad/motley-launchpad-nft.png'}
+              link={'/launchpad/test'}
+            />
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
+              <h4 className="text-xl font-semibold">{t('drops.more')}</h4>
+              <p>
+                Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                ullamco laboris nisi
+              </p>
+              <Button background={ButtonBackground.Black} border={ButtonBorder.Gradient} size={ButtonSize.Large}>
+                {t('drops.launchButton')}
+              </Button>
+            </div>
+          </div>
+        </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
           <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
@@ -366,7 +395,7 @@ const Home: NextPage = () => {
           </Button>
         </section>
       </main>
-      <Footer/>
+      <Footer />
     </>
   );
 };
