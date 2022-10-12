@@ -122,12 +122,10 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
-      let prevVariables = trendingCollectionsQuery.variables!;
-
       let variables: TrendingCollectionVariables = {
-        sortBy: sort?.value ?? prevVariables.sortBy,
-        timeFrame: filter ?? prevVariables.timeFrame,
-        orderDirection: prevVariables.orderDirection,
+        sortBy: sort?.value!,
+        timeFrame: filter!,
+        orderDirection: DEFAULT_ORDER,
         offset: 0,
       };
 
