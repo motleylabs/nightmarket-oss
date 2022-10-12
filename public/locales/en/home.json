@@ -5,8 +5,7 @@
   },
   "hero": {
     "title": "This is a community-owned NFT marketplace.",
-    "subtitle1": "100% of trading fees are given back to $SAUCE token holders, back into the ecosystem we love.",
-    "subtitle2": "Get $SAUCE everytime you buy or sell an NFT. Learn more about how it works.",
+    "subtitle": "Get $SAUCE everytime you buy or sell an NFT. Learn more about how it works.",
     "exploreNfts": "Explore NFTs",
     "sellNfts": "Sell NFTs"
   },

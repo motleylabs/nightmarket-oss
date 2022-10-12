@@ -4,7 +4,6 @@ import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
 } from '../../../layouts/ProfileLayout';
-import { ControlledSelect } from '../../../components/Select';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Wallet, Nft } from '../../../graphql.types';
@@ -24,6 +23,7 @@ import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
+import Select from '../../../components/Select';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -139,7 +139,13 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         />
-        <ControlledSelect id="listedFilter" control={control} options={nftListedFilterOptions} />
+        <Controller
+          control={control}
+          name="listedFilter"
+          render={({ field: { onChange, value } }) => (
+            <Select value={value} onChange={onChange} options={nftListedFilterOptions} />
+          )}
+        />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel
