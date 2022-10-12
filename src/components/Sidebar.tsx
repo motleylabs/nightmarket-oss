@@ -93,7 +93,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed inset-0 z-10 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'
@@ -127,7 +127,7 @@ interface SidebarContentProps {
 }
 
 function SidebarContent({ children, className }: SidebarContentProps): JSX.Element {
-  return <article className={clsx('', className)}>{children}</article>;
+  return <article className={clsx('w-full', className)}>{children}</article>;
 }
 
 Sidebar.Content = SidebarContent;

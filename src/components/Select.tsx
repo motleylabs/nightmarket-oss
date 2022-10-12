@@ -1,13 +1,10 @@
 import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import React, { Fragment, useState } from 'react';
-import { Controller } from 'react-hook-form';
-
-// often value and onChange => [value, onChange] = useState()
+import React, { Fragment } from 'react';
 
 export default function Select<T>(props: {
-  value: { label: string; value: T }; // TODO make better types, somethng with extend or similar
+  value: { label: string; value: T };
   onChange: any;
   options: { label: string; value: T }[];
 }) {
@@ -66,28 +63,5 @@ export default function Select<T>(props: {
         </div>
       )}
     </Listbox>
-  );
-}
-
-export function ControlledSelect(props: {
-  id: string;
-  control: any;
-  required?: boolean;
-  options: {
-    value: any;
-    label: string;
-  }[];
-}) {
-  return (
-    <Controller
-      control={props.control}
-      name={props.id}
-      rules={{ required: props.required }} //optional
-      render={({
-        field: { onChange, name, value },
-        fieldState: { isDirty }, //optional
-        formState: { errors }, //optional, but necessary if you want to show an error message
-      }) => <Select value={value} onChange={onChange} options={props.options} />}
-    />
   );
 }

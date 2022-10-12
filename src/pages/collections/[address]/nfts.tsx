@@ -23,8 +23,7 @@ import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
-import { ControlledSelect } from '../../../components/Select';
-import { ButtonGroup } from '../../../components/ButtonGroup';
+import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -35,7 +34,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       address: params?.address,
     },
   });
-  console.log(data);
+
   const collection: Collection = data.collection;
 
   if (collection === null) {
@@ -60,7 +59,6 @@ interface CollectionNFTsVariables {
   offset: number;
   limit: number;
   address: string;
-  //listed: boolean | null;
   attributes: AttributeFilter[] | null;
   sortBy: NftSort;
   order: OrderDirection;
@@ -80,7 +78,6 @@ enum ListedStatus {
 }
 
 interface CollectionNFTForm {
-  listed: ListedStatus;
   attributes: { [key: string]: string[] };
   sortBySelect: SortOption;
 }
@@ -116,11 +113,11 @@ export default function CollectionNfts() {
     { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
   ];
 
-  const [sortOption, setSortOption] = useState<SortOption>(sortOptions[0]);
-
   const { watch, control, getValues, setValue } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All, sortBySelect: sortOption },
+    defaultValues: { sortBySelect: sortOptions[0] },
   });
+
+  const sortOption = watch('sortBySelect');
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -184,36 +181,17 @@ export default function CollectionNfts() {
     <>
       <Toolbar>
         <Sidebar.Control label={t('filters')} open={open} onChange={toggleSidebar} />
-        <ControlledSelect control={control} id="sortBySelect" options={sortOptions} />
+        <Controller
+          control={control}
+          name="sortBySelect"
+          render={({ field: { onChange, value } }) => (
+            <Select value={value} onChange={onChange} options={sortOptions} />
+          )}
+        />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-2">
-            <div className="flex w-full justify-between rounded-2xl bg-gray-800 p-4 font-semibold">
-              Show unlisted
-              <Controller
-                control={control}
-                name="listed"
-                render={({ field: { onChange, value: enabled } }) => (
-                  <Switch
-                    checked={enabled === ListedStatus.All}
-                    onChange={() =>
-                      setValue('listed', enabled ? ListedStatus.Listed : ListedStatus.All)
-                    }
-                    className={`${
-                      enabled ? 'bg-orange-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 items-center rounded-full`}
-                  >
-                    <span className="sr-only">Show unlisted NFTs in collection</span>
-                    <span
-                      className={`${
-                        enabled ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
-                    />
-                  </Switch>
-                )}
-              />
-            </div>
             {attributeGroupsQuery.loading ? (
               <>
                 <Attribute.Skeleton />
