@@ -122,12 +122,15 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
+      let prevVariables = trendingCollectionsQuery.variables!;
+
       let variables: TrendingCollectionVariables = {
-        sortBy: sort?.value ?? DEFAULT_SORT,
-        timeFrame: filter ?? DEFAULT_TIME_FRAME,
-        orderDirection: DEFAULT_ORDER,
+        sortBy: sort?.value ?? prevVariables.sortBy,
+        timeFrame: filter ?? prevVariables.timeFrame,
+        orderDirection: prevVariables.orderDirection,
         offset: 0,
       };
+
       trendingCollectionsQuery.refetch(variables);
     });
     return subscription.unsubscribe;
