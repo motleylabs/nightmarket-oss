@@ -76,7 +76,7 @@ const Button = ({
           'w-full': block,
           'bg-gradient font-bold text-white':
             type === ButtonType.Primary || type === ButtonType.Secondary,
-          'bg-gray-800 text-white': type === ButtonType.Tertiary,
+          'border bg-gray-800 text-white': type === ButtonType.Tertiary,
           'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
           'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,

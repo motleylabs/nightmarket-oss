@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
+import Icon from './Icon';
 
 interface NftCardProps {
   nft: Nft;
@@ -13,18 +14,34 @@ interface NftCardProps {
   onMakeOffer?: () => void;
 }
 
+enum NFTStates {
+  LISTED,
+  UNLISTED,
+  LISTED_ON_ME,
+  OWNER,
+  // OWNED AND LISTED?
+}
+
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
   const nightmarketListings = nft.listings?.filter(
     (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
   );
+  const magicEdenListings = nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === 'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K'
+  );
 
   const viewer = useReactiveVar(viewerVar);
 
   const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+  const isListedOnME = !!magicEdenListings.length;
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
+
+  if (listing) {
+    console.log('nft', nft.name, { nft, listing });
+  }
 
   return (
     <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
@@ -67,8 +84,11 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             <>
               {listing ? (
                 <>
-                  <span className="text-lg">{listing?.previewPrice} SOL</span>
-                  <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
+                  <span className="text-lg">
+                    <Icon.Sol noGradient />
+                    {listing?.previewPrice}
+                  </span>
+                  <Button onClick={onBuy} type={ButtonType.Secondary} size={ButtonSize.Small}>
                     {t('buy')}
                   </Button>
                 </>
@@ -76,7 +96,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 <>
                   {/* TODO: last sale price */}
                   <span className="text-lg"></span>
-                  <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
+                  <Button onClick={onMakeOffer} type={ButtonType.Tertiary} size={ButtonSize.Small}>
                     {t('offer')}
                   </Button>
                 </>
