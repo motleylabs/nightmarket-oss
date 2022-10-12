@@ -3,21 +3,38 @@ import Button, { ButtonType } from './Button';
 import clsx from 'clsx';
 import { millisecondsToMinutes, formatDistance } from 'date-fns';
 import { useTranslation } from 'next-i18next';
+import useLaunchpad, { LaunchpadState } from '../hooks/launchpad';
 
 type Active = FC;
 type Upcoming = FC;
 type Finished = FC;
 
+interface RenderProps {
+  onMint: () => Promise<void>;
+  launchpadState: LaunchpadState;
+  children: any;
+}
+
 interface LaunchpadProps {
-  launchpadId: string;
-  children: ReactNode;
+  candyMachineId: string;
+  children: (args: RenderProps) => any;
   Active?: Active;
   Upcoming?: Upcoming;
   Finished?: Finished;
 }
 
-export default function Launchpad({ children, launchpadId = 'testLaunch' }: LaunchpadProps) {
-  return <>{children}</>;
+export default function Launchpad({ children, candyMachineId }: LaunchpadProps) {
+  const { onMint, launchpadState } = useLaunchpad(candyMachineId);
+
+  return (
+    <>
+      {children({
+        onMint,
+        launchpadState,
+        children,
+      })}
+    </>
+  );
 }
 
 export enum MintOption {
@@ -87,10 +104,8 @@ function LaunchpadActive({
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
                 <div
-                  className={clsx(
-                    'h-2 rounded-full bg-primary-700',
-                    `w-[${mintedPercentage.toFixed(0)}%]`
-                  )}
+                  style={{ width: `${mintedPercentage.toFixed(0)}%` }}
+                  className={clsx('h-2 rounded-full bg-primary-700')}
                 />
               </div>
             </div>
@@ -150,10 +165,8 @@ function LaunchpadFinished({
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
                 <div
-                  className={clsx(
-                    'h-2 rounded-full bg-primary-700',
-                    `w-[${mintedPercentage.toFixed(0)}%]`
-                  )}
+                  style={{ width: `${mintedPercentage.toFixed(0)}%` }}
+                  className={clsx('h-2 rounded-full bg-primary-700')}
                 />
               </div>
             </div>

@@ -81,33 +81,40 @@ export default function LaunchpadPage() {
         </div>
         <div className="top-20 mb-10 flex w-full flex-col gap-6 pt-0 lg:sticky lg:w-1/2 lg:pl-10">
           <h6 className="font-serif text-2xl font-bold">{t('phaseTitle')}</h6>
-          {/* TODO: modify launchpad id system/props to match whatever integration needed */}
-          <Launchpad launchpadId={'testLaunch'}>
-            <Launchpad.Finished
-              title={'Founders mint'}
-              price={2.5}
-              minted={25}
-              supply={25}
-              mintType={MintOption.Standard}
-              soldOut={true}
-              soldOutTimeMilliseconds={200000}
-            />
-            <Launchpad.Active
-              title={'Allowlist mint'}
-              price={3}
-              minted={100}
-              supply={500}
-              hasAccess={false}
-              mintType={MintOption.Standard}
-            />
-            <Launchpad.Upcoming
-              title={'Public mint'}
-              price={3}
-              supply={9000}
-              isPublic={true}
-              mintType={MintOption.Dynamic}
-              mintDate={addDays(new Date(), 1)}
-            />
+          <Launchpad candyMachineId={'9ACm8nAqgzTExSRQpb8JxYnZeEMTgLzsHDpRv8TmQVBY'}>
+            {({ onMint, launchpadState }) => (
+              <>
+                {/* TODO: determine how to store finished & upcoming launchpad config states */}
+                <Launchpad.Finished
+                  onMint={onMint}
+                  title={'Founders mint'}
+                  price={2.5}
+                  minted={25}
+                  supply={25}
+                  mintType={MintOption.Standard}
+                  soldOut={true}
+                  soldOutTimeMilliseconds={200000}
+                />
+                <Launchpad.Active
+                  onMint={onMint}
+                  title={'Allowlist mint'}
+                  price={launchpadState.price}
+                  minted={launchpadState.minted}
+                  supply={launchpadState.supply}
+                  hasAccess={true}
+                  mintType={MintOption.Standard}
+                />
+                <Launchpad.Upcoming
+                  onMint={onMint}
+                  title={'Public mint'}
+                  price={3}
+                  supply={9000}
+                  isPublic={true}
+                  mintType={MintOption.Dynamic}
+                  mintDate={addDays(new Date(), 1)}
+                />
+              </>
+            )}
           </Launchpad>
         </div>
         <div className="align-self-start md-pr-10 mb-10 flex w-full flex-col gap-4 lg:w-1/2">
