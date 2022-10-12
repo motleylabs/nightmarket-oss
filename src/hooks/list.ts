@@ -8,11 +8,10 @@ import {
   CreateListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Nft } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-
-import BN from 'bn.js';
-import { RewardCenterProgram } from '../modules/reward-center/RewardCenterProgram';
+import { toast } from 'react-toastify';
+import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
 
 interface ListNftForm {
@@ -21,7 +20,7 @@ interface ListNftForm {
 
 interface ListingDetailsForm extends ListNftForm {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface ListNftContext {
@@ -36,7 +35,7 @@ interface ListNftContext {
 
 interface ListNftDefaultValues {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 export default function useListNft(): ListNftContext {
@@ -52,35 +51,33 @@ export default function useListNft(): ListNftContext {
     formState: listNftState,
   } = useForm<ListNftForm>();
 
-  const onSubmitListNft = async ({ amount, nft, marketplace }: ListingDetailsForm) => {
+  const onSubmitListNft = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
     if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
+      const auctionHouseAddress = new PublicKey(auctionHouse.address);
       const buyerPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const authority = new PublicKey(auctionHouse.authority);
+      const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
-
+      
       const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+      const [sellerTradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
         publicKey,
-        auctionHouse,
+        auctionHouseAddress,
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
-        buyerPrice,
         1
       );
 
       const [programAsSigner, programAsSignerBump] =
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
-      const [freeTradeState, freeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
+      const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
-        auctionHouse,
+        auctionHouseAddress,
         associatedTokenAccount,
         treasuryMint,
         tokenMint,
@@ -88,7 +85,7 @@ export default function useListNft(): ListNftContext {
         1
       );
 
-      const [rewardCenter] = await RewardCenterProgram.findRewardCenter(auctionHouse);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
@@ -96,17 +93,17 @@ export default function useListNft(): ListNftContext {
         rewardCenter
       );
 
-      const [auctioneer] = await RewardCenterProgram.findAuctioneer(auctionHouse, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(auctionHouseAddress, rewardCenter);
 
       const accounts: CreateListingInstructionAccounts = {
-        auctionHouseProgram: programAsSigner,
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
         listing: listingAddress,
         rewardCenter: rewardCenter,
         wallet: publicKey,
         tokenAccount: associatedTokenAccount,
         metadata: metadata,
         authority: authority,
-        auctionHouse: auctionHouse,
+        auctionHouse: auctionHouseAddress,
         auctionHouseFeeAccount: auctionHouseFeeAccount,
         sellerTradeState: sellerTradeState,
         freeSellerTradeState: freeTradeState,
@@ -118,8 +115,8 @@ export default function useListNft(): ListNftContext {
         createListingParams: {
           price: buyerPrice,
           tokenSize: 1,
-          tradeStateBump: tradeStateBump,
-          freeTradeStateBump: freeTradeBump,
+          tradeStateBump,
+          freeTradeStateBump,
           programAsSignerBump: programAsSignerBump,
         },
       };
@@ -144,10 +141,11 @@ export default function useListNft(): ListNftContext {
             },
             'confirmed'
           );
-          console.log(`confirmed`);
+          
+          toast('Listing posted', { type: "success"})
         }
-      } catch (err) {
-        console.log('Error whilst listing nft', err);
+      } catch (err: any) {
+        toast(err.message, { type: "error"});
       } finally {
         setListNft(true);
       }

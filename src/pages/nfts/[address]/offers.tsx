@@ -1,6 +1,6 @@
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Marketplace, Nft } from '../../../graphql.types';
+import { AuctionHouse, Nft } from '../../../graphql.types';
 import client from './../../../client';
 import { NftQuery } from './../../../queries/nft.graphql';
 import { NftOffersQuery } from './../../../queries/offers.graphql';
@@ -24,7 +24,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const i18n = await serverSideTranslations(locale as string, ['common', 'offers', 'nft']);
 
   const {
-    data: { nft, marketplace },
+    data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
     variables: {
@@ -42,7 +42,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       nft,
-      marketplace,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -58,7 +58,6 @@ interface NFTOffersData {
 
 interface NftOfferPageProps {
   nft: Nft;
-  marketplace: Marketplace;
 }
 
 export default function NftOffers({ nft }: NftOfferPageProps) {
@@ -188,16 +187,16 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 NftOffers.getLayout = function NftDetailsLayout({
   children,
   nft,
-  marketplace,
+  auctionHouse,
 }: NftDetailsLayoutProps): JSX.Element {
   return (
-    <NftLayout nft={nft} marketplace={marketplace}>
+    <NftLayout nft={nft} auctionHouse={auctionHouse}>
       {children}
     </NftLayout>
   );

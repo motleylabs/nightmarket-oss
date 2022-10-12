@@ -533,7 +533,7 @@ const client = new ApolloClient({
             read(_, { readField }): AhListing | undefined {
               const listings: readonly AhListing[] | undefined = readField('listings');
               return listings?.find(
-                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
+                (listing) => listing.auctionHouse?.address === config.auctionHouse
               );
             },
           },

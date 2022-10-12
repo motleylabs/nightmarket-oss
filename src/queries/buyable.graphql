@@ -10,6 +10,9 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     authority
     auctionHouseFeeAccount
     auctionHouseTreasury
+    rewardCenter {
+      address
+    }
   }
 
   nft: nftByMintAddress(address: $address) {

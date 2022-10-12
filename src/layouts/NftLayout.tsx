@@ -5,7 +5,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import useMakeOffer from '../hooks/offer';
@@ -24,7 +24,7 @@ import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 interface NftLayoutProps {
   children: ReactNode;
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface NftMarketData {
@@ -41,12 +41,13 @@ enum NftPage {
   Activity = '/nfts/[address]/activity',
 }
 
-export default function NftLayout({ children, nft, marketplace }: NftLayoutProps) {
+export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProps) {
   const { t } = useTranslation('nft');
   const router = useRouter();
   const onLogin = useLogin();
   const { publicKey, connected } = useWallet();
   const viewer = useReactiveVar(viewerVar);
+  
 
   const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
     variables: {
@@ -66,8 +67,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
   } = useMakeOffer();
 
   const handleOffer = async ({ amount }: { amount: string }) => {
-    if (amount && nft && marketplace) {
-      await onMakeOffer({ amount, nft, marketplace });
+    if (amount && nft && auctionHouse) {
+      await onMakeOffer({ amount, nft, auctionHouse });
     }
   };
 
@@ -83,8 +84,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
   } = useBuyNow();
 
   const handleBuy = async () => {
-    if (nft && marketplace && listing) {
-      await onBuyNow({ nft, marketplace, ahListing: listing });
+    if (nft && auctionHouse && listing) {
+      await onBuyNow({ nft, auctionHouse, ahListing: listing });
     }
   };
 
@@ -99,19 +100,18 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
   } = useListNft();
 
   const handleList = async ({ amount }: { amount: string }) => {
-    console.log(`list`, amount);
-    if (amount && nft && marketplace) {
-      await onSubmitListNft({ amount, nft, marketplace });
+    if (amount && nft && auctionHouse) {
+      await onSubmitListNft({ amount, nft, auctionHouse });
     }
   };
 
   const isOwner = viewer?.address === nft.owner?.address;
   const notOwner = !isOwner;
 
-  const nightmarketListings = data?.nft.listings?.filter(
-    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
+  const marketplaceListings = data?.nft.listings?.filter(
+    (listing) => listing.auctionHouse?.address === config.auctionHouse
   );
-  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+  const listing = marketplaceListings?.sort((a, b) => a.price - b.price)[0];
 
   useEffect(() => {
     setValue('amount', listing?.price.toString());
@@ -249,7 +249,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     {t('buyable.marketplaceFee', { ns: 'common' })}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    {marketplace.auctionHouses[0].fee}%
+                    {auctionHouse.fee}%
                     {/* TODO: calculate based on listing price */}
                   </p>
                 </div>
@@ -322,10 +322,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     <span>{nft.moonrankCollection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
-                <li className="flex justify-between">
-                  <span>{t('lastSold')}</span>
-                  <span>48 SOL</span>
-                </li>
                 {viewer && (
                   <li className="flex justify-between">
                     <span>{t('walletBalance')}</span>
@@ -417,10 +413,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     <span>{nft.moonrankCollection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
-                <li className="flex justify-between">
-                  <span>{t('lastSold')}</span>
-                  <span>48 SOL</span>
-                </li>
               </ul>
               <Form.Label name={t('amount')}>
                 <div
@@ -441,12 +433,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     {listNftState.errors.amount?.message}
                   </p>
                 )}
-                {/* <Form.Input
-                  {...registerListNft('amount')}
-                  autoFocus
-                  className="input"
-                  icon={<Icon.Sol className="h-6 w-6" />}
-                /> */}
               </Form.Label>
               <Button block htmlType="submit" className="mb-4" loading={listNftState.isSubmitting}>
                 {t('listNft')}
@@ -484,7 +470,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 <span>--</span>
               </div>
             )}
-
             {notOwner && !listing && (
               <Button
                 onClick={onOpenOffer}
@@ -496,7 +481,6 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 {t('bid')}
               </Button>
             )}
-
             {notOwner && listing && (
               <Button className="w-52" onClick={onOpenBuy}>
                 {t('buy')}

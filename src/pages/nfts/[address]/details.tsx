@@ -3,7 +3,7 @@ import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import client from './../../../client';
 import { NftQuery } from './../../../queries/nft.graphql';
-import { Nft, Marketplace } from './../../../graphql.types';
+import { Nft, AuctionHouse } from './../../../graphql.types';
 import { ReactNode } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
@@ -14,7 +14,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
 
   const {
-    data: { nft, marketplace },
+    data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
     variables: {
@@ -32,7 +32,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       nft,
-      marketplace,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -40,12 +40,11 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
 interface NftDetailPageProps {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
-export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
+export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
-  const auctionHouse = marketplace?.auctionHouses[0];
 
   return (
     <>
@@ -164,16 +163,16 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 NftDetails.getLayout = function NftDetailsLayout({
   children,
   nft,
-  marketplace,
+  auctionHouse,
 }: NftDetailsLayoutProps): JSX.Element {
   return (
-    <NftLayout marketplace={marketplace} nft={nft}>
+    <NftLayout auctionHouse={auctionHouse} nft={nft}>
       {children}
     </NftLayout>
   );

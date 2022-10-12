@@ -156,8 +156,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     {t('buyable.marketplaceFee')}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    {data?.marketplace.auctionHouses[0].fee}%
-                    {/* TODO: calculate based on listing price */}
+                    {data?.auctionHouse.fee}%
                   </p>
                 </div>
                 <div className="flex flex-row justify-between">

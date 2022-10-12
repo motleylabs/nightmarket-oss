@@ -38,6 +38,7 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
+import { ToastContainer } from 'react-toastify';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -677,6 +678,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
 
   return (
     <ApolloProvider client={client}>
+      <ToastContainer />
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider className="wallet-modal-theme">

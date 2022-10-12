@@ -13,15 +13,14 @@ import {
   createUpdateOfferInstruction,
   UpdateOfferInstructionAccounts,
   UpdateOfferInstructionArgs,
-  createCloseOfferInstruction,
-  CloseOfferInstructionAccounts,
-  CloseOfferInstructionArgs,
-} from '@holaplex/mpl-reward-center';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
+  createCancelOfferInstruction,
+  CancelOfferInstructionAccounts,
+  CancelOfferInstructionArgs,
+} from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
 import { toLamports } from '../modules/sol';
-import config from '../app.config';
+import { RewardCenterProgram } from '../modules/reward-center';
+import { toast } from 'react-toastify';
 
 interface OfferForm {
   amount: string;
@@ -80,21 +79,8 @@ export default function useMakeOffer(): MakeOfferContext {
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
       const [escrowPaymentAcc, escrowPaymentBump] =
         await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        associatedTokenAcc,
-        treasuryMint,
-        tokenMint,
-        0,
-        1
-      );
 
       const [buyerTradeState, buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
@@ -106,11 +92,9 @@ export default function useMakeOffer(): MakeOfferContext {
           1
         );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
-
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
-
-      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+      const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(auctionHouseAddress, rewardCenter);
 
       const accounts: CreateOfferInstructionAccounts = {
         wallet: publicKey,
@@ -145,7 +129,7 @@ export default function useMakeOffer(): MakeOfferContext {
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
-
+      
       try {
         const signedTx = await signTransaction(tx);
         const signature = await connection.sendRawTransaction(signedTx.serialize());
@@ -159,8 +143,8 @@ export default function useMakeOffer(): MakeOfferContext {
             },
             'confirmed'
           );
-          console.log(`confirmed`);
         }
+        toast('You offer is in')
       } catch (err) {
         console.log('Error whilst making offer', err);
       } finally {
@@ -188,16 +172,6 @@ export default function useMakeOffer(): MakeOfferContext {
       const [escrowPaymentAcc, escrowPaymentBump] =
         await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        associatedTokenAcc,
-        treasuryMint,
-        tokenMint,
-        0,
-        1
-      );
-
       const [buyerTradeState, buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
           publicKey,
@@ -208,13 +182,11 @@ export default function useMakeOffer(): MakeOfferContext {
           1
         );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
+      const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
 
-      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
-
-      // const token = new PublicKey(config.rewardCenter.token);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(auctionHouseAddress, rewardCenter);
 
       const accounts: UpdateOfferInstructionAccounts = {
         wallet: publicKey,
@@ -271,7 +243,7 @@ export default function useMakeOffer(): MakeOfferContext {
     }
   };
 
-  const onCancelOffer = async ({ amount, nft, auctionHouse, ahOffer }: CancelOfferForm) => {
+  const onCancelOffer = async ({ amount, nft, auctionHouse }: CancelOfferForm) => {
     if (connected && publicKey && signTransaction) {
       const auctionHouseAddress = new PublicKey(auctionHouse.address);
       const offerPrice = toLamports(Number(amount));
@@ -281,9 +253,6 @@ export default function useMakeOffer(): MakeOfferContext {
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
-
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
       const [escrowPaymentAcc, escrowPaymentBump] =
         await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
@@ -301,11 +270,11 @@ export default function useMakeOffer(): MakeOfferContext {
         1
       );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouseAddress);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
+      const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
 
-      const [auctioneer] = await findAuctioneer(auctionHouseAddress, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(auctionHouseAddress, rewardCenter);
 
       const accounts: CancelOfferInstructionAccounts = {
         wallet: publicKey,

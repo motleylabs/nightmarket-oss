@@ -57,7 +57,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (data?.nft && data?.auctionHouse) {
-      await onMakeOffer({ amount, nft: data?.nft, auctionHouse: data.auctionHOuse });
+      await onMakeOffer({ amount, nft: data?.nft, auctionHouse: data.auctionHouse });
     }
   };
 
@@ -239,20 +239,6 @@ export function Offerable({ children, connected = false }: OfferableProps) {
           )}
         </div>
       </Modal>
-      ;
     </>
   );
-}
-
-interface OfferModalProps {
-  loading: boolean;
-  nftName: string;
-  floorPrice: number;
-  listedPrice: number;
-  lastSoldPrice?: number;
-  minimumOfferAmount: number;
-}
-
-function OfferModal({}: OfferModalProps) {
-  return;
 }
