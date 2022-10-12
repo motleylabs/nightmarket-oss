@@ -14,11 +14,11 @@ interface DropProps {
 
 export default function Drop({ title, description, price, supply, image, link }: DropProps) {
   return (
-    <div className="flex flex-col gap-6 rounded-lg bg-gray-900 p-6 md:flex-row">
+    <div className="flex max-w-5xl flex-col gap-6 rounded-lg bg-gray-900 p-6 md:flex-row">
       <img
         src={image}
         alt={`${title}-drop`}
-        className="aspect-square w-full rounded-lg object-cover md:w-1/3"
+        className="aspect-square max-h-60 w-full rounded-lg object-cover md:w-1/3"
       />
       <div className="flex flex-col gap-4">
         <h6 className="text-xl font-semibold">{title}</h6>
