@@ -38,6 +38,7 @@ export interface LaunchpadState {
 
 interface LaunchpadContext {
   onMint: () => Promise<void>;
+  refresh: () => void;
   launchpadState: {
     supply: number;
     minted: number;
@@ -191,6 +192,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
 
   return {
     onMint: onMint,
+    refresh: fetchCandyMachine,
     launchpadState: {
       supply: candyMachineState?.supply || 0,
       minted: candyMachineState?.minted || 0,
