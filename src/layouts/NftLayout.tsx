@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { Marketplace, Nft } from '../graphql.types';
@@ -19,6 +19,7 @@ import config from '../app.config';
 import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
+import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -113,6 +114,10 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
 
   const activeForm = makeOffer || listNft;
 
+  const [expanded, setExpanded] = useState(false);
+
+  const expandedRef = useRef<HTMLDivElement>(null!);
+
   return (
     <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
       <Head>
@@ -120,12 +125,53 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="align-self-start mb-10 lg:w-1/2 lg:pr-10">
+      <div className="align-self-start relative mb-10 lg:w-1/2 lg:pr-10 ">
         <img
           src={nft.image}
           alt="nft image"
           className=" top-10 z-10 w-full rounded-lg object-cover"
         />
+        <button
+          onClick={() => setExpanded(true)}
+          className={`absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110 md:right-12`}
+        >
+          <ArrowsPointingOutIcon className="h-4 w-4" />
+        </button>
+      </div>
+      <div
+        role="dialog"
+        onClick={() => setExpanded(false)}
+        className={clsx(
+          'fixed inset-0',
+          'bg-gray-800 bg-opacity-40 backdrop-blur-lg',
+          'transition-opacity duration-500 ease-in-out',
+          'flex flex-col items-center justify-center',
+          {
+            'opacity-100': expanded,
+            'opacity-0': !expanded,
+            'pointer-events-auto': expanded,
+            'pointer-events-none': !expanded,
+            'z-50': expanded,
+          }
+        )}
+      >
+        <div
+          ref={expandedRef}
+          className={clsx(
+            `relative z-50 flex aspect-auto w-full flex-col overflow-x-auto overflow-y-auto rounded-lg text-white shadow-md scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 sm:h-auto `,
+            'px-4 sm:h-auto sm:max-w-2xl'
+          )}
+        >
+          <div>
+            <div className={`relative`}>
+              <img
+                src={nft.image}
+                className={`aspect-auto h-full w-full rounded-lg`}
+                alt={nft.name + ' image'}
+              />
+            </div>
+          </div>
+        </div>
       </div>
       <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
