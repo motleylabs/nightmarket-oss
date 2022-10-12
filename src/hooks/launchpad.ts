@@ -25,6 +25,7 @@ import {
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import { Edition, Metadata, MetadataProgram } from '@metaplex-foundation/mpl-token-metadata';
+import { createAssociatedTokenAccountInstruction } from '../modules/candymachine';
 
 interface MintOptions {
   type: 'Standard' | 'Dynamic';
@@ -59,7 +60,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
     const candyMachine = await CandyMachine.fromAccountAddress(connection, candyMachinePubkey);
 
     const candyMachineState = {
-      supply: Number(candyMachine.data.itemsAvailable.toString()),
+      supply: Number(candyMachine.data.maxSupply.toString()),
       minted: Number(candyMachine.itemsRedeemed.toString()),
       price: Number(candyMachine.data.price.toString()),
     };
@@ -76,6 +77,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
     if (connected && publicKey && signTransaction && cm && connection) {
       console.log(`hit`);
       const mintKeypair = Keypair.generate();
+      console.log(mintKeypair.publicKey.toBase58());
       const tokenAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
@@ -99,7 +101,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
           metadata: metadataPDA,
           mint: mintKeypair.publicKey,
           mintAuthority: publicKey,
-          updateAuthority: cm.authority,
+          updateAuthority: publicKey,
           masterEdition: editionPDA,
           tokenMetadataProgram: MetadataProgram.PUBKEY,
           clock: SYSVAR_CLOCK_PUBKEY,
@@ -135,7 +137,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
       // instructions
       const instructions = [
         SystemProgram.createAccount({
-          fromPubkey: cm.authority,
+          fromPubkey: publicKey,
           newAccountPubkey: mintKeypair.publicKey,
           space: MintLayout.span,
           lamports: await connection.getMinimumBalanceForRentExemption(MintLayout.span),
@@ -145,22 +147,20 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
           TOKEN_PROGRAM_ID,
           mintKeypair.publicKey,
           0,
-          cm.authority,
-          cm.authority
-        ),
-        Token.createAssociatedTokenAccountInstruction(
-          ASSOCIATED_TOKEN_PROGRAM_ID,
-          TOKEN_PROGRAM_ID,
-          mintKeypair.publicKey,
-          tokenAccount,
           publicKey,
           publicKey
+        ),
+        createAssociatedTokenAccountInstruction(
+          tokenAccount,
+          publicKey,
+          publicKey,
+          mintKeypair.publicKey
         ),
         Token.createMintToInstruction(
           TOKEN_PROGRAM_ID,
           mintKeypair.publicKey,
           tokenAccount,
-          cm.authority,
+          publicKey,
           [],
           1
         ),
@@ -177,6 +177,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
       tx.recentBlockhash = recentBlockhash.blockhash;
       try {
         const signedTx = await signTransaction(tx);
+
         const txtId = await connection.sendRawTransaction(signedTx.serialize());
         if (txtId) {
           await connection.confirmTransaction(txtId, 'confirmed');
