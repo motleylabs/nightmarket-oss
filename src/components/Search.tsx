@@ -146,7 +146,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 md:top-10 md:max-h-96">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-800 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -231,8 +231,8 @@ function CollectionSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800',
-            { 'bg-gray-800': active }
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-700',
+            { 'bg-gray-700': active }
           )}
         >
           <div className="flex flex-row items-center gap-6">
@@ -277,8 +277,8 @@ function MintAddressSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800 ',
-            { 'bg-gray-800': active }
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-700 ',
+            { 'bg-gray-700': active }
           )}
         >
           <div className="flex flex-row items-center gap-6">
@@ -327,12 +327,12 @@ function ProfileSearchResult({
       {({ active }) => (
         <div
           className={clsx(
-            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-800',
+            'flex cursor-pointer flex-row items-center justify-between rounded-md p-4 hover:bg-gray-700',
             { 'bg-gray-800': active }
           )}
         >
           <div className="flex flex-row items-center gap-6">
-            <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-900">
+            <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <img
                 src={image}
                 alt={`profile-${address}`}

@@ -134,6 +134,7 @@ export default function ProfileCollected({
     <>
       <Toolbar>
         <Sidebar.Control
+          label={t('filters')}
           open={open}
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
@@ -145,7 +146,7 @@ export default function ProfileCollected({
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex w-full flex-col gap-2">
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />

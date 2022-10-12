@@ -58,7 +58,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   };
 
   return (
-    <div>
+    <>
       {children({
         buyNow: openBuyNow,
         children,
@@ -75,7 +75,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'loading-rewards'}>
-                <div className="bg-primary-500 h-10 rounded-md bg-opacity-50" />
+                <div className="h-10 rounded-md bg-primary-500 bg-opacity-50" />
               </section>
               <section id={'loading-prices'} className="flex flex-col gap-2">
                 <div className="flex flex-row justify-between gap-2">
@@ -116,7 +116,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'rewards'}>
-                <div className="bg-primary-500 flex flex-row items-center justify-between rounded-md p-4">
+                <div className="flex flex-row items-center justify-between rounded-md bg-primary-500 p-4">
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
@@ -194,6 +194,6 @@ export function Buyable({ children, connected = false }: BuyableProps) {
           )}
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
