@@ -93,12 +93,12 @@ function SearchInput({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className={clsx(' relative block w-full transition-all', className)}>
+    <div className={clsx('relative block w-full transition-all', className)}>
       <button
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
-        className="md-left-0 absolute left-2 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none"
+        className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none "
       >
-        <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
+        <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
       </button>
       <DebounceInput
         minLength={2}
@@ -106,7 +106,7 @@ function SearchInput({
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        className="block w-full bg-transparent py-2 pl-10 pr-2 text-base text-white transition-all focus:placeholder-gray-450 focus:outline-none md:py-2"
+        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-450 focus:outline-none md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
@@ -117,6 +117,9 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
+      <button className="absolute right-4 top-2 flex h-6 w-6 items-center justify-center rounded bg-gray-700 text-sm text-gray-300">
+        K
+      </button>
     </div>
   );
 }

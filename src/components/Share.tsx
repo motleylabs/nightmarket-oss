@@ -48,7 +48,7 @@ export default function Share(props: {
             className="w-52
         overflow-hidden
         rounded-md
-        bg-gray-950
+        bg-gray-900
         p-4
         text-white
       "

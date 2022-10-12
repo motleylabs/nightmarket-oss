@@ -29,8 +29,8 @@ export function addressAvatar(address: string | undefined): string {
 
     const gradient = publicKey.toBytes().reduce((a, b) => a + b, 0) % 8;
 
-    return `https://holaplex.com/images/gradients/gradient-${gradient + 1}.png`;
+    return `https://market.holaplex.com/images/gradients/gradient-${gradient + 1}.png`;
   } catch {
-    return 'https://holaplex.com/images/gradients/gradient-1.png';
+    return 'https://market.holaplex.com/images/gradients/gradient-1.png';
   }
 }
