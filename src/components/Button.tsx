@@ -76,10 +76,11 @@ const Button = ({
           'w-full': block,
           'bg-gradient font-bold text-white':
             type === ButtonType.Primary || type === ButtonType.Secondary,
-          'border bg-gray-800 text-white': type === ButtonType.Tertiary,
+          'border border-gray-300 bg-gray-800 font-medium text-gray-300':
+            type === ButtonType.Tertiary,
           'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
           'text-xs md:text-sm': size === ButtonSize.Small,
-          'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
+          'py-2 px-6': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
           'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
           'p-px': type === ButtonType.Secondary,
           'opacity-75': disabled,
@@ -95,8 +96,8 @@ const Button = ({
         content
       ) : (
         <div
-          className={clsx('h-full w-full rounded-full bg-black text-primary-700', {
-            'py-1 px-4': !circle && size === ButtonSize.Small,
+          className={clsx('h-full w-full min-w-[70px] rounded-full bg-black text-primary-700', {
+            'py-2 px-4': !circle && size === ButtonSize.Small,
             'py-3 px-6': size === ButtonSize.Large,
           })}
         >

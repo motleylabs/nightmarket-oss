@@ -84,9 +84,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             <>
               {listing ? (
                 <>
-                  <span className="text-lg">
+                  <span className="flex items-center text-lg">
                     <Icon.Sol noGradient />
                     {listing?.previewPrice}
+                    56.90
                   </span>
                   <Button onClick={onBuy} type={ButtonType.Secondary} size={ButtonSize.Small}>
                     {t('buy')}
@@ -95,7 +96,9 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               ) : (
                 <>
                   {/* TODO: last sale price */}
-                  <span className="text-lg"></span>
+                  <span className="flex items-center text-sm text-gray-300">
+                    Last sale <Icon.Sol className="mx-1 h-3 w-3" noGradient /> 24
+                  </span>
                   <Button onClick={onMakeOffer} type={ButtonType.Tertiary} size={ButtonSize.Small}>
                     {t('offer')}
                   </Button>
