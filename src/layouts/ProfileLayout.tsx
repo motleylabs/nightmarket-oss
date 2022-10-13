@@ -138,7 +138,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           <ProfileFigure label="Total NFTs" figure={wallet.nftCounts.owned} />
           <ProfileFigure label="Listed NFTs" figure={wallet.nftCounts.listed || 0} />
           <ProfileFigure
-            label="$SAUCE earned"
+            label="SAUCE earned"
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />

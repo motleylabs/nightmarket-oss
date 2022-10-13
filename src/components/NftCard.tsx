@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonSize, ButtonType } from './Button';
-import Icon from './Icon';
 
 interface NftCardProps {
   nft: Nft;
@@ -30,13 +29,13 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   return (
     <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
       <Link href={link} passHref>
-        <a className="overflow-hidden">
+        <a className="block overflow-hidden">
           <img
             src={nft.image}
             alt={`Nft image for ${nft.mintAddress}`}
             className={clsx(
               'aspect-square w-full  object-cover',
-              'group-hover:scale-[1.02]' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
+              'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
             )}
           />
         </a>

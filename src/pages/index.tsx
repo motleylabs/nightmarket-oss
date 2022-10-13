@@ -1,10 +1,8 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { ReactElement, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import { SwiperSlide } from 'swiper/react';
-import GetHomeQuery from './../queries/home.graphql';
 import TrendingCollectionQuery from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link';
@@ -16,17 +14,16 @@ import {
   OrderDirection,
   Maybe,
 } from '../graphql.types';
-import Carousel from '../components/Carousel';
 import { useWallet } from '@solana/wallet-adapter-react';
-
-import { ArrowUpIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
+import Hero from '../components/Hero';
 import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
+import Select from '../components/Select';
 import config from '../app.config';
-import Button, { ButtonSize, ButtonType } from '../components/Button';
-import { ControlledSelect } from '../components/Select';
+import Button, { ButtonType } from '../components/Button';
+import useLogin from '../hooks/login';
+import Router from 'next/router';
 
 interface GetHomePageData {
   collectionsFeaturedByVolume: CollectionTrend[];
@@ -90,14 +87,15 @@ const Home: NextPage = () => {
       label: t('collection:trendingCollectionsSort.byFloorPrice'),
     },
   ];
+  const { publicKey, connected } = useWallet();
+  const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
+  const onLogin = useLogin();
 
-  const { watch, control, getValues } = useForm<TrendingCollectionForm>({
+  const { watch, control } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: sortOptions[0] },
   });
 
   const timeFrame = watch('filter');
-
-  const homeQueryResult = useQuery<GetHomePageData>(GetHomeQuery);
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
     TrendingCollectionQuery,
@@ -120,6 +118,18 @@ const Home: NextPage = () => {
     });
   };
 
+  const onExploreNftsClick = () => {
+    trendingCollectionsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const onSellNftsClick = () => {
+    if (connected && publicKey) {
+      Router.push(`/profiles/${publicKey}`);
+    } else {
+      onLogin();
+    }
+  };
+
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
       let variables: TrendingCollectionVariables = {
@@ -134,6 +144,8 @@ const Home: NextPage = () => {
     return subscription.unsubscribe;
   }, [watch, trendingCollectionsQuery]);
 
+  const nfts: any[] = [];
+
   return (
     <>
       <Head>
@@ -141,40 +153,78 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="container mx-auto px-6 pb-6 lg:px-0">
-        <section className="mt-32 flex flex-col items-center justify-items-center gap-4 text-center">
-          <h1 className="text-3xl md:text-5xl">
-            {t('hero.title')} <span className="text-primary-850 ">{t('hero.title2')}</span>.
-          </h1>
-          <h2 className="text-xl md:text-2xl">{t('hero.subtitle')}</h2>
-        </section>
-        <section className="mt-28">
-          <header
-            className={
-              'mb-5 flex w-full flex-col items-center justify-between gap-4 md:mb-16 md:flex-row'
-            }
-          >
-            <h1 className="m-0 text-2xl">{t('collection:trendingCollections')}</h1>
-            <div className="mx-auto flex flex-row items-center gap-4 md:mx-0">
+      <main className=" mx-auto px-6 pb-6 md:px-20">
+        <Hero>
+          <Hero.Main>
+            <Hero.Title>{t('hero.title')}</Hero.Title>
+            <Hero.SubTitle>{t('hero.subtitle')}</Hero.SubTitle>
+            <Hero.Actions>
+              <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
+                {t('hero.exploreNfts')}
+              </Button>
+              <Button
+                className="w-full md:w-auto"
+                block
+                type={ButtonType.Secondary}
+                onClick={onSellNftsClick}
+              >
+                {t('hero.sellNfts')}
+              </Button>
+            </Hero.Actions>
+          </Hero.Main>
+          <Hero.Aside>
+            <Hero.Preview
+              imgUrlTemp="https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000"
+              nft={nfts[0]}
+              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
+              hPosition="left"
+              vPosition="bottom"
+            />
+            <Hero.Preview
+              imgUrlTemp="https://metadata.degods.com/g/3097.png"
+              nft={nfts[0]}
+              className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
+              hPosition="left"
+              vPosition="top"
+            />
+            <Hero.Preview
+              imgUrlTemp="https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png"
+              nft={nfts[0]}
+              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
+              hPosition="right"
+              vPosition="bottom"
+            />
+          </Hero.Aside>
+        </Hero>
+        <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
+          <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
+            <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
+            <div className="flex flex-row items-center gap-2">
               <Controller
                 control={control}
-                name={'filter'}
+                name="filter"
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
                     <ButtonGroup.Option value={CollectionInterval.OneDay}>
-                      {t('collection:filters.day')}
+                      {t('collection:timeInterval.day')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.SevenDay}>
-                      {t('collection:filters.week')}
+                      {t('collection:timeInterval.week')}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
-                      {t('collection:filters.month')}
+                      {t('collection:timeInterval.month')}
                     </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
               />
               <div className="hidden flex-grow sm:w-48 sm:flex-grow-0 lg:block">
-                <ControlledSelect control={control} id="sort" options={sortOptions} />
+                <Controller
+                  control={control}
+                  name="sort"
+                  render={({ field: { onChange, value } }) => (
+                    <Select value={value} onChange={onChange} options={sortOptions} />
+                  )}
+                />
               </div>
             </div>
           </header>
@@ -227,19 +277,19 @@ const Home: NextPage = () => {
                 if (trend.collection) {
                   return (
                     <Collection.List.Row mindAddress={trend.collection.nft.mintAddress}>
-                      <Collection.List.Col classname="w-16 h-16 md:h-12 md:w-12 hover:scale-110">
+                      <Collection.List.Col className="flex-none">
                         <img
                           src={trend.collection.nft.image}
                           alt={trend.collection.nft.name}
-                          className="h-full w-full rounded-lg object-cover "
+                          className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
                         />
                       </Collection.List.Col>
-                      <Collection.List.Col classname="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                      <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
                         <div className="lg:w-40">{trend.collection.nft.name}</div>
                         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
                             value={trend.compactFloorPrice}
-                            icon={<Icon.Sol noGradient />}
+                            icon={<Icon.Sol />}
                             name={t('collection:globalFloor')}
                             status={
                               <Collection.List.DataPoint.Status
@@ -249,7 +299,7 @@ const Home: NextPage = () => {
                           />
                           <Collection.List.DataPoint
                             value={selectedTrend.volume}
-                            icon={<Icon.Sol noGradient />}
+                            icon={<Icon.Sol />}
                             name={volumeLabel}
                             status={
                               <Collection.List.DataPoint.Status
@@ -257,12 +307,10 @@ const Home: NextPage = () => {
                               />
                             }
                           />
-
-                          {/* //TODO: Add real data */}
                           <Collection.List.DataPoint
-                            value={'128'}
-                            name={t('collection:sauceEarned')}
-                            status={<Collection.List.DataPoint.Status value={12} />}
+                            value={'10'}
+                            name={t('collection:listings')}
+                            status={<Collection.List.DataPoint.Status value={5} />}
                           />
                         </div>
                         {/* TODO: Add real data */}
@@ -290,112 +338,9 @@ const Home: NextPage = () => {
               })
             )}
           </Collection.List>
-          <Button
-            type={ButtonType.Secondary}
-            secondaryBgColor="bg-black"
-            className="mx-auto mt-8"
-            onClick={onShowMoreTrends}
-          >
+          <Button type={ButtonType.Secondary} className="mx-auto mt-8" onClick={onShowMoreTrends}>
             {t('collection:showMoreCollections')}
           </Button>
-        </section>
-        <section className="mt-28">
-          <header className="mb-4 flex w-full flex-row justify-between border-b border-gray-800">
-            <h1 className="mb-2  text-2xl">{t('topVolume.title')}</h1>
-          </header>
-          {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Collection.Card.Skeleton />
-              <Collection.Card.Skeleton className="hidden sm:inline-block" />
-              <Collection.Card.Skeleton className="hidden md:inline-block" />
-              <Collection.Card.Skeleton className="hidden lg:inline-block" />
-              <Collection.Card.Skeleton className="hidden lg:inline-block" />
-            </div>
-          ) : (
-            <Carousel
-              breakpoints={{
-                640: {
-                  slidesPerView: 2,
-                  spaceBetween: 4,
-                },
-                768: {
-                  slidesPerView: 3,
-                  spaceBetween: 4,
-                },
-                1024: {
-                  slidesPerView: 5,
-                  spaceBetween: 4,
-                },
-              }}
-              slidesPerView={1}
-            >
-              {homeQueryResult.data?.collectionsFeaturedByVolume.map((trend) => {
-                if (trend.collection)
-                  return (
-                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
-                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
-                        <a>
-                          <Collection.Card
-                            nft={trend.collection.nft}
-                            floorPrice={trend.compactFloorPrice}
-                            nftCount={trend.compactNftCount}
-                          />
-                        </a>
-                      </Link>
-                    </SwiperSlide>
-                  );
-              })}
-            </Carousel>
-          )}
-        </section>
-        <section className="mt-28">
-          <header className="mb-4 flex w-full flex-row justify-between border-b border-gray-800">
-            <h1 className="mb-2 text-2xl">{t('topMarketCap.title')}</h1>
-          </header>
-          {homeQueryResult.loading ? (
-            <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Collection.Card.Skeleton />
-              <Collection.Card.Skeleton className="hidden sm:inline-block" />
-              <Collection.Card.Skeleton className="hidden md:inline-block" />
-              <Collection.Card.Skeleton className="hidden lg:inline-block" />
-              <Collection.Card.Skeleton className="hidden lg:inline-block" />
-            </div>
-          ) : (
-            <Carousel
-              breakpoints={{
-                640: {
-                  slidesPerView: 2,
-                  spaceBetween: 4,
-                },
-                768: {
-                  slidesPerView: 3,
-                  spaceBetween: 4,
-                },
-                1024: {
-                  slidesPerView: 5,
-                  spaceBetween: 4,
-                },
-              }}
-              slidesPerView={1}
-            >
-              {homeQueryResult.data?.collectionsFeaturedByMarketCap.map((trend) => {
-                if (trend.collection)
-                  return (
-                    <SwiperSlide key={trend.collection.nft.address} className="p-2">
-                      <Link href={`/collections/${trend.collection.nft.mintAddress}/nfts`}>
-                        <a>
-                          <Collection.Card
-                            nft={trend.collection.nft}
-                            floorPrice={trend.compactFloorPrice}
-                            nftCount={trend.compactNftCount}
-                          />
-                        </a>
-                      </Link>
-                    </SwiperSlide>
-                  );
-              })}
-            </Carousel>
-          )}
         </section>
       </main>
       <footer className=" bg-gray-800 py-20">

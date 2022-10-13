@@ -122,7 +122,7 @@ function Tabs({ children }: OverviewTabsProps) {
   return (
     <nav
       className={clsx(
-        'relative z-20 mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
+        'relative mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
         `grid-cols-${children.length}`
       )}
     >

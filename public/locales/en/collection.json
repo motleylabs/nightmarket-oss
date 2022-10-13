@@ -13,14 +13,13 @@
     "priceLowToHigh": "Price Low to High",
     "recentlyListed": "Recently listed"
   },
-  "trendingCollections": "Trending collections",
   "collection": "Collection",
   "globalFloor": "Global floor",
   "24hVolume": "24h volume",
   "7dVolume": "7d volume",
   "30dVolume": "30d volume",
-  "sauceEarned": "$SAUCE earned",
-  "filters": {
+  "sauceEarned": "SAUCE earned",
+  "timeInterval": {
     "day": "1 Day",
     "week": "1 Week",
     "month": "1 Month"
@@ -46,5 +45,6 @@
   "about": "About",
   "descriptionTitle": "About this collection",
   "creatorsTitle": "Creators",
-  "twitterShareText": "Check out this collection"
+  "twitterShareText": "Check out this collection",
+  "filters": "Filters"
 }

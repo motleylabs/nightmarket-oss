@@ -206,7 +206,7 @@ Collection.List = CollectionList;
 
 function CollectionListLoading() {
   return (
-    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 lg:gap-7">
+    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
       {/* Collection Image */}
       <div className="h-16 w-16 rounded-lg bg-gray-725 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
@@ -249,7 +249,7 @@ interface CollectionListRowProps {
 function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
   return (
     <Link href={`/collections/${mindAddress}`}>
-      <a className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 text-white lg:gap-7">
+      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
         {children}
       </a>
     </Link>
@@ -259,11 +259,11 @@ function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
 CollectionList.Row = CollectionListRow;
 
 interface CollectionListColProps {
-  classname?: String;
+  className?: String;
   children?: ReactNode;
 }
-function CollectionListCol({ children, classname }: CollectionListColProps) {
-  return <div className={clsx(classname)}>{children}</div>;
+function CollectionListCol({ children, className }: CollectionListColProps) {
+  return <div className={clsx(className)}>{children}</div>;
 }
 
 CollectionList.Col = CollectionListCol;
@@ -273,6 +273,7 @@ interface CollectionListDataPointProps {
   name: string;
   value: Maybe<string> | undefined;
   status?: ReactElement;
+  className?: string;
 }
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
@@ -325,7 +326,7 @@ function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcas
     <div className="group flex w-16 flex-col items-center hover:scale-110">
       <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
       <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
-        <Icon.Sol className="h-3 w-3" noGradient />
+        <Icon.Sol className="h-3 w-3" />
         <span className="text-sm text-gray-50">{price}</span>
       </div>
       <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">

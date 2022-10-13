@@ -18,12 +18,12 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import { Listbox } from '@headlessui/react';
+import { Listbox, Switch } from '@headlessui/react';
 import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
-import { ControlledSelect } from '../../../components/Select';
+import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -34,7 +34,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       address: params?.address,
     },
   });
-  console.log(data);
+
   const collection: Collection = data.collection;
 
   if (collection === null) {
@@ -59,7 +59,6 @@ interface CollectionNFTsVariables {
   offset: number;
   limit: number;
   address: string;
-  //listed: boolean | null;
   attributes: AttributeFilter[] | null;
   sortBy: NftSort;
   order: OrderDirection;
@@ -79,7 +78,6 @@ enum ListedStatus {
 }
 
 interface CollectionNFTForm {
-  listed: ListedStatus;
   attributes: { [key: string]: string[] };
   sortBySelect: SortOption;
 }
@@ -115,11 +113,11 @@ export default function CollectionNfts() {
     { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
   ];
 
-  const [sortOption, setSortOption] = useState<SortOption>(sortOptions[0]);
-
-  const { watch, control, getValues } = useForm<CollectionNFTForm>({
-    defaultValues: { listed: ListedStatus.All, sortBySelect: sortOption },
+  const { watch, control, getValues, setValue } = useForm<CollectionNFTForm>({
+    defaultValues: { sortBySelect: sortOptions[0] },
   });
+
+  const sortOption = watch('sortBySelect');
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -171,7 +169,6 @@ export default function CollectionNfts() {
         variables.attributes = nextAttributes;
       }
 
-
       nftsQuery.refetch(variables).then(({ data: { collection } }) => {
         setHasMore(collection.nfts.length > 0);
       });
@@ -183,29 +180,18 @@ export default function CollectionNfts() {
   return (
     <>
       <Toolbar>
-        <Sidebar.Control open={open} onChange={toggleSidebar} />
-        {/* <Controller
+        <Sidebar.Control label={t('filters')} open={open} onChange={toggleSidebar} />
+        <Controller
           control={control}
-          name="listed"
+          name="sortBySelect"
           render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>
-                {t('all', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>
-                {t('listed', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>
-                {t('unlisted', { ns: 'common' })}
-              </ButtonGroup.Option>
-            </ButtonGroup>
+            <Select value={value} onChange={onChange} options={sortOptions} />
           )}
-        /> */}
-        <ControlledSelect control={control} id="sortBySelect" options={sortOptions} />
+        />
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
-          <div className="mt-6 flex flex-col px-2">
+          <div className="mt-4 flex w-full flex-col gap-2">
             {attributeGroupsQuery.loading ? (
               <>
                 <Attribute.Skeleton />
@@ -217,37 +203,39 @@ export default function CollectionNfts() {
             ) : (
               <>
                 {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
-                  <Controller
-                    key={group.name}
-                    control={control}
-                    name={`attributes.${group.name}`}
-                    render={({ field: { onChange, value } }) => (
-                      <Listbox
-                        multiple
-                        value={value || []}
-                        onChange={(e) => {
-                          onChange(e);
-                        }}
-                      >
-                        {({ open }) => (
-                          <>
-                            <Listbox.Button>
-                              <Attribute.Header group={group} isOpen={open} />
-                            </Listbox.Button>
-                            <Listbox.Options>
-                              {group.variants.map((variant) => (
-                                <Listbox.Option key={variant.name} value={variant.name}>
-                                  {({ selected }) => (
-                                    <Attribute.Option variant={variant} selected={selected} />
-                                  )}
-                                </Listbox.Option>
-                              ))}
-                            </Listbox.Options>
-                          </>
-                        )}
-                      </Listbox>
-                    )}
-                  />
+                  <div key={group.name} className=" w-full rounded-2xl bg-gray-800 p-4">
+                    <Controller
+                      key={group.name}
+                      control={control}
+                      name={`attributes.${group.name}`}
+                      render={({ field: { onChange, value } }) => (
+                        <Listbox
+                          multiple
+                          value={value || []}
+                          onChange={(e) => {
+                            onChange(e);
+                          }}
+                        >
+                          {({ open }) => (
+                            <>
+                              <Listbox.Button className=" flex w-full items-center justify-between">
+                                <Attribute.Header group={group} isOpen={open} />
+                              </Listbox.Button>
+                              <Listbox.Options className={'mt-6 space-y-4'}>
+                                {group.variants.map((variant) => (
+                                  <Listbox.Option key={variant.name} value={variant.name}>
+                                    {({ selected }) => (
+                                      <Attribute.Option variant={variant} selected={selected} />
+                                    )}
+                                  </Listbox.Option>
+                                ))}
+                              </Listbox.Options>
+                            </>
+                          )}
+                        </Listbox>
+                      )}
+                    />
+                  </div>
                 ))}
               </>
             )}
@@ -263,9 +251,9 @@ export default function CollectionNfts() {
                     data={nftsQuery.data?.collection.nfts}
                     loading={nftsQuery.loading}
                     hasMore={hasMore}
-                    gap={4}
+                    gap={6}
                     grid={{
-                      [ListGridSize.Default]: [1, 1],
+                      [ListGridSize.Default]: [2, 2],
                       [ListGridSize.Small]: [2, 2],
                       [ListGridSize.Medium]: [2, 3],
                       [ListGridSize.Large]: [3, 4],
@@ -277,7 +265,7 @@ export default function CollectionNfts() {
                       if (!inView) {
                         return;
                       }
-                      
+
                       const {
                         data: { collection },
                       } = await nftsQuery.fetchMore({

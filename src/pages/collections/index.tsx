@@ -14,7 +14,7 @@ import {
 } from './../../queries/collections.graphql';
 import { useForm, Controller } from 'react-hook-form';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { ControlledSelect } from '../../components/Select';
+import Select from '../../components/Select';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 interface CollectionsByVolumeData {
@@ -223,7 +223,6 @@ const Collections: NextPage = () => {
                       className="h-5 w-5 text-gray-600 group-focus-within:text-white"
                       aria-hidden="true"
                     />
-
                     <input
                       autoFocus
                       placeholder={t('search.placeholder')}
@@ -237,7 +236,13 @@ const Collections: NextPage = () => {
             />
           </div>
           <div className="flex-grow sm:w-72 sm:flex-grow-0">
-            <ControlledSelect control={control} id="collectionTypeSelect" options={sortOptions} />
+            <Controller
+              control={control}
+              name="collectionTypeSelect"
+              render={({ field: { onChange, value } }) => (
+                <Select value={value} onChange={onChange} options={sortOptions} />
+              )}
+            />
           </div>
         </section>
         <section className="mt-4">
@@ -259,7 +264,7 @@ const Collections: NextPage = () => {
             render={(collection, i) => (
               <Link
                 href={`/collections/${collection.nft.mintAddress}`}
-                key={`${collection.nft.mintAddress}`}
+                key={collection.nft.mintAddress}
                 passHref
               >
                 <a>

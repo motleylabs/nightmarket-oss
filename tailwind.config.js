@@ -22,8 +22,8 @@ module.exports = {
         // base: '1rem',
       },
       fontFamily: {
-        // https://github.com/WCYS-Co/Hauora-Sans // not yet bundled
-        sans: ['Hauora-Sans', 'Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['Brice', ...defaultTheme.fontFamily.serif],
+        sans: ['Hauora', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {
@@ -58,7 +58,7 @@ module.exports = {
           750: '#262626', // Part of new theme
           800: '#17161C', // Part of new theme
           900: '#191919',
-          950: '#0B0A0E', // Part of new theme
+          // 950: '#0B0A0E', // Part of new theme
         },
       },
       keyframes: {
@@ -80,6 +80,7 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
+    require('@tailwindcss/line-clamp'),
     plugin(function ({ addUtilities }) {
       addUtilities({
         /* Hide scrollbar for Chrome, Safari and Opera */

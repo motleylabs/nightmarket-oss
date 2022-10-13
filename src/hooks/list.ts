@@ -6,7 +6,7 @@ import {
   createCreateListingInstruction,
   CreateListingInstructionAccounts,
   CreateListingInstructionArgs,
-} from '@holaplex/mpl-reward-center';
+} from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { Marketplace, Nft } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';

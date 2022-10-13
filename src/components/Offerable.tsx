@@ -61,7 +61,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   } = useMakeOffer();
 
   return (
-    <div>
+    <>
       {children({
         makeOffer: openOffer,
         children,
@@ -228,7 +228,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
         </div>
       </Modal>
       ;
-    </div>
+    </>
   );
 }
 

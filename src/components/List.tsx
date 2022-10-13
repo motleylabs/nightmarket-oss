@@ -96,7 +96,7 @@ export function List<T>({
   return (
     <div
       className={clsx(
-        `grid pt-4 gap-${gap}`,
+        `grid gap-4 pt-4 md:gap-${gap}`,
         expanded ? openClassNames : closedClassNames,
         className
       )}

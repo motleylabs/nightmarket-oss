@@ -13,10 +13,10 @@ import {
   createUpdateOfferInstruction,
   UpdateOfferInstructionAccounts,
   UpdateOfferInstructionArgs,
-  createCloseOfferInstruction,
-  CloseOfferInstructionAccounts,
-  CloseOfferInstructionArgs,
-} from '@holaplex/mpl-reward-center';
+  createCancelOfferInstruction,
+  CancelOfferInstructionAccounts,
+  CancelOfferInstructionArgs,
+} from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
 import { toLamports } from '../modules/sol';
@@ -284,7 +284,7 @@ export default function useMakeOffer(): MakeOfferContext {
 
       const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
 
-      const accounts: CloseOfferInstructionAccounts = {
+      const accounts: CancelOfferInstructionAccounts = {
         wallet: publicKey,
         offer,
         treasuryMint,
@@ -302,8 +302,8 @@ export default function useMakeOffer(): MakeOfferContext {
         auctionHouseProgram: AuctionHouseProgram.PUBKEY,
       };
 
-      const args: CloseOfferInstructionArgs = {
-        closeOfferParams: {
+      const args: CancelOfferInstructionArgs = {
+        cancelOfferParams: {
           tradeStateBump,
           escrowPaymentBump,
           buyerPrice: offerPrice,
@@ -311,7 +311,7 @@ export default function useMakeOffer(): MakeOfferContext {
         },
       };
 
-      const instruction = createCloseOfferInstruction(accounts, args);
+      const instruction = createCancelOfferInstruction(accounts, args);
       const tx = new Transaction();
       tx.add(instruction);
       const recentBlockhash = await connection.getLatestBlockhash();
