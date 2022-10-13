@@ -16,7 +16,7 @@ import {
   createExecuteSaleInstruction,
   ExecuteSaleInstructionAccounts,
   ExecuteSaleInstructionArgs,
-} from '@holaplex/mpl-reward-center';
+} from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {

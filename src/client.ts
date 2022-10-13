@@ -187,6 +187,7 @@ const client = new ApolloClient({
           ]),
           collectionsFeaturedByVolume: offsetLimitPagination(),
           collectionsFeaturedByMarketCap: offsetLimitPagination(),
+          collectionTrends: offsetLimitPagination(['$sortBy', '$timeFrame', '$orderDirection']),
           viewer: {
             read() {
               return viewerVar();

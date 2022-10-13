@@ -223,7 +223,6 @@ const Collections: NextPage = () => {
                       className="h-5 w-5 text-gray-600 group-focus-within:text-white"
                       aria-hidden="true"
                     />
-
                     <input
                       autoFocus
                       placeholder={t('search.placeholder')}
@@ -265,7 +264,7 @@ const Collections: NextPage = () => {
             render={(collection, i) => (
               <Link
                 href={`/collections/${collection.nft.mintAddress}`}
-                key={`${collection.nft.mintAddress}`}
+                key={collection.nft.mintAddress}
                 passHref
               >
                 <a>

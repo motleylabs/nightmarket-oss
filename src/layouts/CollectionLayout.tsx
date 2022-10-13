@@ -59,10 +59,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
 
           <div className=" grid w-full max-w-md grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto">
             <CollectionFigure label="Floor price">
-              <Icon.Sol noGradient /> {collection.compactFloorPrice}
+              <Icon.Sol /> {collection.compactFloorPrice}
             </CollectionFigure>
             <CollectionFigure label="30 Day Volume">
-              <Icon.Sol noGradient /> {collection.compactVolumeTotal}
+              <Icon.Sol /> {collection.compactVolumeTotal}
             </CollectionFigure>
             <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
             <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>

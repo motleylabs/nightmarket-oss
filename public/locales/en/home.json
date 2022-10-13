@@ -5,27 +5,17 @@
   },
   "hero": {
     "title": "This is a community-owned NFT marketplace.",
-    "subtitle": "Get $SAUCE everytime you buy or sell an NFT. Learn more about how it works.",
+    "subtitle": "Get SAUCE everytime you buy or sell an NFT. Learn more about how it works.",
     "exploreNfts": "Explore NFTs",
     "sellNfts": "Sell NFTs"
+  },
+  "trendingCollections": {
+    "title": "Trending collections"
   },
   "topVolume": {
     "title": "Top volume"
   },
-  "trendingCollections": {
-    "title": "Trending collections",
-    "collection": "Collection",
-    "floor": "Floor",
-    "volume": "Volume",
-    "sales": "Sales",
-    "marketcap": "Marketcap",
-    "trend": "Floor trend",
-    "filters": {
-      "day": "1 Day",
-      "week": "1 Week",
-      "month": "1 Month"
-    }
-  },
+
   "topMarketCap": {
     "title": "Top marketcap"
   },

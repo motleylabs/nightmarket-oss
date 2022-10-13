@@ -123,7 +123,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     alt="night market logo"
                   />
                   <p>
-                    {t('buyable.earnSauce')} <span className="text-primary-700">{400} $SAUCE</span>
+                    {t('buyable.earnSauce')} <span className="text-primary-700">{400} SAUCE</span>
                   </p>
                 </div>
               </section>

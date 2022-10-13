@@ -66,7 +66,7 @@ Hero.Aside = HeroAside;
 
 interface HeroPreviewProps {
   nft?: Nft;
-  classname?: string;
+  className?: string;
   imgUrlTemp: string; // to be removed once live data arrives
   hPosition: 'left' | 'right';
   vPosition: 'top' | 'bottom';
@@ -75,12 +75,12 @@ interface HeroPreviewProps {
 const HeroPreview = ({
   nft,
   imgUrlTemp,
-  classname,
+  className,
   hPosition,
   vPosition,
 }: HeroPreviewProps): JSX.Element => {
   return (
-    <div className={clsx('realtive', classname)}>
+    <div className={clsx('realtive', className)}>
       <img
         className="h-32 w-32 rounded-2xl object-contain lg:h-48 lg:w-48"
         alt="nft name"
@@ -98,7 +98,7 @@ const HeroPreview = ({
         )}
       >
         <span className="truncate text-xs text-gray-500">Sold 1min ago</span>
-        <span className=" text-xs text-orange-600 lg:text-sm ">+22 $SAUCE</span>
+        <span className=" text-xs text-orange-600 lg:text-sm ">+22 SAUCE</span>
         <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
       </div>
     </div>

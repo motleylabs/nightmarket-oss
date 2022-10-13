@@ -170,7 +170,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-primary-700">{400} $SAUCE</p>
+                  <p className="text-primary-700">{400} SAUCE</p>
                 </div>
               </div>
               <div id={'prices'} className="flex flex-col gap-2">
