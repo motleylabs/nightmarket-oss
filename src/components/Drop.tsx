@@ -3,6 +3,7 @@ import Icon from './Icon';
 import Button, { ButtonType } from './Button';
 import Link from 'next/link';
 import useCountdown from '../hooks/countdown';
+import { useTranslation } from 'next-i18next';
 
 interface DropProps {
   title: string;
@@ -24,43 +25,52 @@ export default function Drop({
   launchDate,
 }: DropProps) {
   const { days, hours, minutes, seconds } = useCountdown(launchDate);
+  const { t } = useTranslation('home');
   return (
     <div className="flex max-w-5xl flex-col gap-6 rounded-2xl bg-gray-900 p-6 md:flex-row">
-      <img
-        src={image}
-        alt={`${title}-drop`}
-        className="aspect-square max-h-60 w-full rounded-lg object-cover md:w-1/3"
-      />
-      <div className="flex flex-col gap-4">
-        <h6 className="text-xl font-semibold">{title}</h6>
+      <div className="flex flex-row items-center gap-4 md:inline-block md:w-3/4 md:items-start">
+        <img
+          src={image}
+          alt={`${title}-drop`}
+          className="aspect-square max-h-12 rounded-lg object-cover md:max-h-80 md:w-full"
+        />
+        <h6 className="inline-block text-xl font-semibold md:hidden">{title}</h6>
+      </div>
+      <div className="flex flex-col gap-2">
+        <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
         <p className="text-base text-gray-300">{description}</p>
-        <ul className="flex flex-row items-center justify-start gap-9">
-          <li className="flex flex-col">
-            <p className="text-xs font-light text-gray-300">Drops</p>
+        <ul className="md:gap- flex flex-row items-center justify-start gap-4">
+          <li className="flex flex-col whitespace-nowrap">
+            <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
             {/* TODO: timer */}
             <p className="text-base font-semibold">
               {days}d {hours}h {minutes}m {seconds}s
             </p>
           </li>
           <li className="flex flex-col">
-            <p className="text-xs font-light text-gray-300">Price</p>
+            <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
             <p className="flex flex-row items-center text-base font-semibold">
               <Icon.Sol />
               {price}
             </p>
           </li>
           <li className="flex flex-col">
-            <p className="text-xs font-light text-gray-300">Supply</p>
+            <p className="text-xs font-light text-gray-300">{t('drops.supply')}</p>
             <p className="flex flex-row items-center text-base font-semibold">
               {supply.toLocaleString('en-US')}
             </p>
+          </li>
+          <li className="flex w-full justify-end md:hidden">
+            <Button className="font-semibold" type={ButtonType.Secondary}>
+              {t('drops.view')}
+            </Button>
           </li>
         </ul>
         <div className="inline-block">
           <Link href={link}>
             <a target={'_self'}>
-              <Button className="font-semibold" type={ButtonType.Secondary}>
-                View details
+              <Button className="hidden font-semibold md:inline-block" type={ButtonType.Secondary}>
+                {t('drops.details')}
               </Button>
             </a>
           </Link>

@@ -18,7 +18,12 @@
   "drops": {
     "title": "Upcoming drops",
     "launchButton": "Launch with us",
-    "more": "More launches coming soon"
+    "more": "More launches coming soon",
+    "drops": "Drops",
+    "price": "Price",
+    "supply": "Supply",
+    "details": "View details",
+    "view": "View"
   },
   "topMarketCap": {
     "title": "Top marketcap"
