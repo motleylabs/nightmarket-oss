@@ -35,3 +35,13 @@ export const createAssociatedTokenAccountInstruction = (
     data: Buffer.from([]),
   });
 };
+
+export const getAtaForMint = async (
+  mint: PublicKey,
+  buyer: PublicKey
+): Promise<[PublicKey, number]> => {
+  return await PublicKey.findProgramAddress(
+    [buyer.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+};

@@ -4,6 +4,7 @@ import {
   findLockupSettingsId,
   PROGRAM_ID,
   remainingAccountsForLockup,
+  WhitelistMintMode,
 } from '@cardinal/mpl-candy-machine-utils';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -26,7 +27,7 @@ import {
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import { Edition, Metadata, MetadataProgram } from '@metaplex-foundation/mpl-token-metadata';
-import { createAssociatedTokenAccountInstruction } from '../modules/candymachine';
+import { createAssociatedTokenAccountInstruction, getAtaForMint } from '../modules/candymachine';
 
 interface MintOptions {
   type: 'Standard' | 'Dynamic';
@@ -41,6 +42,7 @@ export interface LaunchpadState {
 interface LaunchpadContext {
   onMint: () => Promise<void>;
   refresh: () => void;
+  isMinting: boolean;
   launchpadState: {
     supply: number;
     minted: number;
@@ -52,6 +54,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const [candyMachineState, setCandyMachineState] = useState<LaunchpadState>();
   const [cm, setCM] = useState<CandyMachine>();
+  const [isMinting, setIsMinting] = useState<boolean>(false);
 
   const { connection } = useConnection();
 
@@ -59,7 +62,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
 
   const fetchCandyMachine = async () => {
     const candyMachine = await CandyMachine.fromAccountAddress(connection, candyMachinePubkey);
-    console.log(candyMachine.itemsRedeemed.toString());
+
     const candyMachineState = {
       supply: Number(candyMachine.data.itemsAvailable.toString()),
       minted: Number(candyMachine.itemsRedeemed.toString()),
@@ -74,11 +77,10 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
   }, []);
 
   const onMint = async () => {
-    console.log(connected);
     if (connected && publicKey && signTransaction && cm && connection) {
-      console.log(`hit`);
+      setIsMinting(true);
       const mintKeypair = Keypair.generate();
-      console.log(mintKeypair.publicKey.toBase58());
+
       const tokenAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
@@ -120,9 +122,31 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
       if (cm.tokenMint) {
       }
       if (cm.data.whitelistMintSettings) {
+        const whitelistMint = cm.data.whitelistMintSettings.mint;
+        const [whitelistTokenAccount, whitelistTokenAccountBump] = await getAtaForMint(
+          whitelistMint,
+          publicKey
+        );
+        remainingAccs.push({
+          pubkey: whitelistTokenAccount,
+          isWritable: false,
+          isSigner: false,
+        });
+        if (cm.data.whitelistMintSettings.mode === WhitelistMintMode.BurnEveryTime) {
+          remainingAccs.push({
+            pubkey: whitelistMint,
+            isWritable: true,
+            isSigner: false,
+          });
+          remainingAccs.push({
+            pubkey: publicKey,
+            isWritable: false,
+            isSigner: true,
+          });
+        }
       }
 
-      // lockup settings
+      // TODO: lockup settings waiting on motley to decide details
       const [lockupSettingsId] = await findLockupSettingsId(candyMachinePubkey);
       const lockupSettings = await connection.getAccountInfo(lockupSettingsId);
       if (lockupSettings) {
@@ -177,15 +201,26 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
       const recentBlockhash = await connection.getLatestBlockhash();
       tx.recentBlockhash = recentBlockhash.blockhash;
       try {
+        tx.sign(mintKeypair);
         const signedTx = await signTransaction(tx);
 
         const txtId = await connection.sendRawTransaction(signedTx.serialize());
         if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+          await connection.confirmTransaction(
+            {
+              blockhash: recentBlockhash.blockhash,
+              lastValidBlockHeight: recentBlockhash.lastValidBlockHeight,
+              signature: txtId,
+            },
+            'confirmed'
+          );
           console.log(`Successfully minted`);
         }
       } catch (err) {
         console.log('Error whilst minting', err);
+      } finally {
+        setIsMinting(false);
+        fetchCandyMachine();
       }
     } else {
       return;
@@ -195,6 +230,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
   return {
     onMint: onMint,
     refresh: fetchCandyMachine,
+    isMinting,
     launchpadState: {
       supply: candyMachineState?.supply || 0,
       minted: candyMachineState?.minted || 0,

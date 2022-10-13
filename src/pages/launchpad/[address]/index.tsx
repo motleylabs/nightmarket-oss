@@ -82,7 +82,7 @@ export default function LaunchpadPage() {
         <div className="top-20 mb-10 flex w-full flex-col gap-6 pt-0 lg:sticky lg:w-1/2 lg:pl-10">
           <h6 className="font-serif text-2xl font-bold">{t('phaseTitle')}</h6>
           <Launchpad candyMachineId={'9ACm8nAqgzTExSRQpb8JxYnZeEMTgLzsHDpRv8TmQVBY'}>
-            {({ onMint, launchpadState }) => (
+            {({ onMint, launchpadState, isMinting }) => (
               <>
                 {/* TODO: determine how to store finished & upcoming launchpad config states */}
                 <Launchpad.Finished
@@ -96,6 +96,7 @@ export default function LaunchpadPage() {
                   soldOutTimeMilliseconds={200000}
                 />
                 <Launchpad.Active
+                  isMinting={isMinting}
                   onMint={onMint}
                   title={'Allowlist mint'}
                   price={launchpadState.price}

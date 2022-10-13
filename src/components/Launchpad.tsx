@@ -11,6 +11,7 @@ type Finished = FC;
 
 interface RenderProps {
   onMint: () => Promise<void>;
+  isMinting: boolean;
   launchpadState: LaunchpadState;
   children: any;
 }
@@ -24,12 +25,13 @@ interface LaunchpadProps {
 }
 
 export default function Launchpad({ children, candyMachineId }: LaunchpadProps) {
-  const { onMint, launchpadState } = useLaunchpad(candyMachineId);
+  const { onMint, launchpadState, isMinting } = useLaunchpad(candyMachineId);
 
   return (
     <>
       {children({
         onMint,
+        isMinting,
         launchpadState,
         children,
       })}
@@ -51,10 +53,12 @@ interface LaunchpadActiveProps {
   isPublic?: boolean;
   mintType?: MintOption;
   onMint?: () => void;
+  isMinting: boolean;
 }
 
 function LaunchpadActive({
   onMint,
+  isMinting,
   title,
   price,
   supply,
@@ -114,6 +118,7 @@ function LaunchpadActive({
             onClick={onMint}
             type={ButtonType.Primary}
             className="font-bold"
+            loading={isMinting}
             disabled={!hasAccess}
           >
             {t('phases.mint')}
@@ -126,7 +131,8 @@ function LaunchpadActive({
 
 Launchpad.Active = LaunchpadActive;
 
-interface LaunchpadFinishedProps extends Omit<LaunchpadActiveProps, 'hasAccess' | 'isPublic'> {
+interface LaunchpadFinishedProps
+  extends Omit<LaunchpadActiveProps, 'hasAccess' | 'isPublic' | 'isMinting'> {
   soldOut: boolean;
   soldOutTimeMilliseconds?: number;
 }
@@ -187,7 +193,7 @@ function LaunchpadFinished({
 
 Launchpad.Finished = LaunchpadFinished;
 
-interface LaunchpadUpcomingProps extends Omit<LaunchpadActiveProps, 'minted'> {
+interface LaunchpadUpcomingProps extends Omit<LaunchpadActiveProps, 'minted' | 'isMinting'> {
   mintDate: Date;
 }
 
