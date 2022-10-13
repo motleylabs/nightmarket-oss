@@ -126,26 +126,24 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="align-self-start relative mb-10 lg:w-1/2 lg:pr-10 ">
-        <img
-          src={nft.image}
-          alt="nft image"
-          className=" top-10 z-10 w-full rounded-lg object-cover"
-        />
-        <button
-          onClick={() => setExpanded(true)}
-          className={`absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110 md:right-12`}
-        >
-          <ArrowsPointingOutIcon className="h-4 w-4" />
-        </button>
+        <div className="relative">
+          <img src={nft.image} alt="nft image" className="w-full rounded-lg object-cover" />
+          <button
+            onClick={() => setExpanded(true)}
+            className="absolute bottom-2 right-2 md:bottom-6 md:right-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110"
+          >
+            <ArrowsPointingOutIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
       <div
         role="dialog"
         onClick={() => setExpanded(false)}
         className={clsx(
           'fixed inset-0',
-          'bg-gray-800 bg-opacity-40 backdrop-blur-lg',
+          'bg-gray-800 bg-opacity-40 backdrop-blur-lg cursor-pointer',
           'transition-opacity duration-500 ease-in-out',
-          'flex flex-col items-center justify-center',
+          'z-50 flex flex-col items-center justify-center',
           {
             'opacity-100': expanded,
             'opacity-0': !expanded,
@@ -203,7 +201,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {buy && (
           <Form
             onSubmit={handleSubmitBuy(handleBuy)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
@@ -291,7 +289,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {makeOffer && (
           <Form
             onSubmit={handleSubmitOffer(handleOffer)}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
               {t('placeBid')}
@@ -371,7 +369,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         {listNft && (
           <Form
             onSubmit={handleSubmitListNft(() => {})}
-            className="fixed bottom-0 left-0 right-0 z-50 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('listNft')}
