@@ -118,7 +118,7 @@ export default function LaunchpadPage() {
             )}
           </Launchpad>
         </div>
-        <div className="align-self-start md-pr-10 mb-10 flex w-full flex-col gap-4 lg:w-1/2">
+        <div className="align-self-start md-pr-10 mb-10 flex w-full flex-col gap-8 lg:w-1/2">
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center justify-between gap-4">
               <h4 className="text-3xl font-bold">Team Motley</h4>
