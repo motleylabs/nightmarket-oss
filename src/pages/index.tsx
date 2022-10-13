@@ -211,7 +211,7 @@ const Home: NextPage = () => {
               image={'/images/launchpad/motley-launchpad-nft.png'}
               link={'/launchpad/test'}
             />
-            <div className="flex flex-col items-center justify-center gap-4 text-center">
+            <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
               <h4 className="text-xl font-semibold">{t('drops.more')}</h4>
               <p>
                 Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation

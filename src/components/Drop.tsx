@@ -14,7 +14,7 @@ interface DropProps {
 
 export default function Drop({ title, description, price, supply, image, link }: DropProps) {
   return (
-    <div className="flex max-w-5xl flex-col gap-6 rounded-lg bg-gray-900 p-6 md:flex-row">
+    <div className="flex max-w-5xl flex-col gap-6 rounded-2xl bg-gray-900 p-6 md:flex-row">
       <img
         src={image}
         alt={`${title}-drop`}
