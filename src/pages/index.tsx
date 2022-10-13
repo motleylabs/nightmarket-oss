@@ -26,6 +26,7 @@ import useLogin from '../hooks/login';
 import Router from 'next/router';
 import Footer from '../components/Footer';
 import Drop from '../components/Drop';
+import { addDays } from 'date-fns';
 
 interface TrendingCollectionData {
   collectionTrends: CollectionTrend[];
@@ -202,6 +203,7 @@ const Home: NextPage = () => {
           </header>
           <div className="flex flex-col items-center justify-start gap-12 md:flex-row">
             <Drop
+              launchDate={addDays(new Date(), 3)}
               title={'Team Motley'}
               description={
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi'
