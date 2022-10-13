@@ -9,6 +9,7 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
   AccountMeta,
   Keypair,
+  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   SYSVAR_CLOCK_PUBKEY,
@@ -58,11 +59,11 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
 
   const fetchCandyMachine = async () => {
     const candyMachine = await CandyMachine.fromAccountAddress(connection, candyMachinePubkey);
-
+    console.log(candyMachine.itemsRedeemed.toString());
     const candyMachineState = {
-      supply: Number(candyMachine.data.maxSupply.toString()),
+      supply: Number(candyMachine.data.itemsAvailable.toString()),
       minted: Number(candyMachine.itemsRedeemed.toString()),
-      price: Number(candyMachine.data.price.toString()),
+      price: Number(candyMachine.data.price.toString()) / LAMPORTS_PER_SOL,
     };
     setCandyMachineState(candyMachineState);
     setCM(candyMachine);
