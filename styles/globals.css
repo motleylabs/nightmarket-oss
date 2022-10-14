@@ -24,9 +24,7 @@ html {
   @apply bg-black;
 }
 
-.bg-gradient {
-  @apply bg-gradient-to-r from-primary-900 to-primary-600;
-}
+
 
 .input {
   @apply rounded-md border border-gray-725;

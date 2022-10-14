@@ -35,7 +35,7 @@ function CollectionOption({
     <div
       className={clsx(
         'group relative mb-2 rounded-2xl border border-transparent p-px',
-        selected ? 'bg-gradient' : 'border-gray-800 bg-gray-800 hover:border-white'
+        selected ? 'bg-gradient-primary' : 'border-gray-800 bg-gray-800 hover:border-white'
       )}
     >
       <div
@@ -323,15 +323,16 @@ interface CollectionListShowcaseNftProps {
 }
 function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
   return (
-    <div className="group flex w-16 flex-col items-center hover:scale-110">
-      <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-      <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
-        <Icon.Sol className="h-3 w-3" />
-        <span className="text-sm text-gray-50">{price}</span>
+    <div className=" flex w-16 flex-col items-center  ">
+      {/*  Todo: Add a link to the NFT here */}
+      <div className="rounded-lg hover:bg-gradient-primary">
+        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover p-px " />
       </div>
-      <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-        Buy
-      </Button>
+      <div className="group  relative -mt-3 flex w-14 items-center justify-center gap-1 rounded-full bg-black py-1 px-1 text-sm transition-all duration-300 hover:w-10 hover:bg-gradient-primary">
+        <Icon.Sol className="h-3 w-3 group-hover:hidden" />
+        <span className=" text-gray-50 group-hover:hidden">{price}</span>
+        <button className=" hidden font-bold group-hover:block">Buy</button>
+      </div>
     </div>
   );
 }

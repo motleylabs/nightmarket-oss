@@ -28,6 +28,8 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-primary': `linear-gradient(to right, #F85C04, #7C1E05)`,
+        'gradient-secondary': `linear-gradient(to right, #F85C04, #EC9D08)`,
       },
       borderRadius: {
         md: '0.25rem',

@@ -167,6 +167,7 @@ const Home: NextPage = () => {
                 block
                 type={ButtonType.Secondary}
                 onClick={onSellNftsClick}
+                secondaryBgColor="bg-black"
               >
                 {t('hero.sellNfts')}
               </Button>
