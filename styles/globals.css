@@ -28,6 +28,10 @@ html {
   @apply bg-gradient-to-r from-primary-900 to-primary-600;
 }
 
+.bg-gradient-secondary {
+  @apply bg-gradient-to-r from-primary-900 to-primary-800;
+}
+
 .input {
   @apply rounded-md border border-gray-725;
 }
