@@ -1,9 +1,25 @@
 #import "./auctionhouse.graphql"
+#import "./profile.graphql"
 
 fragment OfferInfo on Offer {
   id
   tradeState
+  nft {
+    address
+    name
+    mintAddress
+    image(width: 100)
+  }
   buyer
+  buyerWallet {
+    address
+    twitterHandle
+    previewImage @client
+    displayName @client
+    profile {
+      ...ProfileInfo
+    }
+  }
   metadata
   auctionHouse {
     ...AuctionHouseInfo

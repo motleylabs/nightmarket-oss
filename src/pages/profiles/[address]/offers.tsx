@@ -3,7 +3,7 @@ import { ReactElement, useEffect, useState } from 'react';
 import { WalletProfileQuery, ProfileOffersQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../graphql.types';
+import { OfferType, Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
@@ -53,7 +53,7 @@ interface ProfileOffersVariables {
   offset: number;
   limit: number;
   address: string;
-  offerType: string | null;
+  offerType: OfferType | null;
 
 }
 
@@ -101,11 +101,21 @@ export default function ProfileOffers(): JSX.Element {
 
   useEffect(() => {
     const subscription = watch(({ type }) => {
+      let offerType = null;
+      switch(type?.value){
+        case OffersFilter.Placed:
+          offerType = OfferType.OfferPlaced;
+          break;
+        case OffersFilter.Received:
+          offerType = OfferType.OfferReceived;
+          break;  
+      }
+      
       let variables: ProfileOffersVariables = {
         offset: 0,
         limit: 24,
         address: router.query.address as string,
-        offerType: type?.value ?? null,
+        offerType: offerType,
       };
 
       offersQuery.refetch(variables).then(({ data: { wallet } }) => {
