@@ -160,6 +160,11 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           href={`/profiles/${router.query.address}/activity`}
           active={router.pathname.includes('activity')}
         />
+        <Overview.Tab
+          label={t('offers')}
+          href={`/profiles/${router.query.address}/offers`}
+          active={router.pathname.includes('offers')}
+        />
       </Overview.Tabs>
       {cloneElement(children, { walletProfileClientQuery })}
     </>

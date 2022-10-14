@@ -19,5 +19,12 @@
     "description": "Profile for {{ name }}",
     "title": "{{ name }} | Profile"
   },
-  "twitterShareText": "Check out this Profile"
+  "twitterShareText": "Check out this Profile",
+  "offersFilter": {
+    "allOffers": "All offers",
+    "offersReceived": "Offers Received",
+    "offersPlaced": "Offers Placed"
+  },
+  "accept": "Accept",
+  "update": "Update"
 }
