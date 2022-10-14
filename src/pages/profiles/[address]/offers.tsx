@@ -17,6 +17,7 @@ import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Button, { ButtonSize, ButtonType } from '../../../components/Button';
+import { Offerable } from '../../../components/Offerable';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
@@ -139,7 +140,9 @@ export default function ProfileOffers(): JSX.Element {
           </>
         ) : (
           <>
-            {offersQuery.data?.wallet.offers.map((offer) => (
+          <Offerable connected={Boolean(publicKey)}>
+            {({ makeOffer }) => 
+            offersQuery.data?.wallet.offers.map((offer) => (
               <Activity
                 avatar={
                   <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
@@ -151,7 +154,11 @@ export default function ProfileOffers(): JSX.Element {
                 type={ActivityType.Offer}
                 key={offer.id}
                 meta={
-                  <Activity.Meta title={<Activity.Tag />} marketplace={offer.nftMarketplace} />
+                  <Activity.Meta 
+                  title={<Activity.Tag />} 
+                  marketplace={offer.nftMarketplace} 
+                  source={<Activity.Wallet wallet={offer.buyerWallet} />} 
+                  />
                 }
                 actionButton={
                   offer.buyer === publicKey ? 
@@ -165,6 +172,7 @@ export default function ProfileOffers(): JSX.Element {
                 <Activity.Timestamp timeSince={offer.timeSince} />
               </Activity>
             ))}
+            </Offerable>
             {hasMore && (
               <>
                 <InView

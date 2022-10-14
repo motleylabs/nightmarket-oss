@@ -158,6 +158,15 @@ query ProfileOffersQuery(
         mintAddress
         image(width: 100)
       }
+      buyerWallet {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
     }
   }
 }
