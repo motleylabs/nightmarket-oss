@@ -83,6 +83,13 @@ query CollectedNFTsQuery(
     address
     nfts(collections: $collections, limit: $limit, offset: $offset) {
       ...NftInfo
+      purchases {
+        id
+        previewPrice @client
+        price
+        buyer
+        seller
+      }
     }
   }
 }

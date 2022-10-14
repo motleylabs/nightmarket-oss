@@ -59,6 +59,8 @@
   "listing": "Listed",
   "offer": "Offer",
   "owned": "Owned",
+  "update": "Update",
+  "list": "List",
   "viewProfile": "View profile",
   "switchWallet": "Switch wallet",
   "disconnectWallet": "Disconnect wallet"
