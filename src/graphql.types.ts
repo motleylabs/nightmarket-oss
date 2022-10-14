@@ -64,7 +64,7 @@ export type AttributeVariant = {
 
 export type AuctionHouse = {
   __typename?: 'AuctionHouse';
-  address: Scalars['String'];
+  address: Scalars['PublicKey'];
   auctionHouseFeeAccount: Scalars['String'];
   auctionHouseTreasury: Scalars['String'];
   authority: Scalars['String'];
@@ -75,6 +75,7 @@ export type AuctionHouse = {
   feePayerBump: Scalars['Int'];
   feeWithdrawalDestination: Scalars['String'];
   requiresSignOff: Scalars['Boolean'];
+  rewardCenter?: Maybe<RewardCenter>;
   sellerFeeBasisPoints: Scalars['Int'];
   stats?: Maybe<MintStats>;
   treasuryBump: Scalars['Int'];
@@ -889,6 +890,12 @@ export enum OrderDirection {
   Desc = 'DESC',
 }
 
+/** Reward center mathematical operands */
+export enum PayoutOperation {
+  Divide = 'DIVIDE',
+  Multiple = 'MULTIPLE',
+}
+
 export type PriceChart = {
   __typename?: 'PriceChart';
   listingFloor: Array<PricePoint>;
@@ -1365,6 +1372,19 @@ export type RealmConfig = {
   realmAddress: Scalars['PublicKey'];
   useCommunityVoterWeightAddin: Scalars['Boolean'];
   useMaxCommunityVoterWeightAddin: Scalars['Boolean'];
+};
+
+export type RewardCenter = {
+  __typename?: 'RewardCenter';
+  address: Scalars['PublicKey'];
+  auctionHouse: Scalars['PublicKey'];
+  bump: Scalars['Int'];
+  mathematicalOperand: PayoutOperation;
+  payoutNumeral: Scalars['Int'];
+  sellerRewardPayoutBasisPoints: Scalars['Int'];
+  slot: Scalars['U64'];
+  tokenMint: Scalars['PublicKey'];
+  writeVersion: Scalars['U64'];
 };
 
 export type SignatoryRecord = {

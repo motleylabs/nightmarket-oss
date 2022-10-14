@@ -86,14 +86,6 @@ declare module '*/profile.graphql' {
   export default defaultDocument;
 }
 
-declare module '*/home.graphql' {
-  import { DocumentNode } from 'graphql';
-  const defaultDocument: DocumentNode;
-  export const HomePageQuery: DocumentNode;
-
-  export default defaultDocument;
-}
-
 declare module '*/offerable.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;

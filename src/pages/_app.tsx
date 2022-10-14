@@ -321,11 +321,6 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     {t('profileMenu.collected')}
                   </a>
                 </Link>
-                <Link href={`/profiles/${props.wallet.address}/created`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                    {t('profileMenu.created')}
-                  </a>
-                </Link>
                 <Link href={`/profiles/${props.wallet.address}/activity`} passHref>
                   <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.activity')}
@@ -463,14 +458,6 @@ function MobileNavMenu({
                 >
                   <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.collected')}
-                  </a>
-                </Link>
-                <Link
-                  href={'/profiles/' + viewerQueryResult.data.wallet.address + '/created'}
-                  passHref
-                >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                    {t('profileMenu.created')}
                   </a>
                 </Link>
                 <Link

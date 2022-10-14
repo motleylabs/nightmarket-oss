@@ -1,9 +1,12 @@
 import clsx from 'clsx';
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
 import { Nft, Maybe } from '../graphql.types';
 import Icon from './Icon';
+import Link from 'next/link';
+import Button, { ButtonSize } from './Button';
+import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 export function Collection() {
   return <div />;
@@ -187,3 +190,150 @@ CollectionCard.Skeleton = function CollectionCardSkeleton({
 }: CollectionCardSkeletonProps): JSX.Element {
   return <div className={clsx('aspect-square animate-pulse rounded-md bg-gray-800', className)} />;
 };
+
+interface CollectionListProps {
+  children?: ReactNode;
+}
+function CollectionList({ children }: CollectionListProps) {
+  return (
+    <div className="scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+      <div className="w-full">{children}</div>
+    </div>
+  );
+}
+
+Collection.List = CollectionList;
+
+function CollectionListLoading() {
+  return (
+    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
+      {/* Collection Image */}
+      <div className="h-16 w-16 rounded-lg bg-gray-725 md:h-12 md:w-12" />
+      <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+        {/* Collection Name */}
+        <div className="lg:w-40">
+          <div className="h-6 w-20 rounded-md bg-gray-725" />
+        </div>
+        {/* Data Points */}
+        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
+          <div className="flex w-28 flex-col gap-1 sm:w-full">
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-725" />
+          </div>
+        </div>
+        {/* Nfts */}
+        <div className="hidden gap-4 lg:flex">
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+CollectionList.Loading = CollectionListLoading;
+
+interface CollectionListRowProps {
+  mindAddress: String;
+  children?: ReactNode;
+}
+function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
+  return (
+    <Link href={`/collections/${mindAddress}`}>
+      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
+        {children}
+      </a>
+    </Link>
+  );
+}
+
+CollectionList.Row = CollectionListRow;
+
+interface CollectionListColProps {
+  className?: String;
+  children?: ReactNode;
+}
+function CollectionListCol({ children, className }: CollectionListColProps) {
+  return <div className={clsx(className)}>{children}</div>;
+}
+
+CollectionList.Col = CollectionListCol;
+
+interface CollectionListDataPointProps {
+  icon?: ReactElement;
+  name: string;
+  value: Maybe<string> | undefined;
+  status?: ReactElement;
+  className?: string;
+}
+function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
+  return (
+    <div className="flex w-28 flex-col gap-1 sm:w-full">
+      <div className="text-xs text-gray-250 md:text-sm">{name}</div>
+      <div className="flex w-32 flex-row items-center justify-start gap-2">
+        <p className="flex items-center text-sm font-semibold md:text-base">
+          {icon}
+          {value}
+        </p>
+        {status}
+      </div>
+    </div>
+  );
+}
+
+CollectionList.DataPoint = CollectionListDataPoint;
+
+interface CollectionListDataPointStatusProps {
+  value: number;
+}
+function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
+  return (
+    <p
+      className={clsx(clsx, 'flex items-center gap-1 text-xs md:text-sm', {
+        'text-[#12B76A]': value >= 0,
+        'text-[#F04438]': value < 0,
+      })}
+    >
+      {Math.abs(value)}%
+      <ArrowUpIcon
+        className={clsx(clsx, 'h-2 w-2', {
+          'rotate-180 transform': value < 0,
+          'rotate-0 transform': value >= 0,
+        })}
+      />
+    </p>
+  );
+}
+
+CollectionListDataPoint.Status = CollectionListDataPointStatus;
+
+interface CollectionListShowcaseNftProps {
+  image: string;
+  name: string;
+  price: number;
+}
+function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
+  return (
+    <div className="group flex w-16 flex-col items-center hover:scale-110">
+      <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+      <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
+        <Icon.Sol className="h-3 w-3" />
+        <span className="text-sm text-gray-50">{price}</span>
+      </div>
+      <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+        Buy
+      </Button>
+    </div>
+  );
+}
+
+CollectionList.ShowcaseNft = CollectionListShowcaseNft;
