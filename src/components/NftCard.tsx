@@ -22,6 +22,7 @@ enum NFTStates {
   // OWNED AND LISTED?
 }
 
+// TODO: listing & update listing when instructions done
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 

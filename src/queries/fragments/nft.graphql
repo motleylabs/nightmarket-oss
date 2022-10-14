@@ -32,6 +32,13 @@ fragment NftInfo on Nft {
       mintAddress
     }
   }
+  purchases {
+    id
+    previewPrice @client
+    price
+    buyer
+    seller
+  }
   listings {
     ...ListingPreview
     previewPrice @client
