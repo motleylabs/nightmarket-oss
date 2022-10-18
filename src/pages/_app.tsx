@@ -76,7 +76,7 @@ function NavigationBar() {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-30  w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+        'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
         'bg-black'
@@ -403,11 +403,11 @@ function MobileNavMenu({
   return (
     <div
       className={clsx(
-        'fixed inset-0 z-50 bg-gray-900 px-4 py-2 md:hidden',
+        'fixed inset-0 z-50 bg-gray-900 py-2 md:hidden',
         showNav ? 'block' : 'hidden'
       )}
     >
-      <div className="flex w-full flex-row items-center justify-between md:hidden">
+      <div className="flex px-4 w-full flex-row items-center justify-between md:hidden">
         <Link href="/" passHref>
           <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
             <img
@@ -426,14 +426,14 @@ function MobileNavMenu({
           <XMarkIcon color="#171717" width={20} height={20} />
         </button>
       </div>
-      <nav className="flex  flex-col bg-gray-900 py-2 md:p-2">
-        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 text-white">
+      <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
+        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 text-white px-6">
           {loading ? (
             <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
           ) : viewerQueryResult.data ? (
             <>
               <section className="flex flex-col" id="wallet-profile-viewer-mobile">
-                <div className="flex items-center p-4 ">
+                <div className="flex items-center py-4 ">
                   <img
                     className="inline-block h-8 w-8 rounded-full border-2 border-primary-850 transition"
                     src={viewerQueryResult.data.wallet.previewImage as string}
@@ -456,7 +456,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.collected')}
                   </a>
                 </Link>
@@ -464,7 +464,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
@@ -472,14 +472,14 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.analytics')}
                   </a>
                 </Link>
               </section>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
                     {t('navigation.collections')}
                   </a>
                 </Link>
@@ -522,12 +522,12 @@ function MobileNavMenu({
             <>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
                     {t('navigation.collections')}
                   </a>
                 </Link>
               </section>
-              <section className="mt-auto flex" id="wallet-connect-action-mobile">
+              <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
                 <Button className="w-full font-semibold" onClick={onLogin}>
                   {t('connect')}
                 </Button>
