@@ -4,7 +4,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
-import Button, { ButtonSize, ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 
 interface NftCardProps {
   nft: Nft;
@@ -59,7 +59,12 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
           {isOwner ? (
             <>
               <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
-              <Button disabled type={ButtonType.Ghost} size={ButtonSize.Small}>
+              <Button
+                disabled
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
+                size={ButtonSize.Small}
+              >
                 {t('owned')}
               </Button>
             </>
@@ -68,7 +73,13 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               {listing ? (
                 <>
                   <span className="text-lg">{listing?.previewPrice} SOL</span>
-                  <Button onClick={onBuy} type={ButtonType.Primary} size={ButtonSize.Small}>
+                  <Button
+                    onClick={onBuy}
+                    size={ButtonSize.Small}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                  >
                     {t('buy')}
                   </Button>
                 </>
@@ -76,7 +87,12 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 <>
                   {/* TODO: last sale price */}
                   <span className="text-lg"></span>
-                  <Button onClick={onMakeOffer} type={ButtonType.Primary} size={ButtonSize.Small}>
+                  <Button
+                    onClick={onMakeOffer}
+                    border={ButtonBorder.Gray}
+                    color={ButtonColor.Gray}
+                    size={ButtonSize.Small}
+                  >
                     {t('offer')}
                   </Button>
                 </>

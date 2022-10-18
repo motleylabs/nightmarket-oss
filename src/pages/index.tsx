@@ -21,7 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
 import config from '../app.config';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/ButtonNew';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import useLogin from '../hooks/login';
 import Router from 'next/router';
 

@@ -4,7 +4,7 @@ import { Maybe, NftMarketplace } from '../graphql.types';
 import useProfileInfo from '../hooks/profileinfo';
 import Link from 'next/link';
 import { Avatar, AvatarSize } from './Avatar';
-import Button, { ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 
 export function Offer(): JSX.Element {
   return <div></div>;
@@ -156,10 +156,15 @@ function OfferAction({
     case 'buyer':
       return (
         <div className={`flex gap-4`}>
-          <Button onClick={onSecondaryAction} type={ButtonType.Ghost}>
+          <Button onClick={onSecondaryAction} border={ButtonBorder.Gray} color={ButtonColor.Gray}>
             {t('cancel')}
           </Button>
-          <Button onClick={onPrimaryAction} type={ButtonType.Secondary}>
+          <Button
+            onClick={onPrimaryAction}
+            background={ButtonBackground.Slate}
+            border={ButtonBorder.Gradient}
+            color={ButtonColor.Gradient}
+          >
             {t('update')}
           </Button>
         </div>
@@ -168,11 +173,9 @@ function OfferAction({
       return (
         <>
           {isActionable ? (
-            <Button onClick={onPrimaryAction} type={ButtonType.Primary}>
-              {t('accept')}
-            </Button>
+            <Button onClick={onPrimaryAction}>{t('accept')}</Button>
           ) : (
-            <Button onClick={onPrimaryAction} type={ButtonType.Ghost}>
+            <Button onClick={onPrimaryAction} border={ButtonBorder.Gray} color={ButtonColor.Gray}>
               {t('view')}
             </Button>
           )}

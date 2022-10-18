@@ -7,7 +7,7 @@ import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { Marketplace, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
-import Button, { ButtonSize, ButtonType } from './../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import useMakeOffer from '../hooks/offer';
 import useListNft from '../hooks/list';
 import { Form } from '../components/Form';
@@ -130,7 +130,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           <img src={nft.image} alt="nft image" className="w-full rounded-lg object-cover" />
           <button
             onClick={() => setExpanded(true)}
-            className="absolute bottom-2 right-2 md:bottom-6 md:right-6 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110"
+            className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110 md:bottom-6 md:right-6"
           >
             <ArrowsPointingOutIcon className="h-4 w-4" />
           </button>
@@ -141,7 +141,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         onClick={() => setExpanded(false)}
         className={clsx(
           'fixed inset-0',
-          'bg-gray-800 bg-opacity-40 backdrop-blur-lg cursor-pointer',
+          'cursor-pointer bg-gray-800 bg-opacity-40 backdrop-blur-lg',
           'transition-opacity duration-500 ease-in-out',
           'z-50 flex flex-col items-center justify-center',
           {
@@ -272,7 +272,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                       onClick={() => {
                         onCloseBuy();
                       }}
-                      type={ButtonType.Secondary}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
                     >
                       {t('cancel', { ns: 'common' })}
                     </Button>
@@ -360,7 +362,13 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               >
                 {t('submitOffer')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCloseOffer}>
+              <Button
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+                block
+                onClick={onCloseOffer}
+              >
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -391,7 +399,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                   <span>{t('highestOffer')}</span>
                   <span>--</span>
                 </div>
-                <Button type={ButtonType.Ghost} size={ButtonSize.Large} onClick={() => {}}>
+                <Button border={ButtonBorder.Gray} color={ButtonColor.Gray} onClick={() => {}}>
                   {t('accept')}
                 </Button>
               </div>
@@ -441,7 +449,13 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               >
                 {t('listNft')}
               </Button>
-              <Button type={ButtonType.Secondary} block onClick={onCancelListNftClick}>
+              <Button
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+                block
+                onClick={onCancelListNftClick}
+              >
                 {t('cancel', { ns: 'common' })}
               </Button>
             </div>
@@ -467,27 +481,24 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             )}
 
             {notOwner && !listing && (
-              <Button onClick={onOpenOffer} type={ButtonType.Secondary} size={ButtonSize.Large}>
+              <Button
+                onClick={onOpenOffer}
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+              >
                 {t('bid')}
               </Button>
             )}
 
-            {notOwner && listing && (
-              <Button onClick={onOpenBuy} type={ButtonType.Primary} size={ButtonSize.Large}>
-                {t('buy')}
-              </Button>
-            )}
+            {notOwner && listing && <Button onClick={onOpenBuy}>{t('buy')}</Button>}
           </div>
           <div className="flex flex-row items-center justify-between p-4">
             <div className="flex flex-col justify-between text-gray-300">
               <span>{t('lastSale')}</span>
               <span>--</span>
             </div>
-            {isOwner && (
-              <Button type={ButtonType.Primary} size={ButtonSize.Large} onClick={onListNftClick}>
-                {t('listNft')}
-              </Button>
-            )}
+            {isOwner && <Button onClick={onListNftClick}>{t('listNft')}</Button>}
           </div>
         </div>
       </div>

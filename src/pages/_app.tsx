@@ -36,7 +36,7 @@ import useNavigation from '../hooks/nav';
 import { useOutsideAlert } from '../hooks/outsidealert';
 import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
@@ -349,7 +349,9 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       close();
                       setVisible(true);
                     }}
-                    type={ButtonType.Secondary}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
                     className="w-full"
                   >
                     {t('switchWallet')}
@@ -361,7 +363,8 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       disconnect();
                       close();
                     }}
-                    type={ButtonType.Ghost}
+                    border={ButtonBorder.Gray}
+                    color={ButtonColor.Gray}
                     className="w-full"
                   >
                     {t('disconnectWallet')}
@@ -486,7 +489,7 @@ function MobileNavMenu({
               </section>
 
               <section
-                className="mt-auto flex flex-col justify-end gap-4"
+                className="mt-auto flex flex-col justify-end gap-4 mb-4"
                 id="wallet-action-buttons-mobile"
               >
                 <Link
@@ -503,7 +506,9 @@ function MobileNavMenu({
                     await disconnect();
                     setVisible(true);
                   }}
-                  type={ButtonType.Secondary}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
                   className="w-full font-semibold"
                 >
                   {t('switchWallet')}
@@ -511,7 +516,8 @@ function MobileNavMenu({
 
                 <Button
                   onClick={disconnect}
-                  type={ButtonType.Ghost}
+                  border={ButtonBorder.Gray}
+                  color={ButtonColor.Gray}
                   className="w-full font-semibold"
                 >
                   {t('disconnectWallet')}
