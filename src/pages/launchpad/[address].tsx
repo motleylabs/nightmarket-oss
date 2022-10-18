@@ -1,9 +1,7 @@
 import Head from 'next/head';
-import Icon from '../../../components/Icon';
+import Icon from '../../components/Icon';
 import Link from 'next/link';
-import clsx from 'clsx';
-import Button, { ButtonType } from '../../../components/Button';
-import Launchpad, { MintOption } from '../../../components/Launchpad';
+import Launchpad, { MintOption } from '../../components/Launchpad';
 import { addDays } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
