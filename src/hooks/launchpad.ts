@@ -19,7 +19,7 @@ import {
   Transaction,
 } from '@solana/web3.js';
 import { BN } from 'bn.js';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   MintLayout,
@@ -58,9 +58,9 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
 
   const { connection } = useConnection();
 
-  const candyMachinePubkey = new PublicKey(candyMachineId);
+  const candyMachinePubkey = useMemo(() => new PublicKey(candyMachineId), [candyMachineId]);
 
-  const fetchCandyMachine = async () => {
+  const fetchCandyMachine = useCallback(async () => {
     const candyMachine = await CandyMachine.fromAccountAddress(connection, candyMachinePubkey);
 
     const candyMachineState = {
@@ -70,160 +70,160 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
     };
     setCandyMachineState(candyMachineState);
     setCM(candyMachine);
-  };
+  }, [candyMachinePubkey, connection]);
 
   useEffect(() => {
     fetchCandyMachine();
-  }, []);
+  }, [fetchCandyMachine]);
 
   const onMint = async () => {
-    if (connected && publicKey && signTransaction && cm && connection) {
-      setIsMinting(true);
-      const mintKeypair = Keypair.generate();
+    if (!connected || !publicKey || !signTransaction || !cm || !connection) {
+      return;
+    }
 
-      const tokenAccount = await Token.getAssociatedTokenAddress(
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        TOKEN_PROGRAM_ID,
-        mintKeypair.publicKey,
-        publicKey,
-        false
-      );
-      const metadataPDA = await Metadata.getPDA(mintKeypair.publicKey);
-      const editionPDA = await Edition.getPDA(mintKeypair.publicKey);
-      const [candyMachineCreatorId, candyMachineCreatorIdBump] = await PublicKey.findProgramAddress(
-        [Buffer.from('candy_machine'), candyMachinePubkey.toBuffer()],
-        PROGRAM_ID
-      );
+    setIsMinting(true);
+    const mintKeypair = Keypair.generate();
 
-      const mintInstruction = createMintNftInstruction(
-        {
-          candyMachine: candyMachinePubkey,
-          candyMachineCreator: candyMachineCreatorId,
-          payer: publicKey,
-          wallet: cm.wallet,
-          metadata: metadataPDA,
-          mint: mintKeypair.publicKey,
-          mintAuthority: publicKey,
-          updateAuthority: publicKey,
-          masterEdition: editionPDA,
-          tokenMetadataProgram: MetadataProgram.PUBKEY,
-          clock: SYSVAR_CLOCK_PUBKEY,
-          recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-          instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
-        },
-        {
-          creatorBump: candyMachineCreatorIdBump,
-        }
-      );
+    const tokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mintKeypair.publicKey,
+      publicKey,
+      false
+    );
+    const metadataPDA = await Metadata.getPDA(mintKeypair.publicKey);
+    const editionPDA = await Edition.getPDA(mintKeypair.publicKey);
+    const [candyMachineCreatorId, candyMachineCreatorIdBump] = await PublicKey.findProgramAddress(
+      [Buffer.from('candy_machine'), candyMachinePubkey.toBuffer()],
+      PROGRAM_ID
+    );
 
-      const remainingAccs: AccountMeta[] = [];
-
-      // TODO: add token payment and other whitelist/etc
-      if (cm.tokenMint) {
+    const mintInstruction = createMintNftInstruction(
+      {
+        candyMachine: candyMachinePubkey,
+        candyMachineCreator: candyMachineCreatorId,
+        payer: publicKey,
+        wallet: cm.wallet,
+        metadata: metadataPDA,
+        mint: mintKeypair.publicKey,
+        mintAuthority: publicKey,
+        updateAuthority: publicKey,
+        masterEdition: editionPDA,
+        tokenMetadataProgram: MetadataProgram.PUBKEY,
+        clock: SYSVAR_CLOCK_PUBKEY,
+        recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+        instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,
+      },
+      {
+        creatorBump: candyMachineCreatorIdBump,
       }
-      if (cm.data.whitelistMintSettings) {
-        const whitelistMint = cm.data.whitelistMintSettings.mint;
-        const [whitelistTokenAccount, whitelistTokenAccountBump] = await getAtaForMint(
-          whitelistMint,
-          publicKey
-        );
+    );
+
+    const remainingAccs: AccountMeta[] = [];
+
+    // TODO: add token payment and other whitelist/etc
+    if (cm.tokenMint) {
+    }
+    if (cm.data.whitelistMintSettings) {
+      const whitelistMint = cm.data.whitelistMintSettings.mint;
+      const [whitelistTokenAccount, whitelistTokenAccountBump] = await getAtaForMint(
+        whitelistMint,
+        publicKey
+      );
+      remainingAccs.push({
+        pubkey: whitelistTokenAccount,
+        isWritable: false,
+        isSigner: false,
+      });
+      if (cm.data.whitelistMintSettings.mode === WhitelistMintMode.BurnEveryTime) {
         remainingAccs.push({
-          pubkey: whitelistTokenAccount,
-          isWritable: false,
+          pubkey: whitelistMint,
+          isWritable: true,
           isSigner: false,
         });
-        if (cm.data.whitelistMintSettings.mode === WhitelistMintMode.BurnEveryTime) {
-          remainingAccs.push({
-            pubkey: whitelistMint,
-            isWritable: true,
-            isSigner: false,
-          });
-          remainingAccs.push({
-            pubkey: publicKey,
-            isWritable: false,
-            isSigner: true,
-          });
-        }
+        remainingAccs.push({
+          pubkey: publicKey,
+          isWritable: false,
+          isSigner: true,
+        });
       }
+    }
 
-      // TODO: lockup settings waiting on motley to decide details
-      const [lockupSettingsId] = await findLockupSettingsId(candyMachinePubkey);
-      const lockupSettings = await connection.getAccountInfo(lockupSettingsId);
-      if (lockupSettings) {
-        remainingAccs.push(
-          ...(await remainingAccountsForLockup(
-            candyMachinePubkey,
-            mintKeypair.publicKey,
-            tokenAccount
-          ))
+    // TODO: lockup settings waiting on motley to decide details
+    const [lockupSettingsId] = await findLockupSettingsId(candyMachinePubkey);
+    const lockupSettings = await connection.getAccountInfo(lockupSettingsId);
+    if (lockupSettings) {
+      remainingAccs.push(
+        ...(await remainingAccountsForLockup(
+          candyMachinePubkey,
+          mintKeypair.publicKey,
+          tokenAccount
+        ))
+      );
+    }
+
+    // instructions
+    const instructions = [
+      SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: MintLayout.span,
+        lamports: await connection.getMinimumBalanceForRentExemption(MintLayout.span),
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      Token.createInitMintInstruction(
+        TOKEN_PROGRAM_ID,
+        mintKeypair.publicKey,
+        0,
+        publicKey,
+        publicKey
+      ),
+      createAssociatedTokenAccountInstruction(
+        tokenAccount,
+        publicKey,
+        publicKey,
+        mintKeypair.publicKey
+      ),
+      Token.createMintToInstruction(
+        TOKEN_PROGRAM_ID,
+        mintKeypair.publicKey,
+        tokenAccount,
+        publicKey,
+        [],
+        1
+      ),
+      {
+        ...mintInstruction,
+        keys: [...mintInstruction.keys, ...remainingAccs],
+      },
+    ];
+
+    const tx = new Transaction();
+    tx.instructions = instructions;
+    tx.feePayer = publicKey;
+    const recentBlockhash = await connection.getLatestBlockhash();
+    tx.recentBlockhash = recentBlockhash.blockhash;
+    try {
+      tx.sign(mintKeypair);
+      const signedTx = await signTransaction(tx);
+
+      const txtId = await connection.sendRawTransaction(signedTx.serialize());
+      if (txtId) {
+        await connection.confirmTransaction(
+          {
+            blockhash: recentBlockhash.blockhash,
+            lastValidBlockHeight: recentBlockhash.lastValidBlockHeight,
+            signature: txtId,
+          },
+          'confirmed'
         );
+        console.log(`Successfully minted`);
       }
-
-      // instructions
-      const instructions = [
-        SystemProgram.createAccount({
-          fromPubkey: publicKey,
-          newAccountPubkey: mintKeypair.publicKey,
-          space: MintLayout.span,
-          lamports: await connection.getMinimumBalanceForRentExemption(MintLayout.span),
-          programId: TOKEN_PROGRAM_ID,
-        }),
-        Token.createInitMintInstruction(
-          TOKEN_PROGRAM_ID,
-          mintKeypair.publicKey,
-          0,
-          publicKey,
-          publicKey
-        ),
-        createAssociatedTokenAccountInstruction(
-          tokenAccount,
-          publicKey,
-          publicKey,
-          mintKeypair.publicKey
-        ),
-        Token.createMintToInstruction(
-          TOKEN_PROGRAM_ID,
-          mintKeypair.publicKey,
-          tokenAccount,
-          publicKey,
-          [],
-          1
-        ),
-        {
-          ...mintInstruction,
-          keys: [...mintInstruction.keys, ...remainingAccs],
-        },
-      ];
-
-      const tx = new Transaction();
-      tx.instructions = instructions;
-      tx.feePayer = publicKey;
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
-      try {
-        tx.sign(mintKeypair);
-        const signedTx = await signTransaction(tx);
-
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(
-            {
-              blockhash: recentBlockhash.blockhash,
-              lastValidBlockHeight: recentBlockhash.lastValidBlockHeight,
-              signature: txtId,
-            },
-            'confirmed'
-          );
-          console.log(`Successfully minted`);
-        }
-      } catch (err) {
-        console.log('Error whilst minting', err);
-      } finally {
-        await fetchCandyMachine();
-        setIsMinting(false);
-      }
-    } else {
-      return;
+    } catch (err) {
+      console.log('Error whilst minting', err);
+    } finally {
+      await fetchCandyMachine();
+      setIsMinting(false);
     }
   };
 
