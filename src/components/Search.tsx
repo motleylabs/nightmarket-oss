@@ -47,13 +47,13 @@ export default function Search({ children }: SearchProps) {
         setSelected(selection);
 
         switch (selection?.__typename) {
-          case 'MetadataJson':
-            if (!selection?.creatorAddress) {
-              router.push(`/collections/${selection.mintAddress}`);
+          case 'CollectionDocument':
+            if (!selection.verifiedCollectionAddress) {
+              // TODO: have a fallback to view these
+              console.error('Missing verified collectiona address');
               break;
             }
-
-            router.push(`/nfts/${selection.mintAddress}`);
+            router.push(`/collections/${selection.verifiedCollectionAddress}`);
             break;
           case 'Nft':
             router.push(`/nfts/${selection.mintAddress}`);
@@ -91,6 +91,23 @@ function SearchInput({
 }: SearchInputProps): JSX.Element {
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+  });
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!e.ctrlKey) return;
+    switch (e.key) {
+      case 'k':
+        e.preventDefault();
+        e.stopPropagation();
+        searchInputRef.current?.focus();
+        return;
+      default:
+        return;
+    }
+  };
 
   return (
     <div className={clsx('relative block w-full transition-all', className)}>

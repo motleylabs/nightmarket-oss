@@ -35,12 +35,12 @@ query search($term: String!, $walletAddress: PublicKey!, $nftMintAddress: Public
     mintAddress
   }
   collections: searchCollections(term: $term, limit: 10, offset: 0) {
-    address
-    mintAddress
+    id
+    verifiedCollectionAddress
     name
     image
-    creatorAddress
-    creatorTwitterHandle
-    creatorDisplayName @client
+    twitterUrl
+    discordUrl
+    websiteUrl
   }
 }

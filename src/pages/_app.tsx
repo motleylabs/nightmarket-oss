@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { MetadataJson, Nft, Wallet } from '../graphql.types';
+import { CollectionDocument, MetadataJson, Nft, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -152,18 +152,18 @@ function NavigationBar() {
                 hasResults={Boolean(previousResults) || hasResults}
                 enabled={searchTerm.length > 2}
               >
-                <Search.Group<MetadataJson[]>
+                <Search.Group<CollectionDocument[]>
                   title={t('search.collection')}
-                  result={results?.collections as MetadataJson[]}
+                  result={results?.collections as CollectionDocument[]}
                 >
                   {({ result }) => {
                     return result?.map((collection, i) => (
                       <Search.Collection
                         value={collection}
-                        key={`search-collection-${collection.mintAddress}-${i}`}
+                        key={`search-collection-${collection.verifiedCollectionAddress}-${i}`}
                         image={collection.image || '/images/placeholder.png'}
                         name={collection.name}
-                        address={collection.mintAddress}
+                        address={collection.verifiedCollectionAddress || collection.id}
                       />
                     ));
                   }}
@@ -407,7 +407,7 @@ function MobileNavMenu({
         showNav ? 'block' : 'hidden'
       )}
     >
-      <div className="flex px-4 w-full flex-row items-center justify-between md:hidden">
+      <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
         <Link href="/" passHref>
           <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
             <img
@@ -427,7 +427,7 @@ function MobileNavMenu({
         </button>
       </div>
       <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
-        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 text-white px-6">
+        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 px-6 text-white">
           {loading ? (
             <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
           ) : viewerQueryResult.data ? (
