@@ -42,6 +42,22 @@ module.exports = {
           800: '#EC9D08',
           900: '#F85C04',
         },
+        neutral: {
+          white: '#FFFFFF',
+          200: '#BDBDBD',
+          300: '#8B8B8E',
+          800: '#17161C',
+          900: '#0B0A0E',
+          black: '#000000',
+        },
+        success: {
+          100: '#6CE9A6',
+          200: '#4AC282',
+        },
+        fail: {
+          100: '#F55C47',
+          200: '#C83D2A',
+        },
         gray: {
           25: '#FEFEFE',
           50: '#F2F2F2', // Part of new theme
