@@ -5,7 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { Nft, Maybe } from '../graphql.types';
 import Icon from './Icon';
 import Link from 'next/link';
-import Button, { ButtonSize } from './Button';
+import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 export function Collection() {
@@ -325,10 +325,15 @@ function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcas
   return (
     <div className="group flex w-16 flex-col items-center hover:scale-110">
       <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-      <div className="-mt-3 flex h-6 w-14 items-center justify-center gap-1 rounded-full bg-black px-1 group-hover:hidden">
-        <Icon.Sol className="h-3 w-3" />
-        <span className="text-sm text-gray-50">{price}</span>
-      </div>
+      <Button
+        icon={<Icon.Sol className="h-3 w-3" />}
+        color={ButtonColor.Gray}
+        background={ButtonBackground.Slate}
+        size={ButtonSize.Tiny}
+        className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+      >
+        {price}
+      </Button>
       <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
         Buy
       </Button>

@@ -21,7 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
 import config from '../app.config';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import useLogin from '../hooks/login';
 import Router from 'next/router';
 
@@ -165,7 +165,9 @@ const Home: NextPage = () => {
               <Button
                 className="w-full md:w-auto"
                 block
-                type={ButtonType.Secondary}
+                background={ButtonBackground.Black}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
                 onClick={onSellNftsClick}
               >
                 {t('hero.sellNfts')}
@@ -338,7 +340,12 @@ const Home: NextPage = () => {
               })
             )}
           </Collection.List>
-          <Button type={ButtonType.Secondary} className="mx-auto mt-8" onClick={onShowMoreTrends}>
+          <Button  
+            className="mx-auto mt-8" onClick={onShowMoreTrends}
+            background={ButtonBackground.Black}
+            border={ButtonBorder.Gradient}
+            color={ButtonColor.Gradient}
+          >
             {t('collection:showMoreCollections')}
           </Button>
         </section>

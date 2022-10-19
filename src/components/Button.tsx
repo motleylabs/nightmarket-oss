@@ -1,108 +1,114 @@
 import { TailSpin } from 'react-loader-spinner';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 
-export enum ButtonType {
-  Primary = 'primary',
-  Secondary = 'secondary',
-  Tertiary = 'tertiary',
-  Ghost = 'ghost',
+export enum ButtonBackground {
+  Gradient = 'bg-gradient',
+  Black = 'bg-black',
+  Slate = 'bg-gray-800',
+}
+
+export enum ButtonColor {
+  Gradient = 'gradient',
+  White = 'text-white',
+  Gray = 'text-gray-350',
+  Slate = 'text-gray-800',
+}
+
+export enum ButtonBorder {
+  Gradient = 'gradient',
+  Gray = 'gray',
 }
 
 export enum ButtonSize {
-  Small = 'sm',
-  Large = 'lg',
+  Tiny = 'tiny',
+  Small = 'small',
+  Large = 'large',
 }
 
 interface ButtonProps {
-  children?: any;
-  htmlType?: 'button' | 'submit' | 'reset' | undefined;
+  background?: ButtonBackground;
+  border?: ButtonBorder;
+  color?: ButtonColor;
   size?: ButtonSize;
-  block?: boolean;
-  type?: ButtonType;
-  disabled?: boolean;
   loading?: boolean;
+  block?: boolean;
   icon?: React.ReactElement;
-  className?: string;
   onClick?: () => any;
-  circle?: boolean;
+  disabled?: boolean;
+  htmlType?: 'button' | 'submit' | 'reset' | undefined;
+  className?: string;
+  children?: any;
 }
 
 const Button = ({
-  children,
-  icon,
+  background = ButtonBackground.Gradient,
+  border,
+  color = ButtonColor.White,
   size = ButtonSize.Large,
-  htmlType = 'button',
-  disabled = false,
   loading = false,
-  type = ButtonType.Primary,
-  className,
   block = false,
-  circle = false,
+  icon,
   onClick,
+  disabled = false,
+  htmlType = 'button',
+  className,
+  children,
 }: ButtonProps): JSX.Element => {
-  const spinnerColor: 'white' | 'grey' | undefined = useMemo(() => {
-    switch (type) {
-      case ButtonType.Primary:
-        return 'grey';
-      case ButtonType.Secondary:
-        return 'white';
-    }
-  }, [type]);
-
-  const content = (
-    <>
-      {loading && (
-        <TailSpin
-          height="20px"
-          width="20px"
-          color={spinnerColor}
-          ariaLabel="loading"
-          wrapperClass="inline aspect-square mr-1"
-        />
-      )}
-      {icon && icon}
-      {children}
-    </>
-  );
-
   return (
     <button
       className={clsx(
         clsx,
-        'focus:shadow-outline flex grow-0 items-center justify-center rounded-full text-center transition-transform duration-150',
+        'flex grow-0 items-center justify-center rounded-full text-center',
         className,
+        color,
         {
+          [background]: !border,
+          [color]: color !== ButtonColor.Gradient,
+          'border-gradient p-[2px]': border === ButtonBorder.Gradient,
+          'border border-gray-350 bg-none': border === ButtonBorder.Gray,
           'w-full': block,
-          'bg-gradient font-bold text-white':
-            type === ButtonType.Primary || type === ButtonType.Secondary,
-          'bg-gray-800 text-white': type === ButtonType.Tertiary,
-          'border border-gray-800 bg-none text-white': type === ButtonType.Ghost,
-          'text-xs md:text-sm': size === ButtonSize.Small,
-          'py-1 px-4': !circle && size === ButtonSize.Small && type !== ButtonType.Secondary,
-          'py-3 px-6': size === ButtonSize.Large && type !== ButtonType.Secondary,
-          'p-px': type === ButtonType.Secondary,
+          'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
+          'py-1 px-4 text-xs md:text-sm':
+            size === ButtonSize.Small && border !== ButtonBorder.Gradient,
+          'py-3 px-6': size === ButtonSize.Large && border !== ButtonBorder.Gradient,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
-          'h-10 w-10': circle && ButtonSize.Small,
         }
       )}
       disabled={disabled}
       type={htmlType}
       onClick={onClick}
     >
-      {!(type === ButtonType.Secondary) ? (
-        content
-      ) : (
-        <div
-          className={clsx('h-full w-full rounded-full bg-black text-primary-700', {
-            'py-1 px-4': !circle && size === ButtonSize.Small,
-            'py-3 px-6': size === ButtonSize.Large,
+      <div
+        className={clsx(
+          'flex h-full w-full grow-0 items-center justify-center gap-1 rounded-full text-center',
+          {
+            [background]: border === ButtonBorder.Gradient,
+            'py-1 px-4 text-xs': size === ButtonSize.Tiny && border === ButtonBorder.Gradient,
+            'py-1 px-4 text-xs md:text-sm':
+              size === ButtonSize.Small && border === ButtonBorder.Gradient,
+            'py-3 px-6': size === ButtonSize.Large && border === ButtonBorder.Gradient,
+          }
+        )}
+      >
+        {loading && (
+          <TailSpin
+            height="20px"
+            width="20px"
+            color={color !== ButtonColor.Gradient ? color : 'text-primary-700'}
+            ariaLabel="loading"
+            wrapperClass="inline aspect-square mr-1"
+          />
+        )}
+        {icon && icon}
+        <span
+          className={clsx({
+            'border-gradient bg-clip-text text-transparent': color === ButtonColor.Gradient,
           })}
         >
-          {content}
-        </div>
-      )}
+          {children}
+        </span>
+      </div>
     </button>
   );
 };
