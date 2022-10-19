@@ -62,3 +62,46 @@ export function ChartCard(props: {
     </div>
   );
 }
+
+export function StyledPreviewChart(props: {
+  height?: number;
+  data: any[];
+  options?: {
+    yDataKey?: string;
+  };
+  children?: ReactNode;
+}) {
+  return (
+    <ResponsiveContainer width="100%">
+      <LineChart data={props.data}>
+        <CartesianGrid vertical={false} stroke="#A8A8A8" strokeDasharray="1000 0 " />
+        {/* <XAxis interval={2} axisLine={false} /> */}
+        <YAxis tickCount={3} width={25} axisLine={false} domain={['dataMin', 'dataMax']} />
+        <Line type="monotone" dot={false} strokeWidth={2} dataKey="price" stroke="#F85C04" />
+        {props.children}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function ChartPreviewCard({
+  title,
+  dateRange,
+  chart,
+  className,
+}: {
+  title: string;
+  dateRange: string;
+  chart: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={clsx('flex flex-col gap-1 rounded-xl bg-gray-800 p-6', className)}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm text-gray-300">{title}</h2>
+        <h2 className="text-sm text-gray-300">{dateRange}</h2>
+      </div>
+      {chart}
+    </div>
+  );
+}

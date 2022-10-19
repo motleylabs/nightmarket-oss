@@ -7,6 +7,7 @@ import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
+import { ChartPreviewCard, StyledPreviewChart } from '../components/ChartTemplate';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -16,8 +17,8 @@ interface CollectionLayoutProps {
 function CollectionFigure(props: { label: string; children: ReactNode }) {
   return (
     <div className="text-center">
-      <div className="text-sm font-medium text-gray-300">{props.label}</div>
-      <div className="flex items-center justify-center font-semibold ">{props.children}</div>
+      <div className="truncate text-sm text-gray-300">{props.label}</div>
+      <div className="flex items-center justify-center font-semibold">{props.children}</div>
     </div>
   );
 }
@@ -37,33 +38,71 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Overview>
-        <div className="mx-4 mb-10 flex flex-col items-center justify-center text-white md:mx-10 md:flex-row md:items-start md:justify-start">
-          <div className="mb-4 flex flex-shrink-0 rounded-lg border-8 border-gray-900 md:mb-0">
-            <img
-              src={collection.nft.image}
-              className={clsx('inline-block h-36 w-36  rounded-md shadow-xl md:h-36 md:w-36')}
-              alt="overview avatar"
-            />
+        <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
+          {/* Image, [Title, Description] */}
+          <div className="flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-10">
+            <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
+              <img
+                src={collection.nft.image}
+                className="inline-block h-36 w-36 rounded-md shadow-xl md:h-36 md:w-36"
+                alt="overview avatar"
+              />
+            </div>
+            <div className="space-y-4">
+              <Overview.Title>{collection.nft.name}</Overview.Title>
+              <p
+                className={clsx(
+                  'max-w-sm text-center text-gray-300 md:text-left',
+                  'line-clamp-2 md:line-clamp-4'
+                )}
+              >
+                {collection.nft.description}
+              </p>
+            </div>
           </div>
 
-          <div className="mb-10 space-y-4 md:ml-10 md:mb-0">
-            <Overview.Title>{collection.nft.name}</Overview.Title>
-            <p className={clsx('max-w-sm text-center text-white md:text-left ', 'line-clamp-3')}>
-              {collection.nft.description}
-            </p>
-          </div>
-
-          <div className=" grid w-full max-w-md grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto">
-            <CollectionFigure label="Floor price">
-              <Icon.Sol /> {collection.compactFloorPrice}
-            </CollectionFigure>
-            <CollectionFigure label="30 Day Volume">
-              <Icon.Sol /> {collection.compactVolumeTotal}
-            </CollectionFigure>
-            <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
-            <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>
-            <CollectionFigure label="Holders">{collection.holderCount}</CollectionFigure>
-            <CollectionFigure label="Supply">{collection.compactNftCount}</CollectionFigure>
+          {/* [Charts], Data */}
+          <div className="flex flex-col-reverse items-center justify-center gap-4 lg:flex-row lg:items-start lg:justify-start">
+            <div className="flex w-auto gap-4">
+              <ChartPreviewCard
+                className="h-36 w-full lg:w-36 xl:w-40"
+                title={t('floorPrice')}
+                dateRange={t('timeInterval.day')}
+                chart={
+                  <StyledPreviewChart
+                    data={Array.from({ length: 10 }, (v, i) => ({
+                      label: i > 5 ? i - 5 : i,
+                      price: Math.floor(Math.random() * 40) + 10,
+                    }))}
+                  />
+                }
+              />
+              <ChartPreviewCard
+                className="h-36 w-full lg:w-36 xl:w-40"
+                title={t('listings')}
+                dateRange={t('timeInterval.day')}
+                chart={
+                  <StyledPreviewChart
+                    data={Array.from({ length: 10 }, (v, i) => ({
+                      label: i > 5 ? i - 5 : i,
+                      price: Math.floor(Math.random() * 40) + 10,
+                    }))}
+                  />
+                }
+              />
+            </div>
+            <div className="grid h-36 w-full max-w-md grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto lg:w-80 xl:w-96">
+              <CollectionFigure label="Floor price">
+                <Icon.Sol /> {collection.compactFloorPrice}
+              </CollectionFigure>
+              <CollectionFigure label="30 Day Volume">
+                <Icon.Sol /> {collection.compactVolumeTotal}
+              </CollectionFigure>
+              <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
+              <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>
+              <CollectionFigure label="Holders">{collection.holderCount}</CollectionFigure>
+              <CollectionFigure label="Supply">{collection.compactNftCount}</CollectionFigure>
+            </div>
           </div>
         </div>
         <Overview.Tabs>
