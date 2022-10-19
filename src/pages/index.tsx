@@ -153,7 +153,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className=" mx-auto px-6 pb-6 md:px-20">
+      <main className=" mx-auto px-6 pb-28 md:px-20">
         <Hero>
           <Hero.Main>
             <Hero.Title>{t('hero.title')}</Hero.Title>
@@ -340,8 +340,9 @@ const Home: NextPage = () => {
               })
             )}
           </Collection.List>
-          <Button  
-            className="mx-auto mt-8" onClick={onShowMoreTrends}
+          <Button
+            className="mx-auto mt-12"
+            onClick={onShowMoreTrends}
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
             color={ButtonColor.Gradient}

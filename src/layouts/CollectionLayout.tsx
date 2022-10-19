@@ -1,14 +1,10 @@
 import { ReactElement, ReactNode } from 'react';
 import Head from 'next/head';
 import { Collection } from '../graphql.types';
-import { ArrowUpTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
-import Button, { ButtonSize, ButtonType } from '../components/Button';
 import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
-import config from '../app.config';
-import Share from '../components/Share';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
 

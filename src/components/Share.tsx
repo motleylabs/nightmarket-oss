@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import React, { Fragment, useState } from 'react';
 import useClipboard from '../hooks/clipboard';
-import Button, { ButtonSize, ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 
 export default function Share(props: {
   address: string;
@@ -23,10 +23,12 @@ export default function Share(props: {
     <Popover>
       <Popover.Button as="div">
         <Button
-          circle
+          className="h-10 w-10"
           icon={<ArrowUpTrayIcon width={20} height={20} />}
           size={ButtonSize.Small}
-          type={ButtonType.Tertiary}
+          background={ButtonBackground.Slate}
+          color={ButtonColor.White}
+          circle
         />
       </Popover.Button>
       <Transition
