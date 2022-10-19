@@ -5,7 +5,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
 import TrendingCollectionQuery from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
-import Link from 'next/link';
 import { Collection } from '../components/Collection';
 import {
   CollectionInterval,
@@ -20,11 +19,14 @@ import Icon from '../components/Icon';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
-import config from '../app.config';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from '../components/Button';
+import Button, {
+  ButtonBackground,
+  ButtonBorder,
+  ButtonColor,
+  ButtonSize,
+} from '../components/Button';
 import useLogin from '../hooks/login';
 import Router from 'next/router';
-import Footer from '../components/Footer';
 import Drop from '../components/Drop';
 import { addDays } from 'date-fns';
 
@@ -219,7 +221,12 @@ const Home: NextPage = () => {
                 Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
                 ullamco laboris nisi
               </p>
-              <Button background={ButtonBackground.Black} border={ButtonBorder.Gradient} size={ButtonSize.Large}>
+              <Button
+                background={ButtonBackground.Black}
+                border={ButtonBorder.Gradient}
+                size={ButtonSize.Large}
+                color={ButtonColor.Gradient}
+              >
                 {t('drops.launchButton')}
               </Button>
             </div>
@@ -397,7 +404,6 @@ const Home: NextPage = () => {
           </Button>
         </section>
       </main>
-      <Footer />
     </>
   );
 };

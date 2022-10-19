@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react';
-import Button, { ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonColor } from './Button';
 import clsx from 'clsx';
 import { millisecondsToMinutes, formatDistance } from 'date-fns';
 import { useTranslation } from 'next-i18next';
@@ -70,7 +70,7 @@ function LaunchpadActive({
   const { t } = useTranslation('launchpad');
   const mintedPercentage = (minted / supply) * 100;
   return (
-    <div className="flex flex-col justify-between rounded-lg border-2 border-primary-700 bg-gray-900 p-4">
+    <div className="flex flex-col justify-between rounded-lg border-2 border-primary-700 bg-gray-800 p-4">
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (
@@ -116,8 +116,8 @@ function LaunchpadActive({
           </div>
           <Button
             onClick={onMint}
-            type={ButtonType.Primary}
-            className="font-bold"
+            background={ButtonBackground.Gradient}
+            color={ButtonColor.White}
             loading={isMinting}
             disabled={!hasAccess}
           >
@@ -150,7 +150,7 @@ function LaunchpadFinished({
   const { t } = useTranslation('launchpad');
   const mintedPercentage = (minted / supply) * 100;
   return (
-    <div className="flex flex-col justify-between rounded-lg bg-gray-900 p-4 opacity-75">
+    <div className="flex flex-col justify-between rounded-lg bg-gray-800 p-4 opacity-75">
       <div className="flex flex-col gap-4">
         {mintType === MintOption.Dynamic && (
           <p className="text-xs font-semibold text-gray-300">{t('phases.dynamic')}</p>
@@ -209,7 +209,7 @@ function LaunchpadUpcoming({
 }: LaunchpadUpcomingProps) {
   const { t } = useTranslation('launchpad');
   return (
-    <div className="flex flex-col justify-between rounded-lg border-2 border-gray-900 bg-gray-900 p-4">
+    <div className="flex flex-col justify-between rounded-lg border-2 border-gray-800 bg-gray-800 p-4">
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (

@@ -5,51 +5,10 @@ import clsx from 'clsx';
 import Button, { ButtonType } from '../../../components/Button';
 import Launchpad, { MintOption } from '../../../components/Launchpad';
 import { addDays } from 'date-fns';
-import Footer from '../../../components/Footer';
-import Drop from '../../../components/Drop';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 
-const testPreview = [
-  {
-    image: '/images/launchpad/motley-1.png',
-  },
-  {
-    image: '/images/launchpad/motley-2.png',
-  },
-  {
-    image: '/images/launchpad/motley-3.png',
-  },
-  ,
-  {
-    image: '/images/launchpad/motley-4.png',
-  },
-  {
-    image: '/images/launchpad/motley-5.png',
-  },
-  {
-    image: '/images/launchpad/motley-1.png',
-  },
-  {
-    image: '/images/launchpad/motley-2.png',
-  },
-  {
-    image: '/images/launchpad/motley-3.png',
-  },
-  {
-    image: '/images/launchpad/motley-4.png',
-  },
-  {
-    image: '/images/launchpad/motley-5.png',
-  },
-  {
-    image: '/images/launchpad/motley-1.png',
-  },
-  {
-    image: '/images/launchpad/motley-2.png',
-  },
-];
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'launchpad']);
@@ -149,23 +108,8 @@ export default function LaunchpadPage() {
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <h6 className="font-serif text-2xl font-bold">{t('preview')}</h6>
-            <div className="grid grid-cols-3 gap-4 md:grid-cols-5 lg:grid-cols-6">
-              {testPreview.map((previewItem, i) => (
-                <img
-                  key={`preview-launchpad-${i}`}
-                  src={previewItem?.image}
-                  alt={`preview-image-${i}`}
-                  className="aspect-square w-full rounded-lg object-cover"
-                />
-              ))}
-            </div>
-          </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

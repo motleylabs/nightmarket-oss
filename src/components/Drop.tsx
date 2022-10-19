@@ -1,6 +1,6 @@
 import React from 'react';
 import Icon from './Icon';
-import Button, { ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 import Link from 'next/link';
 import useCountdown from '../hooks/countdown';
 import { useTranslation } from 'next-i18next';
@@ -27,7 +27,7 @@ export default function Drop({
   const { days, hours, minutes, seconds } = useCountdown(launchDate);
   const { t } = useTranslation('home');
   return (
-    <div className="flex max-w-5xl flex-col gap-6 rounded-2xl bg-gray-900 p-6 md:flex-row">
+    <div className="flex max-w-5xl flex-col gap-6 rounded-2xl bg-gray-800 p-6 md:flex-row">
       <div className="flex flex-row items-center gap-4 md:inline-block md:w-3/4 md:items-start">
         <img
           src={image}
@@ -61,7 +61,12 @@ export default function Drop({
             </p>
           </li>
           <li className="flex w-full justify-end md:hidden">
-            <Button className="font-semibold" type={ButtonType.Secondary}>
+            <Button
+              className="font-semibold"
+              background={ButtonBackground.Slate}
+              border={ButtonBorder.Gradient}
+              color={ButtonColor.Gradient}
+              >
               {t('drops.view')}
             </Button>
           </li>
@@ -69,7 +74,12 @@ export default function Drop({
         <div className="inline-block">
           <Link href={link}>
             <a target={'_self'}>
-              <Button className="hidden font-semibold md:inline-block" type={ButtonType.Secondary}>
+              <Button
+                className="hidden font-semibold md:inline-block"
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+              >
                 {t('drops.details')}
               </Button>
             </a>

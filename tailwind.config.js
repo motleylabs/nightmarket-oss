@@ -58,7 +58,7 @@ module.exports = {
           725: '#2B2A30', // Part of new theme
           750: '#262626', // Part of new theme
           800: '#17161C', // Part of new theme
-          900: '#191919',
+          900: '#0B0A0E',
           // 950: '#0B0A0E', // Part of new theme
         },
       },
