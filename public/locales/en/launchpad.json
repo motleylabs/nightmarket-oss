@@ -1,0 +1,22 @@
+{
+  "phaseTitle": "Mint phases",
+  "supply": "Total supply",
+  "mintDate": "Mint date",
+  "preview": "Preview",
+  "phases": {
+    "mint": "Mint now",
+    "notAllowed": "You are not on the allowlist",
+    "allowed": "You are on the allowlist",
+    "soldout": "Sold out",
+    "soldoutTime": "Sold out in",
+    "finished": "Finished",
+    "minted": "Minted",
+    "minting": "Minting",
+    "upcomingMint": "Mint in",
+    "supply": "Supply",
+    "price": "Price",
+    "startingPrice": "Starting price",
+    "finishedPrice": "Finished price",
+    "dynamic": "Dynamic pricing"
+  }
+}
