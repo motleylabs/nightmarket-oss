@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
 import { Marketplace, Nft } from '../graphql.types';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
 import useMakeOffer from '../hooks/offer';

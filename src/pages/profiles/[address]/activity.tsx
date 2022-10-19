@@ -133,7 +133,12 @@ export default function ProfileActivity(): JSX.Element {
             control={control}
             name="type"
             render={({ field: { onChange, value } }) => (
-              <Select value={value} onChange={onChange} options={activityFilterOptions} />
+              <Select
+                value={value}
+                onChange={onChange}
+                options={activityFilterOptions}
+                className="col-span-2 md:col-span-1"
+              />
             )}
           />
         </div>

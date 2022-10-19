@@ -27,81 +27,84 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
   return (
-    <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
-      <Link href={link} passHref>
-        <a className="block overflow-hidden">
-          <img
-            src={nft.image}
-            alt={`Nft image for ${nft.mintAddress}`}
-            className={clsx(
-              'aspect-square w-full  object-cover',
-              'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
-            )}
-          />
-        </a>
-      </Link>
-      <div className="z-20 p-4">
-        <Link href={link} passHref>
-          <a>
-            <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">
-              {nft.collection?.nft?.image && (
-                <img
-                  src={nft.collection?.nft?.image}
-                  alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
-                  className="aspect-square w-6 rounded-sm object-cover"
-                />
+    <Link href={link} passHref>
+      <a>
+        <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
+          <div className="block overflow-hidden">
+            <img
+              src={nft.image}
+              alt={`Nft image for ${nft.mintAddress}`}
+              className={clsx(
+                'aspect-square w-full  object-cover',
+                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
               )}
-              <span className="truncate">{nft.name}</span>
-            </div>
-          </a>
-        </Link>
-        <div className="relative flex flex-row items-center justify-between">
-          {isOwner ? (
-            <>
-              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
-              <Button
-                disabled
-                border={ButtonBorder.Gray}
-                color={ButtonColor.Gray}
-                size={ButtonSize.Small}
-              >
-                {t('owned')}
-              </Button>
-            </>
-          ) : (
-            <>
-              {listing ? (
+            />
+          </div>
+
+          <div className="z-20 p-4">
+            <Link href={link} passHref>
+              <a>
+                <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">
+                  {nft.collection?.nft?.image && (
+                    <img
+                      src={nft.collection?.nft?.image}
+                      alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
+                      className="aspect-square w-4 rounded-sm object-cover"
+                    />
+                  )}
+                  <span className="truncate">{nft.name}</span>
+                </div>
+              </a>
+            </Link>
+            <div className="relative flex flex-row items-center justify-between">
+              {isOwner ? (
                 <>
-                  <span className="text-lg">{listing?.previewPrice} SOL</span>
+                  <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
                   <Button
-                    onClick={onBuy}
-                    size={ButtonSize.Small}
-                    background={ButtonBackground.Slate}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                  >
-                    {t('buy')}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* TODO: last sale price */}
-                  <span className="text-lg"></span>
-                  <Button
-                    onClick={onMakeOffer}
+                    disabled
                     border={ButtonBorder.Gray}
                     color={ButtonColor.Gray}
                     size={ButtonSize.Small}
                   >
-                    {t('offer')}
+                    {t('owned')}
                   </Button>
                 </>
+              ) : (
+                <>
+                  {listing ? (
+                    <>
+                      <span className="text-lg">{listing?.previewPrice} SOL</span>
+                      <Button
+                        onClick={onBuy}
+                        size={ButtonSize.Small}
+                        background={ButtonBackground.Slate}
+                        border={ButtonBorder.Gradient}
+                        color={ButtonColor.Gradient}
+                      >
+                        {t('buy')}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {/* TODO: last sale price */}
+                      <span className="text-lg"></span>
+                      <Button
+                        onClick={onMakeOffer}
+                        border={ButtonBorder.Gray}
+                        color={ButtonColor.Gray}
+                        size={ButtonSize.Small}
+                      >
+                        {t('offer')}
+                      </Button>
+                    </>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </a>
+    </Link>
   );
 }
 

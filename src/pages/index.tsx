@@ -153,7 +153,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className=" mx-auto px-6 pb-6 md:px-20">
+      <main className=" mx-auto px-6 pb-28 md:px-20">
         <Hero>
           <Hero.Main>
             <Hero.Title>{t('hero.title')}</Hero.Title>
@@ -287,7 +287,7 @@ const Home: NextPage = () => {
                         />
                       </Collection.List.Col>
                       <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                        <div className="lg:w-40">{trend.collection.nft.name}</div>
+                        <div className="w-32 lg:w-40">{trend.collection.nft.name}</div>
                         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
                             value={trend.compactFloorPrice}
@@ -316,22 +316,41 @@ const Home: NextPage = () => {
                           />
                         </div>
                         {/* TODO: Add real data */}
-                        <div className="hidden gap-4 lg:flex">
-                          <Collection.List.ShowcaseNft
-                            image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                            name="abc"
-                            price={26}
-                          />
-                          <Collection.List.ShowcaseNft
-                            image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                            name="abc"
-                            price={26}
-                          />
-                          <Collection.List.ShowcaseNft
-                            image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                            name="abc"
-                            price={26}
-                          />
+                        <div className="flex gap-4">
+                          <div className="hidden gap-4 lg:flex">
+                            <Collection.List.ShowcaseNft
+                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
+                              name="abc"
+                              price={26}
+                            />
+                            <Collection.List.ShowcaseNft
+                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
+                              name="abc"
+                              price={26}
+                            />
+                            <Collection.List.ShowcaseNft
+                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
+                              name="abc"
+                              price={26}
+                            />
+                          </div>
+                          <div className="hidden gap-4 xl:flex">
+                            <Collection.List.ShowcaseNft
+                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
+                              name="abc"
+                              price={26}
+                            />
+                            <Collection.List.ShowcaseNft
+                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
+                              name="abc"
+                              price={26}
+                            />
+                            <Collection.List.ShowcaseNft
+                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
+                              name="abc"
+                              price={26}
+                            />
+                          </div>
                         </div>
                       </Collection.List.Col>
                     </Collection.List.Row>
@@ -340,8 +359,9 @@ const Home: NextPage = () => {
               })
             )}
           </Collection.List>
-          <Button  
-            className="mx-auto mt-8" onClick={onShowMoreTrends}
+          <Button
+            className="mx-auto mt-12"
+            onClick={onShowMoreTrends}
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
             color={ButtonColor.Gradient}

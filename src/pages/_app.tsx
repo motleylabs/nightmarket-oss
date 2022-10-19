@@ -79,7 +79,7 @@ function NavigationBar() {
         'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
-        'bg-black'
+        'bg-black bg-opacity-90'
       )}
     >
       {/* Night Market logo */}
@@ -235,11 +235,11 @@ function NavigationBar() {
           <Bars3Icon color="#fff" width={20} height={20} />
         </button>
 
-        <Link href={'/collections'}>
+        {/* <Link href={'/collections'}>
           <a className="hidden text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white lg:inline-block">
             {t('navigation.collections')}
           </a>
-        </Link>
+        </Link> */}
         {loading ? (
           <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
         ) : viewerQueryResult.data ? (
@@ -327,11 +327,12 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
-                <Link href={`/profiles/${props.wallet.address}/analytics`} passHref>
+                {/* Wallet Analytics */}
+                {/* <Link href={`/profiles/${props.wallet.address}/analytics`} passHref>
                   <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.analytics')}
                   </a>
-                </Link>
+                </Link> */}
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex px-4">
@@ -472,14 +473,15 @@ function MobileNavMenu({
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
-                <Link
+                {/* Wallet Analytics */}
+                {/* <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
                   passHref
                 >
                   <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.analytics')}
                   </a>
-                </Link>
+                </Link> */}
               </section>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>
@@ -490,7 +492,7 @@ function MobileNavMenu({
               </section>
 
               <section
-                className="mt-auto flex flex-col justify-end gap-4 mb-4"
+                className="mt-auto mb-4 flex flex-col justify-end gap-4"
                 id="wallet-action-buttons-mobile"
               >
                 <Link
