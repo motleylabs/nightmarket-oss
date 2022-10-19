@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
 import { Marketplace, Nft } from '../graphql.types';
-import Button, { ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonType } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
 import useMakeOffer from '../hooks/offer';
@@ -104,7 +104,12 @@ export function Offerable({ children, connected = false }: OfferableProps) {
               </section>
               <section id={'loading-buttons'} className="flex flex-col gap-4">
                 <Button loading />
-                <Button loading type={ButtonType.Secondary} />
+                <Button
+                  loading
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                />
               </section>
             </>
           ) : (
@@ -212,7 +217,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                         onCloseOffer();
                         setOpen(false);
                       }}
-                      type={ButtonType.Secondary}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
                     >
                       {t('cancel')}
                     </Button>

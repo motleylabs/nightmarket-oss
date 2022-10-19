@@ -5,7 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { Nft, Maybe } from '../graphql.types';
 import Icon from './Icon';
 import Link from 'next/link';
-import Button, { ButtonSize } from './Button';
+import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 export function Collection() {
@@ -323,16 +323,20 @@ interface CollectionListShowcaseNftProps {
 }
 function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
   return (
-    <div className=" flex w-16 flex-col items-center  ">
-      {/*  Todo: Add a link to the NFT here */}
-      <div className="rounded-lg hover:bg-gradient-primary">
-        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover p-px " />
-      </div>
-      <div className="group  relative -mt-3 flex w-14 items-center justify-center gap-1 rounded-full bg-black py-1 px-1 text-sm transition-all duration-300 hover:w-10 hover:bg-gradient-primary">
-        <Icon.Sol className="h-3 w-3 group-hover:hidden" />
-        <span className=" text-gray-50 group-hover:hidden">{price}</span>
-        <button className=" hidden font-bold group-hover:block">Buy</button>
-      </div>
+    <div className="group flex w-16 flex-col items-center hover:scale-110">
+      <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+      <Button
+        icon={<Icon.Sol className="h-3 w-3" />}
+        color={ButtonColor.Gray}
+        background={ButtonBackground.Slate}
+        size={ButtonSize.Tiny}
+        className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+      >
+        {price}
+      </Button>
+      <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+        Buy
+      </Button>
     </div>
   );
 }

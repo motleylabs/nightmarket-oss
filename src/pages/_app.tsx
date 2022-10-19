@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { MetadataJson, Nft, Wallet } from '../graphql.types';
+import { CollectionDocument, MetadataJson, Nft, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -36,7 +36,7 @@ import useNavigation from '../hooks/nav';
 import { useOutsideAlert } from '../hooks/outsidealert';
 import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
@@ -76,7 +76,7 @@ function NavigationBar() {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-30  w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+        'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
         'bg-black'
@@ -137,6 +137,7 @@ function NavigationBar() {
                 }}
                 value={searchTerm}
                 autofocus={true}
+                className="md:hidden"
               />
             )}
 
@@ -152,18 +153,18 @@ function NavigationBar() {
                 hasResults={Boolean(previousResults) || hasResults}
                 enabled={searchTerm.length > 2}
               >
-                <Search.Group<MetadataJson[]>
+                <Search.Group<CollectionDocument[]>
                   title={t('search.collection')}
-                  result={results?.collections as MetadataJson[]}
+                  result={results?.collections as CollectionDocument[]}
                 >
                   {({ result }) => {
                     return result?.map((collection, i) => (
                       <Search.Collection
                         value={collection}
-                        key={`search-collection-${collection.mintAddress}-${i}`}
+                        key={`search-collection-${collection.id}-${i}`}
                         image={collection.image || '/images/placeholder.png'}
                         name={collection.name}
-                        address={collection.mintAddress}
+                        address={collection.id}
                       />
                     ));
                   }}
@@ -349,7 +350,9 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       close();
                       setVisible(true);
                     }}
-                    type={ButtonType.Secondary}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
                     className="w-full"
                   >
                     {t('switchWallet')}
@@ -361,7 +364,8 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       disconnect();
                       close();
                     }}
-                    type={ButtonType.Ghost}
+                    border={ButtonBorder.Gray}
+                    color={ButtonColor.Gray}
                     className="w-full"
                   >
                     {t('disconnectWallet')}
@@ -403,11 +407,11 @@ function MobileNavMenu({
   return (
     <div
       className={clsx(
-        'fixed inset-0 z-50 bg-gray-900 px-4 py-2 md:hidden',
+        'fixed inset-0 z-50 bg-gray-900 py-2 md:hidden',
         showNav ? 'block' : 'hidden'
       )}
     >
-      <div className="flex w-full flex-row items-center justify-between md:hidden">
+      <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
         <Link href="/" passHref>
           <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
             <img
@@ -426,14 +430,14 @@ function MobileNavMenu({
           <XMarkIcon color="#171717" width={20} height={20} />
         </button>
       </div>
-      <nav className="flex  flex-col bg-gray-900 py-2 md:p-2">
-        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 text-white">
+      <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
+        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 px-6 text-white">
           {loading ? (
             <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
           ) : viewerQueryResult.data ? (
             <>
               <section className="flex flex-col" id="wallet-profile-viewer-mobile">
-                <div className="flex items-center p-4 ">
+                <div className="flex items-center py-4 ">
                   <img
                     className="inline-block h-8 w-8 rounded-full border-2 border-primary-850 transition"
                     src={viewerQueryResult.data.wallet.previewImage as string}
@@ -456,7 +460,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.collected')}
                   </a>
                 </Link>
@@ -464,7 +468,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
@@ -472,21 +476,21 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
                   passHref
                 >
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
                     {t('profileMenu.analytics')}
                   </a>
                 </Link>
               </section>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
                     {t('navigation.collections')}
                   </a>
                 </Link>
               </section>
 
               <section
-                className="mt-auto flex flex-col justify-end gap-4"
+                className="mt-auto flex flex-col justify-end gap-4 mb-4"
                 id="wallet-action-buttons-mobile"
               >
                 <Link
@@ -503,7 +507,9 @@ function MobileNavMenu({
                     await disconnect();
                     setVisible(true);
                   }}
-                  type={ButtonType.Secondary}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
                   className="w-full font-semibold"
                 >
                   {t('switchWallet')}
@@ -511,7 +517,8 @@ function MobileNavMenu({
 
                 <Button
                   onClick={disconnect}
-                  type={ButtonType.Ghost}
+                  border={ButtonBorder.Gray}
+                  color={ButtonColor.Gray}
                   className="w-full font-semibold"
                 >
                   {t('disconnectWallet')}
@@ -522,12 +529,12 @@ function MobileNavMenu({
             <>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md p-4 text-base font-semibold text-white hover:bg-gray-800">
+                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
                     {t('navigation.collections')}
                   </a>
                 </Link>
               </section>
-              <section className="mt-auto flex" id="wallet-connect-action-mobile">
+              <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
                 <Button className="w-full font-semibold" onClick={onLogin}>
                   {t('connect')}
                 </Button>

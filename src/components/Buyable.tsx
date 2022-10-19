@@ -5,7 +5,7 @@ import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
 import { useLazyQuery, useReactiveVar } from '@apollo/client';
-import Button, { ButtonType } from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { Form } from './Form';
 import useBuyNow from '../hooks/buy';
 import { viewerVar } from '../cache';
@@ -97,7 +97,12 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               </section>
               <section id={'loading-buttons'} className="flex flex-col gap-4">
                 <Button loading={true} />
-                <Button loading={true} type={ButtonType.Secondary} />
+                <Button
+                  loading={true}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                />
               </section>
             </>
           ) : (
@@ -179,7 +184,9 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                         onCloseBuy();
                         setOpen(false);
                       }}
-                      type={ButtonType.Secondary}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
                     >
                       {t('cancel')}
                     </Button>

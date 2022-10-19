@@ -51,6 +51,7 @@ module.exports = {
           200: '#C6C6C6',
           250: '#BDBDBD', // Part of new theme
           300: '#A8A8A8', // Part of new theme
+          350: '#8B8B8E', // Part of new theme
           400: '#8D8D8D',
           450: '#828282', // Part of new theme
           500: '#707070',

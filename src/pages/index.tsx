@@ -21,7 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
 import config from '../app.config';
-import Button, { ButtonType } from '../components/Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import useLogin from '../hooks/login';
 import Router from 'next/router';
 
@@ -159,15 +159,21 @@ const Home: NextPage = () => {
             <Hero.Title>{t('hero.title')}</Hero.Title>
             <Hero.SubTitle>{t('hero.subtitle')}</Hero.SubTitle>
             <Hero.Actions>
-              <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
+              <Button
+                className="w-full md:w-auto"
+                color={ButtonColor.White}
+                background={ButtonBackground.Gradient}
+                onClick={onExploreNftsClick}
+              >
                 {t('hero.exploreNfts')}
               </Button>
               <Button
                 className="w-full md:w-auto"
                 block
-                type={ButtonType.Secondary}
+                background={ButtonBackground.Black}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
                 onClick={onSellNftsClick}
-                secondaryBgColor="bg-black"
               >
                 {t('hero.sellNfts')}
               </Button>
@@ -339,7 +345,13 @@ const Home: NextPage = () => {
               })
             )}
           </Collection.List>
-          <Button type={ButtonType.Secondary} className="mx-auto mt-8" onClick={onShowMoreTrends}>
+          <Button
+            className="mx-auto mt-8"
+            onClick={onShowMoreTrends}
+            background={ButtonBackground.Black}
+            border={ButtonBorder.Gradient}
+            color={ButtonColor.Gradient}
+          >
             {t('collection:showMoreCollections')}
           </Button>
         </section>

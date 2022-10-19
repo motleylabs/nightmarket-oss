@@ -47,13 +47,13 @@ export default function Search({ children }: SearchProps) {
         setSelected(selection);
 
         switch (selection?.__typename) {
-          case 'MetadataJson':
-            if (!selection?.creatorAddress) {
-              router.push(`/collections/${selection.mintAddress}`);
+          case 'CollectionDocument':
+            if (!selection.id) {
+              // TODO: have a fallback to view these
+              console.error('Missing verified collectiona address');
               break;
             }
-
-            router.push(`/nfts/${selection.mintAddress}`);
+            router.push(`/collections/${selection.id}`);
             break;
           case 'Nft':
             router.push(`/nfts/${selection.mintAddress}`);
@@ -92,6 +92,23 @@ function SearchInput({
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+  });
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!e.ctrlKey) return;
+    switch (e.key) {
+      case 'k':
+        e.preventDefault();
+        e.stopPropagation();
+        searchInputRef.current?.focus();
+        return;
+      default:
+        return;
+    }
+  };
+
   return (
     <div className={clsx('relative block w-full transition-all', className)}>
       <button
@@ -117,8 +134,10 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
-      <button className="absolute right-4 top-2 flex h-6 w-6 items-center justify-center rounded bg-gray-700 text-sm text-gray-300">
-        K
+      <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
+        <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-700 text-sm text-gray-300">
+          K
+        </span>
       </button>
     </div>
   );

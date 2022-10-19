@@ -4,8 +4,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
-import Button, { ButtonSize, ButtonType } from './Button';
-import Icon from './Icon';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 
 interface NftCardProps {
   nft: Nft;
@@ -78,52 +77,41 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         <div className="relative flex flex-row items-center justify-between">
           {isOwner ? (
             <>
-              {listing ? (
-                <>
-                  <span className="flex items-center text-lg font-bold">
-                    <Icon.Sol />
-                    {listing?.previewPrice}
-                  </span>
-                  <Button type={ButtonType.Primary} size={ButtonSize.Small}>
-                    {t('update')}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <span className="text-lg"></span>
-                  <Button
-                    className="font-extrabold"
-                    type={ButtonType.Tertiary}
-                    size={ButtonSize.Small}
-                  >
-                    {t('list')}
-                  </Button>
-                </>
-              )}
+              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
+              <Button
+                disabled
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
+                size={ButtonSize.Small}
+              >
+                {t('owned')}
+              </Button>
             </>
           ) : (
             <>
               {listing ? (
                 <>
-                  <span className="flex items-center text-lg">
-                    <Icon.Sol />
-                    {listing?.previewPrice}
-                  </span>
-                  <Button onClick={onBuy} type={ButtonType.Secondary} size={ButtonSize.Small}>
+                  <span className="text-lg">{listing?.previewPrice} SOL</span>
+                  <Button
+                    onClick={onBuy}
+                    size={ButtonSize.Small}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                  >
                     {t('buy')}
                   </Button>
                 </>
               ) : (
                 <>
                   {/* TODO: last sale price */}
-                  <span className="flex items-center text-sm text-gray-300">
-                    {Boolean(lastSale) && (
-                      <>
-                        Last sale <Icon.Sol className="mx-1 h-3 w-3" /> {lastSale}
-                      </>
-                    )}
-                  </span>
-                  <Button onClick={onMakeOffer} type={ButtonType.Tertiary} size={ButtonSize.Small}>
+                  <span className="text-lg"></span>
+                  <Button
+                    onClick={onMakeOffer}
+                    border={ButtonBorder.Gray}
+                    color={ButtonColor.Gray}
+                    size={ButtonSize.Small}
+                  >
                     {t('offer')}
                   </Button>
                 </>

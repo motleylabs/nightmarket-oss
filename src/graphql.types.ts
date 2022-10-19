@@ -172,7 +172,7 @@ export type CandyMachineEndSetting = {
 
 export enum CandyMachineEndSettingType {
   Amount = 'AMOUNT',
-  Date = 'DATE',
+  Date = 'DATE'
 }
 
 export type CandyMachineGateKeeperConfig = {
@@ -193,7 +193,7 @@ export type CandyMachineHiddenSetting = {
 
 export enum CandyMachineWhitelistMintMode {
   BurnEveryTime = 'BURN_EVERY_TIME',
-  NeverBurn = 'NEVER_BURN',
+  NeverBurn = 'NEVER_BURN'
 }
 
 export type CandyMachineWhitelistMintSetting = {
@@ -277,15 +277,18 @@ export type Collection = {
   volumeTotal?: Maybe<Scalars['U64']>;
 };
 
+
 export type CollectionActivitiesArgs = {
   eventTypes?: InputMaybe<Array<Scalars['String']>>;
   limit: Scalars['Int'];
   offset: Scalars['Int'];
 };
 
+
 export type CollectionImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
 };
+
 
 export type CollectionNftsArgs = {
   attributes?: InputMaybe<Array<AttributeFilter>>;
@@ -297,11 +300,23 @@ export type CollectionNftsArgs = {
   sortBy?: InputMaybe<NftSort>;
 };
 
+export type CollectionDocument = {
+  __typename?: 'CollectionDocument';
+  discordUrl?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  image: Scalars['String'];
+  magicEdenId?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  twitterUrl?: Maybe<Scalars['String']>;
+  verifiedCollectionAddress?: Maybe<Scalars['String']>;
+  websiteUrl?: Maybe<Scalars['String']>;
+};
+
 /** Collection intervals */
 export enum CollectionInterval {
   OneDay = 'ONE_DAY',
   SevenDay = 'SEVEN_DAY',
-  ThirtyDay = 'THIRTY_DAY',
+  ThirtyDay = 'THIRTY_DAY'
 }
 
 /** Sorts collection results */
@@ -309,7 +324,7 @@ export enum CollectionSort {
   Floor = 'FLOOR',
   Marketcap = 'MARKETCAP',
   NumberSales = 'NUMBER_SALES',
-  Volume = 'VOLUME',
+  Volume = 'VOLUME'
 }
 
 export type CollectionTrend = {
@@ -376,6 +391,7 @@ export type Creator = {
   profile?: Maybe<TwitterProfile>;
   stats: Array<MintStats>;
 };
+
 
 export type CreatorStatsArgs = {
   auctionHouses: Array<Scalars['PublicKey']>;
@@ -475,7 +491,7 @@ export enum GenoHabitatSortField {
   /** Sort by the `expiryTimestamp` field */
   Lifespan = 'LIFESPAN',
   /** Sort by the `totalKiHarvested` field */
-  TotalKiHarvested = 'TOTAL_KI_HARVESTED',
+  TotalKiHarvested = 'TOTAL_KI_HARVESTED'
 }
 
 /** Input parameters for the `genoHabitatsCounted` query */
@@ -578,7 +594,7 @@ export enum GovernanceAccountType {
   TokenOwnerRecordV2 = 'TOKEN_OWNER_RECORD_V2',
   Uninitialized = 'UNINITIALIZED',
   VoteRecordV1 = 'VOTE_RECORD_V1',
-  VoteRecordV2 = 'VOTE_RECORD_V2',
+  VoteRecordV2 = 'VOTE_RECORD_V2'
 }
 
 export type GovernanceConfig = {
@@ -605,7 +621,7 @@ export type GraphConnection = {
 export enum InstructionExecutionFlags {
   None = 'NONE',
   Ordered = 'ORDERED',
-  UseTransaction = 'USE_TRANSACTION',
+  UseTransaction = 'USE_TRANSACTION'
 }
 
 export type Listing = {
@@ -677,7 +693,7 @@ export type MintEvent = {
 
 export enum MintMaxVoteWeightSource {
   Absolute = 'ABSOLUTE',
-  SupplyFraction = 'SUPPLY_FRACTION',
+  SupplyFraction = 'SUPPLY_FRACTION'
 }
 
 export type MintStats = {
@@ -738,6 +754,7 @@ export type Nft = {
   updateAuthorityAddress: Scalars['String'];
 };
 
+
 export type NftImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
 };
@@ -771,6 +788,7 @@ export type NftCount = {
   listed: Scalars['Int'];
   total: Scalars['Int'];
 };
+
 
 export type NftCountListedArgs = {
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
@@ -832,7 +850,7 @@ export type NftOwner = {
 /** Sorts results by price or listed at */
 export enum NftSort {
   ListedAt = 'LISTED_AT',
-  Price = 'PRICE',
+  Price = 'PRICE'
 }
 
 export type NftsStats = {
@@ -849,6 +867,7 @@ export type Offer = {
   __typename?: 'Offer';
   auctionHouse?: Maybe<AuctionHouse>;
   buyer: Scalars['PublicKey'];
+  buyerWallet: Wallet;
   canceledAt?: Maybe<Scalars['DateTimeUtc']>;
   createdAt: Scalars['DateTimeUtc'];
   id: Scalars['Uuid'];
@@ -878,22 +897,28 @@ export type OfferEvent = {
   walletAddress: Scalars['PublicKey'];
 };
 
+/** Sorts results by price or listed at */
+export enum OfferType {
+  OfferPlaced = 'OFFER_PLACED',
+  OfferReceived = 'OFFER_RECEIVED'
+}
+
 export enum OptionVoteResult {
   Defeated = 'DEFEATED',
   None = 'NONE',
-  Succeeded = 'SUCCEEDED',
+  Succeeded = 'SUCCEEDED'
 }
 
 /** Sorts results ascending or descending */
 export enum OrderDirection {
   Asc = 'ASC',
-  Desc = 'DESC',
+  Desc = 'DESC'
 }
 
 /** Reward center mathematical operands */
 export enum PayoutOperation {
   Divide = 'DIVIDE',
-  Multiple = 'MULTIPLE',
+  Multiple = 'MULTIPLE'
 }
 
 export type PriceChart = {
@@ -937,7 +962,7 @@ export enum ProposalState {
   ExecutingWithErrors = 'EXECUTING_WITH_ERRORS',
   SigningOff = 'SIGNING_OFF',
   Succeeded = 'SUCCEEDED',
-  Voting = 'VOTING',
+  Voting = 'VOTING'
 }
 
 export type ProposalV1 = {
@@ -1089,7 +1114,7 @@ export type QueryRoot = {
   proposals: Array<Proposal>;
   realms: Array<Realm>;
   /** returns all the collections matching the search term */
-  searchCollections: Array<MetadataJson>;
+  searchCollections: Array<CollectionDocument>;
   signatoryRecords: Array<SignatoryRecord>;
   /** A storefront */
   storefront?: Maybe<Storefront>;
@@ -1101,22 +1126,27 @@ export type QueryRoot = {
   wallets: Array<Wallet>;
 };
 
+
 export type QueryRootActivitiesArgs = {
   auctionHouses: Array<Scalars['PublicKey']>;
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootAuctionHouseArgs = {
   address: Scalars['String'];
 };
+
 
 export type QueryRootCandyMachineArgs = {
   address: Scalars['String'];
 };
 
+
 export type QueryRootCandymachineArgs = {
   addr: Scalars['String'];
 };
+
 
 export type QueryRootChartsArgs = {
   auctionHouses: Array<Scalars['PublicKey']>;
@@ -1125,9 +1155,11 @@ export type QueryRootChartsArgs = {
   startDate: Scalars['DateTimeUtc'];
 };
 
+
 export type QueryRootCollectionArgs = {
   address: Scalars['String'];
 };
+
 
 export type QueryRootCollectionTrendsArgs = {
   limit: Scalars['Int'];
@@ -1136,6 +1168,7 @@ export type QueryRootCollectionTrendsArgs = {
   sortBy: CollectionSort;
   timeFrame: CollectionInterval;
 };
+
 
 export type QueryRootCollectionsFeaturedByMarketCapArgs = {
   endDate: Scalars['DateTimeUtc'];
@@ -1146,6 +1179,7 @@ export type QueryRootCollectionsFeaturedByMarketCapArgs = {
   term?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryRootCollectionsFeaturedByVolumeArgs = {
   endDate: Scalars['DateTimeUtc'];
   limit: Scalars['Int'];
@@ -1155,6 +1189,7 @@ export type QueryRootCollectionsFeaturedByVolumeArgs = {
   term?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryRootConnectionsArgs = {
   from?: InputMaybe<Array<Scalars['PublicKey']>>;
   limit: Scalars['Int'];
@@ -1162,9 +1197,11 @@ export type QueryRootConnectionsArgs = {
   to?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootCreatorArgs = {
   address: Scalars['String'];
 };
+
 
 export type QueryRootEnrichedBondingChangesArgs = {
   address: Scalars['PublicKey'];
@@ -1174,6 +1211,7 @@ export type QueryRootEnrichedBondingChangesArgs = {
   stopUnixTime: Scalars['NaiveDateTime'];
 };
 
+
 export type QueryRootFeaturedListingsArgs = {
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
   limit: Scalars['Int'];
@@ -1182,6 +1220,7 @@ export type QueryRootFeaturedListingsArgs = {
   sellerExclusions?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootFeedEventsArgs = {
   excludeTypes?: InputMaybe<Array<Scalars['String']>>;
   limit: Scalars['Int'];
@@ -1189,16 +1228,19 @@ export type QueryRootFeedEventsArgs = {
   wallet: Scalars['PublicKey'];
 };
 
+
 export type QueryRootFollowWalletsArgs = {
   limit: Scalars['Int'];
   offset: Scalars['Int'];
   wallet?: InputMaybe<Scalars['PublicKey']>;
 };
 
+
 export type QueryRootGenoHabitatArgs = {
   address?: InputMaybe<Scalars['PublicKey']>;
   mint?: InputMaybe<Scalars['PublicKey']>;
 };
+
 
 export type QueryRootGenoHabitatsArgs = {
   elements?: InputMaybe<Array<Scalars['Int']>>;
@@ -1227,14 +1269,17 @@ export type QueryRootGenoHabitatsArgs = {
   term?: InputMaybe<Scalars['String']>;
 };
 
+
 export type QueryRootGenoHabitatsCountedArgs = {
   params: GenoHabitatsParams;
 };
+
 
 export type QueryRootGovernancesArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   realms?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
 
 export type QueryRootLatestFeedEventsArgs = {
   cursor: Scalars['String'];
@@ -1243,9 +1288,11 @@ export type QueryRootLatestFeedEventsArgs = {
   limit: Scalars['Int'];
 };
 
+
 export type QueryRootMarketplaceArgs = {
   subdomain: Scalars['String'];
 };
+
 
 export type QueryRootMarketplacesArgs = {
   limit?: InputMaybe<Scalars['Int']>;
@@ -1253,23 +1300,28 @@ export type QueryRootMarketplacesArgs = {
   subdomains?: InputMaybe<Array<Scalars['String']>>;
 };
 
+
 export type QueryRootMetadataJsonsArgs = {
   limit: Scalars['Int'];
   offset: Scalars['Int'];
   term: Scalars['String'];
 };
 
+
 export type QueryRootNftArgs = {
   address: Scalars['String'];
 };
+
 
 export type QueryRootNftByMintAddressArgs = {
   address: Scalars['String'];
 };
 
+
 export type QueryRootNftCountsArgs = {
   creators: Array<Scalars['PublicKey']>;
 };
+
 
 export type QueryRootNftsArgs = {
   allowUnverified?: InputMaybe<Scalars['Boolean']>;
@@ -1288,17 +1340,21 @@ export type QueryRootNftsArgs = {
   withOffers?: InputMaybe<Scalars['Boolean']>;
 };
 
+
 export type QueryRootNftsByMintAddressArgs = {
   addresses: Array<Scalars['PublicKey']>;
 };
+
 
 export type QueryRootOfferArgs = {
   address: Scalars['String'];
 };
 
+
 export type QueryRootProfileArgs = {
   handle: Scalars['String'];
 };
+
 
 export type QueryRootProfilesArgs = {
   limit: Scalars['Int'];
@@ -1306,15 +1362,18 @@ export type QueryRootProfilesArgs = {
   term: Scalars['String'];
 };
 
+
 export type QueryRootProposalsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   governances?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootRealmsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   communityMints?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
 
 export type QueryRootSearchCollectionsArgs = {
   limit: Scalars['Int'];
@@ -1322,20 +1381,24 @@ export type QueryRootSearchCollectionsArgs = {
   term: Scalars['String'];
 };
 
+
 export type QueryRootSignatoryRecordsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   proposals?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootStorefrontArgs = {
   subdomain: Scalars['String'];
 };
+
 
 export type QueryRootTokenOwnerRecordsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   governingTokenMints?: InputMaybe<Array<Scalars['PublicKey']>>;
   realms?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
 
 export type QueryRootVoteRecordsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
@@ -1344,9 +1407,11 @@ export type QueryRootVoteRecordsArgs = {
   proposals?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
 
+
 export type QueryRootWalletArgs = {
   address: Scalars['PublicKey'];
 };
+
 
 export type QueryRootWalletsArgs = {
   addresses: Array<Scalars['PublicKey']>;
@@ -1456,7 +1521,7 @@ export enum Vote {
   Abstain = 'ABSTAIN',
   Approve = 'APPROVE',
   Deny = 'DENY',
-  Veto = 'VETO',
+  Veto = 'VETO'
 }
 
 export type VoteChoice = {
@@ -1493,23 +1558,23 @@ export type VoteRecordV2 = {
 
 export enum VoteThreshold {
   Quorum = 'QUORUM',
-  YesVote = 'YES_VOTE',
+  YesVote = 'YES_VOTE'
 }
 
 export enum VoteTipping {
   Disabled = 'DISABLED',
   Early = 'EARLY',
-  Strict = 'STRICT',
+  Strict = 'STRICT'
 }
 
 export enum VoteType {
   MultiChoice = 'MULTI_CHOICE',
-  SingleChoice = 'SINGLE_CHOICE',
+  SingleChoice = 'SINGLE_CHOICE'
 }
 
 export enum VoteWeightV1 {
   No = 'NO',
-  Yes = 'YES',
+  Yes = 'YES'
 }
 
 export type Wallet = {
@@ -1527,6 +1592,7 @@ export type Wallet = {
   displayName?: Maybe<Scalars['String']>;
   nftCounts: WalletNftCount;
   nfts: Array<Nft>;
+  offers: Array<Offer>;
   portfolioValue?: Maybe<Scalars['Int']>;
   previewBanner?: Maybe<Scalars['String']>;
   previewImage?: Maybe<Scalars['String']>;
@@ -1535,15 +1601,18 @@ export type Wallet = {
   twitterHandle?: Maybe<Scalars['String']>;
 };
 
+
 export type WalletActivitiesArgs = {
   eventTypes?: InputMaybe<Array<Scalars['String']>>;
   limit: Scalars['Int'];
   offset: Scalars['Int'];
 };
 
+
 export type WalletNftCountsArgs = {
   creators?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
 
 export type WalletNftsArgs = {
   auctionHouse?: InputMaybe<Scalars['String']>;
@@ -1553,6 +1622,13 @@ export type WalletNftsArgs = {
   offset: Scalars['Int'];
   orderBy?: InputMaybe<OrderDirection>;
   sortBy?: InputMaybe<NftSort>;
+};
+
+
+export type WalletOffersArgs = {
+  limit: Scalars['Int'];
+  offerType?: InputMaybe<OfferType>;
+  offset: Scalars['Int'];
 };
 
 export type WalletActivity = {
@@ -1580,9 +1656,11 @@ export type WalletNftCount = {
   owned: Scalars['Int'];
 };
 
+
 export type WalletNftCountListedArgs = {
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
 };
+
 
 export type WalletNftCountOfferedArgs = {
   auctionHouses?: InputMaybe<Array<Scalars['PublicKey']>>;
