@@ -137,6 +137,7 @@ function NavigationBar() {
                 }}
                 value={searchTerm}
                 autofocus={true}
+                className="md:hidden"
               />
             )}
 

@@ -134,8 +134,10 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
-      <button className="absolute right-4 top-2 flex h-6 w-6 items-center justify-center rounded bg-gray-700 text-sm text-gray-300">
-        K
+      <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
+        <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-700 text-sm text-gray-300">
+          K
+        </span>
       </button>
     </div>
   );
