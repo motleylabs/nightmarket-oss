@@ -187,7 +187,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           ) : (
             <div />
           )}
-          <Share
+          {/* Share Component */}
+          {/* <Share
             address={nft.mintAddress}
             forceDirection="left"
             twitterParams={{
@@ -195,9 +196,9 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               hashtags: ['nightmarket'],
               url: `${config.baseUrl}/nfts/${nft.mintAddress}`,
             }}
-          />
+          /> */}
         </div>
-        <h1 className="mb-6 text-4xl font-semibold">{nft.name}</h1>
+        <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
           <Form
             onSubmit={handleSubmitBuy(handleBuy)}
@@ -273,8 +274,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                         onCloseBuy();
                       }}
                       background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
+                      border={ButtonBorder.Gray}
+                      color={ButtonColor.Gray}
                     >
                       {t('cancel', { ns: 'common' })}
                     </Button>
@@ -364,8 +365,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               </Button>
               <Button
                 background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
                 block
                 onClick={onCloseOffer}
               >
@@ -451,8 +452,8 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               </Button>
               <Button
                 background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
                 block
                 onClick={onCancelListNftClick}
               >
@@ -462,15 +463,18 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           </Form>
         )}
         <div
-          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-gray-800 p-6', {
+          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-black p-6', {
             'md:hidden': activeForm,
           })}
         >
-          <div className="flex flex-row items-center justify-between gap-10 p-4">
+          <div className="flex flex-row items-center justify-between gap-10 rounded-lg bg-gray-800 p-6">
             {listing && (
               <div className="flex flex-col justify-between text-gray-300">
                 <span>{t('listed')}</span>
-                <span className="font-semibold text-white">{listing.previewPrice} SOL</span>
+                <div className="flex items-center gap-2">
+                  <Icon.Sol className="h-5 w-5" />
+                  <span className="text-2xl text-white">{listing.previewPrice}</span>
+                </div>
               </div>
             )}
             {!listing && (
@@ -483,6 +487,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             {notOwner && !listing && (
               <Button
                 onClick={onOpenOffer}
+                className="w-52"
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}
                 color={ButtonColor.Gradient}
@@ -491,10 +496,15 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               </Button>
             )}
 
-            {notOwner && listing && <Button onClick={onOpenBuy}>{t('buy')}</Button>}
+            {notOwner && listing && (
+              <Button className="w-52" onClick={onOpenBuy}>
+                {t('buy')}
+              </Button>
+            )}
           </div>
-          <div className="flex flex-row items-center justify-between p-4">
+          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-800 p-6">
             <div className="flex flex-col justify-between text-gray-300">
+              {/* TODO: Dont show if there is no data */}
               <span>{t('lastSale')}</span>
               <span>--</span>
             </div>
