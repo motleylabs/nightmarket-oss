@@ -54,7 +54,6 @@ interface ProfileOffersVariables {
   limit: number;
   address: string;
   offerType: OfferType | null;
-
 }
 
 enum OffersFilter {
@@ -70,7 +69,6 @@ interface ProfileOffersForm {
 export default function ProfileOffers(): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
   const { publicKey } = useWallet();
-  console.log(publicKey);
 
   const activityFilterOptions = [
     { label: t('profile:offersFilter.allOffers'), value: OffersFilter.All },
@@ -86,31 +84,27 @@ export default function ProfileOffers(): JSX.Element {
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
 
-  const offersQuery = useQuery<ProfileOffersData, ProfileOffersVariables>(
-    ProfileOffersQuery,
-    {
-      variables: {
-        offset: 0,
-        limit: 24,
-        address: router.query.address as string,
-        offerType: null,
-      },
-    }
-  );
-  console.log(offersQuery.data)
+  const offersQuery = useQuery<ProfileOffersData, ProfileOffersVariables>(ProfileOffersQuery, {
+    variables: {
+      offset: 0,
+      limit: 24,
+      address: router.query.address as string,
+      offerType: null,
+    },
+  });
 
   useEffect(() => {
     const subscription = watch(({ type }) => {
       let offerType = null;
-      switch(type?.value){
+      switch (type?.value) {
         case OffersFilter.Placed:
           offerType = OfferType.OfferPlaced;
           break;
         case OffersFilter.Received:
           offerType = OfferType.OfferReceived;
-          break;  
+          break;
       }
-      
+
       let variables: ProfileOffersVariables = {
         offset: 0,
         limit: 24,
@@ -126,6 +120,10 @@ export default function ProfileOffers(): JSX.Element {
     return subscription.unsubscribe;
   }, [watch, router.query.address, offersQuery]);
 
+  console.log('profile offers', {
+    offers: offersQuery.data,
+    publicKey,
+  });
   return (
     <>
       <Toolbar>
@@ -150,38 +148,51 @@ export default function ProfileOffers(): JSX.Element {
           </>
         ) : (
           <>
-          <Offerable connected={Boolean(publicKey)}>
-            {({ makeOffer }) => 
-            offersQuery.data?.wallet.offers.map((offer) => (
-              <Activity
-                avatar={
-                  <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
-                    <a className="cursor-pointer transition hover:scale-[1.02]">
-                      <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                    </a>
-                  </Link>
-                }
-                type={ActivityType.Offer}
-                key={offer.id}
-                meta={
-                  <Activity.Meta 
-                  title={<Activity.Tag />} 
-                  marketplace={offer.nftMarketplace} 
-                  source={<Activity.Wallet wallet={offer.buyerWallet} />} 
-                  />
-                }
-                actionButton={
-                  offer.buyer === publicKey ? 
-                  <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}> {t("profile:accept")} </Button>
-                   : 
-                  <Button type={ButtonType.Secondary}  size={ButtonSize.Small}  onClick={() => {}}> {t("profile:update")} </Button>
-                  
-                }
-              >
-                <Activity.Price amount={offer.solPrice} />
-                <Activity.Timestamp timeSince={offer.timeSince} />
-              </Activity>
-            ))}
+            <Offerable connected={Boolean(publicKey)}>
+              {({ makeOffer }) =>
+                offersQuery.data?.wallet.offers.map((offer) => (
+                  <Activity
+                    avatar={
+                      <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
+                        <a className="cursor-pointer transition hover:scale-[1.02]">
+                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
+                        </a>
+                      </Link>
+                    }
+                    type={ActivityType.Offer}
+                    key={offer.id}
+                    meta={
+                      <Activity.Meta
+                        title={<Activity.Tag />}
+                        marketplace={offer.nftMarketplace}
+                        source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                      />
+                    }
+                    actionButton={
+                      !publicKey ? null : offer.buyerWallet.address === publicKey.toBase58() ? (
+                        <Button
+                          type={ButtonType.Secondary}
+                          size={ButtonSize.Small}
+                          onClick={() => {}}
+                        >
+                          {t('profile:accept')}
+                        </Button>
+                      ) : (
+                        <Button
+                          type={ButtonType.Secondary}
+                          size={ButtonSize.Small}
+                          onClick={() => {}}
+                        >
+                          {t('profile:update')}
+                        </Button>
+                      )
+                    }
+                  >
+                    <Activity.Price amount={offer.solPrice} />
+                    <Activity.Timestamp timeSince={offer.timeSince} />
+                  </Activity>
+                ))
+              }
             </Offerable>
             {hasMore && (
               <>

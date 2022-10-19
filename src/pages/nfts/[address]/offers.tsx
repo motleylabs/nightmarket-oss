@@ -67,7 +67,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
       address: nft.mintAddress,
     },
   });
-  
+
   const yourOffers = data?.nftOffers?.offers?.filter(
     (offer) => offer.buyer === publicKey?.toBase58()
   );
@@ -96,33 +96,37 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((yourOffer, i) => (
               <Activity
-              avatar={
-                <Link href={`/nfts/${yourOffer.nft?.mintAddress}/details`} passHref>
-                  <a className="cursor-pointer transition hover:scale-[1.02]">
-                    <Avatar src={yourOffer.nft?.image as string} size={AvatarSize.Standard} />
-                  </a>
-                </Link>
-              }
-              type={ActivityType.Offer}
-              key={yourOffer.id}
-              meta={
-                <Activity.Meta 
-                title={<Activity.Tag />} 
-                marketplace={yourOffer.nftMarketplace} 
-                source={<Activity.Wallet wallet={yourOffer.buyerWallet} />} 
-                />
-              }
-              actionButton={
-                yourOffer.buyer === publicKey ? 
-                <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}> {t("accept")} </Button>
-                 : 
-                <Button type={ButtonType.Secondary}  size={ButtonSize.Small}  onClick={() => {}}> {t("update")} </Button>
-                
-              }
-            >
-              <Activity.Price amount={yourOffer.solPrice} />
-              <Activity.Timestamp timeSince={yourOffer.timeSince} />
-            </Activity>
+                avatar={
+                  <Link href={`/nfts/${yourOffer.nft?.mintAddress}/details`} passHref>
+                    <a className="cursor-pointer transition hover:scale-[1.02]">
+                      <Avatar src={yourOffer.nft?.image as string} size={AvatarSize.Standard} />
+                    </a>
+                  </Link>
+                }
+                type={ActivityType.Offer}
+                key={yourOffer.id}
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplace={yourOffer.nftMarketplace}
+                    source={<Activity.Wallet wallet={yourOffer.buyerWallet} />}
+                  />
+                }
+                actionButton={
+                  !publicKey ? null : yourOffer.buyer === publicKey ? (
+                    <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
+                      {t('accept')}
+                    </Button>
+                  ) : (
+                    <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
+                      {t('update')}
+                    </Button>
+                  )
+                }
+              >
+                <Activity.Price amount={yourOffer.solPrice} />
+                <Activity.Timestamp timeSince={yourOffer.timeSince} />
+              </Activity>
             ))}
           </>
         )}
@@ -131,33 +135,37 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
         )}
         {data?.nftOffers?.offers?.map((offer, i) => (
           <Activity
-          avatar={
-            <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
-              <a className="cursor-pointer transition hover:scale-[1.02]">
-                <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-              </a>
-            </Link>
-          }
-          type={ActivityType.Offer}
-          key={offer.id}
-          meta={
-            <Activity.Meta 
-            title={<Activity.Tag />} 
-            marketplace={offer.nftMarketplace} 
-            source={<Activity.Wallet wallet={offer.buyerWallet} />} 
-            />
-          }
-          actionButton={
-            offer.buyer === publicKey ? 
-            <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}> {t("profile:accept")} </Button>
-             : 
-            <Button type={ButtonType.Secondary}  size={ButtonSize.Small}  onClick={() => {}}> {t("profile:update")} </Button>
-            
-          }
-        >
-          <Activity.Price amount={offer.solPrice} />
-          <Activity.Timestamp timeSince={offer.timeSince} />
-        </Activity>
+            avatar={
+              <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
+                <a className="cursor-pointer transition hover:scale-[1.02]">
+                  <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
+                </a>
+              </Link>
+            }
+            type={ActivityType.Offer}
+            key={offer.id}
+            meta={
+              <Activity.Meta
+                title={<Activity.Tag />}
+                marketplace={offer.nftMarketplace}
+                source={<Activity.Wallet wallet={offer.buyerWallet} />}
+              />
+            }
+            actionButton={
+              !publicKey ? null : offer.buyer === publicKey ? (
+                <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
+                  {t('profile:accept')}
+                </Button>
+              ) : (
+                <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
+                  {t('profile:update')}
+                </Button>
+              )
+            }
+          >
+            <Activity.Price amount={offer.solPrice} />
+            <Activity.Timestamp timeSince={offer.timeSince} />
+          </Activity>
         ))}
       </div>
     </>
