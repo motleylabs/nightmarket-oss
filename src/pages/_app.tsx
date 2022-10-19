@@ -161,10 +161,10 @@ function NavigationBar() {
                     return result?.map((collection, i) => (
                       <Search.Collection
                         value={collection}
-                        key={`search-collection-${collection.verifiedCollectionAddress}-${i}`}
+                        key={`search-collection-${collection.id}-${i}`}
                         image={collection.image || '/images/placeholder.png'}
                         name={collection.name}
-                        address={collection.verifiedCollectionAddress || collection.id}
+                        address={collection.id}
                       />
                     ));
                   }}

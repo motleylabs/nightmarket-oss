@@ -48,12 +48,12 @@ export default function Search({ children }: SearchProps) {
 
         switch (selection?.__typename) {
           case 'CollectionDocument':
-            if (!selection.verifiedCollectionAddress) {
+            if (!selection.id) {
               // TODO: have a fallback to view these
               console.error('Missing verified collectiona address');
               break;
             }
-            router.push(`/collections/${selection.verifiedCollectionAddress}`);
+            router.push(`/collections/${selection.id}`);
             break;
           case 'Nft':
             router.push(`/nfts/${selection.mintAddress}`);
