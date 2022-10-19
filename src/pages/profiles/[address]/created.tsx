@@ -141,7 +141,11 @@ export default function ProfileCollected() {
   return (
     <>
       <Toolbar>
-        <Sidebar.Control label={t('filter', { ns: 'common' })} open={open} onChange={toggleSidebar} />
+        <Sidebar.Control
+          label={t('filter', { ns: 'common' })}
+          open={open}
+          onChange={toggleSidebar}
+        />
         <Controller
           control={control}
           name="listed"

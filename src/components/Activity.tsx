@@ -21,7 +21,7 @@ interface ActivityProps {
 
 export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.Element {
   return (
-    <div className="mb-4 flex items-center justify-between rounded-md border border-gray-700 p-4 text-white">
+    <div className="mb-4 flex items-center justify-between rounded-2xl bg-gray-800 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
         {avatar}
         {cloneElement(meta, { type })}
@@ -136,7 +136,7 @@ function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
 Activity.Wallet = ActivityWallet;
 
 function ActivitySkeleton(): JSX.Element {
-  return <div className="mb-4 h-16 rounded-md bg-gray-800" />;
+  return <div className="mb-4 h-20 rounded-2xl bg-gray-800" />;
 }
 
 Activity.Skeleton = ActivitySkeleton;
