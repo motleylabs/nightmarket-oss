@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { MetadataJson, Nft, Wallet } from '../graphql.types';
+import { CollectionDocument, MetadataJson, Nft, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -137,6 +137,7 @@ function NavigationBar() {
                 }}
                 value={searchTerm}
                 autofocus={true}
+                className="md:hidden"
               />
             )}
 
@@ -152,18 +153,18 @@ function NavigationBar() {
                 hasResults={Boolean(previousResults) || hasResults}
                 enabled={searchTerm.length > 2}
               >
-                <Search.Group<MetadataJson[]>
+                <Search.Group<CollectionDocument[]>
                   title={t('search.collection')}
-                  result={results?.collections as MetadataJson[]}
+                  result={results?.collections as CollectionDocument[]}
                 >
                   {({ result }) => {
                     return result?.map((collection, i) => (
                       <Search.Collection
                         value={collection}
-                        key={`search-collection-${collection.mintAddress}-${i}`}
+                        key={`search-collection-${collection.id}-${i}`}
                         image={collection.image || '/images/placeholder.png'}
                         name={collection.name}
-                        address={collection.mintAddress}
+                        address={collection.id}
                       />
                     ));
                   }}
