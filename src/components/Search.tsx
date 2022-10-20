@@ -123,7 +123,7 @@ function SearchInput({
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-450 focus:outline-none md:py-2"
+        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-neutral-400 focus:outline-none md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}

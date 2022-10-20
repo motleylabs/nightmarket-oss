@@ -40,7 +40,7 @@ html {
 }
 
 .wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {
-  @apply bg-gray-725;
+  @apply bg-neutral-800;
 }
 
 .wallet-modal-theme .wallet-adapter-modal-button-close {

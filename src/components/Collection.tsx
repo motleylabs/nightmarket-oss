@@ -278,7 +278,7 @@ interface CollectionListDataPointProps {
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
     <div className="flex w-28 flex-col gap-1 sm:w-full">
-      <div className="text-xs text-gray-250 md:text-sm">{name}</div>
+      <div className="text-xs text-neutral-200 md:text-sm">{name}</div>
       <div className="flex w-32 flex-row items-center justify-start gap-2">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
