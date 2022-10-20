@@ -134,6 +134,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           />
           <ProfileFigure
             label="SAUCE earned"
+            loading={false}
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
