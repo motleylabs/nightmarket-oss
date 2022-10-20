@@ -33,7 +33,7 @@ html {
 }
 
 .input {
-  @apply rounded-md border border-gray-725;
+  @apply rounded-md border border-neutral-800;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply bg-gray-900 font-sans;

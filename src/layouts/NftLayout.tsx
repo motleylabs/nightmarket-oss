@@ -203,7 +203,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitBuy(handleBuy)}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-neutral-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
             <div className="mt-4 flex flex-col gap-4 px-6 pt-8 pb-6 md:pt-0">
@@ -293,7 +293,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitOffer(handleOffer)}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-neutral-800 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
               {t('placeBid')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -330,7 +330,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 {/* Temporarily broke out of component to make it work*/}
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-neutral-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -379,7 +379,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitListNft(() => {})}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-neutral-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('listNft')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -418,7 +418,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-neutral-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
