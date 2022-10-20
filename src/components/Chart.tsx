@@ -10,7 +10,11 @@ export enum DateRangeOption {
   MONTH = 'One month',
 }
 
-export function StyledLineChart(props: {
+export function Chart() {
+  return <div />;
+}
+
+function StyledLineChart(props: {
   height?: number;
   data: any[];
   options?: {
@@ -31,12 +35,9 @@ export function StyledLineChart(props: {
   );
 }
 
-export function ChartCard(props: {
-  title: string;
-  control: any;
-  dateRangeId?: string;
-  chart: ReactNode;
-}) {
+Chart.LineChart = StyledLineChart;
+
+function ChartCard(props: { title: string; control: any; dateRangeId?: string; chart: ReactNode }) {
   return (
     <div className=" rounded-lg   shadow-2xl shadow-black">
       <div className="flex items-center justify-between p-6 ">
@@ -62,3 +63,64 @@ export function ChartCard(props: {
     </div>
   );
 }
+
+Chart.Card = ChartCard;
+
+function TinyLineChart(props: {
+  height?: number;
+  data: any[];
+  options?: {
+    yDataKey?: string;
+  };
+  children?: ReactNode;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={props.data}>
+        <defs>
+          <linearGradient id="colorUv" x1="1" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#F85C04" />
+            <stop offset="100%" stopColor="#EC9D08" />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} stroke="#A8A8A8" horizontal={false} />
+        <YAxis
+          tickCount={4}
+          tickLine={false}
+          tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
+          width={15}
+          axisLine={false}
+          domain={['dataMin', 'dataMax']}
+        />
+        <Line type="monotone" dot={false} strokeWidth={2} dataKey="price" stroke="url(#colorUv)" />
+        {props.children}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+Chart.TinyLineChart = TinyLineChart;
+
+function ChartPreview({
+  title,
+  dateRange,
+  chart,
+  className,
+}: {
+  title: string;
+  dateRange: string;
+  chart: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 p-6', className)}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm text-gray-300">{title}</h2>
+        <h2 className="text-sm text-gray-300">{dateRange}</h2>
+      </div>
+      {chart}
+    </div>
+  );
+}
+
+Chart.Preview = ChartPreview;
