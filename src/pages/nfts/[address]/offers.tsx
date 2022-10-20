@@ -13,7 +13,12 @@ import { useQuery } from '@apollo/client';
 import { Activity, ActivityType } from '../../../components/Activity';
 import Link from 'next/link';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
-import Button, { ButtonSize, ButtonType } from '../../../components/Button';
+import Button, {
+  ButtonSize,
+  ButtonBackground,
+  ButtonColor,
+  ButtonBorder,
+} from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'offers', 'nft']);
@@ -113,13 +118,17 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                   />
                 }
                 actionButton={
-                  !publicKey ? null : yourOffer.buyer === publicKey ? (
-                    <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
-                      {t('accept')}
-                    </Button>
-                  ) : (
-                    <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
-                      {t('update')}
+                  publicKey && (
+                    <Button
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      size={ButtonSize.Small}
+                      onClick={() => {}}
+                    >
+                      {yourOffer.buyer === publicKey.toBase58()
+                        ? t('profile:update')
+                        : t('profile:accept')}
                     </Button>
                   )
                 }
@@ -152,13 +161,15 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
               />
             }
             actionButton={
-              !publicKey ? null : offer.buyer === publicKey ? (
-                <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
-                  {t('profile:accept')}
-                </Button>
-              ) : (
-                <Button type={ButtonType.Secondary} size={ButtonSize.Small} onClick={() => {}}>
-                  {t('profile:update')}
+              publicKey && (
+                <Button
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                  size={ButtonSize.Small}
+                  onClick={() => {}}
+                >
+                  {offer.buyer === publicKey.toBase58() ? t('profile:update') : t('profile:accept')}
                 </Button>
               )
             }

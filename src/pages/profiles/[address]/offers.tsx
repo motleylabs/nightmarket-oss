@@ -16,7 +16,12 @@ import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { useWallet } from '@solana/wallet-adapter-react';
-import Button, { ButtonSize, ButtonType } from '../../../components/Button';
+import Button, {
+  ButtonSize,
+  ButtonBackground,
+  ButtonBorder,
+  ButtonColor,
+} from '../../../components/Button';
 import { Offerable } from '../../../components/Offerable';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -120,10 +125,6 @@ export default function ProfileOffers(): JSX.Element {
     return subscription.unsubscribe;
   }, [watch, router.query.address, offersQuery]);
 
-  console.log('profile offers', {
-    offers: offersQuery.data,
-    publicKey,
-  });
   return (
     <>
       <Toolbar>
@@ -169,21 +170,17 @@ export default function ProfileOffers(): JSX.Element {
                       />
                     }
                     actionButton={
-                      !publicKey ? null : offer.buyerWallet.address === publicKey.toBase58() ? (
+                      publicKey && (
                         <Button
-                          type={ButtonType.Secondary}
+                          background={ButtonBackground.Slate}
+                          border={ButtonBorder.Gradient}
+                          color={ButtonColor.Gradient}
                           size={ButtonSize.Small}
                           onClick={() => {}}
                         >
-                          {t('profile:accept')}
-                        </Button>
-                      ) : (
-                        <Button
-                          type={ButtonType.Secondary}
-                          size={ButtonSize.Small}
-                          onClick={() => {}}
-                        >
-                          {t('profile:update')}
+                          {offer.buyerWallet.address === publicKey.toBase58()
+                            ? t('profile:update')
+                            : t('profile:accept')}
                         </Button>
                       )
                     }

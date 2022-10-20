@@ -1,15 +1,13 @@
 import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
 import { Wallet } from '../graphql.types';
-import { ArrowPathIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import Head from 'next/head';
 import { useQuery } from '@apollo/client';
 import { useCurrencies } from '../hooks/currencies';
-import clsx from 'clsx';
 import Icon from '../components/Icon';
-import { shortenAddress } from '../modules/address';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
 
@@ -26,11 +24,15 @@ interface ProfileLayout {
   wallet: Wallet;
 }
 
-function ProfileFigure(props: { figure: ReactNode; label: string }) {
+function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
   return (
     <div className="flex flex-col items-center">
       <div className="text-sm font-medium text-gray-300">{props.label}</div>
-      <span className="font-semibold">{props.figure}</span>
+      {props.loading ? (
+        <div className="h-6 w-14 animate-pulse rounded-md bg-gray-700 transition" />
+      ) : (
+        <span className="font-semibold">{props.figure}</span>
+      )}
     </div>
   );
 }
@@ -84,8 +86,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
               {wallet.displayName}
             </h1>
             <div className="flex items-center gap-4 text-gray-300  md:items-center">
-              {/* <Overview.Figure figure={wallet.compactCreatedCount} label={'Created'} />
-              <Overview.Figure figure={wallet.compactOwnedCount} label={'Collected'} /> */}
               <div
                 onClick={copyText}
                 className="group flex cursor-pointer gap-1 text-sm  font-medium"
@@ -97,7 +97,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
               </div>
 
               <a
-                href={'https://twitter.com/' + wallet.displayName}
+                href={`https://twitter.com/${wallet.displayName}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -112,20 +112,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
                   </svg>
                 </div>
               </a>
-              {/* <Overview.Figure figure={wallet.compactFollowerCount} label={'Followers'} /> */}
-              {/* <Overview.Figure figure={wallet.compactFollowingCount} label={'Following'} />  */}
-
-              {/* <Button>Follow</Button> */}
-              {/* <Overview.Actions>
-                <Share
-                  address={address}
-                  twitterParams={{
-                    text: t('twitterShareText'),
-                    hashtags: ['nightmarket'],
-                    url: `${config.baseUrl}/profiles/${address}`,
-                  }}
-                />
-              </Overview.Actions> */}
             </div>
           </div>
         </div>
@@ -134,9 +120,18 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           <ProfileFigure
             figure={(currenciesReady && portfolioValue && solToUsdString(portfolioValue)) || '0'}
             label="Net Worth"
+            loading={walletProfileClientQuery.loading}
           />
-          <ProfileFigure label="Total NFTs" figure={wallet.nftCounts.owned} />
-          <ProfileFigure label="Listed NFTs" figure={wallet.nftCounts.listed || 0} />
+          <ProfileFigure
+            label="Total NFTs"
+            figure={walletProfileClientQuery.data?.wallet.nftCounts.owned}
+            loading={walletProfileClientQuery.loading}
+          />
+          <ProfileFigure
+            label="Listed NFTs"
+            figure={walletProfileClientQuery.data?.wallet.nftCounts.listed || 0}
+            loading={walletProfileClientQuery.loading}
+          />
           <ProfileFigure
             label="SAUCE earned"
             figure={
@@ -148,7 +143,6 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           />
         </div>
       </section>
-      {/* <SegmentedControl /> */}
       <Overview.Tabs>
         <Overview.Tab
           label="NFTs"
