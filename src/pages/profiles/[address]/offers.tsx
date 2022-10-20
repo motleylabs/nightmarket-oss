@@ -170,19 +170,30 @@ export default function ProfileOffers(): JSX.Element {
                       />
                     }
                     actionButton={
-                      publicKey && (
-                        <Button
-                          background={ButtonBackground.Slate}
-                          border={ButtonBorder.Gradient}
-                          color={ButtonColor.Gradient}
-                          size={ButtonSize.Small}
-                          onClick={() => {}}
-                        >
-                          {offer.buyerWallet.address === publicKey.toBase58()
-                            ? t('profile:update')
-                            : t('profile:accept')}
-                        </Button>
-                      )
+                      <>
+                        {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
+                          <Button
+                            background={ButtonBackground.Slate}
+                            border={ButtonBorder.Gray}
+                            color={ButtonColor.Gray}
+                            size={ButtonSize.Small}
+                            onClick={() => {}}
+                          >
+                            {t('profile:update')}
+                          </Button>
+                        )}
+                        {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
+                          <Button
+                            background={ButtonBackground.Slate}
+                            border={ButtonBorder.Gradient}
+                            color={ButtonColor.Gradient}
+                            size={ButtonSize.Small}
+                            onClick={() => {}}
+                          >
+                            {t('profile:accept')}
+                          </Button>
+                        )}
+                      </>
                     }
                   >
                     <Activity.Price amount={offer.solPrice} />
