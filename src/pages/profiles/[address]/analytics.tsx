@@ -101,8 +101,6 @@ export default function ProfileAnalyticsPage({
     [portfolioValue]
   );
 
-  console.log(collectedCollectionData);
-
   return (
     <div className="px-10 pt-6 pb-20">
       <ChartCard

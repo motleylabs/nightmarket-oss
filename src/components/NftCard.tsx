@@ -41,10 +41,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
-  if (listing) {
-    console.log('nft', nft.name, { nft, listing });
-  }
-
   return (
     <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
       <Link href={link} passHref>
