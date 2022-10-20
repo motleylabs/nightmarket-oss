@@ -149,6 +149,9 @@ query ProfileOffersQuery(
         name
         mintAddress
         image(width: 100)
+        owner {
+          address
+        }
       }
       buyerWallet {
         address
