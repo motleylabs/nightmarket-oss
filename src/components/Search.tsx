@@ -168,7 +168,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-800 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-neutral-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -213,7 +213,7 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 
   return (
     <>
-      <h6 className="mb-2 border-b border-gray-725 pt-4 pb-2 text-base font-medium text-gray-300">
+      <h6 className="mb-2 border-b border-neutral-700 pt-4 pb-2 text-base font-medium text-gray-300">
         {title}
       </h6>
       {children({ result })}
