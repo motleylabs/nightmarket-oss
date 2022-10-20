@@ -4,21 +4,9 @@
 query WalletProfileQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
-    nftCounts {
-      owned
-      created
-    }
-    compactOwnedCount @client
-    compactCreatedCount @client
-    compactFollowerCount @client
-    compactFollowingCount @client
     displayName @client
     shortAddress @client
     previewImage @client
-    connectionCounts {
-      fromCount
-      toCount
-    }
     profile {
       ...ProfileInfo
     }
@@ -28,6 +16,10 @@ query WalletProfileQuery($address: PublicKey!) {
 query WalletProfileClientQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
+    compactOwnedCount @client
+    nftCounts {
+      owned
+    }
     collectedCollections {
       collection {
         nft {
@@ -123,6 +115,52 @@ query ProfileActivitiesQuery(
         name
         mintAddress
         image(width: 100)
+      }
+    }
+  }
+}
+
+query ProfileOffersQuery(
+  $address: PublicKey!
+  $offerType: OfferType
+  $limit: Int = 25
+  $offset: Int = 0
+) {
+  wallet(address: $address) {
+    address
+    offers(offerType: $offerType, limit: $limit, offset: $offset) {
+      id
+      metadata
+      price
+      createdAt
+      timeSince @client
+      marketplaceProgramAddress
+      solPrice @client
+      nftMarketplace @client {
+        name
+        logo
+      }
+      auctionHouse {
+        address
+        treasuryMint
+      }
+      nft {
+        address
+        name
+        mintAddress
+        image(width: 100)
+        owner {
+          address
+        }
+      }
+      buyerWallet {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
       }
     }
   }

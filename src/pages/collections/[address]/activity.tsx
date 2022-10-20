@@ -6,7 +6,7 @@ import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Collection } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
-import { ButtonGroup } from '../../../components/ButtonGroup';
+import Select from '../../../components/Select';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Link from 'next/link';
@@ -61,13 +61,19 @@ enum ActivityFilter {
 }
 
 interface CollectionActivityForm {
-  type: ActivityFilter;
+  type: { value: ActivityFilter; label: string };
 }
 
 export default function CollectionActivity(): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
+  const activityFilterOptions = [
+    { label: t('all'), value: ActivityFilter.All },
+    { label: t('listings'), value: ActivityFilter.Listings },
+    { label: t('offers'), value: ActivityFilter.Offers },
+    { label: t('sales'), value: ActivityFilter.Sales },
+  ];
   const { watch, control } = useForm<CollectionActivityForm>({
-    defaultValues: { type: ActivityFilter.All },
+    defaultValues: { type: activityFilterOptions[0] },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
@@ -93,7 +99,7 @@ export default function CollectionActivity(): JSX.Element {
         eventTypes: null,
       };
 
-      switch (type) {
+      switch (type?.value) {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
@@ -123,14 +129,12 @@ export default function CollectionActivity(): JSX.Element {
           control={control}
           name="type"
           render={({ field: { onChange, value } }) => (
-            <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ActivityFilter.All}>{t('all')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Listings}>
-                {t('listings')}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Offers}>{t('offers')}</ButtonGroup.Option>
-              <ButtonGroup.Option value={ActivityFilter.Sales}>{t('sales')}</ButtonGroup.Option>
-            </ButtonGroup>
+            <Select
+              value={value}
+              onChange={onChange}
+              options={activityFilterOptions}
+              className="col-span-2 md:col-span-1"
+            />
           )}
         />
       </Toolbar>
