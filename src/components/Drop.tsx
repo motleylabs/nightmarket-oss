@@ -66,7 +66,7 @@ export default function Drop({
               background={ButtonBackground.Slate}
               border={ButtonBorder.Gradient}
               color={ButtonColor.Gradient}
-              >
+            >
               {t('drops.view')}
             </Button>
           </li>

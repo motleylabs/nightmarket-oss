@@ -1552,6 +1552,7 @@ export type Wallet = {
   previewImage?: Maybe<Scalars['String']>;
   profile?: Maybe<TwitterProfile>;
   shortAddress?: Maybe<Scalars['String']>;
+  totalRewards: Scalars['U64'];
   twitterHandle?: Maybe<Scalars['String']>;
 };
 
@@ -1579,6 +1580,10 @@ export type WalletOffersArgs = {
   limit: Scalars['Int'];
   offerType?: InputMaybe<OfferType>;
   offset: Scalars['Int'];
+};
+
+export type WalletTotalRewardsArgs = {
+  rewardCenter: Scalars['PublicKey'];
 };
 
 export type WalletActivity = {
