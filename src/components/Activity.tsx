@@ -1,5 +1,5 @@
 import { useTranslation } from 'next-i18next';
-import { SVGProps, useMemo, cloneElement, Children } from 'react';
+import { SVGProps, useMemo, cloneElement, Children, ReactNode } from 'react';
 import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
 import { CurrencyDollarIcon, HandRaisedIcon, TagIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -17,17 +17,27 @@ interface ActivityProps {
   avatar: JSX.Element;
   meta: JSX.Element;
   type: ActivityType;
+  actionButton?: ReactNode;
 }
 
-export function Activity({ children, avatar, meta, type }: ActivityProps): JSX.Element {
+export function Activity({
+  children,
+  avatar,
+  meta,
+  type,
+  actionButton,
+}: ActivityProps): JSX.Element {
   return (
-    <div className="mb-4 flex items-center justify-between rounded-md border border-gray-700 p-4 text-white">
+    <div className="mb-4 flex items-center justify-between rounded-2xl bg-gray-800 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
         {avatar}
         {cloneElement(meta, { type })}
       </div>
-      <div className="flex flex-col items-end justify-between">
-        {Children.map(children, (child) => cloneElement(child, { type }))}
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-end justify-between">
+          {Children.map(children, (child) => cloneElement(child, { type }))}
+        </div>
+        {actionButton}
       </div>
     </div>
   );
@@ -136,7 +146,7 @@ function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
 Activity.Wallet = ActivityWallet;
 
 function ActivitySkeleton(): JSX.Element {
-  return <div className="mb-4 h-16 rounded-md bg-gray-800" />;
+  return <div className="mb-4 h-20 rounded-2xl bg-gray-800" />;
 }
 
 Activity.Skeleton = ActivitySkeleton;

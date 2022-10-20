@@ -16,15 +16,11 @@ function AttributeOption({
     <div className="flex items-center justify-between">
       <span className="text-sm capitalize text-white">{variant.name}</span>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-white">{variant.count}</span>
+        <span className="text-sm text-gray-300">{variant.count}</span>
         {selected ? (
-          <CheckIcon
-            width={24}
-            height={24}
-            className="rounded-md border border-gray-400 bg-orange-600 px-0.5"
-          />
+          <CheckIcon className="border-gradient h-4 w-4 rounded-md  px-0.5" />
         ) : (
-          <div className="h-6 w-6 rounded-md border border-gray-400 bg-gray-700 px-0.5" />
+          <div className="h-4 w-4 rounded-md border border-gray-400 bg-gray-700 px-0.5" />
         )}
       </div>
     </div>
@@ -44,9 +40,10 @@ function AttributeOptionHeader({
     <>
       <span className="font-semibold capitalize text-white">{group.name}</span>
       <div className="flex items-center ">
-        <span className="mr-4 flex h-5 w-5 items-center justify-center rounded bg-gray-700 text-sm font-medium text-white">
+        {/* Group Variants Count */}
+        {/* <span className="mr-4 flex h-5 w-5 items-center justify-center rounded bg-gray-700 text-sm font-medium text-white">
           {group.variants.length}
-        </span>
+        </span> */}
         {isOpen ? (
           <ChevronUpIcon width={24} height={24} className="text-white" />
         ) : (

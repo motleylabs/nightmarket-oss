@@ -199,6 +199,7 @@ const client = new ApolloClient({
         keyFields: ['address'],
         fields: {
           activities: offsetLimitPagination(['$eventTypes']),
+          offers: offsetLimitPagination(['$offerType']),
           nfts: offsetLimitPagination(['$marketplaceProgram', '$auctionHouse', '$collections']),
           displayName: {
             read: asDisplayName,

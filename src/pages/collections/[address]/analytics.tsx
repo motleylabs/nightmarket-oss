@@ -7,7 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { useForm } from 'react-hook-form';
-import { ChartCard, DateRangeOption, StyledLineChart } from '../../../components/ChartTemplate';
+import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
 
 const floorPriceData = Array.from({ length: 24 }, (v, i) => ({
@@ -91,30 +91,30 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
 
   return (
     <div className="px-10 pt-6 pb-20">
-      <ChartCard
+      <Chart.Card
         title={t('collection.floorPriceChartTitle')}
         dateRangeId="floorPriceDateRange"
         control={control}
-        chart={<StyledLineChart data={floorPriceData} />}
+        chart={<Chart.LineChart data={floorPriceData} />}
       />
 
       <div className=" grid grid-cols-2 gap-8 py-8">
-        <ChartCard
+        <Chart.Card
           title={t('collection.listedCountChartTitle')}
           dateRangeId="listingCountDateRange"
           control={control}
-          chart={<StyledLineChart data={listedCountData} />}
+          chart={<Chart.LineChart data={listedCountData} />}
         />
 
-        <ChartCard
+        <Chart.Card
           title={t('collection.priceDistributionChartTitle')}
           dateRangeId="priceDistributionDateRange"
           control={control}
-          chart={<StyledLineChart data={priceDistributionData} />}
+          chart={<Chart.LineChart data={priceDistributionData} />}
         />
       </div>
 
-      <ChartCard
+      <Chart.Card
         title={t('collection.holdersVsTokensHeldChartTitle')}
         dateRangeId="holdersVsHeldDateRange"
         control={control}

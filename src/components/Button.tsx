@@ -35,6 +35,7 @@ interface ButtonProps {
   icon?: React.ReactElement;
   onClick?: () => any;
   disabled?: boolean;
+  circle?: boolean;
   htmlType?: 'button' | 'submit' | 'reset' | undefined;
   className?: string;
   children?: any;
@@ -50,6 +51,7 @@ const Button = ({
   icon,
   onClick,
   disabled = false,
+  circle = false,
   htmlType = 'button',
   className,
   children,
@@ -73,6 +75,7 @@ const Button = ({
           'py-3 px-6': size === ButtonSize.Large && border !== ButtonBorder.Gradient,
           'opacity-75': disabled,
           'hover:scale-[1.02]': !disabled,
+          'px-0 py-0': circle,
         }
       )}
       disabled={disabled}
@@ -101,13 +104,15 @@ const Button = ({
           />
         )}
         {icon && icon}
-        <span
-          className={clsx({
-            'border-gradient bg-clip-text text-transparent': color === ButtonColor.Gradient,
-          })}
-        >
-          {children}
-        </span>
+        {children && (
+          <span
+            className={clsx({
+              'border-gradient bg-clip-text text-transparent': color === ButtonColor.Gradient,
+            })}
+          >
+            {children}
+          </span>
+        )}
       </div>
     </button>
   );

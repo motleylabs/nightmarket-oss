@@ -34,11 +34,11 @@ html {
   @apply rounded-md border border-gray-725;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
-  @apply bg-gray-900 font-sans;
+  @apply rounded-2xl bg-gray-800 font-sans;
 }
 
 .wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {
-  @apply bg-gray-800;
+  @apply bg-gray-725;
 }
 
 .wallet-modal-theme .wallet-adapter-modal-button-close {
