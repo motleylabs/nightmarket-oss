@@ -40,7 +40,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
       <Overview>
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
           {/* Image, [Title, Description] */}
-          <div className="flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-10">
+          <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
               <img
                 src={collection.nft.image}
@@ -62,10 +62,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           </div>
 
           {/* [Charts], Data */}
-          <div className="flex flex-col-reverse items-center justify-center gap-4 lg:flex-row lg:items-start lg:justify-start">
-            <div className="flex w-auto gap-4">
+          <div className="flex w-full flex-col-reverse items-center justify-center gap-4 md:w-min md:flex-row md:items-start md:justify-start">
+            <div className="flex w-full gap-4 md:w-min">
               <ChartPreviewCard
-                className="h-36 w-full lg:w-36 xl:w-40"
+                className="h-40 w-full md:w-36 xl:w-40"
                 title={t('floorPrice')}
                 dateRange={t('timeInterval.day')}
                 chart={
@@ -78,7 +78,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 }
               />
               <ChartPreviewCard
-                className="h-36 w-full lg:w-36 xl:w-40"
+                className="h-40 w-full md:w-36 xl:w-40"
                 title={t('listings')}
                 dateRange={t('timeInterval.day')}
                 chart={
@@ -91,7 +91,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 }
               />
             </div>
-            <div className="grid h-36 w-full max-w-md grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto lg:w-80 xl:w-96">
+            <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
               <CollectionFigure label="Floor price">
                 <Icon.Sol /> {collection.compactFloorPrice}
               </CollectionFigure>

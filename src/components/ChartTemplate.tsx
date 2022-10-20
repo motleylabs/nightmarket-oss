@@ -72,12 +72,24 @@ export function StyledPreviewChart(props: {
   children?: ReactNode;
 }) {
   return (
-    <ResponsiveContainer width="100%">
+    <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data}>
-        <CartesianGrid vertical={false} stroke="#A8A8A8" strokeDasharray="1000 0 " />
-        {/* <XAxis interval={2} axisLine={false} /> */}
-        <YAxis tickCount={3} width={25} axisLine={false} domain={['dataMin', 'dataMax']} />
-        <Line type="monotone" dot={false} strokeWidth={2} dataKey="price" stroke="#F85C04" />
+        <defs>
+          <linearGradient id="colorUv" x1="1" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#F85C04" />
+            <stop offset="100%" stopColor="#EC9D08" />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} stroke="#A8A8A8" horizontal={false} />
+        <YAxis
+          tickCount={4}
+          tickLine={false}
+          tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
+          width={25}
+          axisLine={false}
+          domain={['dataMin', 'dataMax']}
+        />
+        <Line type="monotone" dot={false} strokeWidth={2} dataKey="price" stroke="url(#colorUv)" />
         {props.children}
       </LineChart>
     </ResponsiveContainer>
@@ -96,7 +108,7 @@ export function ChartPreviewCard({
   className?: string;
 }) {
   return (
-    <div className={clsx('flex flex-col gap-1 rounded-xl bg-gray-800 p-6', className)}>
+    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 p-6', className)}>
       <div className="flex items-center justify-between">
         <h2 className="text-sm text-gray-300">{title}</h2>
         <h2 className="text-sm text-gray-300">{dateRange}</h2>
