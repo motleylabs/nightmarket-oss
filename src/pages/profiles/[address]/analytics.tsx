@@ -10,7 +10,7 @@ import ProfileLayout, {
 } from '../../../layouts/ProfileLayout';
 import { BarChart, CartesianGrid, ResponsiveContainer, Bar, XAxis, YAxis } from 'recharts';
 import { QueryResult } from '@apollo/client';
-import { ChartCard, DateRangeOption, StyledLineChart } from '../../../components/ChartTemplate';
+import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
 import { useForm } from 'react-hook-form';
 import { formatDistanceToNow, subDays } from 'date-fns';
@@ -105,14 +105,14 @@ export default function ProfileAnalyticsPage({
 
   return (
     <div className="px-10 pt-6 pb-20">
-      <ChartCard
+      <Chart.Card
         title={t('profile.walletValueChartTitle')}
         control={control}
         dateRangeId="walletValueDateRange"
-        chart={<StyledLineChart data={walletValueData} />}
+        chart={<Chart.LineChart data={walletValueData} />}
       />
 
-      <ChartCard
+      <Chart.Card
         title={t('profile.totalAssetBreakdownChartTitle')}
         control={control}
         chart={
@@ -144,18 +144,18 @@ export default function ProfileAnalyticsPage({
         }
       />
       <div className=" grid grid-cols-2 gap-8 py-8">
-        <ChartCard
+        <Chart.Card
           title={t('profile.listedCountChartTitle')}
           dateRangeId="listedCountDateRange"
           control={control}
-          chart={<StyledLineChart data={listedCountData} />}
+          chart={<Chart.LineChart data={listedCountData} />}
         />
 
-        <ChartCard
+        <Chart.Card
           title={t('profile.nftsBoughtVsNftsSoldChartTitle')}
           dateRangeId="nftsBoughtVsNftsSoldDateRange"
           control={control}
-          chart={<StyledLineChart data={nftsBoughtAndNftsSold} />}
+          chart={<Chart.LineChart data={nftsBoughtAndNftsSold} />}
         />
       </div>
     </div>

@@ -10,7 +10,11 @@ export enum DateRangeOption {
   MONTH = 'One month',
 }
 
-export function StyledLineChart(props: {
+export function Chart() {
+  return <div />;
+}
+
+function StyledLineChart(props: {
   height?: number;
   data: any[];
   options?: {
@@ -31,12 +35,9 @@ export function StyledLineChart(props: {
   );
 }
 
-export function ChartCard(props: {
-  title: string;
-  control: any;
-  dateRangeId?: string;
-  chart: ReactNode;
-}) {
+Chart.LineChart = StyledLineChart;
+
+function ChartCard(props: { title: string; control: any; dateRangeId?: string; chart: ReactNode }) {
   return (
     <div className=" rounded-lg   shadow-2xl shadow-black">
       <div className="flex items-center justify-between p-6 ">
@@ -63,7 +64,9 @@ export function ChartCard(props: {
   );
 }
 
-export function StyledPreviewChart(props: {
+Chart.Card = ChartCard;
+
+function TinyLineChart(props: {
   height?: number;
   data: any[];
   options?: {
@@ -84,8 +87,8 @@ export function StyledPreviewChart(props: {
         <YAxis
           tickCount={4}
           tickLine={false}
-          tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
-          width={25}
+          tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
+          width={15}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
         />
@@ -96,7 +99,9 @@ export function StyledPreviewChart(props: {
   );
 }
 
-export function ChartPreviewCard({
+Chart.TinyLineChart = TinyLineChart;
+
+function ChartPreview({
   title,
   dateRange,
   chart,
@@ -117,3 +122,5 @@ export function ChartPreviewCard({
     </div>
   );
 }
+
+Chart.Preview = ChartPreview;

@@ -63,7 +63,7 @@ function NavigationBar() {
 
   const onLogin = useLogin();
 
-  const { connecting, disconnect, publicKey } = useWallet();
+  const { connecting } = useWallet();
   const viewerQueryResult = useViewer();
 
   const { t } = useTranslation('common');
@@ -234,11 +234,6 @@ function NavigationBar() {
           <Bars3Icon color="#fff" width={20} height={20} />
         </button>
 
-        {/* <Link href={'/collections'}>
-          <a className="hidden text-base font-semibold text-gray-300 duration-200 ease-in-out hover:text-white lg:inline-block">
-            {t('navigation.collections')}
-          </a>
-        </Link> */}
         {loading ? (
           <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
         ) : viewerQueryResult.data ? (
@@ -326,12 +321,6 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
-                {/* Wallet Analytics */}
-                {/* <Link href={`/profiles/${props.wallet.address}/analytics`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
-                    {t('profileMenu.analytics')}
-                  </a>
-                </Link> */}
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex px-4">
@@ -472,15 +461,6 @@ function MobileNavMenu({
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
-                {/* Wallet Analytics */}
-                {/* <Link
-                  href={'/profiles/' + viewerQueryResult.data.wallet.address + '/analytics'}
-                  passHref
-                >
-                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
-                    {t('profileMenu.analytics')}
-                  </a>
-                </Link> */}
               </section>
               <section className="flex flex-col" id="mobile-nav">
                 <Link href={'/collections'}>

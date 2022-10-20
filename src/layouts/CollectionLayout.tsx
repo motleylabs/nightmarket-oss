@@ -7,7 +7,7 @@ import { useCurrencies } from '../hooks/currencies';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
-import { ChartPreviewCard, StyledPreviewChart } from '../components/ChartTemplate';
+import { Chart } from '../components/Chart';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -64,12 +64,12 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           {/* [Charts], Data */}
           <div className="flex w-full flex-col-reverse items-center justify-center gap-4 md:w-min md:flex-row md:items-start md:justify-start">
             <div className="flex w-full gap-4 md:w-min">
-              <ChartPreviewCard
+              <Chart.Preview
                 className="h-40 w-full md:w-36 xl:w-40"
                 title={t('floorPrice')}
                 dateRange={t('timeInterval.day')}
                 chart={
-                  <StyledPreviewChart
+                  <Chart.TinyLineChart
                     data={Array.from({ length: 10 }, (v, i) => ({
                       label: i > 5 ? i - 5 : i,
                       price: Math.floor(Math.random() * 40) + 10,
@@ -77,12 +77,12 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                   />
                 }
               />
-              <ChartPreviewCard
+              <Chart.Preview
                 className="h-40 w-full md:w-36 xl:w-40"
                 title={t('listings')}
                 dateRange={t('timeInterval.day')}
                 chart={
-                  <StyledPreviewChart
+                  <Chart.TinyLineChart
                     data={Array.from({ length: 10 }, (v, i) => ({
                       label: i > 5 ? i - 5 : i,
                       price: Math.floor(Math.random() * 40) + 10,
