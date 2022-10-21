@@ -44,8 +44,14 @@ fragment NftInfo on Nft {
     ...ListingPreview
     previewPrice @client
   }
-  magicEdenListings @client
-  marketplaceListings @client
+  magicEdenListings @client {
+    ...ListingPreview
+    previewPrice @client
+  }
+  marketplaceListings @client {
+    ...ListingPreview
+    previewPrice @client
+  }
 }
 
 fragment NftListingInfo on Nft {
