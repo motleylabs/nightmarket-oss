@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { RadioGroup } from '@headlessui/react';
 
 interface ButtonGroupProps<T> {
+  style?: 'oval' | 'plain';
   children: ReactNode;
   value: T;
   onChange: (value: T | undefined) => void;
@@ -10,6 +11,7 @@ interface ButtonGroupProps<T> {
 }
 
 export function ButtonGroup<T>({
+  style = 'oval',
   children,
   value,
   onChange,
@@ -19,10 +21,10 @@ export function ButtonGroup<T>({
     <RadioGroup
       value={value}
       onChange={onChange}
-      className={clsx(
-        'flex max-w-full flex-row items-center justify-start gap-2 rounded-full border border-gray-800 px-1 py-1',
-        className
-      )}
+      className={clsx('flex max-w-full flex-row items-center justify-start gap-4', className, {
+        'rounded-full border border-gray-800 px-1 py-1': style === 'oval',
+        '': style === 'plain',
+      })}
     >
       {children}
     </RadioGroup>
@@ -35,7 +37,10 @@ interface ButtonGroupButtonProps<T> {
   value: T;
 }
 
-function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): JSX.Element {
+function ButtonGroupOvalStyleOption<T>({
+  children,
+  value,
+}: ButtonGroupButtonProps<T>): JSX.Element {
   return (
     <RadioGroup.Option
       value={value}
@@ -53,4 +58,27 @@ function ButtonGroupOption<T>({ children, value }: ButtonGroupButtonProps<T>): J
   );
 }
 
-ButtonGroup.Option = ButtonGroupOption;
+ButtonGroup.OvalStyleOption = ButtonGroupOvalStyleOption;
+
+function ButtonGroupPlainStyleOption<T>({
+  children,
+  value,
+}: ButtonGroupButtonProps<T>): JSX.Element {
+  return (
+    <RadioGroup.Option
+      value={value}
+      className={({ checked }) =>
+        clsx(
+          'flex flex-row items-center justify-center text-sm md:text-base',
+          checked
+            ? 'border-b border-b-white text-white'
+            : 'cursor-pointer bg-transparent text-gray-300 hover:text-gray-200'
+        )
+      }
+    >
+      {children}
+    </RadioGroup.Option>
+  );
+}
+
+ButtonGroup.PlainStyleOption = ButtonGroupPlainStyleOption;

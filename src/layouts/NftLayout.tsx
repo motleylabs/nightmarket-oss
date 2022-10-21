@@ -517,17 +517,23 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
             <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
               <a>
-                <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
+                <ButtonGroup.OvalStyleOption value={NftPage.Details}>
+                  {t('details')}
+                </ButtonGroup.OvalStyleOption>
               </a>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/offers`} passHref>
               <a>
-                <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
+                <ButtonGroup.OvalStyleOption value={NftPage.Offers}>
+                  {t('offers')}
+                </ButtonGroup.OvalStyleOption>
               </a>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/activity`} passHref>
               <a>
-                <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
+                <ButtonGroup.OvalStyleOption value={NftPage.Activity}>
+                  {t('activity')}
+                </ButtonGroup.OvalStyleOption>
               </a>
             </Link>
           </ButtonGroup>

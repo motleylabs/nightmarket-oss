@@ -151,15 +151,15 @@ export default function ProfileCollected() {
           name="listed"
           render={({ field: { onChange, value } }) => (
             <ButtonGroup value={value} onChange={onChange}>
-              <ButtonGroup.Option value={ListedStatus.All}>
+              <ButtonGroup.OvalStyleOption value={ListedStatus.All}>
                 {t('all', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Listed}>
+              </ButtonGroup.OvalStyleOption>
+              <ButtonGroup.OvalStyleOption value={ListedStatus.Listed}>
                 {t('listed', { ns: 'common' })}
-              </ButtonGroup.Option>
-              <ButtonGroup.Option value={ListedStatus.Unlisted}>
+              </ButtonGroup.OvalStyleOption>
+              <ButtonGroup.OvalStyleOption value={ListedStatus.Unlisted}>
                 {t('unlisted', { ns: 'common' })}
-              </ButtonGroup.Option>
+              </ButtonGroup.OvalStyleOption>
             </ButtonGroup>
           )}
         />
