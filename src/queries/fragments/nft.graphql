@@ -9,6 +9,7 @@ fragment NftInfo on Nft {
   address
   name
   shortMintAddress @client
+  isListedOnME @client
   owner {
     address
   }
@@ -43,6 +44,8 @@ fragment NftInfo on Nft {
     ...ListingPreview
     previewPrice @client
   }
+  magicEdenListings @client
+  marketplaceListings @client
 }
 
 fragment NftListingInfo on Nft {

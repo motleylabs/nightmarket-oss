@@ -534,6 +534,41 @@ const client = new ApolloClient({
               );
             },
           },
+          isListedOnME: {
+            read(_, { readField }): boolean {
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              const magicEdenListings = listings?.filter(
+                (listing) =>
+                  listing.auctionHouse?.address === 'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K'
+              );
+
+              return !!magicEdenListings?.length;
+            },
+          },
+          magicEdenListings: {
+            read(_, { readField }): any[] {
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              console.log('meListings', listings);
+              const magicEdenListings = listings?.filter(
+                (listing) =>
+                  listing.auctionHouse?.address === 'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K'
+              );
+
+              return magicEdenListings || [];
+            },
+          },
+          daomarketListings: {
+            read(_, { readField }): any[] {
+              const nftName = readField('name');
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              console.log('daomarketlistings', nftName, listings);
+              const daomarketListings = listings?.filter(
+                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
+              );
+
+              return daomarketListings || [];
+            },
+          },
         },
       },
       Creator: {
