@@ -4,41 +4,47 @@
 
 query CollectionQuery($address: String!) {
   collection(address: $address) {
-    nft {
-      address
-      mintAddress
-      name
-      image
-      description
-      creators {
-        address
-        displayName @client
-        previewImage @client
-        profile {
-          ...ProfileInfo
-        }
-        metadataAddress
-        share
-        verified
-        position
-      }
-    }
+    id
+    verifiedCollectionAddress
+    name
+    description
+    image(width: 100)
     nftCount
-    floorPrice
-    volumeTotal
+    # floorPrice
+    # volumeTotal
+    # listedCount
     compactFloorPrice @client
     compactVolumeTotal @client
     compactNftCount @client
-    listedCount
     holderCount
+    # nft {
+    #   address
+    #   mintAddress
+    #   name
+    #   image
+    #   description
+    #   creators {
+    #     address
+    #     displayName @client
+    #     previewImage @client
+    #     profile {
+    #       ...ProfileInfo
+    #     }
+    #     metadataAddress
+    #     share
+    #     verified
+    #     position
+    #   }
+    # }
   }
 }
 
 query CollectionAttributeGroupsQuery($address: String!) {
   collection(address: $address) {
-    nft {
-      mintAddress
-    }
+    id
+    # nft {
+    #   mintAddress
+    # }
     attributeGroups {
       name
       variants {

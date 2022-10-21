@@ -263,13 +263,14 @@ const Collections: NextPage = () => {
             onLoadMore={onLoadMore}
             render={(collection, i) => (
               <Link
-                href={`/collections/${collection.nft.mintAddress}`}
-                key={collection.nft.mintAddress}
+                href={`/collections/${collection.verifiedCollectionAddress}`}
+                key={collection.verifiedCollectionAddress}
                 passHref
               >
                 <a>
                   <CollectionUI.Card
-                    nft={collection.nft}
+                    name={collection.name}
+                    image={collection.image}
                     nftCount={collection.compactNftCount}
                     floorPrice={collection.compactFloorPrice}
                   />

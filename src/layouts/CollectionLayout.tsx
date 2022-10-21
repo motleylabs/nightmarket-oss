@@ -26,15 +26,15 @@ function CollectionFigure(props: { label: string; children: ReactNode }) {
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
-  const address = collection.nft.mintAddress;
+  const address = collection.verifiedCollectionAddress;
   const router = useRouter();
 
   const loading = !currenciesReady;
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { name: collection.nft.name })}</title>
-        <meta name="description" content={collection.nft.description} />
+        <title>{t('metadata.title', { name: collection.name })}</title>
+        <meta name="description" content={collection.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Overview>
@@ -43,20 +43,20 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
               <img
-                src={collection.nft.image}
+                src={collection.image}
                 className="inline-block h-36 w-36 rounded-md shadow-xl md:h-36 md:w-36"
                 alt="overview avatar"
               />
             </div>
             <div className="space-y-4">
-              <Overview.Title>{collection.nft.name}</Overview.Title>
+              <Overview.Title>{collection.name}</Overview.Title>
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',
                   'line-clamp-2 md:line-clamp-4'
                 )}
               >
-                {collection.nft.description}
+                {collection.description}
               </p>
             </div>
           </div>
@@ -99,7 +99,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 <Icon.Sol /> {collection.compactVolumeTotal}
               </CollectionFigure>
               <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
-              <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>
+              {/* TODO: Add listedCount when available in api */}
+              {/* <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure> */}
               <CollectionFigure label="Holders">{collection.holderCount}</CollectionFigure>
               <CollectionFigure label="Supply">{collection.compactNftCount}</CollectionFigure>
             </div>

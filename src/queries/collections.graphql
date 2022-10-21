@@ -14,16 +14,21 @@ query CollectionsByVolumeQuery(
     limit: $limit
     offset: $offset
   ) {
+    id
+    verifiedCollectionAddress
+    name
+    description
+    image(width: 100)
     floorPrice
     nftCount
     volumeTotal
     holderCount
-    nft {
-      address
-      mintAddress
-      name
-      image
-    }
+    # nft {
+    #   address
+    #   mintAddress
+    #   name
+    #   image
+    # }
   }
 }
 
@@ -47,11 +52,11 @@ query CollectionsByMarketCapQuery(
     nftCount
     volumeTotal
     holderCount
-    nft {
-      address
-      mintAddress
-      name
-      image
-    }
+    # nft {
+    #   address
+    #   mintAddress
+    #   name
+    #   image
+    # }
   }
 }

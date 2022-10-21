@@ -389,6 +389,7 @@ const client = new ApolloClient({
         },
       },
       Collection: {
+        keyFields: ['id'],
         fields: {
           floorPrice: {
             read(value): number {

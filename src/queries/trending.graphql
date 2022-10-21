@@ -34,12 +34,17 @@ query TrendingCollectionsQuery(
     thirtyDaySalesCount
     compactThirtyDaySalesCount @client
     collection {
-      nft {
-        address
-        mintAddress
-        name
-        image
-      }
+      id
+      verifiedCollectionAddress
+      name
+      description
+      image(width: 100)
+      # nft {
+      #   address
+      #   mintAddress
+      #   name
+      #   image
+      # }
     }
   }
 }

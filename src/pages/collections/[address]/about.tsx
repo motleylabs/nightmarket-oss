@@ -39,16 +39,17 @@ export default function CollectionAboutPage(props: { collection: Collection }) {
     <div className="  py-6 px-10 text-white">
       <section className="space-y-4">
         <h2 className="font-semibold">{t('descriptionTitle')}</h2>
-        <p className="text-gray-300">{props.collection.nft.description}</p>
+        <p className="text-gray-300">{props.collection.description}</p>
       </section>
       <div className="my-6 border border-gray-800" />
       <section className="space-y-4">
         <h2 className="font-semibold">{t('creatorsTitle')}</h2>
-        <div>
+        {/* TODO: Add creators when available in api*/}
+        {/* <div>
           {props.collection.nft.creators.map((c) => (
             <CreatorRow key={c.address} creator={c} />
           ))}
-        </div>
+        </div> */}
       </section>
     </div>
   );

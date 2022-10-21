@@ -312,16 +312,16 @@ const Home: NextPage = () => {
 
                 if (trend.collection) {
                   return (
-                    <Collection.List.Row mindAddress={trend.collection.nft.mintAddress}>
+                    <Collection.List.Row mindAddress={trend.collection.verifiedCollectionAddress}>
                       <Collection.List.Col className="flex-none">
                         <img
-                          src={trend.collection.nft.image}
-                          alt={trend.collection.nft.name}
+                          src={trend.collection.image}
+                          alt={trend.collection.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
                         />
                       </Collection.List.Col>
                       <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                        <div className="w-32 lg:w-40">{trend.collection.nft.name}</div>
+                        <div className="w-32 lg:w-40">{trend.collection.name}</div>
                         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
                             value={trend.compactFloorPrice}
