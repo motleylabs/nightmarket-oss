@@ -16,6 +16,7 @@ query WalletProfileQuery($address: PublicKey!) {
 query WalletProfileClientQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
+    totalRewards(rewardCenter: "rwdLstiU8aJU1DPdoPtocaNKApMhCFdCg283hz8dd3u")
     compactOwnedCount @client
     nftCounts {
       owned

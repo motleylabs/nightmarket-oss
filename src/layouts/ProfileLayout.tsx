@@ -53,7 +53,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
       },
     }
   );
-
+  console.log('wallet profile', walletProfileClientQuery.data?.wallet);
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
@@ -138,7 +138,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
-                824
+                {walletProfileClientQuery.data?.wallet.totalRewards}
               </div>
             }
           />
