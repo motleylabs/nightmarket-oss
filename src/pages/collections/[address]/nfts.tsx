@@ -102,15 +102,15 @@ export default function CollectionNfts() {
   const [hasMore, setHasMore] = useState(true);
 
   const sortOptions: SortOption[] = [
-    {
-      value: SortType.PriceHighToLow,
-      label: t('sort.priceHighToLow'),
-    },
+    { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
     {
       value: SortType.PriceLowToHigh,
       label: t('sort.priceLowToHigh'),
     },
-    { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
+    {
+      value: SortType.PriceHighToLow,
+      label: t('sort.priceHighToLow'),
+    },
   ];
 
   const { watch, control, getValues, setValue } = useForm<CollectionNFTForm>({
