@@ -35,20 +35,21 @@ interface ButtonGroupButtonProps<T> {
   children: ReactNode;
   active?: boolean;
   value: T;
+  plain?: boolean;
 }
 
-function ButtonGroupOvalStyleOption<T>({
-  children,
-  value,
-}: ButtonGroupButtonProps<T>): JSX.Element {
+function ButtonGroupOption<T>({ children, value, plain }: ButtonGroupButtonProps<T>): JSX.Element {
   return (
     <RadioGroup.Option
       value={value}
       className={({ checked }) =>
         clsx(
-          'flex h-10 w-28 flex-row items-center justify-center rounded-full text-sm md:text-base',
+          'flex items-center justify-center text-sm md:text-base',
+          !plain && 'h-10 w-28 rounded-full',
           checked
-            ? 'rounded-full bg-gray-800 text-white'
+            ? plain
+              ? 'border-b border-b-white text-white'
+              : 'rounded-full bg-gray-800 text-white'
             : 'cursor-pointer bg-transparent text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )
       }
@@ -58,27 +59,4 @@ function ButtonGroupOvalStyleOption<T>({
   );
 }
 
-ButtonGroup.OvalStyleOption = ButtonGroupOvalStyleOption;
-
-function ButtonGroupPlainStyleOption<T>({
-  children,
-  value,
-}: ButtonGroupButtonProps<T>): JSX.Element {
-  return (
-    <RadioGroup.Option
-      value={value}
-      className={({ checked }) =>
-        clsx(
-          'flex flex-row items-center justify-center text-sm md:text-base',
-          checked
-            ? 'border-b border-b-white text-white'
-            : 'cursor-pointer bg-transparent text-gray-300 hover:text-gray-200'
-        )
-      }
-    >
-      {children}
-    </RadioGroup.Option>
-  );
-}
-
-ButtonGroup.PlainStyleOption = ButtonGroupPlainStyleOption;
+ButtonGroup.Option = ButtonGroupOption;

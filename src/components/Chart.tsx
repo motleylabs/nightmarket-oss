@@ -193,15 +193,15 @@ function ChartCard(props: {
             name={props.dateRangeId}
             render={({ field: { onChange, value } }) => (
               <ButtonGroup value={value} onChange={onChange} style="plain">
-                <ButtonGroup.PlainStyleOption value={DateRangeOption.DAY}>
+                <ButtonGroup.Option plain value={DateRangeOption.DAY}>
                   1D
-                </ButtonGroup.PlainStyleOption>
-                <ButtonGroup.PlainStyleOption value={DateRangeOption.WEEK}>
+                </ButtonGroup.Option>
+                <ButtonGroup.Option plain value={DateRangeOption.WEEK}>
                   1W
-                </ButtonGroup.PlainStyleOption>
-                <ButtonGroup.PlainStyleOption value={DateRangeOption.MONTH}>
+                </ButtonGroup.Option>
+                <ButtonGroup.Option plain value={DateRangeOption.MONTH}>
                   1M
-                </ButtonGroup.PlainStyleOption>
+                </ButtonGroup.Option>
               </ButtonGroup>
             )}
           />

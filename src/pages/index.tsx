@@ -241,15 +241,15 @@ const Home: NextPage = () => {
                 name="filter"
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
-                    <ButtonGroup.OvalStyleOption value={CollectionInterval.OneDay}>
+                    <ButtonGroup.Option value={CollectionInterval.OneDay}>
                       {t('collection:timeInterval.day')}
-                    </ButtonGroup.OvalStyleOption>
-                    <ButtonGroup.OvalStyleOption value={CollectionInterval.SevenDay}>
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={CollectionInterval.SevenDay}>
                       {t('collection:timeInterval.week')}
-                    </ButtonGroup.OvalStyleOption>
-                    <ButtonGroup.OvalStyleOption value={CollectionInterval.ThirtyDay}>
+                    </ButtonGroup.Option>
+                    <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
                       {t('collection:timeInterval.month')}
-                    </ButtonGroup.OvalStyleOption>
+                    </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
               />
