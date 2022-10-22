@@ -110,10 +110,10 @@ function SearchInput({
   };
 
   return (
-    <div className={clsx('relative block w-full transition-all', className)}>
+    <div className={clsx('group relative block w-full transition-all', className)}>
       <button
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
-        className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none "
+        className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
       >
         <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
       </button>
@@ -135,7 +135,7 @@ function SearchInput({
         autoFocus={autofocus}
       />
       <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
-        <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300">
+        <span className="hidden h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
           K
         </span>
       </button>
