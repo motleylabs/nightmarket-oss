@@ -274,7 +274,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
         <img
           className={clsx(
             'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
-            'animate-draw-border border-2 border-primary-850 duration-100'
+            'animate-draw-border border-2 border-primary-100 duration-100'
           )}
           src={props.wallet.previewImage as string}
           alt="profile image"
@@ -429,7 +429,7 @@ function MobileNavMenu({
               <section className="flex flex-col" id="wallet-profile-viewer-mobile">
                 <div className="flex items-center py-4 ">
                   <img
-                    className="inline-block h-8 w-8 rounded-full border-2 border-primary-850 transition"
+                    className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
                     src={viewerQueryResult.data.wallet.previewImage as string}
                     alt="profile image"
                   />

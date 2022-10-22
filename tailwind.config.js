@@ -36,13 +36,13 @@ module.exports = {
       },
       colors: {
         primary: {
+          100: '#E15A0A', // 50 in figma
+          200: '#C33C00', // 100 in figma
           500: '#2C2119',
-          600: '#7C1E05',
-          650: '#C6580A',
+          600: '#7C1E05', // primary gradient finishes here
           700: '#DA6C1D',
-          850: '#E15A0A',
-          800: '#EC9D08',
-          900: '#F85C04',
+          800: '#EC9D08', // secondary gradient finishes here
+          900: '#F85C04', // both gradients starts here
         },
         green: {
           100: '#6CE9A6',

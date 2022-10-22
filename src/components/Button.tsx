@@ -2,7 +2,7 @@ import { TailSpin } from 'react-loader-spinner';
 import clsx from 'clsx';
 
 export enum ButtonBackground {
-  Gradient = 'bg-gradient',
+  Gradient = 'bg-gradient-primary',
   Black = 'bg-black',
   Slate = 'bg-gray-800',
 }
@@ -66,7 +66,7 @@ const Button = ({
         {
           [background]: !border,
           [color]: color !== ButtonColor.Gradient,
-          'border-gradient p-[2px]': border === ButtonBorder.Gradient,
+          'bg-gradient-secondary p-[2px]': border === ButtonBorder.Gradient,
           'border border-gray-300 bg-none': border === ButtonBorder.Gray,
           'w-full': block,
           'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
@@ -107,7 +107,7 @@ const Button = ({
         {children && (
           <span
             className={clsx({
-              'border-gradient bg-clip-text text-transparent': color === ButtonColor.Gradient,
+              'bg-gradient-secondary bg-clip-text text-transparent': color === ButtonColor.Gradient,
             })}
           >
             {children}
