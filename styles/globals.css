@@ -33,14 +33,14 @@ html {
 }
 
 .input {
-  @apply rounded-md border border-neutral-800;
+  @apply rounded-md border border-gray-800;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply rounded-2xl bg-gray-800 font-sans;
 }
 
 .wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {
-  @apply bg-neutral-800;
+  @apply bg-gray-800;
 }
 
 .wallet-modal-theme .wallet-adapter-modal-button-close {

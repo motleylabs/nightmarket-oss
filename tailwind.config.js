@@ -28,6 +28,8 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-primary': `linear-gradient(to right, #F85C04, #7C1E05)`,
+        'gradient-secondary': `linear-gradient(to right, #F85C04, #EC9D08)`,
       },
       borderRadius: {
         md: '0.25rem',
@@ -42,33 +44,19 @@ module.exports = {
           800: '#EC9D08',
           900: '#F85C04',
         },
-        neutral: {
-          white: '#FFFFFF',
-          100: '#F2F2F2',
-          200: '#BDBDBD',
-          300: '#8B8B8E',
-          400: '#828282',
-          800: '#17161C',
-          900: '#0B0A0E',
-          black: '#000000',
-        },
-        success: {
+        green: {
           100: '#6CE9A6',
           200: '#4AC282',
         },
-        fail: {
+        red: {
           100: '#F55C47',
           200: '#C83D2A',
         },
         gray: {
           100: '#E0E0E0',
-          200: '#C6C6C6',
-          300: '#A8A8A8', // Part of new theme
-          400: '#8D8D8D',
-          500: '#707070',
-          600: '#525252',
-          700: '#383838',
-          800: '#17161C', // Part of new theme
+          200: '#BDBDBD',
+          300: '#8B8B8E',
+          800: '#17161C',
           900: '#0B0A0E',
         },
       },

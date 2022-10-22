@@ -208,32 +208,32 @@ function CollectionListLoading() {
   return (
     <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
       {/* Collection Image */}
-      <div className="h-16 w-16 rounded-lg bg-neutral-800 md:h-12 md:w-12" />
+      <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
         {/* Collection Name */}
         <div className="lg:w-40">
-          <div className="h-6 w-20 rounded-md bg-neutral-800" />
+          <div className="h-6 w-20 rounded-md bg-gray-800" />
         </div>
         {/* Data Points */}
         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
-            <div className="h-5 w-20 rounded-md bg-neutral-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
         </div>
         {/* Nfts */}
         <div className="hidden gap-4 lg:flex">
-          <div className="h-16 w-16 rounded-lg bg-neutral-800" />
-          <div className="h-16 w-16 rounded-lg bg-neutral-800" />
-          <div className="h-16 w-16 rounded-lg bg-neutral-800" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
         </div>
       </div>
     </div>
@@ -278,7 +278,7 @@ interface CollectionListDataPointProps {
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
     <div className="flex w-28 flex-col gap-1 sm:w-full">
-      <div className="text-xs text-neutral-200 md:text-sm">{name}</div>
+      <div className="text-xs text-gray-200 md:text-sm">{name}</div>
       <div className="flex w-32 flex-row items-center justify-start gap-2">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
