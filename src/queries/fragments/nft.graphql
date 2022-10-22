@@ -9,7 +9,6 @@ fragment NftInfo on Nft {
   address
   name
   shortMintAddress @client
-  isListedOnME @client
   owner {
     address
   }

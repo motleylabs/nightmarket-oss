@@ -33,7 +33,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   const viewer = useReactiveVar(viewerVar);
 
   const listing = daomarketListings?.sort((a, b) => a.price - b.price)[0];
-  const isListedOnME = !!magicEdenListings?.length;
 
   const lastSale = nft.purchases[0]?.previewPrice;
 
