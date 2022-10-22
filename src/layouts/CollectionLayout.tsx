@@ -26,7 +26,6 @@ function CollectionFigure(props: { label: string; children: ReactNode }) {
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
-  const address = collection.verifiedCollectionAddress;
   const router = useRouter();
 
   const loading = !currenciesReady;
@@ -109,17 +108,17 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         <Overview.Tabs>
           <Overview.Tab
             label={t('nfts')}
-            href={`/collections/${address}/nfts`}
+            href={`/collections/${collection.id}/nfts`}
             active={router.pathname.includes('nfts')}
           />
           <Overview.Tab
             label="Activity"
-            href={`/collections/${address}/activity`}
+            href={`/collections/${collection.id}/activity`}
             active={router.pathname.includes('activity')}
           />
           <Overview.Tab
             label={t('analytics')}
-            href={`/collections/${address}/analytics`}
+            href={`/collections/${collection.id}/analytics`}
             active={router.pathname.includes('analytics')}
           />
         </Overview.Tabs>

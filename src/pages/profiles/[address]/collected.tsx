@@ -177,6 +177,7 @@ export default function ProfileCollected({
                             <Collection.Option
                               selected={selected}
                               avatar={
+                                // TODO: Update to collection id once collection nft is updated
                                 <Link
                                   passHref
                                   href={`/collections/${cc.collection?.nft.mintAddress}`}

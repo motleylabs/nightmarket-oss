@@ -245,12 +245,12 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  mindAddress: String;
+  id: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
+function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${mindAddress}`}>
+    <Link href={`/collections/${id}`}>
       <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
         {children}
       </a>

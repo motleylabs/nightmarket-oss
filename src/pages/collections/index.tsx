@@ -262,11 +262,7 @@ const Collections: NextPage = () => {
             skeleton={CollectionUI.Card.Skeleton}
             onLoadMore={onLoadMore}
             render={(collection, i) => (
-              <Link
-                href={`/collections/${collection.verifiedCollectionAddress}`}
-                key={collection.verifiedCollectionAddress}
-                passHref
-              >
+              <Link href={`/collections/${collection.id}`} key={collection.id} passHref>
                 <a>
                   <CollectionUI.Card
                     name={collection.name}
