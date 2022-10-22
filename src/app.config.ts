@@ -8,6 +8,7 @@ interface AppConfig {
     discord?: string;
     medium?: string;
   };
+  website: string;
   auctionHouseAddress: string;
 }
 
@@ -17,10 +18,11 @@ const config: AppConfig = {
   solanaRPCUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL as string,
   marketplaceSubdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN as string,
   socialMedia: {
-    twitter: '#',
-    discord: '#',
-    medium: '#',
+    twitter: 'https://twitter.com/nightmarketio',
+    discord: 'https://discord.gg/bn5z4A794E',
+    medium: 'https://medium.com/@MotleyLabs',
   },
+  website: 'https://motleylabs.com',
   auctionHouseAddress: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
 };
 
