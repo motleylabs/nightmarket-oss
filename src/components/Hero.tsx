@@ -35,7 +35,7 @@ interface HeroSubTitleProps {
 }
 
 function HeroSubTitle({ children }: HeroSubTitleProps): JSX.Element {
-  return <h2 className="text-base text-gray-450 lg:text-2xl ">{children}</h2>;
+  return <h2 className="text-base text-gray-400 lg:text-2xl ">{children}</h2>;
 }
 
 Hero.SubTitle = HeroSubTitle;
