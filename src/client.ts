@@ -557,7 +557,7 @@ const client = new ApolloClient({
               return magicEdenListings || [];
             },
           },
-          daomarketListings: {
+          marketplaceListings: {
             read(_, { readField }): any[] {
               const nftName = readField('name');
               const listings: readonly AhListing[] | undefined = readField('listings');
