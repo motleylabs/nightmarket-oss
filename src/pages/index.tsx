@@ -226,19 +226,25 @@ const Home: NextPage = () => {
                 Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
                 ullamco laboris nisi
               </p>
-              <Button
-                background={ButtonBackground.Black}
-                border={ButtonBorder.Gradient}
-                size={ButtonSize.Large}
-                color={ButtonColor.Gradient}
+              <a
+                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
+                target={'_blank'}
+                rel="noreferrer"
               >
-                {t('drops.launchButton')}
-              </Button>
+                <Button
+                  background={ButtonBackground.Black}
+                  border={ButtonBorder.Gradient}
+                  size={ButtonSize.Large}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('drops.launchButton')}
+                </Button>
+              </a>
             </div>
           </div>
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
-          <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
+          <header className={'mb-10 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
               <Controller
