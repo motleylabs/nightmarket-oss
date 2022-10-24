@@ -2,7 +2,7 @@ import { TailSpin } from 'react-loader-spinner';
 import clsx from 'clsx';
 
 export enum ButtonBackground {
-  Gradient = 'bg-gradient',
+  Gradient = 'bg-gradient-primary',
   Black = 'bg-black',
   Slate = 'bg-gray-800',
 }
