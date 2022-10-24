@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import Icon from './Icon';
 
 interface PriceProps {
   price: number;
@@ -6,8 +7,8 @@ interface PriceProps {
 }
 
 const Price = ({ price, className }: PriceProps) => (
-  <div className={clsx('flex items-center gap-1', className)}>
-    <span className="text-gray-300">◎</span>
+  <div className={clsx('flex items-center', className)}>
+    <Icon.Sol />
     <span className="text-white">{price}</span>
   </div>
 );
