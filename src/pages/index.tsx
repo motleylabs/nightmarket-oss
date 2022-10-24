@@ -160,7 +160,12 @@ const Home: NextPage = () => {
             <Hero.Title>{t('hero.title')}</Hero.Title>
             <Hero.SubTitle>{t('hero.subtitle')}</Hero.SubTitle>
             <Hero.Actions>
-              <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
+              <Button
+                className="w-full md:w-auto"
+                color={ButtonColor.White}
+                background={ButtonBackground.Gradient}
+                onClick={onExploreNftsClick}
+              >
                 {t('hero.exploreNfts')}
               </Button>
               <Button
@@ -394,7 +399,7 @@ const Home: NextPage = () => {
             )}
           </Collection.List>
           <Button
-            className="mx-auto mt-12"
+            className="mx-auto mt-8"
             onClick={onShowMoreTrends}
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
