@@ -40,9 +40,14 @@ query NftQuery($address: String!, $subdomain: String!) {
       value
     }
     collection {
-      floorPrice
-      nft {
-        ...NftInfo
+      name
+      verifiedCollectionAddress
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
       }
     }
     creators {

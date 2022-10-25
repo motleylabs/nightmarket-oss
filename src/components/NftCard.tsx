@@ -45,10 +45,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             <Link href={link} passHref>
               <a>
                 <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">
-                  {nft.collection?.nft?.image && (
+                  {nft.collection?.image && (
                     <img
-                      src={nft.collection?.nft?.image}
-                      alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
+                      src={nft.collection?.image}
+                      alt={`Collection image for ${nft.collection?.name}`}
                       className="aspect-square w-4 rounded-sm object-cover"
                     />
                   )}

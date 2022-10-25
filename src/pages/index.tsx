@@ -59,11 +59,11 @@ interface TrendingCollectionVariables {
 }
 
 interface SelectedTrend {
-  salesCount: Maybe<string> | undefined;
+  listedCount: number;
   volume: Maybe<string> | undefined;
-  volumeChange: number;
+  volumeChange: Maybe<number> | undefined;
   floorPrice: Maybe<string> | undefined;
-  floorPriceChange: number;
+  floorPriceChange: Maybe<number> | undefined;
 }
 
 interface SortOption {
@@ -280,31 +280,31 @@ const Home: NextPage = () => {
                 switch (timeFrame) {
                   case CollectionInterval.OneDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.oneDayFloorPriceChange,
-                      volume: trend.compactOneDayVolume,
-                      volumeChange: trend.oneDayVolumeChange,
-                      salesCount: trend.compactOneDaySalesCount,
+                      floorPrice: trend.compactFloor1d,
+                      floorPriceChange: trend.changeFloor1d,
+                      volume: trend.compactVolume1d,
+                      volumeChange: trend.changeVolume1d,
+                      listedCount: trend.listed1d,
                     };
                     volumeLabel = t('collection:24hVolume');
                     break;
                   case CollectionInterval.SevenDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.sevenDayFloorPriceChange,
-                      volume: trend.compactSevenDayVolume,
-                      volumeChange: trend.sevenDayVolumeChange,
-                      salesCount: trend.compactSevenDaySalesCount,
+                      floorPrice: trend.compactFloor7d,
+                      floorPriceChange: trend.changeFloor7d,
+                      volume: trend.compactVolume7d,
+                      volumeChange: trend.changeVolume7d,
+                      listedCount: trend.listed7d,
                     };
                     volumeLabel = t('collection:7dVolume');
                     break;
                   case CollectionInterval.ThirtyDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.thirtyDayFloorPriceChange,
-                      volume: trend.compactThirtyDayVolume,
-                      volumeChange: trend.thirtyDayVolumeChange,
-                      salesCount: trend.compactThirtyDaySalesCount,
+                      floorPrice: trend.compactFloor30d,
+                      floorPriceChange: trend.floor30d,
+                      volume: trend.compactVolume30d,
+                      volumeChange: trend.changeVolume30d,
+                      listedCount: trend.listed30d,
                     };
                     volumeLabel = t('collection:30dVolume');
                     break;
@@ -312,7 +312,7 @@ const Home: NextPage = () => {
 
                 if (trend.collection) {
                   return (
-                    <Collection.List.Row mindAddress={trend.collection.verifiedCollectionAddress}>
+                    <Collection.List.Row id={trend.collection.id}>
                       <Collection.List.Col className="flex-none">
                         <img
                           src={trend.collection.image}
@@ -324,7 +324,7 @@ const Home: NextPage = () => {
                         <div className="w-32 lg:w-40">{trend.collection.name}</div>
                         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
-                            value={trend.compactFloorPrice}
+                            value={selectedTrend.floorPrice}
                             icon={<Icon.Sol />}
                             name={t('collection:globalFloor')}
                             status={

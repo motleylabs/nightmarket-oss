@@ -295,9 +295,13 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
 CollectionList.DataPoint = CollectionListDataPoint;
 
 interface CollectionListDataPointStatusProps {
-  value: number;
+  value: Maybe<number> | undefined;
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
+  if (!value) {
+    return <div></div>
+  }
+
   return (
     <p
       className={clsx(clsx, 'flex items-center gap-1 text-xs md:text-sm', {

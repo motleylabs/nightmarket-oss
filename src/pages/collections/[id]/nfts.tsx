@@ -31,7 +31,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
-      address: params?.address,
+      id: params?.id,
     },
   });
 
@@ -58,8 +58,8 @@ interface CollectionNFTsData {
 interface CollectionNFTsVariables {
   offset: number;
   limit: number;
-  address: string;
-  attributes: AttributeFilter[] | null;
+  id: string;
+  attributes?: AttributeFilter[] | null;
   sortBy: NftSort;
   order: OrderDirection;
 }
@@ -68,7 +68,7 @@ interface CollectionAttributeGroupsData {
   collection: Collection;
 }
 interface CollectionAttributeGroupsVariables {
-  address: string;
+  id: string;
 }
 
 enum ListedStatus {
@@ -124,7 +124,7 @@ export default function CollectionNfts() {
     CollectionAttributeGroupsVariables
   >(CollectionAttributeGroupsQuery, {
     variables: {
-      address: router.query.address as string,
+      id: router.query.id as string,
     },
   });
 
@@ -132,11 +132,9 @@ export default function CollectionNfts() {
     variables: {
       offset: 0,
       limit: 24,
-      address: router.query.address as string,
-      attributes: null,
-      order:
-        sortOption?.value === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc,
-      sortBy: sortOption?.value === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
+      id: router.query.id as string,
+      order: OrderDirection.Desc,
+      sortBy: NftSort.Price,
     },
   });
 
@@ -145,13 +143,10 @@ export default function CollectionNfts() {
       let variables: CollectionNFTsVariables = {
         offset: 0,
         limit: 24,
-        address: router.query.address as string,
+        id: router.query.id as string,
         attributes: null,
-        sortBy: sortBySelect?.value === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
-        order:
-          sortBySelect?.value === SortType.PriceLowToHigh
-            ? OrderDirection.Asc
-            : OrderDirection.Desc,
+        sortBy: NftSort.Price,
+        order: OrderDirection.Asc,
       };
 
       const nextAttributes = Object.entries(attributes || {}).reduce(
@@ -175,7 +170,7 @@ export default function CollectionNfts() {
     });
 
     return subscription.unsubscribe;
-  }, [watch, router.query.address, nftsQuery]);
+  }, [watch, router.query.id, nftsQuery]);
 
   return (
     <>

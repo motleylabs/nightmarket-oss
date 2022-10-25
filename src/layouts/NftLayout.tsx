@@ -175,14 +175,14 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.collection ? (
             // TODO: Update to collection id once nft is updated
-            <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
+            <Link href={`/collections/${nft.collection.id}/nfts`}>
               <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
                 <img
-                  src={nft.collection.nft.image}
+                  src={nft.collection.image}
                   className="aspect-square w-10 rounded-md object-cover"
                   alt="collection image"
                 />
-                <h2 className="text-2xl">{nft.collection.nft.name}</h2>
+                <h2 className="text-2xl">{nft.collection.name}</h2>
               </a>
             </Link>
           ) : (
@@ -225,7 +225,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     {t('buyable.floorPrice', { ns: 'common' })}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    {nft.collection?.floorPrice} SOL
+                    {nft.collection?.trends?.compactFloor1d} SOL
                   </p>
                 </div>
                 {listing && (
@@ -307,14 +307,14 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 />
                 <div className="flex flex-col justify-between">
                   <h6>{nft.name}</h6>
-                  {nft.collection && <h4>{nft.collection.nft.name}</h4>}
+                  {nft.collection && <h4>{nft.collection.name}</h4>}
                 </div>
               </div>
               <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
                 {nft.collection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>{nft.collection.floorPrice} SOL</span>
+                    <span>{nft.collection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
                 <li className="flex justify-between">
@@ -393,7 +393,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 />
                 <div className="flex flex-col justify-between">
                   <h6>{nft.name}</h6>
-                  {nft.collection && <h4>{nft.collection.nft.name}</h4>}
+                  {nft.collection && <h4>{nft.collection.name}</h4>}
                 </div>
               </div>
               <div className="mt-6 flex flex-row items-center justify-between p-4">
@@ -406,10 +406,10 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 </Button>
               </div>
               <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.collection && (
+                {nft.collection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>{nft.collection.floorPrice} SOL</span>
+                    <span>{nft.collection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
                 <li className="flex justify-between">

@@ -22,34 +22,16 @@ query WalletProfileClientQuery($address: PublicKey!) {
     }
     collectedCollections {
       collection {
-        nft {
-          image(width: 100)
-          mintAddress
-          address
-          name
+        name
+        image(width: 100)
+        id
+        trends {
+          floor1d
+          compactFloor1d @client
         }
-        floorPrice
       }
       nftsOwned
       estimatedValue
-    }
-  }
-}
-
-query CreatedCollectionsQuery($address: PublicKey!) {
-  wallet(address: $address) {
-    address
-    createdCollections {
-      collection {
-        nft {
-          image
-          mintAddress
-          address
-          name
-        }
-        floorPrice
-        nftCount
-      }
     }
   }
 }
