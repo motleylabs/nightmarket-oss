@@ -25,12 +25,9 @@ fragment NftInfo on Nft {
     position
   }
   collection {
-    nft {
-      address
-      name
-      image
-      mintAddress
-    }
+    name
+    id
+    image(width: 100)
   }
   purchases {
     id
