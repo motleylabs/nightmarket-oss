@@ -13,6 +13,14 @@ interface NftCardProps {
   onMakeOffer?: () => void;
 }
 
+enum NFTStates {
+  LISTED,
+  UNLISTED,
+  LISTED_ON_ME,
+  OWNER,
+  // OWNED AND LISTED?
+}
+
 // TODO: listing & update listing when instructions done
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
@@ -20,7 +28,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   const daomarketListings = nft.listings?.filter(
     (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
   );
-  // const magicEdenListings = nft?.magicEdenListings;
+  const magicEdenListings = nft?.magicEdenListings;
 
   const viewer = useReactiveVar(viewerVar);
 
@@ -30,10 +38,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
-  // console.log('nft', nft.name, {
-  //   nft,
-  //   magicEdenListings,
-  // });
+  console.log('nft', nft.name, {
+    nft,
+    magicEdenListings,
+  });
 
   return (
     <>
@@ -55,10 +63,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               {/* <Link href={link} passHref>
               <a> */}
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.collection?.image && (
+                {nft.collection?.nft?.image && (
                   <img
-                    src={nft.collection?.image}
-                    alt={`Collection NFT image ${nft.collection?.id}`}
+                    src={nft.collection?.nft?.image}
+                    alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
                     className="aspect-square w-4 rounded-sm object-cover"
                   />
                 )}

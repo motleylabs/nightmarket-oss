@@ -45,21 +45,20 @@ extend type Offer {
 }
 
 extend type Collection {
-  compactVolume30d: String
-  compactFloor1d: String
-  compactPieces: String
+  compactVolumeTotal: String
+  compactFloorPrice: String
+  compactNftCount: String
 }
 
 extend type CollectionTrend {
-  compactFloor1d: String
-  compactFloor7d: String
-  compactFloor30d: String
-  compactVolume1d: String
-  compactVolume7d: String
-  compactVolume30d: String
-  compactListed1d: String
-  compactListed7d: String
-  compactListed30d: String
+  compactNftCount: String
+  compactFloorPrice: String
+  compactOneDayVolume: String
+  compactOneDaySalesCount: String
+  compactSevenDayVolume: String
+  compactSevenDaySalesCount: String
+  compactThirtyDayVolume: String
+  compactThirtyDaySalesCount: String
 }
 
 extend type NftActivity {

@@ -2,37 +2,43 @@
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
 
-query CollectionQuery($id: String!) {
-  collection(id: $id) {
-    id
-    verifiedCollectionAddress
-    name
-    description
-    image
-    compactPieces @client
-    pieces
-  }
-}
-
-
-query CollectionQueryClient($id: String!) {
-    collection(id: $id) {
-    id
-    holderCount
-    trends {
-      compactFloor1d @client
-      compactVolume30d @client
-      compactListed1d @client
-      floor1d
-      volume30d
-      listed1d
+query CollectionQuery($address: String!) {
+  collection(address: $address) {
+    nft {
+      address
+      mintAddress
+      name
+      image
+      description
+      creators {
+        address
+        displayName @client
+        previewImage @client
+        profile {
+          ...ProfileInfo
+        }
+        metadataAddress
+        share
+        verified
+        position
+      }
     }
+    nftCount
+    floorPrice
+    volumeTotal
+    compactFloorPrice @client
+    compactVolumeTotal @client
+    compactNftCount @client
+    listedCount
+    holderCount
   }
 }
 
-query CollectionAttributeGroupsQuery($id: String!) {
-  collection(id: $id) {
-    id
+query CollectionAttributeGroupsQuery($address: String!) {
+  collection(address: $address) {
+    nft {
+      mintAddress
+    }
     attributeGroups {
       name
       variants {
@@ -44,15 +50,14 @@ query CollectionAttributeGroupsQuery($id: String!) {
 }
 
 query CollectionNFTsQuery(
-  $id: String!
+  $address: String!
   $limit: Int!
   $offset: Int!
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
 ) {
-  collection(id: $id) {
-    id
+  collection(address: $address) {
     nfts(limit: $limit, offset: $offset, order: $order, sortBy: $sortBy, attributes: $attributes) {
       ...NftListingInfo
     }
@@ -60,13 +65,12 @@ query CollectionNFTsQuery(
 }
 
 query CollectionActivitiesQuery(
-  $id: String!
+  $address: String!
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
 ) {
-  collection(id: $id) {
-    id
+  collection(address: $address) {
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
       id
       metadata

@@ -57,7 +57,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
-      id: params?.id,
+      address: params?.address,
     },
   });
   const collection: Collection = data.collection;

@@ -59,11 +59,11 @@ interface TrendingCollectionVariables {
 }
 
 interface SelectedTrend {
-  listedCount: number;
+  salesCount: Maybe<string> | undefined;
   volume: Maybe<string> | undefined;
-  volumeChange: Maybe<number> | undefined;
+  volumeChange: number;
   floorPrice: Maybe<string> | undefined;
-  floorPriceChange: Maybe<number> | undefined;
+  floorPriceChange: number;
 }
 
 interface SortOption {
@@ -291,31 +291,31 @@ const Home: NextPage = () => {
                 switch (timeFrame) {
                   case CollectionInterval.OneDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.compactVolume1d,
-                      volumeChange: trend.changeVolume1d,
-                      listedCount: trend.listed1d,
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.oneDayFloorPriceChange,
+                      volume: trend.compactOneDayVolume,
+                      volumeChange: trend.oneDayVolumeChange,
+                      salesCount: trend.compactOneDaySalesCount,
                     };
                     volumeLabel = t('collection:24hVolume');
                     break;
                   case CollectionInterval.SevenDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor7d,
-                      floorPriceChange: trend.changeFloor7d,
-                      volume: trend.compactVolume7d,
-                      volumeChange: trend.changeVolume7d,
-                      listedCount: trend.listed7d,
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.sevenDayFloorPriceChange,
+                      volume: trend.compactSevenDayVolume,
+                      volumeChange: trend.sevenDayVolumeChange,
+                      salesCount: trend.compactSevenDaySalesCount,
                     };
                     volumeLabel = t('collection:7dVolume');
                     break;
                   case CollectionInterval.ThirtyDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor30d,
-                      floorPriceChange: trend.floor30d,
-                      volume: trend.compactVolume30d,
-                      volumeChange: trend.changeVolume30d,
-                      listedCount: trend.listed30d,
+                      floorPrice: trend.compactFloorPrice,
+                      floorPriceChange: trend.thirtyDayFloorPriceChange,
+                      volume: trend.compactThirtyDayVolume,
+                      volumeChange: trend.thirtyDayVolumeChange,
+                      salesCount: trend.compactThirtyDaySalesCount,
                     };
                     volumeLabel = t('collection:30dVolume');
                     break;
@@ -323,19 +323,19 @@ const Home: NextPage = () => {
 
                 if (trend.collection) {
                   return (
-                    <Collection.List.Row id={trend.collection.id}>
+                    <Collection.List.Row mindAddress={trend.collection.nft.mintAddress}>
                       <Collection.List.Col className="flex-none">
                         <img
-                          src={trend.collection.image}
-                          alt={trend.collection.name}
+                          src={trend.collection.nft.image}
+                          alt={trend.collection.nft.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
                         />
                       </Collection.List.Col>
                       <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                        <div className="w-32 lg:w-40">{trend.collection.name}</div>
+                        <div className="w-32 lg:w-40">{trend.collection.nft.name}</div>
                         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
-                            value={selectedTrend.floorPrice}
+                            value={trend.compactFloorPrice}
                             icon={<Icon.Sol />}
                             name={t('collection:globalFloor')}
                             status={

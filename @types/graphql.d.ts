@@ -12,10 +12,19 @@ declare module '*/collection.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const CollectionQuery: DocumentNode;
-export const CollectionQueryClient: DocumentNode;
 export const CollectionAttributeGroupsQuery: DocumentNode;
 export const CollectionNFTsQuery: DocumentNode;
 export const CollectionActivitiesQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+    
+
+declare module '*/collections.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const CollectionsByVolumeQuery: DocumentNode;
+export const CollectionsByMarketCapQuery: DocumentNode;
 
   export default defaultDocument;
 }
@@ -76,6 +85,7 @@ declare module '*/profile.graphql' {
   export const ProfileInfo: DocumentNode;
 export const WalletProfileQuery: DocumentNode;
 export const WalletProfileClientQuery: DocumentNode;
+export const CreatedCollectionsQuery: DocumentNode;
 export const FollowingProfileQuery: DocumentNode;
 export const CollectedNFTsQuery: DocumentNode;
 export const CreatedNFTsQuery: DocumentNode;

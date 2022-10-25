@@ -7,7 +7,6 @@ import Icon from './Icon';
 import Link from 'next/link';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
-import { toSol } from '../modules/sol';
 
 export function Collection() {
   return <div />;
@@ -51,7 +50,7 @@ function CollectionOption({
           <div className="flex items-end justify-between">
             <div className="-mb-1 flex flex-col">
               <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
-              <Price price={toSol(floorPrice)} />
+              <Price price={floorPrice} />
             </div>
             {children}
           </div>
@@ -71,16 +70,16 @@ interface CollectionAvatarProps {
 function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Element {
   return (
     <div className="relative flex aspect-square h-16 w-16">
-      {figure && (
-        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-xs text-white">
-          {figure}
-        </span>
-      )}
       <img
         src={src}
         className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
         alt="collection avatar"
       />
+      {figure && (
+        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-xs text-white">
+          {figure}
+        </span>
+      )}
     </div>
   );
 }
@@ -141,15 +140,13 @@ function CollectionOptionTitle({ children }: { children: ReactNode }): JSX.Eleme
 CollectionOption.Title = CollectionOptionTitle;
 
 interface CollectionCardProps {
-  name: string;
-  image: string;
+  nft: Nft;
   floorPrice: Maybe<string> | undefined;
   nftCount: Maybe<string> | undefined;
 }
 
 export default function CollectionCard({
-  name,
-  image,
+  nft,
   floorPrice,
   nftCount,
 }: CollectionCardProps): JSX.Element {
@@ -158,12 +155,12 @@ export default function CollectionCard({
   return (
     <div className="relative flex aspect-square w-full flex-col justify-end overflow-hidden rounded-md shadow-lg transition hover:scale-[1.02]">
       <img
-        src={image}
+        src={nft.image}
         className="absolute top-0 left-0 h-full w-full object-cover"
-        alt={`Collection ${name}`}
+        alt={`Collection ${nft.name}`}
       />
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
-      <h1 className="z-20 px-4 text-3xl">{name}</h1>
+      <h1 className="z-20 px-4 text-3xl">{nft.name}</h1>
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
@@ -246,12 +243,12 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  id: String;
+  mindAddress: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, id }: CollectionListRowProps) {
+function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${id}`}>
+    <Link href={`/collections/${mindAddress}`}>
       <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
         {children}
       </a>
@@ -296,13 +293,9 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
 CollectionList.DataPoint = CollectionListDataPoint;
 
 interface CollectionListDataPointStatusProps {
-  value: Maybe<number> | undefined;
+  value: number;
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
-  if (!value) {
-    return <div></div>;
-  }
-
   return (
     <p
       className={clsx(clsx, 'flex items-center gap-1 text-xs md:text-sm', {
