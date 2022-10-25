@@ -66,7 +66,7 @@ const Button = ({
         {
           [background]: !border,
           [color]: color !== ButtonColor.Gradient,
-          'bg-gradient-secondary p-[2px]': border === ButtonBorder.Gradient,
+          'bg-gradient-secondary p-0.5': border === ButtonBorder.Gradient,
           'border border-gray-300 bg-none': border === ButtonBorder.Gray,
           'w-full': block,
           'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
