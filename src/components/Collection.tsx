@@ -196,7 +196,7 @@ interface CollectionListProps {
 }
 function CollectionList({ children }: CollectionListProps) {
   return (
-    <div className="scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+    <div className="scrollbar-thumb-rounded-full overflow-x-hidden pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
       <div className="w-full">{children}</div>
     </div>
   );
@@ -277,7 +277,7 @@ interface CollectionListDataPointProps {
 }
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
-    <div className="flex flex-col gap-1 sm:w-full">
+    <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
       <div className="flex flex-row items-center justify-start gap-2 sm:w-32">
         <p className="flex items-center text-sm font-semibold md:text-base">
