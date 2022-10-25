@@ -185,7 +185,7 @@ function ChartCard(props: {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h2>{props.title}</h2>
-          <p className="text-xs text-gray-250">One Day</p>
+          <p className="text-gray-250 text-xs">One Day</p>
         </div>
         {props.dateRangeId && (
           <Controller

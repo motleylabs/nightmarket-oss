@@ -1,4 +1,3 @@
-
 declare module '*/buyable.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
@@ -6,29 +5,18 @@ declare module '*/buyable.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/collection.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const CollectionQuery: DocumentNode;
-export const CollectionAttributeGroupsQuery: DocumentNode;
-export const CollectionNFTsQuery: DocumentNode;
-export const CollectionActivitiesQuery: DocumentNode;
+  export const CollectionQueryClient: DocumentNode;
+  export const CollectionAttributeGroupsQuery: DocumentNode;
+  export const CollectionNFTsQuery: DocumentNode;
+  export const CollectionActivitiesQuery: DocumentNode;
 
   export default defaultDocument;
 }
-    
-
-declare module '*/collections.graphql' {
-  import { DocumentNode } from 'graphql';
-  const defaultDocument: DocumentNode;
-  export const CollectionsByVolumeQuery: DocumentNode;
-export const CollectionsByMarketCapQuery: DocumentNode;
-
-  export default defaultDocument;
-}
-    
 
 declare module '*/auctionhouse.graphql' {
   import { DocumentNode } from 'graphql';
@@ -37,7 +25,6 @@ declare module '*/auctionhouse.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/listing.graphql' {
   import { DocumentNode } from 'graphql';
@@ -46,7 +33,6 @@ declare module '*/listing.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/listingpreview.graphql' {
   import { DocumentNode } from 'graphql';
@@ -55,20 +41,18 @@ declare module '*/listingpreview.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/nft.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const NftInfo: DocumentNode;
-export const NftListingInfo: DocumentNode;
-export const NftQuery: DocumentNode;
-export const NftActivitiesQuery: DocumentNode;
-export const NftMarketInfoQuery: DocumentNode;
+  export const NftListingInfo: DocumentNode;
+  export const NftQuery: DocumentNode;
+  export const NftActivitiesQuery: DocumentNode;
+  export const NftMarketInfoQuery: DocumentNode;
 
   export default defaultDocument;
 }
-    
 
 declare module '*/offer.graphql' {
   import { DocumentNode } from 'graphql';
@@ -77,25 +61,22 @@ declare module '*/offer.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/profile.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const ProfileInfo: DocumentNode;
-export const WalletProfileQuery: DocumentNode;
-export const WalletProfileClientQuery: DocumentNode;
-export const CreatedCollectionsQuery: DocumentNode;
-export const FollowingProfileQuery: DocumentNode;
-export const CollectedNFTsQuery: DocumentNode;
-export const CreatedNFTsQuery: DocumentNode;
-export const ProfileActivitiesQuery: DocumentNode;
-export const ProfileOffersQuery: DocumentNode;
-export const ProfileInfoByAddressQuery: DocumentNode;
+  export const WalletProfileQuery: DocumentNode;
+  export const WalletProfileClientQuery: DocumentNode;
+  export const FollowingProfileQuery: DocumentNode;
+  export const CollectedNFTsQuery: DocumentNode;
+  export const CreatedNFTsQuery: DocumentNode;
+  export const ProfileActivitiesQuery: DocumentNode;
+  export const ProfileOffersQuery: DocumentNode;
+  export const ProfileInfoByAddressQuery: DocumentNode;
 
   export default defaultDocument;
 }
-    
 
 declare module '*/offerable.graphql' {
   import { DocumentNode } from 'graphql';
@@ -104,7 +85,6 @@ declare module '*/offerable.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/offers.graphql' {
   import { DocumentNode } from 'graphql';
@@ -113,7 +93,6 @@ declare module '*/offers.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/search.graphql' {
   import { DocumentNode } from 'graphql';
@@ -122,7 +101,6 @@ declare module '*/search.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/trending.graphql' {
   import { DocumentNode } from 'graphql';
@@ -131,7 +109,6 @@ declare module '*/trending.graphql' {
 
   export default defaultDocument;
 }
-    
 
 declare module '*/viewer.graphql' {
   import { DocumentNode } from 'graphql';
@@ -140,4 +117,3 @@ declare module '*/viewer.graphql' {
 
   export default defaultDocument;
 }
-    

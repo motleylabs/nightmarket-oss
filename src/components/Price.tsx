@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import Icon from './Icon';
 
 interface PriceProps {
-  price: number;
+  price: number | string;
   className?: string;
 }
 

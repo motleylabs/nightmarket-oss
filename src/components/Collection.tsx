@@ -18,7 +18,7 @@ interface CollectionOptionProps {
   children?: ReactNode;
   avatar: JSX.Element;
   header: JSX.Element;
-  floorPrice: number;
+  floorPrice: Maybe<string> | undefined;
 }
 
 function CollectionOption({
@@ -140,13 +140,15 @@ function CollectionOptionTitle({ children }: { children: ReactNode }): JSX.Eleme
 CollectionOption.Title = CollectionOptionTitle;
 
 interface CollectionCardProps {
-  nft: Nft;
+  name: string;
+  image: string;
   floorPrice: Maybe<string> | undefined;
   nftCount: Maybe<string> | undefined;
 }
 
 export default function CollectionCard({
-  nft,
+  name,
+  image,
   floorPrice,
   nftCount,
 }: CollectionCardProps): JSX.Element {
@@ -155,12 +157,12 @@ export default function CollectionCard({
   return (
     <div className="relative flex aspect-square w-full flex-col justify-end overflow-hidden rounded-md shadow-lg transition hover:scale-[1.02]">
       <img
-        src={nft.image}
+        src={image}
         className="absolute top-0 left-0 h-full w-full object-cover"
-        alt={`Collection ${nft.name}`}
+        alt={`Collection ${name}`}
       />
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
-      <h1 className="z-20 px-4 text-3xl">{nft.name}</h1>
+      <h1 className="z-20 px-4 text-3xl">{name}</h1>
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
@@ -243,12 +245,12 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  mindAddress: String;
+  id: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
+function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${mindAddress}`}>
+    <Link href={`/collections/${id}`}>
       <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
         {children}
       </a>
@@ -293,9 +295,13 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
 CollectionList.DataPoint = CollectionListDataPoint;
 
 interface CollectionListDataPointStatusProps {
-  value: number;
+  value: Maybe<number> | undefined;
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
+  if (!value) {
+    return <div></div>;
+  }
+
   return (
     <p
       className={clsx(clsx, 'flex items-center gap-1 text-xs md:text-sm', {

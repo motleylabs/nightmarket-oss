@@ -38,11 +38,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
-  console.log('nft', nft.name, {
-    nft,
-    magicEdenListings,
-  });
-
   return (
     <>
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
@@ -63,10 +58,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               {/* <Link href={link} passHref>
               <a> */}
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.collection?.nft?.image && (
+                {nft.collection?.image && (
                   <img
-                    src={nft.collection?.nft?.image}
-                    alt={`Collection NFT image ${nft.collection?.nft.mintAddress}`}
+                    src={nft.collection?.image}
+                    alt={`Collection NFT image ${nft.collection?.id}`}
                     className="aspect-square w-4 rounded-sm object-cover"
                   />
                 )}
