@@ -9,8 +9,8 @@
     "count": "{{amount}} NFTs"
   },
   "sort": {
-    "priceHighToLow": "Price High to Low",
-    "priceLowToHigh": "Price Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "priceLowToHigh": "Price: Low to High",
     "recentlyListed": "Recently listed"
   },
   "collection": "Collection",

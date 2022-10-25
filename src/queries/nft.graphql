@@ -42,6 +42,7 @@ query NftQuery($address: String!, $subdomain: String!) {
     collection {
       name
       verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
       id
       description
       image(width: 100)

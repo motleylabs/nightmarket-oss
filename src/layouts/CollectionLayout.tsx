@@ -16,12 +16,20 @@ interface CollectionLayoutProps {
   collection: Collection;
 }
 
-function CollectionFigure({ label, children, loading = false}: { label: string; children: ReactNode; loading?: boolean }) {
+function CollectionFigure({
+  label,
+  children,
+  loading = false,
+}: {
+  label: string;
+  children: ReactNode;
+  loading?: boolean;
+}) {
   return (
     <div className="text-center">
       <div className="truncate text-sm text-gray-300">{label}</div>
       {loading ? (
-        <div className="h-6 w-10 animate-pulse rounded-md bg-gray-700 transition" />
+        <div className="h-6 w-full animate-pulse rounded-md bg-gray-700 transition" />
       ) : (
         <div className="flex items-center justify-center font-semibold">{children}</div>
       )}
@@ -37,7 +45,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   const collectionQueryClient = useQuery(CollectionQueryClient, {
     variables: { id: router.query.id },
   });
-  
+
   return (
     <>
       <Head>
@@ -106,11 +114,18 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
                 <Icon.Sol /> {collectionQueryClient.data?.collection.trends.compactVolume30d}
               </CollectionFigure>
-              <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
-              {/* TODO: Add listedCount when available in api */}
-              {/* <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure> */}
-              <CollectionFigure label="Holders">{collection.holderCount}</CollectionFigure>
-              <CollectionFigure label="Supply">{collection.compactPieces}</CollectionFigure>
+              <CollectionFigure label="Est. Marketcap" loading={collectionQueryClient.loading}>
+                <Icon.Sol /> {collectionQueryClient.data?.collection.marketCap}
+              </CollectionFigure>
+              <CollectionFigure label="Listings" loading={collectionQueryClient.loading}>
+                {collectionQueryClient.data?.collection.trends.compactListed1d}
+              </CollectionFigure>
+              <CollectionFigure label="Holders" loading={collectionQueryClient.loading}>
+                {collectionQueryClient.data?.collection.holderCount}
+              </CollectionFigure>
+              <CollectionFigure label="Supply" loading={collectionQueryClient.loading}>
+                {collection.compactPieces}
+              </CollectionFigure>
             </div>
           </div>
         </div>

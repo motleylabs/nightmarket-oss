@@ -14,11 +14,12 @@ query CollectionQuery($id: String!) {
   }
 }
 
-
 query CollectionQueryClient($id: String!) {
-    collection(id: $id) {
+  collection(id: $id) {
     id
     holderCount
+    marketCap @client
+    pieces
     trends {
       compactFloor1d @client
       compactVolume30d @client

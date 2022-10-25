@@ -45,7 +45,7 @@ interface NftDetailPageProps {
 
 export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
-  const auctionHouse = marketplace.auctionHouses[0];
+  const auctionHouse = marketplace?.auctionHouses[0];
 
   return (
     <>
@@ -125,7 +125,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
               >
                 <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
               </a>
-              {nft.collection?.verifiedCollectionAddress}
+              {nft.collection?.shortVerifiedCollectionAddress}
             </div>
           </li>
         )}
@@ -148,7 +148,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
         </li>
         <li className="flex items-center justify-between">
           <div>{t('fee')}</div>
-          <div>{`${auctionHouse.fee}%`}</div>
+          <div>{`${auctionHouse?.fee}%`}</div>
         </li>
       </ul>
       {nft.collection && (

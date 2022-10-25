@@ -95,6 +95,15 @@ function asShortMintAddress(_: any, { readField }: { readField: ReadFieldFunctio
   return shortenAddress(address);
 }
 
+function asShortVerifiedCollectionAddress(
+  _: any,
+  { readField }: { readField: ReadFieldFunction }
+): string {
+  const address: string | undefined = readField('verifiedCollectionAddress');
+
+  return shortenAddress(address);
+}
+
 function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction }): string {
   const address: string | undefined = readField('mintAddress');
 
@@ -178,16 +187,6 @@ const client = new ApolloClient({
               return null;
             },
           },
-          nfts: offsetLimitPagination([
-            '$listed',
-            '$collection',
-            '$owner',
-            '$creator',
-            '$collections',
-            '$attributes',
-          ]),
-          collectionsFeaturedByVolume: offsetLimitPagination(),
-          collectionsFeaturedByMarketCap: offsetLimitPagination(),
           collectionTrends: offsetLimitPagination(['$sortBy', '$timeFrame', '$orderDirection']),
           viewer: {
             read() {
@@ -404,10 +403,36 @@ const client = new ApolloClient({
         fields: {
           activities: offsetLimitPagination(['$eventTypes']),
           nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),
+          holderCount: {
+            read(value): string {
+              if (!value) {
+                return '0';
+              }
+
+              return asCompactNumber(parseInt(value));
+            },
+          },
+          shortVerifiedCollectionAddress: {
+            read: asShortVerifiedCollectionAddress,
+          },
+          marketCap: {
+            read(_, { readField }): string {
+              const trends: CollectionTrend | undefined = readField('trends');
+              const pieces: number | undefined = readField('pieces');
+
+              if (!pieces || !trends) {
+                return '0';
+              }
+
+              const marketCap = pieces * toSol(parseInt(trends?.floor1d));
+
+              return asCompactNumber(marketCap);
+            },
+          },
           compactPieces: {
             read(_, { readField }): string {
               const nftCount: number | undefined = readField('pieces');
-              
+
               if (!nftCount) {
                 return '0';
               }
@@ -510,6 +535,30 @@ const client = new ApolloClient({
               return listings?.find(
                 (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
               );
+            },
+          },
+          magicEdenListings: {
+            read(_, { readField }): any[] {
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              console.log('meListings', listings);
+              const magicEdenListings = listings?.filter(
+                (listing) =>
+                  listing.auctionHouse?.address === 'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K'
+              );
+
+              return magicEdenListings || [];
+            },
+          },
+          marketplaceListings: {
+            read(_, { readField }): any[] {
+              const nftName = readField('name');
+              const listings: readonly AhListing[] | undefined = readField('listings');
+              console.log('daomarketlistings', nftName, listings);
+              const daomarketListings = listings?.filter(
+                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
+              );
+
+              return daomarketListings || [];
             },
           },
         },

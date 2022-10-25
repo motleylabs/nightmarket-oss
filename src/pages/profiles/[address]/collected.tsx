@@ -169,19 +169,13 @@ export default function ProfileCollected({
                   <Listbox value={value} onChange={onChange} multiple>
                     <Listbox.Options static>
                       {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
-                        <Listbox.Option
-                          key={cc.collection?.id}
-                          value={cc.collection?.id}
-                        >
+                        <Listbox.Option key={cc.collection?.id} value={cc.collection?.id}>
                           {({ selected }) => (
                             <Collection.Option
                               selected={selected}
                               avatar={
                                 // TODO: Update to collection id once collection nft is updated
-                                <Link
-                                  passHref
-                                  href={`/collections/${cc.collection?.id}/nfts`}
-                                >
+                                <Link passHref href={`/collections/${cc.collection?.id}/nfts`}>
                                   <a className="group relative">
                                     <Collection.Option.Avatar
                                       src={cc.collection?.image as string}
@@ -197,7 +191,7 @@ export default function ProfileCollected({
                                   {cc.collection?.name}
                                 </Collection.Option.Title>
                               }
-                              floorPrice={cc.collection?.trends?.floor1d}
+                              floorPrice={cc.collection?.trends?.compactFloor1d}
                             >
                               <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
                             </Collection.Option>

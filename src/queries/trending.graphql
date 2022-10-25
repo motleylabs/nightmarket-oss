@@ -13,6 +13,10 @@ query TrendingCollectionsQuery(
   ) {
     floor1d
     compactFloor1d @client
+    floor7d
+    compactFloor7d @client
+    floor30d
+    compactFloor30d @client
     volume1d
     compactVolume1d @client
     volume7d
