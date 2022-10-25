@@ -24,23 +24,15 @@ html {
   @apply bg-black;
 }
 
-.bg-gradient {
-  @apply bg-gradient-to-r from-primary-900 to-primary-600;
-}
-
-.border-gradient {
-  @apply bg-gradient-to-r from-primary-900 to-primary-800;
-}
-
 .input {
-  @apply rounded-md border border-gray-725;
+  @apply rounded-md border border-gray-800;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply rounded-2xl bg-gray-800 font-sans;
 }
 
 .wallet-modal-theme .wallet-adapter-button:not([disabled]):hover {
-  @apply bg-gray-725;
+  @apply bg-gray-800;
 }
 
 .wallet-modal-theme .wallet-adapter-modal-button-close {

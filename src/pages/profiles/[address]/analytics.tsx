@@ -72,7 +72,6 @@ export default function ProfileAnalyticsPage({
       nftsBoughtVsNftsSoldDateRange: DateRangeOption.DAY,
     },
   });
-
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
@@ -100,8 +99,6 @@ export default function ProfileAnalyticsPage({
       [],
     [portfolioValue]
   );
-
-  console.log(collectedCollectionData);
 
   return (
     <div className="px-10 pt-6 pb-20">

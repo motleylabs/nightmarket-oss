@@ -17,7 +17,7 @@ query OfferableQuery($address: String!, $subdomain: String!) {
     address
     mintAddress
     name
-    image(width: 48)
+    image(width: 100)
     collection {
       name
       id

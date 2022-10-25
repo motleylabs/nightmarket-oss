@@ -767,6 +767,8 @@ export type Nft = {
   imageOriginal: Scalars['String'];
   listing?: Maybe<AhListing>;
   listings: Array<AhListing>;
+  magicEdenListings?: Maybe<Array<Maybe<AhListing>>>;
+  marketplaceListings?: Maybe<Array<Maybe<AhListing>>>;
   mintAddress: Scalars['String'];
   name: Scalars['String'];
   offers: Array<Offer>;

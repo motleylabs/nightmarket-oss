@@ -13,98 +13,116 @@ interface NftCardProps {
   onMakeOffer?: () => void;
 }
 
+// TODO: listing & update listing when instructions done
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
-  const nightmarketListings = nft.listings?.filter(
+  const daomarketListings = nft.listings?.filter(
     (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
   );
+  // const magicEdenListings = nft?.magicEdenListings;
 
   const viewer = useReactiveVar(viewerVar);
 
-  const listing = nightmarketListings?.sort((a, b) => a.price - b.price)[0];
+  const listing = daomarketListings?.sort((a, b) => a.price - b.price)[0];
+
+  const lastSale = nft.purchases[0]?.previewPrice;
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
-  return (
-    <Link href={link} passHref>
-      <a>
-        <div className="group overflow-clip rounded-2xl bg-gray-800 text-white shadow-lg transition">
-          <div className="block overflow-hidden">
-            <img
-              src={nft.image}
-              alt={`Nft image for ${nft.mintAddress}`}
-              className={clsx(
-                'aspect-square w-full  object-cover',
-                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
-              )}
-            />
-          </div>
+  // console.log('nft', nft.name, {
+  //   nft,
+  //   magicEdenListings,
+  // });
 
-          <div className="z-20 p-4">
-            <Link href={link} passHref>
-              <a>
-                <div className="mb-4 flex h-6 flex-row items-center justify-start gap-2 text-white">
-                  {nft.collection?.image && (
-                    <img
-                      src={nft.collection?.image}
-                      alt={`Collection image for ${nft.collection?.name}`}
-                      className="aspect-square w-4 rounded-sm object-cover"
-                    />
-                  )}
-                  <span className="truncate">{nft.name}</span>
-                </div>
-              </a>
-            </Link>
-            <div className="relative flex flex-row items-center justify-between">
-              {isOwner ? (
+  return (
+    <>
+      <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
+        <Link href={link} passHref>
+          <a>
+            <div className="block overflow-hidden">
+              <img
+                src={nft.image}
+                alt={`Nft image for ${nft.mintAddress}`}
+                className={clsx(
+                  'aspect-square w-full  object-cover',
+                  'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
+                )}
+              />
+            </div>
+
+            <div className="z-20 p-4">
+              {/* <Link href={link} passHref>
+              <a> */}
+              <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
+                {nft.collection?.image && (
+                  <img
+                    src={nft.collection?.image}
+                    alt={`Collection NFT image ${nft.collection?.id}`}
+                    className="aspect-square w-4 rounded-sm object-cover"
+                  />
+                )}
+                <span className="truncate">{nft.name}</span>
+              </div>
+              {/* </a>
+            </Link> */}
+            </div>
+          </a>
+        </Link>
+
+        <div className="relative flex flex-row items-center justify-between px-4">
+          {isOwner ? (
+            <>
+              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
+              {!listing ? (
+                <Button border={ButtonBorder.Gray} color={ButtonColor.Gray} size={ButtonSize.Small}>
+                  {t('list')}
+                </Button>
+              ) : (
+                <Button
+                  disabled
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                  size={ButtonSize.Small}
+                >
+                  {t('update')}
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              {listing ? (
                 <>
-                  <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
+                  <span className="text-lg">{listing?.previewPrice} SOL</span>
                   <Button
-                    disabled
-                    border={ButtonBorder.Gray}
-                    color={ButtonColor.Gray}
+                    onClick={onBuy}
                     size={ButtonSize.Small}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
                   >
-                    {t('owned')}
+                    {t('buy')}
                   </Button>
                 </>
               ) : (
                 <>
-                  {listing ? (
-                    <>
-                      <span className="text-lg">{listing?.previewPrice} SOL</span>
-                      <Button
-                        onClick={onBuy}
-                        size={ButtonSize.Small}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                      >
-                        {t('buy')}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {/* TODO: last sale price */}
-                      <span className="text-lg"></span>
-                      <Button
-                        onClick={onMakeOffer}
-                        border={ButtonBorder.Gray}
-                        color={ButtonColor.Gray}
-                        size={ButtonSize.Small}
-                      >
-                        {t('offer')}
-                      </Button>
-                    </>
-                  )}
+                  {/* TODO: last sale price */}
+                  <span className="text-lg"></span>
+                  <Button
+                    onClick={onMakeOffer}
+                    border={ButtonBorder.Gray}
+                    color={ButtonColor.Gray}
+                    size={ButtonSize.Small}
+                  >
+                    {t('offer')}
+                  </Button>
                 </>
               )}
-            </div>
-          </div>
+            </>
+          )}
         </div>
-      </a>
-    </Link>
+      </div>
+    </>
   );
 }
 
