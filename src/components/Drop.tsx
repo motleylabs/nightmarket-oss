@@ -40,7 +40,7 @@ export default function Drop({
       <div className="flex flex-col gap-2">
         <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
         <p className="text-xs text-gray-300 md:text-base">{description}</p>
-        <ul className="flex flex-row flex-wrap items-center justify-start gap-4 sm:flex-nowrap">
+        <ul className="flex flex-row flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:justify-start">
           <li className="flex w-20 flex-col items-start whitespace-nowrap md:w-32">
             <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
             {/* TODO: timer */}
@@ -61,6 +61,8 @@ export default function Drop({
               {asCompactNumber(supply)}
             </p>
           </li>
+          {/* 
+          PS: Not removing this comment quite yet as we might want to go back to this structure
           <li className="mt-4 flex w-full justify-end  md:hidden">
             <Button
               className="w-full font-semibold"
@@ -70,13 +72,14 @@ export default function Drop({
             >
               {t('drops.view')}
             </Button>
-          </li>
+          </li> */}
         </ul>
         <div className="inline-block">
           <Link href={link}>
             <a target={'_self'}>
               <Button
-                className="hidden font-semibold md:inline-block"
+                size={ButtonSize.Small}
+                className="inline-block w-full font-semibold md:w-auto"
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}
                 color={ButtonColor.Gradient}

@@ -6,7 +6,7 @@ import ProfileLayout, {
 } from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet, Nft } from '../../../graphql.types';
+import { Wallet } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
@@ -169,34 +169,29 @@ export default function ProfileCollected({
                   <Listbox value={value} onChange={onChange} multiple>
                     <Listbox.Options static>
                       {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
-                        <Listbox.Option
-                          key={cc.collection?.nft.mintAddress}
-                          value={cc.collection?.nft.mintAddress}
-                        >
+                        <Listbox.Option key={cc.collection?.id} value={cc.collection?.id}>
                           {({ selected }) => (
                             <Collection.Option
                               selected={selected}
                               avatar={
-                                <Link
-                                  passHref
-                                  href={`/collections/${cc.collection?.nft.mintAddress}`}
-                                >
+                                // TODO: Update to collection id once collection nft is updated
+                                <Link passHref href={`/collections/${cc.collection?.id}/nfts`}>
                                   <a className="group relative">
                                     <Collection.Option.Avatar
-                                      src={cc.collection?.nft.image as string}
+                                      src={cc.collection?.image as string}
                                       figure={cc.nftsOwned.toString()}
                                     />
-                                    <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
-                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
+                                    <div className="invisible absolute inset-0 z-30 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
+                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
                                   </a>
                                 </Link>
                               }
                               header={
                                 <Collection.Option.Title>
-                                  {cc.collection?.nft.name}
+                                  {cc.collection?.name}
                                 </Collection.Option.Title>
                               }
-                              floorPrice={cc.collection?.floorPrice}
+                              floorPrice={cc.collection?.trends?.floor1d}
                             >
                               <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
                             </Collection.Option>
