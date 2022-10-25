@@ -11,32 +11,35 @@ query TrendingCollectionsQuery(
     limit: 10
     offset: $offset
   ) {
-    floor1d
-    compactFloor1d @client
-    volume1d
-    compactVolume1d @client
-    volume7d
-    compactVolume7d @client
-    volume30d
-    compactVolume30d @client
-    changeFloor1d
-    changeFloor7d
-    changeFloor30d
-    changeVolume1d
-    changeVolume7d
-    changeVolume30d
-    listed1d
-    compactListed1d @client
-    listed7d
-    compactListed7d @client
-    listed30d
-    compactListed30d @client
+    floorPrice
+    compactFloorPrice @client
+    nftCount
+    compactNftCount @client
+    oneDayVolume
+    compactOneDayVolume @client
+    sevenDayVolume
+    compactSevenDayVolume @client
+    thirtyDayVolume
+    compactThirtyDayVolume @client
+    oneDayFloorPriceChange
+    sevenDayFloorPriceChange
+    thirtyDayFloorPriceChange
+    oneDayVolumeChange
+    sevenDayVolumeChange
+    thirtyDayVolumeChange
+    oneDaySalesCount
+    compactOneDaySalesCount @client
+    sevenDaySalesCount
+    compactSevenDaySalesCount @client
+    thirtyDaySalesCount
+    compactThirtyDaySalesCount @client
     collection {
-      id
-      verifiedCollectionAddress
-      name
-      description
-      image(width: 100)
+      nft {
+        address
+        mintAddress
+        name
+        image
+      }
     }
   }
 }

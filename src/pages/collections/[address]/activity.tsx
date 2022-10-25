@@ -24,7 +24,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   } = await client.query({
     query: CollectionQuery,
     variables: {
-      id: params?.id,
+      address: params?.address,
     },
   });
 
@@ -49,7 +49,7 @@ interface CollectionActivitiesData {
 interface CollectionActivitiesVariables {
   offset: number;
   limit: number;
-  id: string;
+  address: string;
   eventTypes: string[] | null;
 }
 
@@ -84,7 +84,7 @@ export default function CollectionActivity(): JSX.Element {
       variables: {
         offset: 0,
         limit: 24,
-        id: router.query.id as string,
+        address: router.query.address as string,
         eventTypes: null,
       },
     }
@@ -95,7 +95,7 @@ export default function CollectionActivity(): JSX.Element {
       let variables: CollectionActivitiesVariables = {
         offset: 0,
         limit: 24,
-        id: router.query.id as string,
+        address: router.query.address as string,
         eventTypes: null,
       };
 

@@ -215,77 +215,6 @@ export type CollectedCollection = {
 export type Collection = {
   __typename?: 'Collection';
   activities: Array<NftActivity>;
-  attributeGroups: Array<AttributeGroup>;
-  compactFloor1d?: Maybe<Scalars['String']>;
-  compactPieces?: Maybe<Scalars['String']>;
-  compactVolume30d?: Maybe<Scalars['String']>;
-  createdAt: Scalars['DateTimeUtc'];
-  description: Scalars['String'];
-  discordUrl?: Maybe<Scalars['String']>;
-  goLiveAt: Scalars['DateTimeUtc'];
-  /** Count of wallets that currently hold at least one NFT from the collection. */
-  holderCount?: Maybe<Scalars['I64']>;
-  id: Scalars['String'];
-  image: Scalars['String'];
-  /** Get the original URL of the image as stored in the NFT's metadata */
-  imageOriginal: Scalars['String'];
-  magicEdenId?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  nfts: Array<Nft>;
-  pieces: Scalars['Int'];
-  trends?: Maybe<CollectionTrend>;
-  twitterUrl?: Maybe<Scalars['String']>;
-  updatedAt: Scalars['DateTimeUtc'];
-  verified: Scalars['Boolean'];
-  verifiedCollectionAddress?: Maybe<Scalars['String']>;
-  websiteUrl?: Maybe<Scalars['String']>;
-};
-
-
-export type CollectionActivitiesArgs = {
-  eventTypes?: InputMaybe<Array<Scalars['String']>>;
-  limit: Scalars['Int'];
-  offset: Scalars['Int'];
-};
-
-
-export type CollectionImageArgs = {
-  width?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type CollectionNftsArgs = {
-  attributes?: InputMaybe<Array<AttributeFilter>>;
-  auctionHouse?: InputMaybe<Scalars['String']>;
-  limit: Scalars['Int'];
-  marketplaceProgram?: InputMaybe<Scalars['String']>;
-  offset: Scalars['Int'];
-  order?: InputMaybe<OrderDirection>;
-  sortBy?: InputMaybe<NftSort>;
-};
-
-export type CollectionDocument = {
-  __typename?: 'CollectionDocument';
-  discordUrl?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
-  image: Scalars['String'];
-  magicEdenId?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  twitterUrl?: Maybe<Scalars['String']>;
-  verifiedCollectionAddress?: Maybe<Scalars['String']>;
-  websiteUrl?: Maybe<Scalars['String']>;
-};
-
-/** Collection intervals */
-export enum CollectionInterval {
-  OneDay = 'ONE_DAY',
-  SevenDay = 'SEVEN_DAY',
-  ThirtyDay = 'THIRTY_DAY'
-}
-
-export type CollectionNft = {
-  __typename?: 'CollectionNFT';
-  activities: Array<NftActivity>;
   /** @deprecated use `nft { address }` */
   address: Scalars['String'];
   /** @deprecated use `nft { animation_url }` */
@@ -295,6 +224,11 @@ export type CollectionNft = {
   attributes: Array<NftAttribute>;
   /** @deprecated use `nft { category }` */
   category: Scalars['String'];
+  /** @deprecated use `nft { collection }` */
+  collection?: Maybe<Collection>;
+  compactFloorPrice?: Maybe<Scalars['String']>;
+  compactNftCount?: Maybe<Scalars['String']>;
+  compactVolumeTotal?: Maybe<Scalars['String']>;
   /** @deprecated use `nft { created_at }` */
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
   /** @deprecated use `nft { creators }` */
@@ -344,19 +278,19 @@ export type CollectionNft = {
 };
 
 
-export type CollectionNftActivitiesArgs = {
+export type CollectionActivitiesArgs = {
   eventTypes?: InputMaybe<Array<Scalars['String']>>;
   limit: Scalars['Int'];
   offset: Scalars['Int'];
 };
 
 
-export type CollectionNftImageArgs = {
+export type CollectionImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
 };
 
 
-export type CollectionNftNftsArgs = {
+export type CollectionNftsArgs = {
   attributes?: InputMaybe<Array<AttributeFilter>>;
   auctionHouse?: InputMaybe<Scalars['String']>;
   limit: Scalars['Int'];
@@ -366,58 +300,87 @@ export type CollectionNftNftsArgs = {
   sortBy?: InputMaybe<NftSort>;
 };
 
+export type CollectionDocument = {
+  __typename?: 'CollectionDocument';
+  discordUrl?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  image: Scalars['String'];
+  magicEdenId?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  twitterUrl?: Maybe<Scalars['String']>;
+  verifiedCollectionAddress?: Maybe<Scalars['String']>;
+  websiteUrl?: Maybe<Scalars['String']>;
+};
+
+/** Collection intervals */
+export enum CollectionInterval {
+  OneDay = 'ONE_DAY',
+  SevenDay = 'SEVEN_DAY',
+  ThirtyDay = 'THIRTY_DAY'
+}
+
 /** Sorts collection results */
 export enum CollectionSort {
   Floor = 'FLOOR',
-  NumberListed = 'NUMBER_LISTED',
+  Marketcap = 'MARKETCAP',
+  NumberSales = 'NUMBER_SALES',
   Volume = 'VOLUME'
 }
 
 export type CollectionTrend = {
   __typename?: 'CollectionTrend';
-  changeFloor1d?: Maybe<Scalars['Int']>;
-  changeFloor7d?: Maybe<Scalars['Int']>;
-  changeFloor30d?: Maybe<Scalars['Int']>;
-  changeListed1d?: Maybe<Scalars['Int']>;
-  changeListed7d?: Maybe<Scalars['Int']>;
-  changeListed30d?: Maybe<Scalars['Int']>;
-  changeVolume1d?: Maybe<Scalars['Int']>;
-  changeVolume7d?: Maybe<Scalars['Int']>;
-  changeVolume30d?: Maybe<Scalars['Int']>;
   collection?: Maybe<Collection>;
-  compactFloor1d?: Maybe<Scalars['String']>;
-  compactFloor7d?: Maybe<Scalars['String']>;
-  compactFloor30d?: Maybe<Scalars['String']>;
-  compactListed1d?: Maybe<Scalars['String']>;
-  compactListed7d?: Maybe<Scalars['String']>;
-  compactListed30d?: Maybe<Scalars['String']>;
-  compactVolume1d?: Maybe<Scalars['String']>;
-  compactVolume7d?: Maybe<Scalars['String']>;
-  compactVolume30d?: Maybe<Scalars['String']>;
-  floor1d: Scalars['U64'];
-  floor7d: Scalars['U64'];
-  floor30d: Scalars['U64'];
-  lastFloor1d: Scalars['U64'];
-  lastFloor7d: Scalars['U64'];
-  lastFloor30d: Scalars['U64'];
-  lastListed1d: Scalars['Int'];
-  lastListed7d: Scalars['Int'];
-  lastListed30d: Scalars['Int'];
-  lastVolume1d: Scalars['U64'];
-  lastVolume7d: Scalars['U64'];
-  lastVolume30d: Scalars['U64'];
-  listed1d: Scalars['Int'];
-  listed7d: Scalars['Int'];
-  listed30d: Scalars['Int'];
-  volume1d: Scalars['U64'];
-  volume7d: Scalars['U64'];
-  volume30d: Scalars['U64'];
+  compactFloorPrice?: Maybe<Scalars['String']>;
+  compactNftCount?: Maybe<Scalars['String']>;
+  compactOneDaySalesCount?: Maybe<Scalars['String']>;
+  compactOneDayVolume?: Maybe<Scalars['String']>;
+  compactSevenDaySalesCount?: Maybe<Scalars['String']>;
+  compactSevenDayVolume?: Maybe<Scalars['String']>;
+  compactThirtyDaySalesCount?: Maybe<Scalars['String']>;
+  compactThirtyDayVolume?: Maybe<Scalars['String']>;
+  floorPrice: Scalars['U64'];
+  nftCount: Scalars['Int'];
+  oneDayFloorPriceChange: Scalars['Int'];
+  oneDayMarketcap: Scalars['U64'];
+  oneDayMarketcapChange: Scalars['Int'];
+  oneDaySalesCount: Scalars['U64'];
+  oneDaySalesCountChange: Scalars['Int'];
+  oneDayVolume: Scalars['U64'];
+  oneDayVolumeChange: Scalars['Int'];
+  prevOneDayFloorPrice: Scalars['U64'];
+  prevOneDaySalesCount: Scalars['U64'];
+  prevOneDayVolume: Scalars['U64'];
+  prevSevenDayFloorPrice: Scalars['U64'];
+  prevSevenDaySalesCount: Scalars['U64'];
+  prevSevenDayVolume: Scalars['U64'];
+  prevThirtyDayFloorPrice: Scalars['U64'];
+  prevThirtyDaySalesCount: Scalars['U64'];
+  prevThirtyDayVolume: Scalars['U64'];
+  sevenDayFloorPriceChange: Scalars['Int'];
+  sevenDayMarketcap: Scalars['U64'];
+  sevenDayMarketcapChange: Scalars['Int'];
+  sevenDaySalesCount: Scalars['U64'];
+  sevenDaySalesCountChange: Scalars['Int'];
+  sevenDayVolume: Scalars['U64'];
+  sevenDayVolumeChange: Scalars['Int'];
+  thirtyDayFloorPriceChange: Scalars['Int'];
+  thirtyDayMarketcap: Scalars['U64'];
+  thirtyDayMarketcapChange: Scalars['Int'];
+  thirtyDaySalesCount: Scalars['U64'];
+  thirtyDaySalesCountChange: Scalars['Int'];
+  thirtyDayVolume: Scalars['U64'];
+  thirtyDayVolumeChange: Scalars['Int'];
 };
 
 export type ConnectionCounts = {
   __typename?: 'ConnectionCounts';
   fromCount: Scalars['Int'];
   toCount: Scalars['Int'];
+};
+
+export type CreatedCollection = {
+  __typename?: 'CreatedCollection';
+  collection?: Maybe<Collection>;
 };
 
 export type Creator = {
@@ -1106,9 +1069,9 @@ export type QueryRoot = {
   /** Returns featured collection NFTs ordered by market cap (floor price * number of NFTs in collection) */
   collectionTrends: Array<CollectionTrend>;
   /** Returns featured collection NFTs ordered by market cap (floor price * number of NFTs in collection) */
-  collectionsFeaturedByMarketCap: Array<CollectionNft>;
+  collectionsFeaturedByMarketCap: Array<Collection>;
   /** Returns featured collection NFTs ordered by volume (sum of purchase prices) */
-  collectionsFeaturedByVolume: Array<CollectionNft>;
+  collectionsFeaturedByVolume: Array<Collection>;
   connections: Array<GraphConnection>;
   creator: Creator;
   denylist: Denylist;
@@ -1196,7 +1159,7 @@ export type QueryRootChartsArgs = {
 
 
 export type QueryRootCollectionArgs = {
-  id: Scalars['String'];
+  address: Scalars['String'];
 };
 
 
@@ -1485,30 +1448,9 @@ export type RewardCenter = {
   bump: Scalars['Int'];
   mathematicalOperand: PayoutOperation;
   payoutNumeral: Scalars['Int'];
-  payouts: Array<RewardPayout>;
   sellerRewardPayoutBasisPoints: Scalars['Int'];
   slot: Scalars['U64'];
   tokenMint: Scalars['PublicKey'];
-  writeVersion: Scalars['U64'];
-};
-
-
-export type RewardCenterPayoutsArgs = {
-  limit: Scalars['Int'];
-  offset: Scalars['Int'];
-};
-
-export type RewardPayout = {
-  __typename?: 'RewardPayout';
-  buyer: Wallet;
-  buyerReward: Scalars['U64'];
-  createdAt: Scalars['NaiveDateTime'];
-  nft?: Maybe<Nft>;
-  purchaseTicket: Scalars['String'];
-  rewardCenter: Scalars['PublicKey'];
-  seller: Wallet;
-  sellerReward: Scalars['U64'];
-  slot: Scalars['U64'];
   writeVersion: Scalars['U64'];
 };
 
@@ -1648,6 +1590,7 @@ export type Wallet = {
   compactFollowingCount?: Maybe<Scalars['String']>;
   compactOwnedCount?: Maybe<Scalars['String']>;
   connectionCounts: ConnectionCounts;
+  createdCollections: Array<CreatedCollection>;
   displayName?: Maybe<Scalars['String']>;
   nftCounts: WalletNftCount;
   nfts: Array<Nft>;

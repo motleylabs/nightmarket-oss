@@ -91,7 +91,7 @@ export default function ProfileAnalyticsPage({
       (portfolioValue &&
         walletProfileClientQuery.data?.wallet?.collectedCollections
           .map((c) => ({
-            collectionName: c.collection?.name,
+            collectionName: c.collection?.nft.name,
             count: c.nftsOwned,
             porfolioValueFraction: c.estimatedValue / portfolioValue,
           }))

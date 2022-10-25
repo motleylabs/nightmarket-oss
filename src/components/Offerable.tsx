@@ -127,21 +127,17 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 <div className="flex flex-col justify-between gap-2">
                   <p className="text-base font-medium text-white">{data?.nft.name}</p>
                   <p className="text-xs font-semibold text-gray-300">
-                    {data?.nft.collection?.name}
+                    {data?.nft.collection?.nft.name}
                   </p>
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
-                {data?.nft.collection?.trends && (
-                  <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">
-                      {t('offerable.floorPrice')}
-                    </p>
-                    <p className="text-base font-medium text-gray-300">
-                      {data?.nft.collection?.trends.compactFloor1d} SOL
-                    </p>
-                  </div>
-                )}
+                <div className="flex flex-row justify-between">
+                  <p className="text-base font-medium text-gray-300">{t('offerable.floorPrice')}</p>
+                  <p className="text-base font-medium text-gray-300">
+                    {data?.nft.collection?.floorPrice} SOL
+                  </p>
+                </div>
                 {data?.nft.listings && data?.nft.listings.length > 0 && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
@@ -168,7 +164,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                     {t('offerable.minimumOfferAmount')}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    {data?.nft.collection?.trends?.compactFloor1d} SOL
+                    {data?.nft.collection?.floorPrice} SOL
                   </p>
                 </div>
                 <div className="flex flex-row justify-between">

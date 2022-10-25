@@ -2,7 +2,7 @@ import React, { FC, Fragment, ReactNode, useCallback, useEffect, useRef, useStat
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
-import { MetadataJson, Nft, NftCreator, Wallet, Maybe, Collection } from '../graphql.types';
+import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
@@ -230,12 +230,13 @@ interface SearchResultProps {
 }
 
 interface CollectionSearchResultProps extends SearchResultProps {
-  collection?: Collection;
+  collection?: MetadataJson;
 }
 
 function CollectionSearchResult({
   name,
   image,
+  address,
   collection,
   value,
 }: CollectionSearchResultProps): JSX.Element {
@@ -243,11 +244,11 @@ function CollectionSearchResult({
 
   return (
     <Combobox.Option
-      key={`collection-${collection?.id}`}
+      key={`collection-${address}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${collection?.id}/nfts`);
-      }, [router, collection?.id])}
+        router.push(`/collections/${address}/nfts`);
+      }, [router, address])}
     >
       {({ active }) => (
         <div
@@ -259,7 +260,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || collection?.id}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>

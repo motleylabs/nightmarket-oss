@@ -4,35 +4,21 @@ import { Collection } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import { useCurrencies } from '../hooks/currencies';
-import { CollectionQueryClient } from './../queries/collection.graphql';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
 import { Chart } from '../components/Chart';
-import { useQuery } from '@apollo/client';
 
 interface CollectionLayoutProps {
   children: ReactElement;
   collection: Collection;
 }
 
-function CollectionFigure({
-  label,
-  children,
-  loading = false,
-}: {
-  label: string;
-  children: ReactNode;
-  loading?: boolean;
-}) {
+function CollectionFigure(props: { label: string; children: ReactNode }) {
   return (
     <div className="text-center">
-      <div className="truncate text-sm text-gray-300">{label}</div>
-      {loading ? (
-        <div className="h-6 w-10 animate-pulse rounded-md bg-gray-700 transition" />
-      ) : (
-        <div className="flex items-center justify-center font-semibold">{children}</div>
-      )}
+      <div className="truncate text-sm text-gray-300">{props.label}</div>
+      <div className="flex items-center justify-center font-semibold">{props.children}</div>
     </div>
   );
 }
@@ -40,17 +26,15 @@ function CollectionFigure({
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
+  const address = collection.nft.mintAddress;
   const router = useRouter();
 
-  const collectionQueryClient = useQuery(CollectionQueryClient, {
-    variables: { id: router.query.id },
-  });
-
+  const loading = !currenciesReady;
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { name: collection.name })}</title>
-        <meta name="description" content={collection.description} />
+        <title>{t('metadata.title', { name: collection.nft.name })}</title>
+        <meta name="description" content={collection.nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Overview>
@@ -59,20 +43,20 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
               <img
-                src={collection.image}
+                src={collection.nft.image}
                 className="inline-block h-36 w-36 rounded-md shadow-xl md:h-36 md:w-36"
                 alt="overview avatar"
               />
             </div>
             <div className="space-y-4">
-              <Overview.Title>{collection.name}</Overview.Title>
+              <Overview.Title>{collection.nft.name}</Overview.Title>
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',
                   'line-clamp-2 md:line-clamp-4'
                 )}
               >
-                {collection.description}
+                {collection.nft.description}
               </p>
             </div>
           </div>
@@ -108,34 +92,33 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               />
             </div>
             <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
-              <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
+              <CollectionFigure label="Floor price">
+                <Icon.Sol /> {collection.compactFloorPrice}
               </CollectionFigure>
-              <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
+              <CollectionFigure label="30 Day Volume">
+                <Icon.Sol /> {collection.compactVolumeTotal}
               </CollectionFigure>
               <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
-              {/* TODO: Add listedCount when available in api */}
-              {/* <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure> */}
+              <CollectionFigure label="Listings">{collection.listedCount}</CollectionFigure>
               <CollectionFigure label="Holders">{collection.holderCount}</CollectionFigure>
-              <CollectionFigure label="Supply">{collection.compactPieces}</CollectionFigure>
+              <CollectionFigure label="Supply">{collection.compactNftCount}</CollectionFigure>
             </div>
           </div>
         </div>
         <Overview.Tabs>
           <Overview.Tab
             label={t('nfts')}
-            href={`/collections/${collection.id}/nfts`}
+            href={`/collections/${address}/nfts`}
             active={router.pathname.includes('nfts')}
           />
           <Overview.Tab
             label="Activity"
-            href={`/collections/${collection.id}/activity`}
+            href={`/collections/${address}/activity`}
             active={router.pathname.includes('activity')}
           />
           <Overview.Tab
             label={t('analytics')}
-            href={`/collections/${collection.id}/analytics`}
+            href={`/collections/${address}/analytics`}
             active={router.pathname.includes('analytics')}
           />
         </Overview.Tabs>
