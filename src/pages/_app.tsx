@@ -531,8 +531,8 @@ function MobileNavMenu({
 
 function Footer() {
   return (
-    <footer className=" bg-gray-900 py-20">
-      <div className="container mx-auto grid grid-cols-3 items-center ">
+    <footer className=" bg-gray-900 py-20 px-6">
+      <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
         <div>
           {/* Logos */}
           <Link href="/" passHref>
@@ -606,7 +606,7 @@ function Footer() {
             </svg>
           </div>
         </div>
-        <div className="flex justify-center gap-10 text-white">
+        <div className="flex flex-col justify-center gap-10 text-right text-white md:flex-row">
           {/* Links */}
           <Link href={config.website}>
             <a target={'_blank'}>About the DAO</a>
@@ -615,7 +615,7 @@ function Footer() {
             <a>Legal</a>
           </Link>
         </div>
-        <div className="flex justify-end gap-6 text-[#A8A8A8] ">
+        <div className="flex  gap-6 text-[#A8A8A8] md:justify-end ">
           {/* Social media */}
           {config.socialMedia.twitter && (
             <Link href={config.socialMedia.twitter}>

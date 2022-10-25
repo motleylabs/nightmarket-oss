@@ -333,7 +333,7 @@ const Home: NextPage = () => {
                       </Collection.List.Col>
                       <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
                         <div className="w-32 lg:w-40">{trend.collection.nft.name}</div>
-                        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+                        <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
                             value={trend.compactFloorPrice}
                             icon={<Icon.Sol />}
