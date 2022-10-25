@@ -609,24 +609,26 @@ function Footer() {
         <div className="flex flex-col justify-center gap-10 text-right text-white md:flex-row">
           {/* Links */}
           <Link href={config.website}>
-            <a target={'_blank'}>About the DAO</a>
+            <a className="hover:underline" target={'_blank'}>
+              About the DAO
+            </a>
           </Link>
           <Link href="#">
-            <a>Legal</a>
+            <a className="hover:underline">Legal</a>
           </Link>
         </div>
         <div className="flex  gap-6 text-[#A8A8A8] md:justify-end ">
           {/* Social media */}
           {config.socialMedia.twitter && (
             <Link href={config.socialMedia.twitter}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Twitter />
               </a>
             </Link>
           )}
           {config.socialMedia.discord && (
             <Link href={config.socialMedia.discord}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Discord />
               </a>
             </Link>
@@ -634,7 +636,7 @@ function Footer() {
 
           {config.socialMedia.medium && (
             <Link href={config.socialMedia.medium}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Medium />
               </a>
             </Link>
