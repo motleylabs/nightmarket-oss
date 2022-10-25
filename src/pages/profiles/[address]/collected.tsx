@@ -169,26 +169,20 @@ export default function ProfileCollected({
                   <Listbox value={value} onChange={onChange} multiple>
                     <Listbox.Options static>
                       {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
-                        <Listbox.Option
-                          key={cc.collection?.id}
-                          value={cc.collection?.id}
-                        >
+                        <Listbox.Option key={cc.collection?.id} value={cc.collection?.id}>
                           {({ selected }) => (
                             <Collection.Option
                               selected={selected}
                               avatar={
                                 // TODO: Update to collection id once collection nft is updated
-                                <Link
-                                  passHref
-                                  href={`/collections/${cc.collection?.id}/nfts`}
-                                >
+                                <Link passHref href={`/collections/${cc.collection?.id}/nfts`}>
                                   <a className="group relative">
                                     <Collection.Option.Avatar
                                       src={cc.collection?.image as string}
                                       figure={cc.nftsOwned.toString()}
                                     />
-                                    <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
-                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
+                                    <div className="invisible absolute inset-0 z-30 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
+                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
                                   </a>
                                 </Link>
                               }

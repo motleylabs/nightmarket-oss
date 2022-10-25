@@ -7,6 +7,7 @@ import Icon from './Icon';
 import Link from 'next/link';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import { toSol } from '../modules/sol';
 
 export function Collection() {
   return <div />;
@@ -50,7 +51,7 @@ function CollectionOption({
           <div className="flex items-end justify-between">
             <div className="-mb-1 flex flex-col">
               <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
-              <Price price={floorPrice} />
+              <Price price={toSol(floorPrice)} />
             </div>
             {children}
           </div>
@@ -70,16 +71,16 @@ interface CollectionAvatarProps {
 function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Element {
   return (
     <div className="relative flex aspect-square h-16 w-16">
-      <img
-        src={src}
-        className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
-        alt="collection avatar"
-      />
       {figure && (
         <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-xs text-white">
           {figure}
         </span>
       )}
+      <img
+        src={src}
+        className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
+        alt="collection avatar"
+      />
     </div>
   );
 }
@@ -299,7 +300,7 @@ interface CollectionListDataPointStatusProps {
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
   if (!value) {
-    return <div></div>
+    return <div></div>;
   }
 
   return (

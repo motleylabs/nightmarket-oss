@@ -16,7 +16,15 @@ interface CollectionLayoutProps {
   collection: Collection;
 }
 
-function CollectionFigure({ label, children, loading = false}: { label: string; children: ReactNode; loading?: boolean }) {
+function CollectionFigure({
+  label,
+  children,
+  loading = false,
+}: {
+  label: string;
+  children: ReactNode;
+  loading?: boolean;
+}) {
   return (
     <div className="text-center">
       <div className="truncate text-sm text-gray-300">{label}</div>
@@ -37,7 +45,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   const collectionQueryClient = useQuery(CollectionQueryClient, {
     variables: { id: router.query.id },
   });
-  
+
   return (
     <>
       <Head>
@@ -101,10 +109,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             </div>
             <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
               <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends.compactFloor1d}
+                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
               </CollectionFigure>
               <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends.compactVolume30d}
+                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
               </CollectionFigure>
               <CollectionFigure label="Est. Marketcap">$XXX</CollectionFigure>
               {/* TODO: Add listedCount when available in api */}
