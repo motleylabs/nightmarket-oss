@@ -204,8 +204,8 @@ const Home: NextPage = () => {
             />
           </Hero.Aside>
         </Hero>
-        <section className="mt-28 scroll-mt-20">
-          <header className="mb-12 flex w-full flex-row justify-between gap-4">
+        <section className="mt-16 scroll-mt-20 md:mt-28">
+          <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
             <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
           </header>
           <div className="flex flex-col items-center justify-start gap-12 md:flex-row">

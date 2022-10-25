@@ -4,6 +4,7 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from 
 import Link from 'next/link';
 import useCountdown from '../hooks/countdown';
 import { useTranslation } from 'next-i18next';
+import { asCompactNumber } from '../modules/number';
 
 interface DropProps {
   title: string;
@@ -38,26 +39,26 @@ export default function Drop({
       </div>
       <div className="flex flex-col gap-2">
         <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
-        <p className="text-base text-gray-300">{description}</p>
+        <p className="text-xs text-gray-300 md:text-base">{description}</p>
         <ul className="md:gap- flex flex-row items-center justify-start gap-4">
           <li className="flex flex-col whitespace-nowrap">
             <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
             {/* TODO: timer */}
-            <p className="text-base font-semibold">
+            <p className="text-sm  font-semibold md:text-base">
               {days}d {hours}h {minutes}m {seconds}s
             </p>
           </li>
           <li className="flex flex-col">
             <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
-            <p className="flex flex-row items-center text-base font-semibold">
+            <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>
           </li>
           <li className="flex flex-col">
             <p className="text-xs font-light text-gray-300">{t('drops.supply')}</p>
-            <p className="flex flex-row items-center text-base font-semibold">
-              {supply.toLocaleString('en-US')}
+            <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
+              {asCompactNumber(supply)}
             </p>
           </li>
           <li className="flex w-full justify-end md:hidden">
