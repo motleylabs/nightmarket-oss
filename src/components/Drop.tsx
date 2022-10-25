@@ -40,28 +40,28 @@ export default function Drop({
       <div className="flex flex-col gap-2">
         <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
         <p className="text-xs text-gray-300 md:text-base">{description}</p>
-        <ul className="flex flex-row flex-wrap items-center justify-start md:flex-nowrap md:gap-4">
-          <li className="flex w-1/3 flex-col items-center whitespace-nowrap md:w-28 md:items-start">
+        <ul className="flex flex-row flex-wrap items-center justify-start gap-4 sm:flex-nowrap">
+          <li className="flex w-20 flex-col items-start whitespace-nowrap md:w-32">
             <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
             {/* TODO: timer */}
             <p className="text-sm  font-semibold md:text-base">
               {days}d {hours}h {minutes}m {seconds}s
             </p>
           </li>
-          <li className="flex w-1/3 flex-col items-center md:w-auto md:items-start">
+          <li className="flex w-20 flex-col items-start md:w-auto">
             <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>
           </li>
-          <li className="flex w-1/3 flex-col items-center md:w-auto md:items-start">
+          <li className="flex w-20 flex-col items-start md:w-auto">
             <p className="text-xs font-light text-gray-300">{t('drops.supply')}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               {asCompactNumber(supply)}
             </p>
           </li>
-          <li className="mt-4 flex w-full justify-end md:hidden">
+          <li className="mt-4 flex w-full justify-end  md:hidden">
             <Button
               className="w-full font-semibold"
               background={ButtonBackground.Slate}
