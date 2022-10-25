@@ -53,6 +53,32 @@ function clusterApiUrl(network: WalletAdapterNetwork) {
   throw new Error(`The ${network} is not supported`);
 }
 
+function ReportHeader() {
+  return (
+    <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">$SAUCE earned</span>
+        <span className="font-semibold text-white">{'57,291'}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">24h volume</span>
+        <div className="flex items-center">
+          <Icon.Sol defaultColor="#FFFFFF" />
+          <span className="font-semibold text-white">{'57,291'}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">SOL price</span>
+        <span className="font-semibold text-white">{'$34.21'}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">SOL TPS</span>
+        <span className="font-semibold text-white">{'7,291'}</span>
+      </div>
+    </div>
+  );
+}
+
 function NavigationBar() {
   const [showNav, setShowNav] = useNavigation();
 
@@ -80,178 +106,186 @@ function NavigationBar() {
   const loading = viewerQueryResult.loading || connecting;
 
   return (
-    <header
-      className={clsx(
-        'sticky top-0 z-10 w-full px-6 py-2 backdrop-blur-sm md:px-8 md:py-4',
-        'grid grid-cols-4',
-        'h-14 md:h-20',
-        'bg-black bg-opacity-90'
-      )}
-    >
-      <div
-        className={clsx('flex items-center justify-start ', {
-          hidden: searchExpanded,
-        })}
+    <>
+      <ReportHeader />
+      <header
+        className={clsx(
+          'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+          'grid grid-cols-4',
+          'h-14 md:h-20',
+          'bg-black bg-opacity-90'
+        )}
       >
-        <Link href="/" className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-          <img
-            src="/images/nightmarket-stacked.svg"
-            className="h-8 w-auto object-fill md:h-11"
-            alt="night market logo"
-          />
-        </Link>
-      </div>
-      {/* Search */}
-      <div className="col-span-2 flex justify-center">
-        <button
-          className={clsx(
-            'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden ',
-            {
-              hidden: searchExpanded,
-            }
-          )}
-          onClick={() => {
-            setSearchExpanded(true);
-          }}
+        {/* Night Market logo */}
+        <div
+          className={clsx('flex items-center justify-start ', {
+            hidden: searchExpanded,
+          })}
         >
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
-        </button>
-        <Search>
-          <div
-            ref={expandedSearchRef}
-            className={clsx(
-              'fixed w-full md:relative',
-              searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
-            )}
+          <Link
+            href="/"
+            passHref
+            className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
           >
-            <Search.Input
-              onChange={(e) => {
-                updateSearch(e);
-              }}
-              value={searchTerm}
-              className="mx-auto hidden w-full max-w-4xl md:block"
-              autofocus={false}
+            <img
+              src="/images/nightmarket-stacked.svg"
+              className="h-8 w-auto object-fill md:h-11"
+              alt="night market logo"
             />
-
-            {searchExpanded && (
+          </Link>
+        </div>
+        {/* Search */}
+        <div className="col-span-2 flex justify-center">
+          <button
+            className={clsx(
+              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden ',
+              {
+                hidden: searchExpanded,
+              }
+            )}
+            onClick={() => {
+              setSearchExpanded(true);
+            }}
+          >
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
+          </button>
+          <Search>
+            <div
+              ref={expandedSearchRef}
+              className={clsx(
+                'fixed w-full md:relative',
+                searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
+              )}
+            >
               <Search.Input
                 onChange={(e) => {
                   updateSearch(e);
                 }}
                 value={searchTerm}
-                autofocus={true}
-                className="md:hidden"
+                className="mx-auto hidden w-full max-w-4xl md:block"
+                autofocus={false}
               />
-            )}
 
-            <div
-              ref={mobileSearchRef}
-              className={clsx(
-                'fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto  block max-w-4xl ',
-                searching || results ? 'block' : 'hidden'
+              {searchExpanded && (
+                <Search.Input
+                  onChange={(e) => {
+                    updateSearch(e);
+                  }}
+                  value={searchTerm}
+                  autofocus={true}
+                  className="md:hidden"
+                />
               )}
-            >
-              <Search.Results
-                searching={searching}
-                hasResults={Boolean(previousResults) || hasResults}
-                enabled={searchTerm.length > 2}
+
+              <div
+                ref={mobileSearchRef}
+                className={clsx(
+                  'fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto  block max-w-4xl ',
+                  searching || results ? 'block' : 'hidden'
+                )}
               >
-                <Search.Group<CollectionDocument[]>
-                  title={t('search.collection')}
-                  result={results?.collections as CollectionDocument[]}
+                <Search.Results
+                  searching={searching}
+                  hasResults={Boolean(previousResults) || hasResults}
+                  enabled={searchTerm.length > 2}
                 >
-                  {({ result }) => {
-                    return result?.map((collection, i) => (
-                      <Search.Collection
-                        value={collection}
-                        key={`search-collection-${collection.id}-${i}`}
-                        image={collection.image || '/images/placeholder.png'}
-                        name={collection.name}
-                        slug={collection.id}
-                      />
-                    ));
-                  }}
-                </Search.Group>
-                <Search.Group<Wallet[]> title={t('search.profiles')} result={results?.profiles}>
-                  {({ result }) => {
-                    return result?.map((wallet, i) => (
-                      <Search.Profile
-                        value={wallet}
-                        profile={wallet}
-                        key={`search-profile-${wallet.address}-${i}`}
-                        image={wallet.previewImage || '/images/placeholder.png'}
-                        name={wallet.displayName}
-                        slug={wallet.address}
-                      />
-                    ));
-                  }}
-                </Search.Group>
-                <Search.Group<Wallet> title={t('search.wallet')} result={results?.wallet}>
-                  {({ result }) => {
-                    if (!result) {
-                      return null;
-                    }
+                  <Search.Group<CollectionDocument[]>
+                    title={t('search.collection')}
+                    result={results?.collections as CollectionDocument[]}
+                  >
+                    {({ result }) => {
+                      return result?.map((collection, i) => (
+                        <Search.Collection
+                          value={collection}
+                          key={`search-collection-${collection.id}-${i}`}
+                          image={collection.image || '/images/placeholder.png'}
+                          name={collection.name}
+                          address={collection.id}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                  <Search.Group<Wallet[]> title={t('search.profiles')} result={results?.profiles}>
+                    {({ result }) => {
+                      return result?.map((wallet, i) => (
+                        <Search.Profile
+                          value={wallet}
+                          profile={wallet}
+                          key={`search-profile-${wallet.address}-${i}`}
+                          image={wallet.previewImage || '/images/placeholder.png'}
+                          name={wallet.displayName}
+                          address={wallet.address}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                  <Search.Group<Wallet> title={t('search.wallet')} result={results?.wallet}>
+                    {({ result }) => {
+                      if (!result) {
+                        return null;
+                      }
 
-                    return (
-                      <Search.Profile
-                        value={result}
-                        profile={result}
-                        key={`search-wallet-${result?.address}`}
-                        image={result.previewImage || '/images/placeholder.png'}
-                        name={result.displayName}
-                        slug={result.address}
-                      />
-                    );
-                  }}
-                </Search.Group>
-                <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts as Nft[]}>
-                  {({ result }) => {
-                    return result?.map((nft, i) => (
-                      <Search.MintAddress
-                        value={nft}
-                        nft={nft}
-                        key={`search-mintAddress-${nft.address}-${i}`}
-                        image={nft.image}
-                        name={nft.name}
-                        creator={nft.creators[0]}
-                        slug={nft.mintAddress}
-                      />
-                    ));
-                  }}
-                </Search.Group>
-              </Search.Results>
+                      return (
+                        <Search.Profile
+                          value={result}
+                          profile={result}
+                          key={`search-wallet-${result?.address}`}
+                          image={result.previewImage || '/images/placeholder.png'}
+                          name={result.displayName}
+                          address={result.address}
+                        />
+                      );
+                    }}
+                  </Search.Group>
+                  <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts as Nft[]}>
+                    {({ result }) => {
+                      return result?.map((nft, i) => (
+                        <Search.MintAddress
+                          value={nft}
+                          nft={nft}
+                          key={`search-mintAddress-${nft.address}-${i}`}
+                          image={nft.image}
+                          address={nft.mintAddress}
+                          name={nft.name}
+                          creator={nft.creators[0]}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                </Search.Results>
+              </div>
             </div>
-          </div>
-        </Search>
-      </div>
-      {/* Connect and Mobile Menu */}
-      <div className="flex items-center justify-end space-x-6">
-        <button
-          className={clsx(
-            'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
-            searchExpanded && 'hidden'
+          </Search>
+        </div>
+        {/* Connect and Mobile Menu */}
+        <div className="flex items-center justify-end space-x-6">
+          <button
+            className={clsx(
+              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
+              searchExpanded && 'hidden'
+            )}
+            onClick={useCallback(() => {
+              setShowNav(true);
+            }, [setShowNav])}
+          >
+            <Bars3Icon color="#fff" width={20} height={20} />
+          </button>
+
+          {loading ? (
+            <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
+          ) : viewerQueryResult.data ? (
+            <ProfilePopover wallet={viewerQueryResult.data.wallet} />
+          ) : (
+            <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
+              {t('connect')}
+            </Button>
           )}
-          onClick={useCallback(() => {
-            setShowNav(true);
-          }, [setShowNav])}
-        >
-          <Bars3Icon color="#fff" width={20} height={20} />
-        </button>
 
-        {loading ? (
-          <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-        ) : viewerQueryResult.data ? (
-          <ProfilePopover wallet={viewerQueryResult.data.wallet} />
-        ) : (
-          <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
-            {t('connect')}
-          </Button>
-        )}
-
-        {/* mobile nav */}
-      </div>
-      <MobileNavMenu showNav={showNav} setShowNav={setShowNav} />
-    </header>
+          {/* mobile nav */}
+        </div>
+        <MobileNavMenu showNav={showNav} setShowNav={setShowNav} />
+      </header>
+    </>
   );
 }
 
