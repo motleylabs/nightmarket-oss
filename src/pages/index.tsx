@@ -417,6 +417,22 @@ const Home: NextPage = () => {
           </Button>
         </section>
       </main>
+      {/* Report Banner in Footer */}
+      {/* <section className="mx-6 mb-28 hidden items-center justify-around gap-2 rounded-2xl bg-gradient-primary py-12 px-4 lg:mx-10 lg:flex lg:px-16">
+        <div className="flex items-center gap-4">
+          <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
+          <span className="w-52 text-sm text-white xl:text-base">
+            {t('report.sauceDistributedToUsers')}
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
+          <span className="w-52 text-sm text-white xl:text-base">
+            {t('report.solDistributedToSauceHolders', { sol: '124,023' })}
+          </span>
+        </div>
+        <Button border={ButtonBorder.White}>{t('report.learnMore')}</Button>
+      </section> */}
     </>
   );
 };
