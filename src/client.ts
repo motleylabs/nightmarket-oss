@@ -177,6 +177,7 @@ const client = new ApolloClient({
       Query: {
         fields: {
           wallet: {
+            keyArgs: ['address'],
             merge(_, incoming, { readField }) {
               const address: string | undefined = readField('address', incoming);
 
@@ -399,7 +400,6 @@ const client = new ApolloClient({
         },
       },
       Collection: {
-        keyFields: ['id'],
         fields: {
           activities: offsetLimitPagination(['$eventTypes']),
           nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),

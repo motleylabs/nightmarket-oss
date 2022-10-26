@@ -46,15 +46,15 @@ query CollectionAttributeGroupsQuery($id: String!) @cached (ttl: 300) {
 
 query CollectionNFTsQuery(
   $id: String!
-  $limit: Int!
-  $offset: Int!
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
-) @cached (ttl: 300) {
+  $limit: Int = 24
+  $offset: Int = 0
+) {
   collection(id: $id) {
     id
-    nfts(limit: $limit, offset: $offset, order: $order, sortBy: $sortBy, attributes: $attributes) {
+    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset) {
       ...NftListingInfo
     }
   }
@@ -65,7 +65,7 @@ query CollectionActivitiesQuery(
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) @cached (ttl: 300) {
+) @cached (ttl: 180) {
   collection(id: $id) {
     id
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {

@@ -20,7 +20,7 @@ query BuyableQuery($address: String!, $subdomain: String!) {
     mintAddress
     name
     image(width: 100)
-    collection {
+    moonrankCollection {
       name
       id
       trends {

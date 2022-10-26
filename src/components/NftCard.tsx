@@ -58,10 +58,10 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               {/* <Link href={link} passHref>
               <a> */}
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.collection?.image && (
+                {nft.moonrankCollection?.image && (
                   <img
-                    src={nft.collection?.image}
-                    alt={`Collection NFT image ${nft.collection?.id}`}
+                    src={nft.moonrankCollection?.image}
+                    alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
                     className="aspect-square w-4 rounded-sm object-cover"
                   />
                 )}
