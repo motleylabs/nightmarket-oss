@@ -66,7 +66,7 @@ const Button = ({
         {
           [background]: !border,
           [color]: color !== ButtonColor.Gradient,
-          'bg-gradient-secondary p-[2px] hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-secondary':
+          'bg-gradient-secondary p-0.5 hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-secondary':
             border === ButtonBorder.Gradient,
           'border-2 border-gray-300 bg-none hover:border-white active:text-white':
             border === ButtonBorder.Gray,
