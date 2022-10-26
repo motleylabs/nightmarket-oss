@@ -2,7 +2,7 @@ import { TailSpin } from 'react-loader-spinner';
 import clsx from 'clsx';
 
 export enum ButtonBackground {
-  Gradient = 'bg-gradient-primary',
+  Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',
   Black = 'bg-black',
   Slate = 'bg-gray-800',
 }
@@ -10,7 +10,7 @@ export enum ButtonBackground {
 export enum ButtonColor {
   Gradient = 'gradient',
   White = 'text-white',
-  Gray = 'text-gray-300',
+  Gray = 'text-gray-300 hover:text-white group-focus:text-white',
   Slate = 'text-gray-800',
 }
 
@@ -60,21 +60,22 @@ const Button = ({
     <button
       className={clsx(
         clsx,
-        'flex grow-0 items-center justify-center rounded-full text-center',
+        'group flex grow-0 items-center justify-center rounded-full text-center font-bold',
         className,
         color,
         {
           [background]: !border,
           [color]: color !== ButtonColor.Gradient,
-          'bg-gradient-secondary p-[2px]': border === ButtonBorder.Gradient,
-          'border border-gray-300 bg-none': border === ButtonBorder.Gray,
+          'bg-gradient-secondary p-[2px] hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-secondary':
+            border === ButtonBorder.Gradient,
+          'border-2 border-gray-300 bg-none hover:border-white active:text-white':
+            border === ButtonBorder.Gray,
           'w-full': block,
           'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
           'py-1 px-4 text-xs md:text-sm':
             size === ButtonSize.Small && border !== ButtonBorder.Gradient,
           'py-3 px-6': size === ButtonSize.Large && border !== ButtonBorder.Gradient,
-          'opacity-75': disabled,
-          'hover:scale-[1.02]': !disabled,
+          'disabled:opacity-50': disabled,
           'px-0 py-0': circle,
         }
       )}
@@ -98,7 +99,7 @@ const Button = ({
           <TailSpin
             height="20px"
             width="20px"
-            color={color !== ButtonColor.Gradient ? color : 'text-primary-700'}
+            color={color !== ButtonColor.Gradient ? 'text-primary-500' : 'text-primary-700'}
             ariaLabel="loading"
             wrapperClass="inline aspect-square mr-1"
           />
@@ -107,7 +108,7 @@ const Button = ({
         {children && (
           <span
             className={clsx({
-              'bg-gradient-secondary bg-clip-text text-transparent': color === ButtonColor.Gradient,
+              'text-primary-500 ': color === ButtonColor.Gradient,
             })}
           >
             {children}
