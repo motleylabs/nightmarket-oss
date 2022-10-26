@@ -135,7 +135,10 @@ export default function CollectionNfts() {
       id: router.query.id as string,
       order: OrderDirection.Desc,
       sortBy: NftSort.Price,
+      attributes: null,
     },
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: "cache-first"
   });
 
   useEffect(() => {
@@ -144,7 +147,6 @@ export default function CollectionNfts() {
         offset: 0,
         limit: 24,
         id: router.query.id as string,
-        attributes: null,
         sortBy: NftSort.Price,
         order: OrderDirection.Asc,
       };
@@ -265,7 +267,6 @@ export default function CollectionNfts() {
                         data: { collection },
                       } = await nftsQuery.fetchMore({
                         variables: {
-                          ...nftsQuery.variables,
                           offset: nftsQuery.data?.collection.nfts.length,
                         },
                       });

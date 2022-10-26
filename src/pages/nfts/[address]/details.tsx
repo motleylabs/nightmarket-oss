@@ -107,25 +107,25 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
             {nft.shortAddress}
           </div>
         </li>
-        {nft.collection?.verifiedCollectionAddress && (
+        {nft.moonrankCollection?.verifiedCollectionAddress && (
           <li className="flex items-center justify-between">
             <div>{t('collectionAddress')}</div>
             <div className="flex flex-row items-center gap-1">
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://explorer.solana.com/address/${nft.collection?.verifiedCollectionAddress}`}
+                href={`https://explorer.solana.com/address/${nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.Sol className="h-3.5 w-3.5" />
               </a>
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://solscan.io/token/${nft.collection?.verifiedCollectionAddress}`}
+                href={`https://solscan.io/token/${nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
               </a>
-              {nft.collection?.shortVerifiedCollectionAddress}
+              {nft.moonrankCollection?.shortVerifiedCollectionAddress}
             </div>
           </li>
         )}
@@ -151,7 +151,7 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
           <div>{`${auctionHouse?.fee}%`}</div>
         </li>
       </ul>
-      {nft.collection && (
+      {nft.moonrankCollection && (
         <>
           <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
           <p className="text-gray-300">{nft?.collection?.description}</p>

@@ -39,7 +39,7 @@ query NftQuery($address: String!, $subdomain: String!) {
       traitType
       value
     }
-    collection {
+    moonrankCollection {
       name
       verifiedCollectionAddress
       shortVerifiedCollectionAddress @client

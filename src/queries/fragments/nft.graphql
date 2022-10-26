@@ -24,7 +24,7 @@ fragment NftInfo on Nft {
     verified
     position
   }
-  collection {
+  moonrankCollection {
     name
     id
     image(width: 100)
