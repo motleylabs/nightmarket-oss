@@ -76,7 +76,7 @@ function NavigationBar() {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+        'sticky top-0 z-30 w-full px-6 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
         'bg-black bg-opacity-90'
@@ -531,8 +531,8 @@ function MobileNavMenu({
 
 function Footer() {
   return (
-    <footer className=" bg-gray-900 py-20">
-      <div className="container mx-auto grid grid-cols-3 items-center ">
+    <footer className=" bg-gray-900 py-20 px-6">
+      <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
         <div>
           {/* Logos */}
           <Link href="/" passHref>
@@ -606,27 +606,29 @@ function Footer() {
             </svg>
           </div>
         </div>
-        <div className="flex justify-center gap-10 text-white">
+        <div className="flex flex-col justify-center gap-10 text-right text-white md:flex-row">
           {/* Links */}
           <Link href={config.website}>
-            <a target={'_blank'}>About the DAO</a>
+            <a className="hover:underline" target={'_blank'}>
+              About the DAO
+            </a>
           </Link>
           <Link href="#">
-            <a>Legal</a>
+            <a className="hover:underline">Legal</a>
           </Link>
         </div>
-        <div className="flex justify-end gap-6 text-[#A8A8A8] ">
+        <div className="flex  gap-6 text-[#A8A8A8] md:justify-end ">
           {/* Social media */}
           {config.socialMedia.twitter && (
             <Link href={config.socialMedia.twitter}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Twitter />
               </a>
             </Link>
           )}
           {config.socialMedia.discord && (
             <Link href={config.socialMedia.discord}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Discord />
               </a>
             </Link>
@@ -634,7 +636,7 @@ function Footer() {
 
           {config.socialMedia.medium && (
             <Link href={config.socialMedia.medium}>
-              <a target="_blank" rel="nofollow noreferrer">
+              <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
                 <Icon.Medium />
               </a>
             </Link>

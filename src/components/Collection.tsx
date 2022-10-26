@@ -198,7 +198,7 @@ interface CollectionListProps {
 }
 function CollectionList({ children }: CollectionListProps) {
   return (
-    <div className="scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+    <div className="scrollbar-thumb-rounded-full overflow-x-hidden pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
       <div className="w-full">{children}</div>
     </div>
   );
@@ -279,9 +279,9 @@ interface CollectionListDataPointProps {
 }
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
-    <div className="flex w-28 flex-col gap-1 sm:w-full">
+    <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
-      <div className="flex w-32 flex-row items-center justify-start gap-2">
+      <div className="flex flex-row items-center justify-start gap-2 sm:w-32">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
           {value}
@@ -329,20 +329,24 @@ interface CollectionListShowcaseNftProps {
 }
 function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
   return (
-    <div className="group flex w-16 flex-col items-center hover:scale-110">
-      <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-      <Button
-        icon={<Icon.Sol className="h-3 w-3" />}
-        color={ButtonColor.Gray}
-        background={ButtonBackground.Slate}
-        size={ButtonSize.Tiny}
-        className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-      >
-        {price}
-      </Button>
-      <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-        Buy
-      </Button>
+    <div className=" flex w-16 flex-col items-center">
+      <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
+        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+      </a>
+      <div className="group ">
+        <Button
+          icon={<Icon.Sol className="h-3 w-3" />}
+          color={ButtonColor.Gray}
+          background={ButtonBackground.Slate}
+          size={ButtonSize.Tiny}
+          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+        >
+          {price}
+        </Button>
+        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+          Buy
+        </Button>
+      </div>
     </div>
   );
 }
