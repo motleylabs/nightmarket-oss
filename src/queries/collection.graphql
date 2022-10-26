@@ -2,7 +2,7 @@
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
 
-query CollectionQuery($id: String!) {
+query CollectionQuery($id: String!) @cached (ttl: 300) {
   collection(id: $id) {
     id
     verifiedCollectionAddress
@@ -14,7 +14,7 @@ query CollectionQuery($id: String!) {
   }
 }
 
-query CollectionQueryClient($id: String!) {
+query CollectionQueryClient($id: String!) @cached (ttl: 300) {
   collection(id: $id) {
     id
     holderCount
@@ -31,7 +31,7 @@ query CollectionQueryClient($id: String!) {
   }
 }
 
-query CollectionAttributeGroupsQuery($id: String!) {
+query CollectionAttributeGroupsQuery($id: String!) @cached (ttl: 300) {
   collection(id: $id) {
     id
     attributeGroups {
@@ -51,7 +51,7 @@ query CollectionNFTsQuery(
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
-) {
+) @cached (ttl: 300) {
   collection(id: $id) {
     id
     nfts(limit: $limit, offset: $offset, order: $order, sortBy: $sortBy, attributes: $attributes) {
@@ -65,7 +65,7 @@ query CollectionActivitiesQuery(
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) {
+) @cached (ttl: 300) {
   collection(id: $id) {
     id
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
