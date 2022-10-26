@@ -30,7 +30,8 @@ module.exports = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-primary': `linear-gradient(to right, #F85C04, #7C1E05)`,
-        'gradient-secondary': `linear-gradient(to right, #F85C04, #EC9D08)`,
+        'gradient-hover': `linear-gradient(to right, #F85C04, #EC9D08)`,
+        'gradient-secondary': `linear-gradient(to right, #F85C04, #7C1E05)`,
       },
       borderRadius: {
         md: '0.25rem',
@@ -39,7 +40,7 @@ module.exports = {
         primary: {
           100: '#E15A0A', // 50 in figma
           200: '#C33C00', // 100 in figma
-          500: '#2C2119',
+          500: '#ED9E09',
           600: '#7C1E05', // primary gradient finishes here
           700: '#DA6C1D',
           800: '#EC9D08', // secondary gradient finishes here
