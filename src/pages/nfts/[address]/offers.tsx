@@ -126,7 +126,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                       size={ButtonSize.Small}
                       onClick={() => {}}
                     >
-                      {yourOffer.buyer === publicKey.toBase58()
+                      {yourOffer.buyer === publicKey?.toBase58()
                         ? t('profile:update')
                         : t('profile:accept')}
                     </Button>
@@ -169,7 +169,9 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                   size={ButtonSize.Small}
                   onClick={() => {}}
                 >
-                  {offer.buyer === publicKey.toBase58() ? t('profile:update') : t('profile:accept')}
+                  {offer.buyer === publicKey?.toBase58()
+                    ? t('profile:update')
+                    : t('profile:accept')}
                 </Button>
               )
             }
