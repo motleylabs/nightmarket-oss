@@ -138,7 +138,7 @@ export default function CollectionNfts() {
       attributes: null,
     },
     fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: "cache-first"
+    nextFetchPolicy: 'cache-first',
   });
 
   useEffect(() => {

@@ -109,22 +109,22 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             </div>
             <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
               <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends.compactFloor1d}
+                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
               </CollectionFigure>
               <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends.compactVolume30d}
+                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
               </CollectionFigure>
               <CollectionFigure label="Est. Marketcap" loading={collectionQueryClient.loading}>
                 <Icon.Sol /> {collectionQueryClient.data?.collection.marketCap}
               </CollectionFigure>
               <CollectionFigure label="Listings" loading={collectionQueryClient.loading}>
-                {collectionQueryClient.data?.collection.trends.compactListed1d}
+                {collectionQueryClient.data?.collection.trends?.compactListed1d}
               </CollectionFigure>
               <CollectionFigure label="Holders" loading={collectionQueryClient.loading}>
                 {collectionQueryClient.data?.collection.holderCount}
               </CollectionFigure>
               <CollectionFigure label="Supply" loading={collectionQueryClient.loading}>
-                {collection.compactPieces}
+                {collection?.compactPieces}
               </CollectionFigure>
             </div>
           </div>
