@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { millisecondsToMinutes, formatDistance } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import useLaunchpad, { LaunchpadState } from '../hooks/launchpad';
+import Icon from './Icon';
 
 type Active = FC;
 type Upcoming = FC;
@@ -93,11 +94,13 @@ function LaunchpadActive({
 
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
-          <p>
+          <p className="flex items-center gap-2">
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.startingPrice') : t('phases.price')}
             </span>{' '}
-            {price} SOL
+            <span className="flex items-center">
+              <Icon.Sol /> {price}
+            </span>
           </p>
         </div>
         {/* TODO: add graph for dynamic pricing */}
@@ -157,11 +160,13 @@ function LaunchpadFinished({
         )}
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
-          <p>
+          <p className="flex items-center gap-2">
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.finishedPrice') : t('phases.price')}
             </span>{' '}
-            {price} SOL
+            <span className="flex items-center">
+              <Icon.Sol /> {price}
+            </span>
           </p>
         </div>
         <div className="flex flex-row items-center justify-between pt-2">
@@ -232,11 +237,13 @@ function LaunchpadUpcoming({
 
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
-          <p>
+          <p className="flex items-center gap-2">
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.dynamic') : t('phases.price')}
             </span>{' '}
-            {price} SOL
+            <span className="flex items-center">
+              <Icon.Sol /> {price}
+            </span>
           </p>
         </div>
         {/* TODO: add graph for dynamic pricing */}
@@ -248,7 +255,7 @@ function LaunchpadUpcoming({
             </div>
           </div>
           {/* TODO: build a countdown timer or use an off the shelf hook */}
-          <h6 className="rounded-full bg-black p-4 font-bold text-gray-500">
+          <h6 className="rounded-full bg-black px-6 py-3 font-bold text-gray-500">
             {t('phases.upcomingMint')}{' '}
             <span className="text-primary-700">{formatDistance(mintDate, new Date())}</span>
           </h6>
