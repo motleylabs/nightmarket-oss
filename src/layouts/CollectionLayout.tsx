@@ -10,6 +10,8 @@ import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
+import { subDays } from 'date-fns';
+import { toSol } from '../modules/sol';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -37,13 +39,33 @@ function CollectionFigure({
   );
 }
 
+interface CollectionData {
+  collection: Collection;
+}
+
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
   const router = useRouter();
+  const startDate = subDays(new Date(), 1).toISOString();
+  const endDate = new Date().toISOString();
+  const collectionQueryClient = useQuery<CollectionData, any>(CollectionQueryClient, {
+    variables: { id: router.query.id, startDate, endDate },
+  });
+  const floorData: any[] | undefined = [];
+  collectionQueryClient.data?.collection.timeseries.floorPrice.forEach((fp) => {
+    floorData.push({
+      date: fp.timestamp,
+      price: toSol(fp.value),
+    });
+  });
 
-  const collectionQueryClient = useQuery(CollectionQueryClient, {
-    variables: { id: router.query.id },
+  const listedCountData: any[] | undefined = [];
+  collectionQueryClient.data?.collection.timeseries.listedCount.forEach((lc) => {
+    listedCountData.push({
+      date: lc.timestamp,
+      price: lc.value,
+    });
   });
 
   return (
@@ -84,27 +106,13 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 className="h-40 w-full md:w-36 xl:w-40"
                 title={t('floorPrice')}
                 dateRange={t('timeInterval.day')}
-                chart={
-                  <Chart.TinyLineChart
-                    data={Array.from({ length: 10 }, (v, i) => ({
-                      label: i > 5 ? i - 5 : i,
-                      price: Math.floor(Math.random() * 40) + 10,
-                    }))}
-                  />
-                }
+                chart={<Chart.TinyLineChart data={floorData} />}
               />
               <Chart.Preview
                 className="h-40 w-full md:w-36 xl:w-40"
                 title={t('listings')}
                 dateRange={t('timeInterval.day')}
-                chart={
-                  <Chart.TinyLineChart
-                    data={Array.from({ length: 10 }, (v, i) => ({
-                      label: i > 5 ? i - 5 : i,
-                      price: Math.floor(Math.random() * 40) + 10,
-                    }))}
-                  />
-                }
+                chart={<Chart.TinyLineChart data={listedCountData} />}
               />
             </div>
             <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">

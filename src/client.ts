@@ -460,6 +460,13 @@ const client = new ApolloClient({
           },
         },
       },
+      Pricepoint: {
+        fields: {
+          value: {
+            read: asBN,
+          },
+        },
+      },
       CollectedCollection: {
         fields: {
           estimatedValue: {

@@ -27,7 +27,6 @@ import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
-
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
