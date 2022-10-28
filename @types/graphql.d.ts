@@ -17,6 +17,7 @@ export const CollectionAttributeGroupsQuery: DocumentNode;
 export const CollectionNFTsQuery: DocumentNode;
 export const CollectionActivitiesQuery: DocumentNode;
 export const CollectionNftPreviewsQuery: DocumentNode;
+export const CollectionAnalyticsQuery: DocumentNode;
 
   export default defaultDocument;
 }

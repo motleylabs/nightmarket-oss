@@ -1,23 +1,17 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useEffect } from 'react';
 import client from '../../../client';
 import { Collection } from '../../../graphql.types';
 import CollectionLayout from '../../../layouts/CollectionLayout';
-import { CollectionQuery } from './../../../queries/collection.graphql';
+import { CollectionQuery, CollectionAnalyticsQuery } from './../../../queries/collection.graphql';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import { useForm } from 'react-hook-form';
 import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
-
-const floorPriceData = Array.from({ length: 24 }, (v, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 40) + 10,
-}));
-
-const listedCountData = Array.from({ length: 24 }).map((_, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 50) + 930,
-}));
+import { subDays } from 'date-fns';
+import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import { toSol } from '../../../modules/sol';
 
 const priceDistributionData = Array.from({ length: 24 }).map((_, i) => ({
   label: i > 12 ? i - 12 : i,
@@ -76,8 +70,18 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
+interface CollectionAnalyticsData {
+  collection: Collection;
+}
+
+interface CollectionAnalyticsVariables {
+  id: string;
+  startDate: string;
+  endDate: string;
+}
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
   const { t } = useTranslation('analytics');
+  const router = useRouter();
 
   const { watch, control } = useForm({
     defaultValues: {
@@ -88,6 +92,38 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
     },
   });
 
+  const startDate = subDays(new Date(), 1).toISOString();
+  const endDate = new Date().toISOString();
+  const collectionQueryClient = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsQuery,
+    {
+      variables: { id: router.query.id as string, startDate, endDate },
+    }
+  );
+  const floorData: any[] | undefined = [];
+  collectionQueryClient.data?.collection.timeseries.floorPrice.forEach((fp) => {
+    floorData.push({
+      date: fp.timestamp,
+      price: toSol(fp.value),
+    });
+  });
+
+  const listedCountData: any[] | undefined = [];
+  collectionQueryClient.data?.collection.timeseries.listedCount.forEach((lc) => {
+    listedCountData.push({
+      date: lc.timestamp,
+      price: lc.value,
+    });
+  });
+
+  const holderCountData: any[] | undefined = [];
+  collectionQueryClient.data?.collection.timeseries.holderCount.forEach((lc) => {
+    holderCountData.push({
+      date: lc.timestamp,
+      price: lc.value,
+    });
+  });
+
   return (
     <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
       <Chart.Card
@@ -95,7 +131,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
         title={t('collection.floorPriceChartTitle')}
         dateRangeId="floorPriceDateRange"
         control={control}
-        chart={<Chart.LineChart data={floorPriceData} />}
+        chart={<Chart.LineChart data={floorData} />}
       />
 
       <div className="grid grid-cols-2 gap-8 py-8">
