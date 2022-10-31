@@ -65,7 +65,13 @@ export default function useBuyNow(): BuyContext {
   });
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
-    if (connected && publicKey && signTransaction && nft.owner?.address && auctionHouse.rewardCenter) {
+    if (
+      connected &&
+      publicKey &&
+      signTransaction &&
+      nft.owner?.address &&
+      auctionHouse.rewardCenter
+    ) {
       // TODO buy flow
 
       const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -119,11 +125,24 @@ export default function useBuyNow(): BuyContext {
         );
 
       const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-      const [listing] = await RewardCenterProgram.findListingAddress(seller, metadata, rewardCenter);
+      const [listing] = await RewardCenterProgram.findListingAddress(
+        seller,
+        metadata,
+        rewardCenter
+      );
       const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
-      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(auctionHouseAddress, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+        auctionHouseAddress,
+        rewardCenter
+      );
       const [purchaseTicket] = await RewardCenterProgram.findPurchaseTicketAddress(listing, offer);
-      const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, new PublicKey(auctionHouse.rewardCenter.tokenMint), rewardCenter, true)
+      const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        new PublicKey(auctionHouse.rewardCenter.tokenMint),
+        rewardCenter,
+        true
+      );
 
       const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
@@ -203,8 +222,8 @@ export default function useBuyNow(): BuyContext {
       const instruction = createExecuteSaleInstruction(accounts, args);
       const tx = new Transaction();
 
-      const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount)
-      const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount)
+      const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
+      const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
       if (!buyerAtAInfo) {
         tx.add(buyerATAInstruction);
@@ -213,7 +232,7 @@ export default function useBuyNow(): BuyContext {
       if (!sellerAtAInfo) {
         tx.add(sellerATAInstruction);
       }
-      
+
       tx.add(instruction);
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;

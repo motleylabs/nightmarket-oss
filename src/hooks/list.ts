@@ -212,7 +212,6 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
 
   const [updateListing, setUpdateListing] = useState(false);
 
-
   const {
     register: registerUpdateListing,
     handleSubmit: handleSubmitUpdateListing,
@@ -223,7 +222,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
   useEffect(() => {
     reset({
       amount: listing?.solPrice?.toString(),
-    })
+    });
   }, [listing?.solPrice, reset]);
 
   const onSubmitUpdateListing = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
@@ -321,13 +320,13 @@ interface CloseListingArgs {
 
 interface CancelListingContext {
   onCloseListing: () => Promise<void>;
-  closing: boolean;
+  closingListing: boolean;
 }
 
 export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListingContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
-  const [closing, setClosing] = useState(false);
+  const [closingListing, setClosing] = useState(false);
 
   const onCloseListing = async () => {
     if (!publicKey || !signTransaction || !listing || !listing.auctionHouse) {
@@ -385,13 +384,7 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
       ahAuctioneerPda: auctioneer,
     };
 
-    const closeListingParams: CloseListingParams = {
-      tokenSize: 1,
-    };
-
-    const instruction = createCloseListingInstruction(accounts, {
-      closeListingParams,
-    });
+    const instruction = createCloseListingInstruction(accounts);
 
     const tx = new Transaction();
     tx.add(instruction);
@@ -423,6 +416,6 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
 
   return {
     onCloseListing,
-    closing,
+    closingListing,
   };
 }

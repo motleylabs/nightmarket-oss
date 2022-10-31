@@ -14,7 +14,9 @@
   "cancel": "Cancel",
   "update": "Update",
   "updateListing": "Update your listing",
+  "updateBid": "Update your offer",
   "attributes": "Attributes",
+  "viewerOffer": "Your offer",
   "aboutCollection": "About the collection",
   "mintAddress": "Mint address",
   "tokenAddress": "Token Address",
@@ -32,7 +34,7 @@
   "submitOffer": "Submit offer",
   "lastSale": "Last sale price",
   "listNft": "List for sale",
-  "highestOffer": "Highest offer",
+  "highestOffer": "Best offer",
   "accept": "Accept",
   "twitterShareText": "Check out this NFT",
   "connectToBuy": "Connect a wallet"

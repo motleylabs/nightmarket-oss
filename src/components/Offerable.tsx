@@ -6,7 +6,7 @@ import { AuctionHouse, Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
-import useMakeOffer from '../hooks/offer';
+import { useMakeOffer } from '../hooks/offer';
 import Icon from './Icon';
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
@@ -49,9 +49,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     registerOffer,
     onMakeOffer,
     handleSubmitOffer,
-    onCancelOffer,
-    onCloseOffer,
-    onOpenOffer,
+    onCancelMakeOffer,
     offerFormState,
   } = useMakeOffer();
 
@@ -219,7 +217,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCloseOffer();
+                        onCancelMakeOffer();
                         setOpen(false);
                       }}
                       background={ButtonBackground.Slate}

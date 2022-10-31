@@ -17,6 +17,8 @@ import {
   AhListing,
   CollectionTrend,
   Maybe,
+  Offer,
+  Nft,
 } from './graphql.types';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -150,7 +152,6 @@ function asNftMarketplace(
     name: 'Unknown Marketplace',
     link: undefined,
   };
-
   result = marketplaces.filter(
     (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
   );
@@ -635,19 +636,89 @@ const client = new ApolloClient({
   resolvers: {
     AhListing: {
       solPrice(listing: AhListing) {
-        return toSol(parseInt(listing.price))
-      }
+        return toSol(parseInt(listing.price));
+      },
+    },
+    Wallet: {
+      previewImage(wallet: Wallet) {
+        const { profile, address } = wallet;
+
+        if (profile) {
+          return profile.profileImageUrlHighres as string;
+        }
+
+        return addressAvatar(address);
+      },
+      displayName(wallet: Wallet) {
+        const { profile, address } = wallet;
+
+        if (profile) {
+          return `@${profile.handle}`;
+        }
+
+        return shortenAddress(address);
+      },
+    },
+    Offer: {
+      nftMarketplace(offer: Offer) {
+        const marketplaceProgramAddress = offer.marketplaceProgramAddress;
+        const auctionHouse = offer.auctionHouse;
+
+        let result: NftMarketplace[] | NftMarketplace | undefined;
+
+        const unknownMarketplace = {
+          logo: '/images/unknown-marketplace.svg',
+          name: 'Unknown Marketplace',
+          link: undefined,
+        };
+        result = marketplaces.filter(
+          (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
+        );
+
+        if (result.length === 0) {
+          return unknownMarketplace;
+        } else if (result.length === 1) {
+          return result[0];
+        }
+
+        result = result.find(
+          (marketplace) => marketplace.auctionHouseAddress === auctionHouse?.address
+        );
+
+        if (!result) {
+          return unknownMarketplace;
+        }
+
+        return result;
+      },
+      solPrice(listing: AhListing) {
+        return toSol(parseInt(listing.price));
+      },
     },
     Nft: {
-      listing(nft): Maybe<AhListing> | null {
+      listing(nft: Nft): Maybe<AhListing> | null {
         const listing = nft.listings?.find((listing: AhListing) => {
-          return listing.auctionHouse?.address === config.auctionHouse
+          return listing.auctionHouse?.address === config.auctionHouse;
         });
 
-        return listing || null
-      }
-    }
-  }
+        return listing || null;
+      },
+      highestOffer(nft: Nft): Maybe<Offer> | null {
+        const offers = nft.offers
+          .filter((offer: Offer) => offer.auctionHouse?.address === config.auctionHouse)
+          .sort((a: Offer, b: Offer) => {
+            return parseInt(a.price) - parseInt(b.price);
+          });
+
+        return offers[0] || null;
+      },
+      viewerOffer(nft: Nft, { address }): Maybe<Offer> | null {
+        const offer = nft.offers.find((offer: Offer) => offer.buyer === address);
+
+        return offer || null;
+      },
+    },
+  },
 });
 
 export default client;

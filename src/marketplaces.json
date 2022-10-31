@@ -7,9 +7,9 @@
     "logo": "/images/magiceden.svg"
   },
   {
-    "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
-    "auctionHouseAddress": "9cCXJPiwjKTrEDWv6cgxHNeE7m7XK5YbzVfr4ZTBcn9",
-    "name": "Night Market",
+    "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
+    "auctionHouseAddress": "FrUzLxqzhp2gMYXv3WEJJwRSjB4xg3Xo8CmqvBKRQ756",
+    "name": "Night Market (Dev)",
     "link": "https://nightmarket.holaplex.dev/nfts/{}",
     "logo": "/images/nightmarket.svg"
   }

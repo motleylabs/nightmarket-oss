@@ -8,14 +8,12 @@ import clsx from 'clsx';
 import { AuctionHouse, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
-import useMakeOffer from '../hooks/offer';
+import { useMakeOffer, useUpdateOffer, useCloseOffer } from '../hooks/offer';
 import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import { Form } from '../components/Form';
 import Head from 'next/head';
 import { viewerVar } from './../cache';
 import Icon from '../components/Icon';
-import Share from '../components/Share';
-import config from '../app.config';
 import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
@@ -33,6 +31,7 @@ interface NftMarketData {
 
 interface NftMarketVariables {
   address: string;
+  viewerAddress: string;
 }
 
 enum NftPage {
@@ -51,22 +50,24 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
     variables: {
       address: router.query.address as string,
+      viewerAddress: publicKey?.toBase58() as string,
     },
   });
 
   const isOwner = viewer?.address === nft.owner?.address;
   const notOwner = !isOwner;
   const listing = data?.nft.listing;
+  const highestOffer = data?.nft.highestOffer;
+  const viewerOffer = data?.nft.viewerOffer;
 
   const {
     makeOffer,
     registerOffer,
     onMakeOffer,
-    onCancelOffer,
     handleSubmitOffer,
     onOpenOffer,
-    onCloseOffer,
     offerFormState,
+    onCancelMakeOffer,
   } = useMakeOffer();
 
   const handleOffer = async ({ amount }: { amount: string }) => {
@@ -112,7 +113,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onSubmitListNft({ amount, nft, auctionHouse });
   };
 
-  const { onCloseListing, closing } = useCloseListing({ listing, nft });
+  const { onCloseListing, closingListing } = useCloseListing({ listing, nft });
 
   const {
     updateListing,
@@ -131,11 +132,31 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onSubmitUpdateListing({ amount, nft, auctionHouse });
   };
 
+  const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
+
+  const {
+    onOpenUpdateOffer,
+    registerUpdateOffer,
+    onUpdateOffer,
+    onCancelUpdateOffer,
+    updateOfferFormState,
+    handleSubmitUpdateOffer,
+    updateOffer,
+  } = useUpdateOffer(viewerOffer);
+
+  const handleUpdateOffer = async ({ amount }: { amount: string }) => {
+    if (!amount || !nft || !auctionHouse) {
+      return;
+    }
+
+    await onUpdateOffer({ amount, nft, auctionHouse });
+  };
+
   useEffect(() => {
     setValue('amount', listing?.solPrice as number);
   }, [setValue, listing]);
 
-  const activeForm = makeOffer || listNft || updateListing;
+  const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
   const [expanded, setExpanded] = useState(false);
 
@@ -211,16 +232,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           ) : (
             <div />
           )}
-          {/* Share Component */}
-          {/* <Share
-            address={nft.mintAddress}
-            forceDirection="left"
-            twitterParams={{
-              text: t('twitterShareText'),
-              hashtags: ['nightmarket'],
-              url: `${config.baseUrl}/nfts/${nft.mintAddress}`,
-            }}
-          /> */}
         </div>
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
@@ -242,22 +253,24 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <p className="text-primary-700">{400} SAUCE</p>
                 </div>
               </div>
-              <div id={'prices'} className="flex flex-col gap-2">
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">
-                    {t('buyable.floorPrice', { ns: 'common' })}
-                  </p>
-                  <p className="text-base font-medium text-gray-300">
-                    <Icon.Sol /> {nft.moonrankCollection?.trends?.compactFloor1d}
-                  </p>
-                </div>
+              <div className="flex flex-col gap-2">
+                {nft.moonrankCollection?.trends && (
+                  <div className="flex flex-row justify-between">
+                    <p className="text-base font-medium text-gray-300">
+                      {t('buyable.floorPrice', { ns: 'common' })}
+                    </p>
+                    <p className="text-base font-medium text-gray-300">
+                      <Icon.Sol /> {nft.moonrankCollection?.trends?.compactFloor1d}
+                    </p>
+                  </div>
+                )}
                 {listing && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.listPrice', { ns: 'common' })}
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
-                    <p className="text-base font-medium text-gray-300">
+                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {listing.solPrice}
                     </p>
                   </div>
@@ -274,7 +287,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.currentBalance', { ns: 'common' })}
                   </p>
-                  <p className="text-base font-medium text-gray-300">
+                  <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
                     <Icon.Sol /> {viewer?.solBalance}
                   </p>
                 </div>
@@ -344,8 +357,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {viewer && (
                   <li className="flex justify-between">
                     <span>{t('walletBalance')}</span>
-                    <span>
-                      <Icon.Sol /> {viewer.solBalance}
+                    <span className="flex flex-row items-center justify-center">
+                      <Icon.Sol />
+                      {viewer.solBalance}
                     </span>
                   </li>
                 )}
@@ -383,7 +397,86 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 border={ButtonBorder.Gray}
                 color={ButtonColor.Gray}
                 block
-                onClick={onCloseOffer}
+                onClick={onCancelMakeOffer}
+              >
+                {t('cancel', { ns: 'common' })}
+              </Button>
+            </div>
+          </Form>
+        )}
+        {updateOffer && (
+          <Form
+            onSubmit={handleSubmitUpdateOffer(handleUpdateOffer)}
+            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
+          >
+            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
+              {t('updateBid')}
+            </h2>
+            <div className="px-6 pt-8 pb-6 md:pt-0">
+              <div className="flex flex-row justify-start gap-4 md:hidden">
+                <img
+                  src={nft.image}
+                  alt="nft image"
+                  className="h-12 w-12 rounded-md object-cover"
+                />
+                <div className="flex flex-col justify-between">
+                  <h6>{nft.name}</h6>
+                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
+                </div>
+              </div>
+              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
+                {nft.moonrankCollection && (
+                  <li className="flex justify-between">
+                    <span>{t('currentFloor')}</span>
+                    <span>
+                      <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
+                    </span>
+                  </li>
+                )}
+                {viewer && (
+                  <li className="flex justify-between">
+                    <span>{t('walletBalance')}</span>
+                    <span className="flex flex-row items-center justify-center">
+                      <Icon.Sol />
+                      {viewer.solBalance}
+                    </span>
+                  </li>
+                )}
+              </ul>
+              <Form.Label name={t('amount')}>
+                <div
+                  className={clsx(
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'input'
+                  )}
+                >
+                  <Icon.Sol />
+                  <input
+                    {...registerUpdateOffer('amount', { required: true })}
+                    autoFocus
+                    className={clsx('w-full bg-transparent pl-2')}
+                  />
+                </div>
+                {updateOfferFormState.errors.amount?.message && (
+                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                    {updateOfferFormState.errors.amount?.message}
+                  </p>
+                )}
+              </Form.Label>
+              <Button
+                block
+                htmlType="submit"
+                className="mb-4"
+                loading={updateOfferFormState.isSubmitting}
+              >
+                {t('update')}
+              </Button>
+              <Button
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
+                block
+                onClick={onCancelUpdateOffer}
               >
                 {t('cancel', { ns: 'common' })}
               </Button>
@@ -531,7 +624,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           })}
         >
           <div className="flex flex-col items-center justify-between rounded-lg bg-gray-800">
-            {listing && (
+            {(listing || highestOffer) && (
               <div className="flex w-full flex-row items-center justify-between border-b-[1px] border-b-gray-900 py-4 px-6">
                 <img
                   src="/images/nightmarket.svg"
@@ -544,8 +637,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 </span>
               </div>
             )}
-            <div className="flex w-full  flex-col gap-6 p-6">
-              <div className="grid grid-cols-12 w-full">
+            <div className={clsx('flex w-full flex-col gap-6 px-6 pt-6', { 'pb-6': listing })}>
+              <div className="grid w-full grid-cols-12">
                 {listing && (
                   <div className="col-span-6 flex flex-col justify-between text-gray-300">
                     <span>{t('listed')}</span>
@@ -561,19 +654,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {t('update')}
                     </Button>
                   )}
-                  {notOwner && !listing && (
-                    <Button
-                      onClick={onOpenOffer}
-                      className="w-52"
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                    >
-                      {t('bid')}
-                    </Button>
-                  )}
                   {notOwner && listing && (
-                    <Button className="w-52" onClick={onOpenBuy}>
+                    <Button block onClick={onOpenBuy}>
                       {t('buy')}
                     </Button>
                   )}
@@ -582,7 +664,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               {listing && isOwner && (
                 <Button
                   block
-                  loading={closing}
+                  loading={closingListing}
                   border={ButtonBorder.Gray}
                   color={ButtonColor.Gray}
                   onClick={onCloseListing}
@@ -592,13 +674,91 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               )}
             </div>
             {!listing && (
-              <div className="flex flex-row items-center justify-between rounded-lg bg-gray-800 p-6">
-                <div className="flex flex-col justify-between text-gray-300">
-                  {/* TODO: Dont show if there is no data */}
-                  <span>{t('lastSale')}</span>
-                  <span>--</span>
+              <div className="grid w-full grid-cols-12 gap-4 px-6 pb-6">
+                <div className="col-span-12 flex flex-row justify-start gap-4 text-gray-300 md:col-span-6">
+                  {(highestOffer || viewerOffer) && (
+                    <>
+                      {highestOffer && (
+                        <div>
+                          <span>{t('highestOffer')}</span>
+                          <span className="flex flex-row items-center justify-start">
+                            <Icon.Sol />
+                            {highestOffer.solPrice}
+                          </span>
+                        </div>
+                      )}
+                      {viewerOffer && (
+                        <div>
+                          <span>{t('viewerOffer')}</span>
+                          <span className="flex flex-row items-center justify-start">
+                            <Icon.Sol />
+                            {viewerOffer.solPrice}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-                {isOwner && <Button onClick={onListNftClick}>{t('listNft')}</Button>}
+                <div className="col-span-12 md:col-span-6">
+                  {isOwner &&
+                    (highestOffer ? (
+                      <Button block onClick={onListNftClick}>
+                        {t('accept')}
+                      </Button>
+                    ) : (
+                      <Button block onClick={onListNftClick}>
+                        {t('listNft')}
+                      </Button>
+                    ))}
+                  {notOwner && !listing && !viewerOffer && (
+                    <Button
+                      onClick={onOpenOffer}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      block
+                    >
+                      {t('bid')}
+                    </Button>
+                  )}
+                  {viewerOffer && (
+                    <Button
+                      onClick={onOpenUpdateOffer}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      block
+                    >
+                      {t('update')}
+                    </Button>
+                  )}
+                </div>
+                {viewerOffer && (
+                  <div className="col-span-12">
+                    <Button
+                      block
+                      loading={closingOffer}
+                      border={ButtonBorder.Gray}
+                      color={ButtonColor.Gray}
+                      onClick={() => onCloseOffer({ nft, auctionHouse })}
+                    >
+                      {t('Cancel')}
+                    </Button>
+                  </div>
+                )}
+                {isOwner && !listing && highestOffer && (
+                  <div className="col-span-12">
+                    <Button
+                      block
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      background={ButtonBackground.Slate}
+                      onClick={onListNftClick}
+                    >
+                      {t('listNft')}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
