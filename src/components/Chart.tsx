@@ -1,6 +1,8 @@
+import { QueryResult, useQuery } from '@apollo/client';
 import clsx from 'clsx';
-import { ReactNode } from 'react';
-import { Controller } from 'react-hook-form';
+import { format, subDays } from 'date-fns';
+import { ReactNode, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Bar,
   BarChart,
@@ -12,13 +14,33 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Collection, Datapoint } from '../graphql.types';
+import { toSol } from '../modules/sol';
 import { ButtonGroup } from './ButtonGroup';
+import { CollectionAnalyticsQuery } from './../queries/collection.graphql';
+import { useRouter } from 'next/router';
+import {
+  CollectionAnalyticsData,
+  CollectionAnalyticsVariables,
+  getDateTimeRange,
+} from '../pages/collections/[id]/analytics';
 
 export enum DateRangeOption {
-  DAY = 'One day',
-  WEEK = 'One week',
-  MONTH = 'One month',
+  DAY = '1',
+  WEEK = '7',
+  MONTH = '30',
 }
+
+const generateTimeseriesArray = (dataPoints: Datapoint[] | undefined) => {
+  const floorDataSeries: any[] | undefined = [];
+  dataPoints?.forEach((fp) => {
+    floorDataSeries.push({
+      date: fp.timestamp,
+      price: toSol(fp.value),
+    });
+  });
+  return floorDataSeries;
+};
 
 export function Chart() {
   return <div />;
@@ -212,6 +234,93 @@ function ChartCard(props: {
   );
 }
 Chart.Card = ChartCard;
+
+function ChartTimeseriesCard(props: {
+  title: string;
+  className?: string;
+  query: QueryResult<CollectionAnalyticsData, CollectionAnalyticsVariables>;
+  queryKey: 'floorPrice' | 'holderCount' | 'listedCount';
+}) {
+  const router = useRouter();
+
+  const { watch, control, reset, getValues } = useForm({
+    defaultValues: {
+      dateRangeId: DateRangeOption.DAY,
+    },
+  });
+
+  let timeseries = props.query.data?.collection.timeseries;
+  let [seriesData, setSeriesData] = useState<any[]>(
+    generateTimeseriesArray(timeseries ? timeseries[props.queryKey] : undefined)
+  );
+
+  let selectedDateRange = 'One Day';
+  switch (getValues('dateRangeId')) {
+    case DateRangeOption.DAY:
+      selectedDateRange = 'One Day';
+      break;
+    case DateRangeOption.WEEK:
+      selectedDateRange = 'One Week';
+      break;
+    case DateRangeOption.MONTH:
+      selectedDateRange = 'One Month';
+      break;
+  }
+
+  useEffect(() => {
+    const subscription = watch(({ dateRangeId }) => {
+      let dateRange = getDateTimeRange(dateRangeId!);
+      let variables: CollectionAnalyticsVariables = {
+        id: router.query.id as string,
+        startTime: dateRange.startTime,
+        endTime: dateRange.endTime,
+      };
+
+      props.query.refetch(variables).then(({ data }) => {
+        let timeseries = data.collection.timeseries;
+        setSeriesData(generateTimeseriesArray(timeseries ? timeseries[props.queryKey] : undefined));
+      });
+    });
+
+    return subscription.unsubscribe;
+  }, [watch, router.query.id, props.query, props.queryKey]);
+
+  useEffect(() => {
+    reset({
+      dateRangeId: DateRangeOption.DAY,
+    });
+  }, [reset]);
+
+  return (
+    <div className={clsx('flex flex-col gap-10 rounded-lg bg-gray-800 p-6', props.className)}>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <h2>{props.title}</h2>
+          <p className="text-gray-250 text-xs">{selectedDateRange}</p>
+        </div>
+        <Controller
+          control={control}
+          name="dateRangeId"
+          render={({ field: { onChange, value } }) => (
+            <ButtonGroup value={value} onChange={onChange} style="plain">
+              <ButtonGroup.Option plain value={DateRangeOption.DAY}>
+                1D
+              </ButtonGroup.Option>
+              <ButtonGroup.Option plain value={DateRangeOption.WEEK}>
+                1W
+              </ButtonGroup.Option>
+              <ButtonGroup.Option plain value={DateRangeOption.MONTH}>
+                1M
+              </ButtonGroup.Option>
+            </ButtonGroup>
+          )}
+        />
+      </div>
+      <Chart.LineChart data={seriesData} />
+    </div>
+  );
+}
+Chart.TimeseriesCard = ChartTimeseriesCard;
 
 function ChartPreview({
   title,

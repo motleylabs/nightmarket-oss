@@ -2,6 +2,7 @@
   "collection": {
     "floorPriceChartTitle": "Floor price",
     "listedCountChartTitle": "Listed count",
+    "holderCountChartTitle": "Holder Count",
     "priceDistributionChartTitle": "Price distribution",
     "holdersVsTokensHeldChartTitle": "Holders vs Tokens held"
   },

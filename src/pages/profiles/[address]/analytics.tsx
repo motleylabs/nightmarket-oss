@@ -105,14 +105,14 @@ export default function ProfileAnalyticsPage({
 
   return (
     <div className="px-10 pt-6 pb-20">
-      <Chart.Card
+      <Chart.TimeseriesCard
         title={t('profile.walletValueChartTitle')}
         control={control}
         dateRangeId="walletValueDateRange"
         chart={<Chart.LineChart data={walletValueData} />}
       />
 
-      <Chart.Card
+      <Chart.TimeseriesCard
         title={t('profile.totalAssetBreakdownChartTitle')}
         control={control}
         chart={
@@ -144,14 +144,14 @@ export default function ProfileAnalyticsPage({
         }
       />
       <div className=" grid grid-cols-2 gap-8 py-8">
-        <Chart.Card
+        <Chart.TimeseriesCard
           title={t('profile.listedCountChartTitle')}
           dateRangeId="listedCountDateRange"
           control={control}
           chart={<Chart.LineChart data={listedCountData} />}
         />
 
-        <Chart.Card
+        <Chart.TimeseriesCard
           title={t('profile.nftsBoughtVsNftsSoldChartTitle')}
           dateRangeId="nftsBoughtVsNftsSoldDateRange"
           control={control}

@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { toSol } from '../modules/sol';
 
 interface CollectionLayoutProps {
@@ -43,15 +43,29 @@ interface CollectionData {
   collection: Collection;
 }
 
+interface CollectionVariables {
+  id: string;
+  startTime: string;
+  endTime: string;
+}
+
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const { initialized: currenciesReady, solToUsdString } = useCurrencies();
   const router = useRouter();
-  const startDate = subDays(new Date(), 1).toISOString();
-  const endDate = new Date().toISOString();
-  const collectionQueryClient = useQuery<CollectionData, any>(CollectionQueryClient, {
-    variables: { id: router.query.id, startDate, endDate },
-  });
+  const startTime = format(subDays(new Date(), 2), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+  const endTime = format(new Date(), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+
+  const collectionQueryClient = useQuery<CollectionData, CollectionVariables>(
+    CollectionQueryClient,
+    {
+      variables: {
+        id: router.query.id as string,
+        startTime,
+        endTime,
+      },
+    }
+  );
   const floorData: any[] | undefined = [];
   collectionQueryClient.data?.collection.timeseries.floorPrice.forEach((fp) => {
     floorData.push({

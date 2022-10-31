@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import client from '../../../client';
 import { Collection } from '../../../graphql.types';
 import CollectionLayout from '../../../layouts/CollectionLayout';
@@ -8,7 +8,7 @@ import { GetServerSidePropsContext } from 'next';
 import { useForm } from 'react-hook-form';
 import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
-import { subDays } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { toSol } from '../../../modules/sol';
@@ -70,95 +70,104 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
-interface CollectionAnalyticsData {
+export interface CollectionAnalyticsData {
   collection: Collection;
 }
 
-interface CollectionAnalyticsVariables {
+export interface CollectionAnalyticsVariables {
   id: string;
-  startDate: string;
-  endDate: string;
+  startTime: string;
+  endTime: string;
+}
+
+export function getDateTimeRange(dateRangeOption: DateRangeOption): {
+  startTime: string;
+  endTime: string;
+} {
+  const startTime = format(
+    subDays(new Date(), parseInt(dateRangeOption)),
+    "yyyy-MM-dd'T'hh:mm:ssxxx"
+  ) as string;
+  const endTime = format(new Date(), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+  return { startTime, endTime };
 }
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
   const { t } = useTranslation('analytics');
   const router = useRouter();
 
-  const { watch, control } = useForm({
-    defaultValues: {
-      floorPriceDateRange: DateRangeOption.DAY,
-      listingCountDateRange: DateRangeOption.DAY,
-      priceDistributionDateRange: DateRangeOption.DAY,
-      holdersVsHeldDateRange: DateRangeOption.DAY,
-    },
-  });
+  const defaultDateRange = getDateTimeRange(DateRangeOption.DAY);
 
-  const startDate = subDays(new Date(), 1).toISOString();
-  const endDate = new Date().toISOString();
-  const collectionQueryClient = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+  const floorDataQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
     CollectionAnalyticsQuery,
     {
-      variables: { id: router.query.id as string, startDate, endDate },
+      variables: {
+        id: router.query.id as string,
+        startTime: defaultDateRange.startTime,
+        endTime: defaultDateRange.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
     }
   );
-  const floorData: any[] | undefined = [];
-  collectionQueryClient.data?.collection.timeseries.floorPrice.forEach((fp) => {
-    floorData.push({
-      date: fp.timestamp,
-      price: toSol(fp.value),
-    });
-  });
 
-  const listedCountData: any[] | undefined = [];
-  collectionQueryClient.data?.collection.timeseries.listedCount.forEach((lc) => {
-    listedCountData.push({
-      date: lc.timestamp,
-      price: lc.value,
-    });
-  });
+  const listedCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsQuery,
+    {
+      variables: {
+        id: router.query.id as string,
+        startTime: defaultDateRange.startTime,
+        endTime: defaultDateRange.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    }
+  );
 
-  const holderCountData: any[] | undefined = [];
-  collectionQueryClient.data?.collection.timeseries.holderCount.forEach((lc) => {
-    holderCountData.push({
-      date: lc.timestamp,
-      price: lc.value,
-    });
-  });
+  const holderCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsQuery,
+    {
+      variables: {
+        id: router.query.id as string,
+        startTime: defaultDateRange.startTime,
+        endTime: defaultDateRange.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    }
+  );
 
   return (
     <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
-      <Chart.Card
+      <Chart.TimeseriesCard
         className="h-96"
         title={t('collection.floorPriceChartTitle')}
-        dateRangeId="floorPriceDateRange"
-        control={control}
-        chart={<Chart.LineChart data={floorData} />}
+        query={floorDataQuery}
+        queryKey="floorPrice"
       />
 
       <div className="grid grid-cols-2 gap-8 py-8">
-        <Chart.Card
+        <Chart.TimeseriesCard
           className="h-96"
           title={t('collection.listedCountChartTitle')}
-          dateRangeId="listingCountDateRange"
-          control={control}
-          chart={<Chart.LineChart data={listedCountData} />}
+          query={listedCountQuery}
+          queryKey="listedCount"
         />
 
-        <Chart.Card
+        <Chart.TimeseriesCard
           className="h-96"
-          title={t('collection.priceDistributionChartTitle')}
-          dateRangeId="priceDistributionDateRange"
-          control={control}
-          chart={<Chart.LineChart data={priceDistributionData} />}
+          title={t('collection.holderCountChartTitle')}
+          query={holderCountQuery}
+          queryKey="holderCount"
         />
       </div>
 
-      <Chart.Card
+      {/* <Chart.Card
         className="h-96"
         title={t('collection.holdersVsTokensHeldChartTitle')}
         dateRangeId="holdersVsHeldDateRange"
         control={control}
         chart={<Chart.BarChart data={holdersVsTokensHeldData} />}
-      />
+      /> */}
     </div>
   );
 }
