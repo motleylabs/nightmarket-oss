@@ -25,12 +25,11 @@ query OfferableQuery($address: String!, $auctionHouse: String!) {
     }
     listings {
       ...ListingInfo
-      previewPrice @client
     }
     purchases {
       id
       price
-      previewPrice @client
+      solPrice @client
     }
     owner {
       address

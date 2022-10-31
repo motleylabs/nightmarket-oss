@@ -1,7 +1,7 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 
-query WalletProfileQuery($address: PublicKey!) @cached (ttl: 300) {
+query WalletProfileQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
     displayName @client
@@ -13,7 +13,7 @@ query WalletProfileQuery($address: PublicKey!) @cached (ttl: 300) {
   }
 }
 
-query WalletProfileClientQuery($address: PublicKey!) @client(ttl: 120) {
+query WalletProfileClientQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
     compactOwnedCount @client
@@ -66,7 +66,7 @@ query ProfileActivitiesQuery(
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) @cached (ttl: 120) {
+) {
   wallet(address: $address) {
     address
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
@@ -142,7 +142,7 @@ query ProfileOffersQuery(
   }
 }
 
-query ProfileInfoByAddressQuery($address: PublicKey!) @cached (ttl: 300) {
+query ProfileInfoByAddressQuery($address: PublicKey!) {
   wallet(address: $address) {
     address
     previewImage @client

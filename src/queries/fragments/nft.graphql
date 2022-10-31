@@ -31,22 +31,13 @@ fragment NftInfo on Nft {
   }
   purchases {
     id
-    previewPrice @client
+    solPrice @client
     price
     buyer
     seller
   }
   listings {
-    ...ListingPreview
-    previewPrice @client
-  }
-  magicEdenListings @client {
-    ...ListingPreview
-    previewPrice @client
-  }
-  marketplaceListings @client {
-    ...ListingPreview
-    previewPrice @client
+    ...ListingInfo
   }
 }
 

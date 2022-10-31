@@ -147,7 +147,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     <p className="text-base font-medium text-gray-300">{t('buyable.listPrice')}</p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="text-base font-medium text-gray-300">
-                      {data?.nft.listings[0].previewPrice} SOL
+                      {data?.nft.listings[0].solPrice} SOL
                     </p>
                   </div>
                 )}

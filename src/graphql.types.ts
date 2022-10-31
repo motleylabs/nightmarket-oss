@@ -34,7 +34,6 @@ export type AhListing = {
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
   nftMarketplace?: Maybe<NftMarketplace>;
-  previewPrice?: Maybe<Scalars['String']>;
   price: Scalars['U64'];
   purchaseId?: Maybe<Scalars['Uuid']>;
   seller: Scalars['PublicKey'];
@@ -777,8 +776,6 @@ export type Nft = {
   imageOriginal: Scalars['String'];
   listing?: Maybe<AhListing>;
   listings: Array<AhListing>;
-  magicEdenListings?: Maybe<Array<Maybe<AhListing>>>;
-  marketplaceListings?: Maybe<Array<Maybe<AhListing>>>;
   mintAddress: Scalars['String'];
   moonrankCollection?: Maybe<Collection>;
   name: Scalars['String'];
@@ -1086,9 +1083,9 @@ export type Purchase = {
   marketplaceProgramAddress: Scalars['String'];
   metadata: Scalars['PublicKey'];
   nft?: Maybe<Nft>;
-  previewPrice?: Maybe<Scalars['String']>;
   price: Scalars['U64'];
   seller: Scalars['PublicKey'];
+  solPrice?: Maybe<Scalars['String']>;
   tokenSize: Scalars['Int'];
 };
 

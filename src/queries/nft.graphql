@@ -115,11 +115,11 @@ query NftMarketInfoQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
+    listing @client {
+      ...ListingInfo
+    }
     listings {
       ...ListingInfo
-      previewPrice @client
-      tradeState
-      tradeStateBump
     }
   }
 }

@@ -30,14 +30,14 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     }
     listings {
       ...ListingInfo
-      previewPrice @client
+      solPrice @client
       tradeState
       tradeStateBump
     }
     purchases {
       id
       price
-      previewPrice @client
+      solPrice @client
     }
     owner {
       address

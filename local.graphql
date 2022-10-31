@@ -14,7 +14,6 @@ type NftMarketplace {
 
 extend type AhListing {
   nftMarketplace: NftMarketplace
-  previewPrice: String
   solPrice: Int
 }
 
@@ -27,7 +26,7 @@ extend type AuctionHouse {
 }
 
 extend type Purchase {
-  previewPrice: String
+  solPrice: String
 }
 
 extend type Nft {
@@ -35,8 +34,6 @@ extend type Nft {
   shortMintAddress: String
   royalties: Int
   listing: AhListing
-  magicEdenListings: [AhListing]
-  marketplaceListings: [AhListing]
 }
 
 extend type Offer {

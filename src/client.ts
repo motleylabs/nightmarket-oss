@@ -16,6 +16,7 @@ import {
   Wallet,
   AhListing,
   CollectionTrend,
+  Maybe,
 } from './graphql.types';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -529,38 +530,6 @@ const client = new ApolloClient({
               return sellerFeeBasisPoints / 100;
             },
           },
-          listing: {
-            read(_, { readField }): AhListing | undefined {
-              const listings: readonly AhListing[] | undefined = readField('listings');
-              return listings?.find(
-                (listing) => listing.auctionHouse?.address === config.auctionHouse
-              );
-            },
-          },
-          magicEdenListings: {
-            read(_, { readField }): any[] {
-              const listings: readonly AhListing[] | undefined = readField('listings');
-              console.log('meListings', listings);
-              const magicEdenListings = listings?.filter(
-                (listing) =>
-                  listing.auctionHouse?.address === 'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K'
-              );
-
-              return magicEdenListings || [];
-            },
-          },
-          marketplaceListings: {
-            read(_, { readField }): any[] {
-              const nftName = readField('name');
-              const listings: readonly AhListing[] | undefined = readField('listings');
-              console.log('daomarketlistings', nftName, listings);
-              const daomarketListings = listings?.filter(
-                (listing) => listing.auctionHouse?.address === config.auctionHouseAddress
-              );
-
-              return daomarketListings || [];
-            },
-          },
         },
       },
       Creator: {
@@ -589,9 +558,6 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
-          previewPrice: {
-            read: asSOL,
-          },
         },
       },
       AhListing: {
@@ -599,9 +565,6 @@ const client = new ApolloClient({
         fields: {
           price: {
             read: asBN,
-          },
-          previewPrice: {
-            read: asSOL,
           },
           nftMarketplace: {
             read: asNftMarketplace,
@@ -669,6 +632,22 @@ const client = new ApolloClient({
       },
     },
   }),
+  resolvers: {
+    AhListing: {
+      solPrice(listing: AhListing) {
+        return toSol(parseInt(listing.price))
+      }
+    },
+    Nft: {
+      listing(nft): Maybe<AhListing> | null {
+        const listing = nft.listings?.find((listing: AhListing) => {
+          return listing.auctionHouse?.address === config.auctionHouse
+        });
+
+        return listing || null
+      }
+    }
+  }
 });
 
 export default client;

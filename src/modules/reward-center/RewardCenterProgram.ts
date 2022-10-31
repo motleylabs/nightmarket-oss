@@ -2,7 +2,7 @@ import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
 import { BN } from 'bn.js';
 
-const REWARD_CENTER_PROGRAM = new PublicKey('rwdLstiU8aJU1DPdoPtocaNKApMhCFdCg283hz8dd3u');
+const REWARD_CENTER_PROGRAM = new PublicKey('RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki');
 
 export class RewardCenterProgram {
   static findRewardCenterAddress(auctionHouse: PublicKey): Promise<[PublicKey, number]> {
