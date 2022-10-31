@@ -32,21 +32,30 @@ export enum DateRangeOption {
 }
 
 const generateTimeseriesArray = (dataPoints: Datapoint[] | undefined) => {
-  const floorDataSeries: any[] | undefined = [];
-  dataPoints?.forEach((fp) => {
-    floorDataSeries.push({
-      date: fp.timestamp,
-      price: toSol(fp.value),
-    });
-  });
-  return floorDataSeries;
+  return (
+    dataPoints?.map((fp) => {
+      const parsedValue = parseInt(fp.value);
+      return {
+        date: fp.timestamp as string,
+        price: parsedValue > 10000 ? toSol(fp.value) : parsedValue,
+      };
+    }) || []
+  );
 };
 
 export function Chart() {
   return <div />;
 }
 
+const intervalByDateRange = {
+  // will determin better intervals when serverside data timestamps is fixed
+  [DateRangeOption.DAY]: 10,
+  [DateRangeOption.WEEK]: 24 * 7,
+  [DateRangeOption.MONTH]: 24 * 31,
+};
+
 function StyledLineChart(props: {
+  dateRange?: DateRangeOption;
   height?: number;
   data: any[];
   options?: {
@@ -70,7 +79,7 @@ function StyledLineChart(props: {
           strokeDasharray="1000 0 "
         />
         <XAxis
-          interval={10}
+          interval={intervalByDateRange[props.dateRange || DateRangeOption.DAY]}
           tickLine={false}
           width={25}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
@@ -250,12 +259,14 @@ function ChartTimeseriesCard(props: {
   });
 
   let timeseries = props.query.data?.collection.timeseries;
-  let [seriesData, setSeriesData] = useState<any[]>(
+  let [seriesData, setSeriesData] = useState(
     generateTimeseriesArray(timeseries ? timeseries[props.queryKey] : undefined)
   );
 
+  const dateRange = watch('dateRangeId');
+
   let selectedDateRange = 'One Day';
-  switch (getValues('dateRangeId')) {
+  switch (dateRange) {
     case DateRangeOption.DAY:
       selectedDateRange = 'One Day';
       break;
@@ -316,7 +327,7 @@ function ChartTimeseriesCard(props: {
           )}
         />
       </div>
-      <Chart.LineChart data={seriesData} />
+      <Chart.LineChart dateRange={dateRange} data={seriesData} />
     </div>
   );
 }

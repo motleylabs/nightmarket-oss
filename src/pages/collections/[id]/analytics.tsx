@@ -91,6 +91,7 @@ export function getDateTimeRange(dateRangeOption: DateRangeOption): {
   const endTime = format(new Date(), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
   return { startTime, endTime };
 }
+
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
   const { t } = useTranslation('analytics');
   const router = useRouter();
