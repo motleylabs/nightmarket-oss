@@ -259,7 +259,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.floorPrice', { ns: 'common' })}
                     </p>
-                    <p className="text-base font-medium text-gray-300">
+                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {nft.moonrankCollection?.trends?.compactFloor1d}
                     </p>
                   </div>
@@ -349,7 +349,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -386,8 +386,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               </Form.Label>
               <Button
                 block
-                onClick={handleSubmitOffer(handleOffer)}
                 className="mb-4"
+                htmlType="submit"
                 loading={offerFormState.isSubmitting}
               >
                 {t('submitOffer')}

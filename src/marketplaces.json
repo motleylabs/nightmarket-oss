@@ -12,5 +12,12 @@
     "name": "Night Market (Dev)",
     "link": "https://nightmarket.holaplex.dev/nfts/{}",
     "logo": "/images/nightmarket.svg"
+  },
+  {
+    "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
+    "auctionHouseAddress": "8JfAyq7iGvEEsJ1SRzFHpxSAcjt9nGD7VgjeB56vGPuK",
+    "name": "Night Market (Builders)",
+    "link": "https://nightmarket.holaplex.dev/nfts/{}",
+    "logo": "/images/nightmarket.svg"
   }
 ]

@@ -75,7 +75,7 @@ export default function useBuyNow(): BuyContext {
       // TODO buy flow
 
       const auctionHouseAddress = new PublicKey(auctionHouse.address);
-      const listedPrice = ahListing.price.toNumber();
+      const listedPrice = parseInt(ahListing.price);
       const seller = new PublicKey(nft?.owner?.address);
       const authority = new PublicKey(auctionHouse.authority);
       const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
@@ -186,7 +186,6 @@ export default function useBuyNow(): BuyContext {
         listing,
         offer,
         payer: publicKey,
-        purchaseTicket,
         tokenAccount: associatedTokenAcc,
         tokenMint,
         metadata,
@@ -214,8 +213,6 @@ export default function useBuyNow(): BuyContext {
           freeTradeStateBump: freeSellerTradeBump,
           sellerTradeStateBump,
           programAsSignerBump,
-          price: listedPrice,
-          tokenSize: 1,
         },
       };
 

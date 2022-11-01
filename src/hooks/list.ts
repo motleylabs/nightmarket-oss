@@ -8,7 +8,6 @@ import {
   CreateListingInstructionArgs,
   createCloseListingInstruction,
   CloseListingInstructionAccounts,
-  CloseListingParams,
   createUpdateListingInstruction,
   UpdateListingInstructionAccounts,
   UpdateListingInstructionArgs,
