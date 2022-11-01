@@ -5,13 +5,11 @@ import CollectionLayout from '../../../layouts/CollectionLayout';
 import { CollectionQuery, CollectionAnalyticsQuery } from './../../../queries/collection.graphql';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
-import { useForm } from 'react-hook-form';
 import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
-import { format, subDays } from 'date-fns';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { toSol } from '../../../modules/sol';
+import { getDateTimeRange } from '../../../modules/time';
 
 const priceDistributionData = Array.from({ length: 24 }).map((_, i) => ({
   label: i > 12 ? i - 12 : i,
@@ -78,18 +76,6 @@ export interface CollectionAnalyticsVariables {
   id: string;
   startTime: string;
   endTime: string;
-}
-
-export function getDateTimeRange(dateRangeOption: DateRangeOption): {
-  startTime: string;
-  endTime: string;
-} {
-  const startTime = format(
-    subDays(new Date(), parseInt(dateRangeOption)),
-    "yyyy-MM-dd'T'hh:mm:ssxxx"
-  ) as string;
-  const endTime = format(new Date(), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
-  return { startTime, endTime };
 }
 
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {

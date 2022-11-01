@@ -1,6 +1,6 @@
 import { QueryResult, useQuery } from '@apollo/client';
 import clsx from 'clsx';
-import { format, subDays } from 'date-fns';
+import { format, subDays, parse } from 'date-fns';
 import { ReactNode, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -22,8 +22,8 @@ import { useRouter } from 'next/router';
 import {
   CollectionAnalyticsData,
   CollectionAnalyticsVariables,
-  getDateTimeRange,
 } from '../pages/collections/[id]/analytics';
+import { getDateTimeRange } from '../modules/time';
 
 export enum DateRangeOption {
   DAY = '1',
@@ -35,8 +35,10 @@ const generateTimeseriesArray = (dataPoints: Datapoint[] | undefined) => {
   return (
     dataPoints?.map((fp) => {
       const parsedValue = parseInt(fp.value);
+      const date = new Date(fp.timestamp);
+      const compactDate = format(date, 'MMM d');
       return {
-        date: fp.timestamp as string,
+        date: compactDate,
         price: parsedValue > 10000 ? toSol(fp.value) : parsedValue,
       };
     }) || []
@@ -79,11 +81,11 @@ function StyledLineChart(props: {
           strokeDasharray="1000 0 "
         />
         <XAxis
-          interval={intervalByDateRange[props.dateRange || DateRangeOption.DAY]}
+          interval="preserveEnd"
           tickLine={false}
-          width={25}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
+          dataKey="date"
         />
         <YAxis
           tickCount={3}
@@ -252,7 +254,7 @@ function ChartTimeseriesCard(props: {
 }) {
   const router = useRouter();
 
-  const { watch, control, reset, getValues } = useForm({
+  const { watch, control, reset } = useForm({
     defaultValues: {
       dateRangeId: DateRangeOption.DAY,
     },
@@ -281,6 +283,7 @@ function ChartTimeseriesCard(props: {
   useEffect(() => {
     const subscription = watch(({ dateRangeId }) => {
       let dateRange = getDateTimeRange(dateRangeId!);
+
       let variables: CollectionAnalyticsVariables = {
         id: router.query.id as string,
         startTime: dateRange.startTime,
