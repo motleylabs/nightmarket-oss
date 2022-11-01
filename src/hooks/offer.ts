@@ -2,24 +2,23 @@ import { useCallback, useState } from 'react';
 import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
+import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
   CreateOfferInstructionArgs,
-  createUpdateOfferInstruction,
-  UpdateOfferInstructionAccounts,
-  UpdateOfferInstructionArgs,
-  createCancelOfferInstruction,
-  CancelOfferInstructionAccounts,
-  CancelOfferInstructionArgs,
+  createCloseOfferInstruction,
+  CloseOfferInstructionAccounts,
+  CloseOfferInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { findAuctioneer, findOfferAddress, findRewardCenter } from '../modules/reward-center/pdas';
 import { toLamports } from '../modules/sol';
+import { RewardCenterProgram } from '../modules/reward-center';
+import { toast } from 'react-toastify';
 
 interface OfferForm {
   amount: string;
@@ -27,7 +26,7 @@ interface OfferForm {
 
 interface MakeOfferForm extends OfferForm {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 const schema = zod.object({
@@ -41,15 +40,13 @@ interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
-  onUpdateOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
-  onCancelOffer: ({ amount, nft, marketplace }: MakeOfferForm) => Promise<void>;
+  onMakeOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
   onOpenOffer: () => void;
-  onCloseOffer: () => void;
+  onCancelMakeOffer: () => void;
   offerFormState: FormState<OfferForm>;
 }
 
-export default function useMakeOffer(): MakeOfferContext {
+export function useMakeOffer(): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
@@ -63,297 +60,430 @@ export default function useMakeOffer(): MakeOfferContext {
     resolver: zodResolver(schema),
   });
 
-  const onMakeOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
-    if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
-      const offerPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
-      const tokenMint = new PublicKey(nft.mintAddress);
-      const metadata = new PublicKey(nft.address);
-      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
-
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-      const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
-
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-        publicKey,
-        auctionHouse,
-        associatedTokenAcc,
-        treasuryMint,
-        tokenMint,
-        0,
-        1
-      );
-
-      const [buyerTradeState, buyerTradeStateBump] =
-        await AuctionHouseProgram.findPublicBidTradeStateAddress(
-          publicKey,
-          auctionHouse,
-          treasuryMint,
-          tokenMint,
-          offerPrice,
-          1
-        );
-
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
-
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
-
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
-
-      const accounts: CreateOfferInstructionAccounts = {
-        wallet: publicKey,
-        offer,
-        paymentAccount: publicKey,
-        transferAuthority: publicKey,
-        treasuryMint,
-        tokenAccount: associatedTokenAcc,
-        metadata,
-        escrowPaymentAccount: escrowPaymentAcc,
-        authority,
-        rewardCenter,
-        auctionHouse,
-        auctionHouseFeeAccount: ahFeeAcc,
-        buyerTradeState,
-        ahAuctioneerPda: auctioneer,
-        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      };
-
-      const args: CreateOfferInstructionArgs = {
-        createOfferParams: {
-          tradeStateBump: buyerTradeStateBump,
-          escrowPaymentBump,
-          buyerPrice: offerPrice,
-          tokenSize: 1,
-        },
-      };
-
-      const instruction = createCreateOfferInstruction(accounts, args);
-      const tx = new Transaction();
-      tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
-      tx.feePayer = publicKey;
-
-      try {
-        const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
-          console.log(`confirmed`);
-        }
-      } catch (err) {
-        console.log('Error whilst making offer', err);
-      } finally {
-        setMakeOffer(true);
-      }
-    } else {
-      return login();
+  const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
+    if (!connected || !publicKey || !signTransaction) {
+      return;
     }
-  };
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const offerPrice = toLamports(Number(amount));
+    const authority = new PublicKey(auctionHouse.authority);
+    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const metadata = new PublicKey(nft.address);
+    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-  const onUpdateOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
-    if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
-      const newOfferPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
-      const tokenMint = new PublicKey(nft.mintAddress);
-      const metadata = new PublicKey(nft.address);
-      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const [escrowPaymentAcc, escrowPaymentBump] =
+      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-      const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
-
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+    const [buyerTradeState, buyerTradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
         publicKey,
-        auctionHouse,
-        associatedTokenAcc,
+        auctionHouseAddress,
         treasuryMint,
         tokenMint,
-        0,
+        offerPrice,
         1
       );
 
-      const [buyerTradeState, buyerTradeStateBump] =
-        await AuctionHouseProgram.findPublicBidTradeStateAddress(
-          publicKey,
-          auctionHouse,
-          treasuryMint,
-          tokenMint,
-          newOfferPrice,
-          1
+    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+    const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
+    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+      auctionHouseAddress,
+      rewardCenter
+    );
+
+    const accounts: CreateOfferInstructionAccounts = {
+      wallet: publicKey,
+      offer,
+      paymentAccount: publicKey,
+      transferAuthority: publicKey,
+      treasuryMint,
+      tokenAccount: associatedTokenAcc,
+      metadata,
+      escrowPaymentAccount: escrowPaymentAcc,
+      authority,
+      rewardCenter,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount: ahFeeAcc,
+      buyerTradeState,
+      ahAuctioneerPda: auctioneer,
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+    };
+
+    const args: CreateOfferInstructionArgs = {
+      createOfferParams: {
+        tradeStateBump: buyerTradeStateBump,
+        escrowPaymentBump,
+        buyerPrice: offerPrice,
+        tokenSize: 1,
+      },
+    };
+
+    const instruction = createCreateOfferInstruction(accounts, args);
+    const tx = new Transaction();
+    tx.add(instruction);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = publicKey;
+
+    try {
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          },
+          'confirmed'
         );
-
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
-
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
-
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
-
-      const accounts: UpdateOfferInstructionAccounts = {
-        wallet: publicKey,
-        offer,
-        rewardCenter,
-        buyerTokenAccount: new PublicKey(''), // TODO
-        auctionHouse,
-        authority,
-        transferAuthority: publicKey,
-        treasuryMint,
-        tokenAccount: associatedTokenAcc,
-        auctionHouseFeeAccount: ahFeeAcc,
-        metadata,
-        escrowPaymentAccount: escrowPaymentAcc,
-        ahAuctioneerPda: auctioneer,
-        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      };
-
-      const args: UpdateOfferInstructionArgs = {
-        updateOfferParams: {
-          newBuyerPrice: newOfferPrice,
-          escrowPaymentBump,
-        },
-      };
-
-      const instruction = createUpdateOfferInstruction(accounts, args);
-      const tx = new Transaction();
-      tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
-      tx.feePayer = publicKey;
-
-      try {
-        const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
-          console.log(`confirmed`);
-        }
-      } catch (err) {
-        console.error(`Error whilst updating offer`, err);
-      } finally {
-        setMakeOffer(true);
       }
-    } else {
-      return login();
-    }
-  };
-
-  const onCancelOffer = async ({ amount, nft, marketplace }: MakeOfferForm) => {
-    if (connected && publicKey && signTransaction) {
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
-      const offerPrice = toLamports(Number(amount));
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const treasuryMint = new PublicKey(ah.treasuryMint);
-      const tokenMint = new PublicKey(nft.mintAddress);
-      const metadata = new PublicKey(nft.address);
-      const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
-
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-      const [escrowPaymentAcc, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
-
-      const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-        publicKey,
-        auctionHouse,
-        associatedTokenAcc,
-        treasuryMint,
-        tokenMint,
-        0,
-        1
-      );
-
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
-
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
-
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
-
-      const accounts: CancelOfferInstructionAccounts = {
-        wallet: publicKey,
-        offer,
-        treasuryMint,
-        tokenAccount: associatedTokenAcc,
-        receiptAccount: new PublicKey(''), // TODO
-        escrowPaymentAccount: escrowPaymentAcc,
-        metadata,
-        tokenMint,
-        authority,
-        rewardCenter,
-        auctionHouse,
-        auctionHouseFeeAccount: ahFeeAcc,
-        tradeState: sellerTradeState,
-        ahAuctioneerPda: auctioneer,
-        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      };
-
-      const args: CancelOfferInstructionArgs = {
-        cancelOfferParams: {
-          tradeStateBump,
-          escrowPaymentBump,
-          buyerPrice: offerPrice,
-          tokenSize: 1,
-        },
-      };
-
-      const instruction = createCancelOfferInstruction(accounts, args);
-      const tx = new Transaction();
-      tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
-      tx.feePayer = publicKey;
-
-      try {
-        const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
-          console.log(`confirmed`);
-        }
-      } catch (err) {
-        console.log('Error whilst closing offer', err);
-      } finally {
-        setMakeOffer(true);
-      }
-    } else {
-      login();
+      toast('You offer is in', { type: 'success' });
+    } catch (err: any) {
+      toast(err.message, { type: 'error' });
+    } finally {
+      setMakeOffer(true);
     }
   };
 
   const onOpenOffer = useCallback(() => {
+    if (connected) {
+      setMakeOffer(true);
+    }
+    login();
+  }, [setMakeOffer, login, connected]);
+
+  const onCancelMakeOffer = useCallback(() => {
     setMakeOffer(true);
   }, [setMakeOffer]);
-
-  const onCloseOffer = useCallback(() => {
-    reset();
-    setMakeOffer(false);
-  }, [setMakeOffer, reset]);
 
   return {
     registerOffer,
     offerFormState,
     makeOffer,
-    onCloseOffer,
     onOpenOffer,
-
-    onUpdateOffer,
     onMakeOffer,
-    onCancelOffer,
     handleSubmitOffer,
+    onCancelMakeOffer,
+  };
+}
+
+interface UpdateOfferContext {
+  updateOffer: boolean;
+  registerUpdateOffer: UseFormRegister<OfferForm>;
+  handleSubmitUpdateOffer: UseFormHandleSubmit<OfferForm>;
+  onUpdateOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
+  onOpenUpdateOffer: () => void;
+  onCancelUpdateOffer: () => void;
+  updateOfferFormState: FormState<OfferForm>;
+}
+
+export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferContext {
+  const { connected, publicKey, signTransaction } = useWallet();
+  const { connection } = useConnection();
+  const login = useLogin();
+  const [updateOffer, setUpdateOffer] = useState(false);
+  const {
+    register: registerUpdateOffer,
+    handleSubmit: handleSubmitUpdateOffer,
+    reset,
+    formState: updateOfferFormState,
+  } = useForm<OfferForm>({
+    resolver: zodResolver(schema),
+  });
+
+  useEffect(() => {
+    reset({
+      amount: offer?.solPrice?.toString(),
+    });
+  }, [offer?.solPrice, reset]);
+
+  const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
+    if (!connected || !publicKey || !signTransaction || !offer) {
+      return;
+    }
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const newOfferPrice = toLamports(Number(amount));
+    const authority = new PublicKey(auctionHouse.authority);
+    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const metadata = new PublicKey(nft.address);
+    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+
+    const [escrowPaymentAcc, escrowPaymentBump] =
+      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
+
+    const [buyerTradeState, _tradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        treasuryMint,
+        tokenMint,
+        Number(offer.price),
+        1
+      );
+
+    const [updatedBuyerTradeState, updatedTradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        treasuryMint,
+        tokenMint,
+        newOfferPrice,
+        1
+      );
+
+    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+
+    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
+      publicKey,
+      metadata,
+      rewardCenter
+    );
+
+    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+      auctionHouseAddress,
+      rewardCenter
+    );
+
+    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
+      tokenMint,
+      publicKey
+    );
+
+    const closeOfferAccounts: CloseOfferInstructionAccounts = {
+      wallet: publicKey,
+      offer: rewardsOffer,
+      treasuryMint,
+      tokenAccount: associatedTokenAcc,
+      receiptAccount: buyerReceiptTokenAccount,
+      escrowPaymentAccount: escrowPaymentAcc,
+      metadata,
+      tokenMint,
+      authority,
+      rewardCenter,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount: ahFeeAcc,
+      tradeState: buyerTradeState,
+      ahAuctioneerPda: auctioneer,
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+    };
+
+    const closeOfferArgs: CloseOfferInstructionArgs = {
+      closeOfferParams: {
+        escrowPaymentBump,
+      },
+    };
+
+    const closeOfferIx = createCloseOfferInstruction(closeOfferAccounts, closeOfferArgs);
+
+    const createofferAccounts: CreateOfferInstructionAccounts = {
+      wallet: publicKey,
+      offer: rewardsOffer,
+      paymentAccount: publicKey,
+      transferAuthority: publicKey,
+      treasuryMint,
+      tokenAccount: associatedTokenAcc,
+      metadata,
+      escrowPaymentAccount: escrowPaymentAcc,
+      authority,
+      rewardCenter,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount: ahFeeAcc,
+      buyerTradeState: updatedBuyerTradeState,
+      ahAuctioneerPda: auctioneer,
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+    };
+
+    const createOfferArgs: CreateOfferInstructionArgs = {
+      createOfferParams: {
+        tradeStateBump: updatedTradeStateBump,
+        escrowPaymentBump,
+        buyerPrice: newOfferPrice,
+        tokenSize: 1,
+      },
+    };
+
+    const createOfferIx = createCreateOfferInstruction(createofferAccounts, createOfferArgs);
+
+    const tx = new Transaction();
+    tx.add(closeOfferIx);
+    tx.add(createOfferIx);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = publicKey;
+
+    try {
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          },
+          'confirmed'
+        );
+        toast('Offer updated', { type: 'success' });
+      }
+    } catch (err: any) {
+      toast(err.message, { type: 'error' });
+    } finally {
+      setUpdateOffer(true);
+    }
+  };
+
+  const onOpenUpdateOffer = useCallback(() => {
+    if (connected) {
+      setUpdateOffer(true);
+    }
+    login();
+  }, [setUpdateOffer, login, connected]);
+
+  const onCancelUpdateOffer = useCallback(() => {
+    setUpdateOffer(false);
+  }, [setUpdateOffer]);
+
+  return {
+    updateOffer,
+    registerUpdateOffer,
+    updateOfferFormState,
+    onUpdateOffer,
+    handleSubmitUpdateOffer,
+    onOpenUpdateOffer,
+    onCancelUpdateOffer,
+  };
+}
+
+interface CancelOfferContext {
+  closingOffer: boolean;
+  onCloseOffer: (payload: {
+    nft: Maybe<Nft> | undefined;
+    auctionHouse: Maybe<AuctionHouse> | undefined;
+  }) => Promise<void>;
+}
+
+export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferContext {
+  const { connected, publicKey, signTransaction } = useWallet();
+  const { connection } = useConnection();
+  const login = useLogin();
+  const [closingOffer, setClosingOffer] = useState(false);
+
+  const onCloseOffer = async ({
+    nft,
+    auctionHouse,
+  }: {
+    nft: Maybe<Nft> | undefined;
+    auctionHouse: Maybe<AuctionHouse> | undefined;
+  }) => {
+    if (!connected || !publicKey || !signTransaction) {
+      login();
+      return;
+    }
+
+    if (!auctionHouse || !offer || !nft) {
+      return;
+    }
+    setClosingOffer(true);
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const authority = new PublicKey(auctionHouse.authority);
+    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const metadata = new PublicKey(nft.address);
+    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+
+    const [escrowPaymentAcc, escrowPaymentBump] =
+      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
+
+    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
+      tokenMint,
+      publicKey
+    );
+
+    const [buyerTradeState, _tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+      publicKey,
+      auctionHouseAddress,
+      associatedTokenAcc,
+      treasuryMint,
+      tokenMint,
+      Number(offer.price),
+      1
+    );
+
+    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+
+    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
+      publicKey,
+      metadata,
+      rewardCenter
+    );
+
+    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+      auctionHouseAddress,
+      rewardCenter
+    );
+
+    const accounts: CloseOfferInstructionAccounts = {
+      wallet: publicKey,
+      offer: rewardsOffer,
+      treasuryMint,
+      tokenAccount: associatedTokenAcc,
+      receiptAccount: buyerReceiptTokenAccount,
+      escrowPaymentAccount: escrowPaymentAcc,
+      metadata,
+      tokenMint,
+      authority,
+      rewardCenter,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount: ahFeeAcc,
+      tradeState: buyerTradeState,
+      ahAuctioneerPda: auctioneer,
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+    };
+
+    const args: CloseOfferInstructionArgs = {
+      closeOfferParams: {
+        escrowPaymentBump,
+      },
+    };
+
+    const instruction = createCloseOfferInstruction(accounts, args);
+    const tx = new Transaction();
+    tx.add(instruction);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = publicKey;
+
+    try {
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          },
+          'confirmed'
+        );
+        toast('Offer canceled', { type: 'success' });
+      }
+    } catch (err: any) {
+      console.log('Error whilst closing offer', err);
+      toast(err.message, { type: 'error' });
+    } finally {
+      setClosingOffer(false);
+    }
+  };
+
+  return {
+    closingOffer,
+    onCloseOffer,
   };
 }

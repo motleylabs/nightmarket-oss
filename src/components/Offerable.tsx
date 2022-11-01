@@ -2,19 +2,20 @@ import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
-import { Marketplace, Nft } from '../graphql.types';
+import { AuctionHouse, Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
-import useMakeOffer from '../hooks/offer';
+import { useMakeOffer } from '../hooks/offer';
 import Icon from './Icon';
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
 import { viewerVar } from '../cache';
+import config from './../app.config';
 
 interface OfferableData {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 interface RenderProps {
@@ -35,15 +36,9 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   const [open, setOpen] = useState(false);
   const openOffer = (mintAddress: string) => {
     offerableQuery({
-      variables: { address: mintAddress, subdomain: process.env.NEXT_PUBLIC_MARKETPLACE_SUBDOMAIN },
+      variables: { address: mintAddress, auctionHouse: config.auctionHouse },
     });
     setOpen(true);
-  };
-
-  const handleOffer = async ({ amount }: { amount: string }) => {
-    if (data?.nft && data?.marketplace) {
-      onMakeOffer({ amount, nft: data?.nft, marketplace: data.marketplace });
-    }
   };
 
   const [offerableQuery, { data, loading, refetch, previousData }] =
@@ -54,11 +49,15 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     registerOffer,
     onMakeOffer,
     handleSubmitOffer,
-    onCancelOffer,
-    onCloseOffer,
-    onOpenOffer,
+    onCancelMakeOffer,
     offerFormState,
   } = useMakeOffer();
+
+  const handleOffer = async ({ amount }: { amount: string }) => {
+    if (data?.nft && data?.auctionHouse) {
+      await onMakeOffer({ amount, nft: data?.nft, auctionHouse: data.auctionHouse });
+    }
+  };
 
   return (
     <>
@@ -149,7 +148,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="text-base font-medium text-gray-300">
-                      {data.nft.listings[0].previewPrice} SOL
+                      {data.nft.listings[0].solPrice} SOL
                     </p>
                   </div>
                 )}
@@ -159,7 +158,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       {t('offerable.lastSoldPrice')}
                     </p>
                     <p className="text-base font-medium text-gray-300">
-                      {data.nft.purchases[0].previewPrice} SOL
+                      {data.nft.purchases[0].solPrice} SOL
                     </p>
                   </div>
                 )}
@@ -218,7 +217,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       onClick={() => {
-                        onCloseOffer();
+                        onCancelMakeOffer();
                         setOpen(false);
                       }}
                       background={ButtonBackground.Slate}
@@ -238,20 +237,6 @@ export function Offerable({ children, connected = false }: OfferableProps) {
           )}
         </div>
       </Modal>
-      ;
     </>
   );
-}
-
-interface OfferModalProps {
-  loading: boolean;
-  nftName: string;
-  floorPrice: number;
-  listedPrice: number;
-  lastSoldPrice?: number;
-  minimumOfferAmount: number;
-}
-
-function OfferModal({}: OfferModalProps) {
-  return;
 }

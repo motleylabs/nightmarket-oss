@@ -3,12 +3,18 @@ fragment ListingInfo on AhListing {
   seller
   price
   marketplaceProgramAddress
+  solPrice @client
   nftMarketplace @client {
     name
     logo
     link
   }
+  tradeState
+  tradeStateBump
   auctionHouse {
     address
+    auctionHouseFeeAccount
+    treasuryMint
+    authority
   }
 }

@@ -2,7 +2,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import client from '../../../client';
 import { NftQuery, NftActivitiesQuery } from './../../../queries/nft.graphql';
-import { Marketplace, Nft } from '../../../graphql.types';
+import { AuctionHouse, Nft } from '../../../graphql.types';
 import { ReactNode } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import config from '../../../app.config';
@@ -16,12 +16,12 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
 
   const {
-    data: { nft, marketplace },
+    data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
     variables: {
       address: params?.address,
-      subdomain: config.marketplaceSubdomain,
+      auctionHouse: config.auctionHouse,
     },
   });
 
@@ -34,14 +34,10 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       nft,
-      marketplace,
+      auctionHouse,
       ...i18n,
     },
   };
-}
-
-interface NftActivityPageProps {
-  nft: Nft;
 }
 
 interface NftActivitiesData {
@@ -52,7 +48,7 @@ interface NftActivitiesVariables {
   address: string;
 }
 
-export default function NftActivity({ nft }: NftActivityPageProps) {
+export default function NftActivity() {
   const router = useRouter();
 
   const activitiesQuery = useQuery<NftActivitiesData, NftActivitiesVariables>(NftActivitiesQuery, {
@@ -104,16 +100,16 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
 }
 
 NftActivity.getLayout = function NftDetailsLayout({
   children,
   nft,
-  marketplace,
+  auctionHouse,
 }: NftDetailsLayoutProps): JSX.Element {
   return (
-    <NftLayout nft={nft} marketplace={marketplace}>
+    <NftLayout nft={nft} auctionHouse={auctionHouse}>
       {children}
     </NftLayout>
   );

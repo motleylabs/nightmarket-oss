@@ -1,5 +1,6 @@
 import { TailSpin } from 'react-loader-spinner';
 import clsx from 'clsx';
+import { useMemo } from 'react';
 
 export enum ButtonBackground {
   Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',
@@ -56,6 +57,17 @@ const Button = ({
   className,
   children,
 }: ButtonProps): JSX.Element => {
+  const spinnerSize = useMemo(() => {
+    switch (size) {
+      case ButtonSize.Tiny:
+        return '5px';
+      case ButtonSize.Small:
+        return '10px';
+      case ButtonSize.Large:
+        return '20px';
+    }
+  }, [size]);
+
   return (
     <button
       className={clsx(
@@ -97,8 +109,8 @@ const Button = ({
       >
         {loading && (
           <TailSpin
-            height="20px"
-            width="20px"
+            height={spinnerSize}
+            width={spinnerSize}
             color={color !== ButtonColor.Gradient ? 'text-primary-500' : 'text-primary-700'}
             ariaLabel="loading"
             wrapperClass="inline aspect-square mr-1"
