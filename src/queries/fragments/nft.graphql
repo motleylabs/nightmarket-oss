@@ -9,6 +9,7 @@ fragment NftInfo on Nft {
   address
   name
   shortMintAddress @client
+  moonrankRank
   owner {
     address
   }

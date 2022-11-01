@@ -518,6 +518,9 @@ const client = new ApolloClient({
           image: {
             read: asNFTImage,
           },
+          moonrankRank: {
+            read: asBN,
+          },
           royalties: {
             read(_, { readField }): number {
               const sellerFeeBasisPoints: number | undefined = readField('sellerFeeBasisPoints');

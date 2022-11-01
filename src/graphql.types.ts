@@ -243,6 +243,7 @@ export type Collection = {
   nfts: Array<Nft>;
   pieces: Scalars['Int'];
   shortVerifiedCollectionAddress?: Maybe<Scalars['String']>;
+  timeseries: Timeseries;
   trends?: Maybe<CollectionTrend>;
   twitterUrl?: Maybe<Scalars['String']>;
   updatedAt: Scalars['DateTimeUtc'];
@@ -272,6 +273,12 @@ export type CollectionNftsArgs = {
   offset: Scalars['Int'];
   order?: InputMaybe<OrderDirection>;
   sortBy?: InputMaybe<NftSort>;
+};
+
+
+export type CollectionTimeseriesArgs = {
+  endTime: Scalars['DateTimeUtc'];
+  startTime: Scalars['DateTimeUtc'];
 };
 
 export type CollectionDocument = {
@@ -447,6 +454,12 @@ export type CreatorStatsArgs = {
 export type CreatorCounts = {
   __typename?: 'CreatorCounts';
   creations: Scalars['Int'];
+};
+
+export type Datapoint = {
+  __typename?: 'Datapoint';
+  timestamp: Scalars['DateTimeUtc'];
+  value: Scalars['U64'];
 };
 
 export type Denylist = {
@@ -781,6 +794,7 @@ export type Nft = {
   marketplaceListings?: Maybe<Array<Maybe<AhListing>>>;
   mintAddress: Scalars['String'];
   moonrankCollection?: Maybe<Collection>;
+  moonrankRank?: Maybe<Scalars['I64']>;
   name: Scalars['String'];
   offers: Array<Offer>;
   owner?: Maybe<NftOwner>;
@@ -1561,6 +1575,13 @@ export type Storefront = {
   ownerAddress: Scalars['String'];
   subdomain: Scalars['String'];
   title: Scalars['String'];
+};
+
+export type Timeseries = {
+  __typename?: 'Timeseries';
+  floorPrice: Array<Datapoint>;
+  holderCount: Array<Datapoint>;
+  listedCount: Array<Datapoint>;
 };
 
 export type TokenOwnerRecord = {
