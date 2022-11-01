@@ -10,6 +10,7 @@ import { useCurrencies } from '../hooks/currencies';
 import Icon from '../components/Icon';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
+import config from '../app.config';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -17,6 +18,7 @@ export interface WalletProfileData {
 
 export interface WalletProfileVariables {
   address: string;
+  rewardCenter: string;
 }
 
 interface ProfileLayout {
@@ -50,10 +52,11 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     {
       variables: {
         address: address as string,
+        rewardCenter: config.rewardCenterAddress,
       },
     }
   );
-  console.log('wallet profile', walletProfileClientQuery.data?.wallet);
+
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),

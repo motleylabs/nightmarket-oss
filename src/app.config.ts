@@ -10,6 +10,7 @@ interface AppConfig {
   };
   website: string;
   auctionHouseAddress: string;
+  rewardCenterAddress: string;
 }
 
 const config: AppConfig = {
@@ -24,6 +25,7 @@ const config: AppConfig = {
   },
   website: 'https://motleylabs.com',
   auctionHouseAddress: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
+  rewardCenterAddress: 'RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki',
 };
 
 export default config;
