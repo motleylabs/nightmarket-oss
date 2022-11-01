@@ -19,13 +19,13 @@ query BuyableQuery($address: String!, $subdomain: String!) {
     address
     mintAddress
     name
-    image(width: 48)
-    collection {
-      floorPrice
-      nft {
-        name
-        address
-        mintAddress
+    image(width: 100)
+    moonrankCollection {
+      name
+      id
+      trends {
+        floor1d
+        compactFloor1d @client
       }
     }
     listings {

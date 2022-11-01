@@ -2,7 +2,7 @@ import React, { FC, Fragment, ReactNode, useCallback, useEffect, useRef, useStat
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
-import { MetadataJson, Nft, NftCreator, Wallet, Maybe } from '../graphql.types';
+import { MetadataJson, Nft, NftCreator, Wallet, Maybe, Collection } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
@@ -110,10 +110,10 @@ function SearchInput({
   };
 
   return (
-    <div className={clsx('relative block w-full transition-all', className)}>
+    <div className={clsx('group relative block w-full transition-all', className)}>
       <button
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
-        className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 group-focus-within:left-0 group-focus-within:scale-100 group-focus-within:bg-transparent group-focus-within:shadow-none "
+        className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
       >
         <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
       </button>
@@ -123,7 +123,7 @@ function SearchInput({
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-450 focus:outline-none md:py-2"
+        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-400 focus:outline-none md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
@@ -135,7 +135,7 @@ function SearchInput({
         autoFocus={autofocus}
       />
       <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
-        <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300">
+        <span className="hidden h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
           K
         </span>
       </button>
@@ -168,7 +168,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-800 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -213,7 +213,7 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 
   return (
     <>
-      <h6 className="mb-2 border-b border-gray-725 pt-4 pb-2 text-base font-medium text-gray-300">
+      <h6 className="mb-2 border-b border-gray-700 pt-4 pb-2 text-base font-medium text-gray-300">
         {title}
       </h6>
       {children({ result })}
@@ -230,13 +230,12 @@ interface SearchResultProps {
 }
 
 interface CollectionSearchResultProps extends SearchResultProps {
-  collection?: MetadataJson;
+  collection?: Collection;
 }
 
 function CollectionSearchResult({
   name,
   image,
-  address,
   collection,
   value,
 }: CollectionSearchResultProps): JSX.Element {
@@ -244,11 +243,11 @@ function CollectionSearchResult({
 
   return (
     <Combobox.Option
-      key={`collection-${address}`}
+      key={`collection-${collection?.id}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${address}/nfts`);
-      }, [router, address])}
+        router.push(`/collections/${collection?.id}/nfts`);
+      }, [router, collection?.id])}
     >
       {({ active }) => (
         <div
@@ -260,7 +259,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || address}
+              alt={name || collection?.id}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>

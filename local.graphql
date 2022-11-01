@@ -35,6 +35,8 @@ extend type Nft {
   shortMintAddress: String
   royalties: Int
   listing: AhListing
+  magicEdenListings: [AhListing]
+  marketplaceListings: [AhListing]
 }
 
 extend type Offer {
@@ -43,20 +45,23 @@ extend type Offer {
 }
 
 extend type Collection {
-  compactVolumeTotal: String
-  compactFloorPrice: String
-  compactNftCount: String
+  compactVolume30d: String
+  compactFloor1d: String
+  compactPieces: String
+  marketCap: String
+  shortVerifiedCollectionAddress: String
 }
 
 extend type CollectionTrend {
-  compactNftCount: String
-  compactFloorPrice: String
-  compactOneDayVolume: String
-  compactOneDaySalesCount: String
-  compactSevenDayVolume: String
-  compactSevenDaySalesCount: String
-  compactThirtyDayVolume: String
-  compactThirtyDaySalesCount: String
+  compactFloor1d: String
+  compactFloor7d: String
+  compactFloor30d: String
+  compactVolume1d: String
+  compactVolume7d: String
+  compactVolume30d: String
+  compactListed1d: String
+  compactListed7d: String
+  compactListed30d: String
 }
 
 extend type NftActivity {

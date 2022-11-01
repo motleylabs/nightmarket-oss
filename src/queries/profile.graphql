@@ -1,7 +1,7 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 
-query WalletProfileQuery($address: PublicKey!) {
+query WalletProfileQuery($address: PublicKey!) @cached (ttl: 300) {
   wallet(address: $address) {
     address
     displayName @client
@@ -13,7 +13,7 @@ query WalletProfileQuery($address: PublicKey!) {
   }
 }
 
-query WalletProfileClientQuery($address: PublicKey!) {
+query WalletProfileClientQuery($address: PublicKey!) @client(ttl: 120) {
   wallet(address: $address) {
     address
     totalRewards(rewardCenter: "rwdLstiU8aJU1DPdoPtocaNKApMhCFdCg283hz8dd3u")
@@ -23,34 +23,16 @@ query WalletProfileClientQuery($address: PublicKey!) {
     }
     collectedCollections {
       collection {
-        nft {
-          image(width: 100)
-          mintAddress
-          address
-          name
+        name
+        image(width: 100)
+        id
+        trends {
+          floor1d
+          compactFloor1d @client
         }
-        floorPrice
       }
       nftsOwned
       estimatedValue
-    }
-  }
-}
-
-query CreatedCollectionsQuery($address: PublicKey!) {
-  wallet(address: $address) {
-    address
-    createdCollections {
-      collection {
-        nft {
-          image
-          mintAddress
-          address
-          name
-        }
-        floorPrice
-        nftCount
-      }
     }
   }
 }
@@ -80,18 +62,12 @@ query CollectedNFTsQuery(
   }
 }
 
-query CreatedNFTsQuery($creator: PublicKey!, $limit: Int!, $offset: Int!, $listed: Boolean) {
-  createdNfts: nfts(creators: [$creator], limit: $limit, offset: $offset, listed: $listed) {
-    ...NftInfo
-  }
-}
-
 query ProfileActivitiesQuery(
   $address: PublicKey!
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) {
+) @cached (ttl: 120) {
   wallet(address: $address) {
     address
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
@@ -167,7 +143,7 @@ query ProfileOffersQuery(
   }
 }
 
-query ProfileInfoByAddressQuery($address: PublicKey!) {
+query ProfileInfoByAddressQuery($address: PublicKey!) @cached (ttl: 300) {
   wallet(address: $address) {
     address
     previewImage @client

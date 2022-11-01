@@ -59,11 +59,12 @@ interface TrendingCollectionVariables {
 }
 
 interface SelectedTrend {
-  salesCount: Maybe<string> | undefined;
+  listedCount: Maybe<string> | undefined;
+  listedCountChange: Maybe<number> | undefined;
   volume: Maybe<string> | undefined;
-  volumeChange: number;
+  volumeChange: Maybe<number> | undefined;
   floorPrice: Maybe<string> | undefined;
-  floorPriceChange: number;
+  floorPriceChange: Maybe<number> | undefined;
 }
 
 interface SortOption {
@@ -160,7 +161,12 @@ const Home: NextPage = () => {
             <Hero.Title>{t('hero.title')}</Hero.Title>
             <Hero.SubTitle>{t('hero.subtitle')}</Hero.SubTitle>
             <Hero.Actions>
-              <Button className="w-full md:w-auto" onClick={onExploreNftsClick}>
+              <Button
+                className="w-full md:w-auto"
+                color={ButtonColor.White}
+                background={ButtonBackground.Gradient}
+                onClick={onExploreNftsClick}
+              >
                 {t('hero.exploreNfts')}
               </Button>
               <Button
@@ -199,8 +205,8 @@ const Home: NextPage = () => {
             />
           </Hero.Aside>
         </Hero>
-        <section className="mt-28 scroll-mt-20">
-          <header className="mb-12 flex w-full flex-row justify-between gap-4">
+        <section className="mt-16 scroll-mt-20 md:mt-28">
+          <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
             <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
           </header>
           <div className="flex flex-col items-center justify-start gap-12 md:flex-row">
@@ -221,19 +227,25 @@ const Home: NextPage = () => {
                 Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
                 ullamco laboris nisi
               </p>
-              <Button
-                background={ButtonBackground.Black}
-                border={ButtonBorder.Gradient}
-                size={ButtonSize.Large}
-                color={ButtonColor.Gradient}
+              <a
+                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
+                target={'_blank'}
+                rel="noreferrer"
               >
-                {t('drops.launchButton')}
-              </Button>
+                <Button
+                  background={ButtonBackground.Black}
+                  border={ButtonBorder.Gradient}
+                  size={ButtonSize.Large}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('drops.launchButton')}
+                </Button>
+              </a>
             </div>
           </div>
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
-          <header className={'mb-16 flex w-full flex-col justify-between gap-4 md:flex-row'}>
+          <header className={'mb-10 flex w-full flex-col justify-between gap-4 md:flex-row'}>
             <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
             <div className="flex flex-row items-center gap-2">
               <Controller
@@ -280,31 +292,34 @@ const Home: NextPage = () => {
                 switch (timeFrame) {
                   case CollectionInterval.OneDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.oneDayFloorPriceChange,
-                      volume: trend.compactOneDayVolume,
-                      volumeChange: trend.oneDayVolumeChange,
-                      salesCount: trend.compactOneDaySalesCount,
+                      floorPrice: trend.compactFloor1d,
+                      floorPriceChange: trend.changeFloor1d,
+                      volume: trend.compactVolume1d,
+                      volumeChange: trend.changeVolume1d,
+                      listedCount: trend.compactListed1d,
+                      listedCountChange: trend.changeListed7d,
                     };
                     volumeLabel = t('collection:24hVolume');
                     break;
                   case CollectionInterval.SevenDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.sevenDayFloorPriceChange,
-                      volume: trend.compactSevenDayVolume,
-                      volumeChange: trend.sevenDayVolumeChange,
-                      salesCount: trend.compactSevenDaySalesCount,
+                      floorPrice: trend.compactFloor7d,
+                      floorPriceChange: trend.changeFloor7d,
+                      volume: trend.compactVolume7d,
+                      volumeChange: trend.changeVolume7d,
+                      listedCount: trend.compactListed7d,
+                      listedCountChange: trend.changeListed7d,
                     };
                     volumeLabel = t('collection:7dVolume');
                     break;
                   case CollectionInterval.ThirtyDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloorPrice,
-                      floorPriceChange: trend.thirtyDayFloorPriceChange,
-                      volume: trend.compactThirtyDayVolume,
-                      volumeChange: trend.thirtyDayVolumeChange,
-                      salesCount: trend.compactThirtyDaySalesCount,
+                      floorPrice: trend.compactFloor30d,
+                      floorPriceChange: trend.changeFloor30d,
+                      volume: trend.compactVolume30d,
+                      volumeChange: trend.changeVolume30d,
+                      listedCount: trend.compactListed30d,
+                      listedCountChange: trend.changeListed30d,
                     };
                     volumeLabel = t('collection:30dVolume');
                     break;
@@ -312,19 +327,19 @@ const Home: NextPage = () => {
 
                 if (trend.collection) {
                   return (
-                    <Collection.List.Row mindAddress={trend.collection.nft.mintAddress}>
+                    <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
                       <Collection.List.Col className="flex-none">
                         <img
-                          src={trend.collection.nft.image}
-                          alt={trend.collection.nft.name}
+                          src={trend.collection.image}
+                          alt={trend.collection.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
                         />
                       </Collection.List.Col>
                       <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                        <div className="w-32 lg:w-40">{trend.collection.nft.name}</div>
-                        <div className="flex lg:w-96 lg:justify-between lg:gap-8">
+                        <div className="w-32 lg:w-40">{trend.collection.name}</div>
+                        <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
-                            value={trend.compactFloorPrice}
+                            value={selectedTrend.floorPrice}
                             icon={<Icon.Sol />}
                             name={t('collection:globalFloor')}
                             status={
@@ -344,9 +359,13 @@ const Home: NextPage = () => {
                             }
                           />
                           <Collection.List.DataPoint
-                            value={'10'}
+                            value={selectedTrend.listedCount}
                             name={t('collection:listings')}
-                            status={<Collection.List.DataPoint.Status value={5} />}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.listedCountChange}
+                              />
+                            }
                           />
                         </div>
                         {/* TODO: Add real data */}
@@ -394,7 +413,7 @@ const Home: NextPage = () => {
             )}
           </Collection.List>
           <Button
-            className="mx-auto mt-12"
+            className="mx-auto mt-8"
             onClick={onShowMoreTrends}
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}

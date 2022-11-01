@@ -116,7 +116,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 <div className="flex flex-col justify-between gap-2">
                   <p className="text-base font-medium text-white">{data?.nft.name}</p>
                   <p className="text-xs font-semibold text-gray-300">
-                    {data?.nft.collection?.nft.name}
+                    {data?.nft.moonrankCollection?.name}
                   </p>
                 </div>
               </section>
@@ -133,12 +133,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice')}</p>
-                  <p className="text-base font-medium text-gray-300">
-                    {data?.nft.collection?.floorPrice} SOL
-                  </p>
-                </div>
+                {data?.nft.moonrankCollection?.trends && (
+                  <div className="flex flex-row justify-between">
+                    <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice')}</p>
+                    <p className="text-base font-medium text-gray-300">
+                      {data?.nft.moonrankCollection?.trends?.compactFloor1d} SOL
+                    </p>
+                  </div>
+                )}
                 {data?.nft.listings && data?.nft.listings.length > 0 && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">{t('buyable.listPrice')}</p>

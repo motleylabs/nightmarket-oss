@@ -5,7 +5,6 @@ import CollectionLayout from '../../../layouts/CollectionLayout';
 import { CollectionQuery } from './../../../queries/collection.graphql';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { useForm } from 'react-hook-form';
 import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
@@ -58,7 +57,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
-      address: params?.address,
+      id: params?.id,
     },
   });
   const collection: Collection = data.collection;
@@ -90,16 +89,18 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
   });
 
   return (
-    <div className="px-10 pt-6 pb-20">
+    <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
       <Chart.Card
+        className="h-96"
         title={t('collection.floorPriceChartTitle')}
         dateRangeId="floorPriceDateRange"
         control={control}
         chart={<Chart.LineChart data={floorPriceData} />}
       />
 
-      <div className=" grid grid-cols-2 gap-8 py-8">
+      <div className="grid grid-cols-2 gap-8 py-8">
         <Chart.Card
+          className="h-96"
           title={t('collection.listedCountChartTitle')}
           dateRangeId="listingCountDateRange"
           control={control}
@@ -107,6 +108,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
         />
 
         <Chart.Card
+          className="h-96"
           title={t('collection.priceDistributionChartTitle')}
           dateRangeId="priceDistributionDateRange"
           control={control}
@@ -115,20 +117,11 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
       </div>
 
       <Chart.Card
+        className="h-96"
         title={t('collection.holdersVsTokensHeldChartTitle')}
         dateRangeId="holdersVsHeldDateRange"
         control={control}
-        chart={
-          <ResponsiveContainer width="100%" height={500}>
-            <BarChart width={400} height={400} data={holdersVsTokensHeldData}>
-              <YAxis dataKey={'y'} tickCount={6} axisLine={false} />
-
-              <CartesianGrid vertical={false} stroke="#262626" />
-              <XAxis axisLine={false} dataKey="label" />
-              <Bar type="monotone" barSize={24} dataKey="y" fill="#36C6B0" />
-            </BarChart>
-          </ResponsiveContainer>
-        }
+        chart={<Chart.BarChart data={holdersVsTokensHeldData} />}
       />
     </div>
   );

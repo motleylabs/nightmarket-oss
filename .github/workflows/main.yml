@@ -40,7 +40,7 @@ jobs:
           #  graphql_endpoint="https://graph.holaplex.com/v1"
             node_env=production
           # else
-            graphql_endpoint="https://graph-test.holaplex.com/v1"
+            graphql_endpoint="https://graph.dev.holaplex.tools/v1/graphql"
           #  node_env=development
           #fi
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"

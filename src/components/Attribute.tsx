@@ -18,9 +18,9 @@ function AttributeOption({
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-300">{variant.count}</span>
         {selected ? (
-          <CheckIcon className="border-gradient h-4 w-4 rounded-md  px-0.5" />
+          <CheckIcon className="h-4 w-4 cursor-pointer rounded-md bg-gradient-secondary px-0.5" />
         ) : (
-          <div className="h-4 w-4 rounded-md border border-gray-400 bg-gray-700 px-0.5" />
+          <div className="h-4 w-4 cursor-pointer rounded-md border border-gray-400 bg-gray-700 px-0.5" />
         )}
       </div>
     </div>

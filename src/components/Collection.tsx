@@ -18,7 +18,7 @@ interface CollectionOptionProps {
   children?: ReactNode;
   avatar: JSX.Element;
   header: JSX.Element;
-  floorPrice: number;
+  floorPrice: Maybe<string> | undefined;
 }
 
 function CollectionOption({
@@ -35,7 +35,7 @@ function CollectionOption({
     <div
       className={clsx(
         'group relative mb-2 rounded-2xl border border-transparent p-px',
-        selected ? 'bg-gradient' : 'border-gray-800 bg-gray-800 hover:border-white'
+        selected ? 'bg-gradient-primary' : 'border-gray-800 bg-gray-800 hover:border-white'
       )}
     >
       <div
@@ -140,13 +140,15 @@ function CollectionOptionTitle({ children }: { children: ReactNode }): JSX.Eleme
 CollectionOption.Title = CollectionOptionTitle;
 
 interface CollectionCardProps {
-  nft: Nft;
+  name: string;
+  image: string;
   floorPrice: Maybe<string> | undefined;
   nftCount: Maybe<string> | undefined;
 }
 
 export default function CollectionCard({
-  nft,
+  name,
+  image,
   floorPrice,
   nftCount,
 }: CollectionCardProps): JSX.Element {
@@ -155,12 +157,12 @@ export default function CollectionCard({
   return (
     <div className="relative flex aspect-square w-full flex-col justify-end overflow-hidden rounded-md shadow-lg transition hover:scale-[1.02]">
       <img
-        src={nft.image}
+        src={image}
         className="absolute top-0 left-0 h-full w-full object-cover"
-        alt={`Collection ${nft.name}`}
+        alt={`Collection ${name}`}
       />
       <div className="pointer-events-none absolute z-10 h-full w-full bg-gradient-to-b from-transparent to-gray-900/80" />
-      <h1 className="z-20 px-4 text-3xl">{nft.name}</h1>
+      <h1 className="z-20 px-4 text-3xl">{name}</h1>
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
@@ -196,7 +198,7 @@ interface CollectionListProps {
 }
 function CollectionList({ children }: CollectionListProps) {
   return (
-    <div className="scrollbar-thumb-rounded-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+    <div className="scrollbar-thumb-rounded-full overflow-x-hidden pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
       <div className="w-full">{children}</div>
     </div>
   );
@@ -208,32 +210,32 @@ function CollectionListLoading() {
   return (
     <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
       {/* Collection Image */}
-      <div className="h-16 w-16 rounded-lg bg-gray-725 md:h-12 md:w-12" />
+      <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
         {/* Collection Name */}
         <div className="lg:w-40">
-          <div className="h-6 w-20 rounded-md bg-gray-725" />
+          <div className="h-6 w-20 rounded-md bg-gray-800" />
         </div>
         {/* Data Points */}
         <div className="flex lg:w-96 lg:justify-between lg:gap-8">
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
           <div className="flex w-28 flex-col gap-1 sm:w-full">
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
-            <div className="h-5 w-20 rounded-md bg-gray-725" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
+            <div className="h-5 w-20 rounded-md bg-gray-800" />
           </div>
         </div>
         {/* Nfts */}
         <div className="hidden gap-4 lg:flex">
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
-          <div className="h-16 w-16 rounded-lg bg-gray-725" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
+          <div className="h-16 w-16 rounded-lg bg-gray-800" />
         </div>
       </div>
     </div>
@@ -243,12 +245,12 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  mindAddress: String;
+  id: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, mindAddress }: CollectionListRowProps) {
+function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${mindAddress}`}>
+    <Link href={`/collections/${id}`}>
       <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
         {children}
       </a>
@@ -277,9 +279,9 @@ interface CollectionListDataPointProps {
 }
 function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
   return (
-    <div className="flex w-28 flex-col gap-1 sm:w-full">
-      <div className="text-xs text-gray-250 md:text-sm">{name}</div>
-      <div className="flex w-32 flex-row items-center justify-start gap-2">
+    <div className="flex w-full flex-col gap-1">
+      <div className="text-xs text-gray-200 md:text-sm">{name}</div>
+      <div className="flex flex-row items-center justify-start gap-2 sm:w-32">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
           {value}
@@ -293,9 +295,13 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
 CollectionList.DataPoint = CollectionListDataPoint;
 
 interface CollectionListDataPointStatusProps {
-  value: number;
+  value: Maybe<number> | undefined;
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
+  if (!value) {
+    return <div></div>;
+  }
+
   return (
     <p
       className={clsx(clsx, 'flex items-center gap-1 text-xs md:text-sm', {
@@ -305,7 +311,7 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
     >
       {Math.abs(value)}%
       <ArrowUpIcon
-        className={clsx(clsx, 'h-2 w-2', {
+        className={clsx(clsx, 'h-3 w-3', {
           'rotate-180 transform': value < 0,
           'rotate-0 transform': value >= 0,
         })}
@@ -323,20 +329,24 @@ interface CollectionListShowcaseNftProps {
 }
 function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
   return (
-    <div className="group flex w-16 flex-col items-center hover:scale-110">
-      <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-      <Button
-        icon={<Icon.Sol className="h-3 w-3" />}
-        color={ButtonColor.Gray}
-        background={ButtonBackground.Slate}
-        size={ButtonSize.Tiny}
-        className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-      >
-        {price}
-      </Button>
-      <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-        Buy
-      </Button>
+    <div className=" flex w-16 flex-col items-center">
+      <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
+        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+      </a>
+      <div className="group ">
+        <Button
+          icon={<Icon.Sol className="h-3 w-3" />}
+          color={ButtonColor.Gray}
+          background={ButtonBackground.Slate}
+          size={ButtonSize.Tiny}
+          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+        >
+          {price}
+        </Button>
+        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+          Buy
+        </Button>
+      </div>
     </div>
   );
 }

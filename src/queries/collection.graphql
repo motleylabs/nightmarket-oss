@@ -2,43 +2,38 @@
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
 
-query CollectionQuery($address: String!) {
-  collection(address: $address) {
-    nft {
-      address
-      mintAddress
-      name
-      image
-      description
-      creators {
-        address
-        displayName @client
-        previewImage @client
-        profile {
-          ...ProfileInfo
-        }
-        metadataAddress
-        share
-        verified
-        position
-      }
-    }
-    nftCount
-    floorPrice
-    volumeTotal
-    compactFloorPrice @client
-    compactVolumeTotal @client
-    compactNftCount @client
-    listedCount
-    holderCount
+query CollectionQuery($id: String!) @cached (ttl: 300) {
+  collection(id: $id) {
+    id
+    verifiedCollectionAddress
+    name
+    description
+    image
+    compactPieces @client
+    pieces
   }
 }
 
-query CollectionAttributeGroupsQuery($address: String!) {
-  collection(address: $address) {
-    nft {
-      mintAddress
+query CollectionQueryClient($id: String!) @cached (ttl: 300) {
+  collection(id: $id) {
+    id
+    holderCount
+    marketCap @client
+    pieces
+    trends {
+      compactFloor1d @client
+      compactVolume30d @client
+      compactListed1d @client
+      floor1d
+      volume30d
+      listed1d
     }
+  }
+}
+
+query CollectionAttributeGroupsQuery($id: String!) @cached (ttl: 300) {
+  collection(id: $id) {
+    id
     attributeGroups {
       name
       variants {
@@ -50,27 +45,29 @@ query CollectionAttributeGroupsQuery($address: String!) {
 }
 
 query CollectionNFTsQuery(
-  $address: String!
-  $limit: Int!
-  $offset: Int!
+  $id: String!
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
+  $limit: Int = 24
+  $offset: Int = 0
 ) {
-  collection(address: $address) {
-    nfts(limit: $limit, offset: $offset, order: $order, sortBy: $sortBy, attributes: $attributes) {
+  collection(id: $id) {
+    id
+    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset) {
       ...NftListingInfo
     }
   }
 }
 
 query CollectionActivitiesQuery(
-  $address: String!
+  $id: String!
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) {
-  collection(address: $address) {
+) @cached (ttl: 180) {
+  collection(id: $id) {
+    id
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
       id
       metadata

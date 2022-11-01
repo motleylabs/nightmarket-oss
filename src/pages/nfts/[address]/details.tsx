@@ -45,7 +45,7 @@ interface NftDetailPageProps {
 
 export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
-  const auctionHouse = marketplace.auctionHouses[0];
+  const auctionHouse = marketplace?.auctionHouses[0];
 
   return (
     <>
@@ -107,25 +107,25 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
             {nft.shortAddress}
           </div>
         </li>
-        {nft.collection && (
+        {nft.moonrankCollection?.verifiedCollectionAddress && (
           <li className="flex items-center justify-between">
             <div>{t('collectionAddress')}</div>
             <div className="flex flex-row items-center gap-1">
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://explorer.solana.com/address/${nft.collection?.nft?.mintAddress}`}
+                href={`https://explorer.solana.com/address/${nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.Sol className="h-3.5 w-3.5" />
               </a>
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://solscan.io/token/${nft.collection?.nft?.mintAddress}`}
+                href={`https://solscan.io/token/${nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
               </a>
-              {nft.collection?.nft?.shortMintAddress}
+              {nft.moonrankCollection?.shortVerifiedCollectionAddress}
             </div>
           </li>
         )}
@@ -148,13 +148,13 @@ export default function NftDetails({ nft, marketplace }: NftDetailPageProps) {
         </li>
         <li className="flex items-center justify-between">
           <div>{t('fee')}</div>
-          <div>{`${auctionHouse.fee}%`}</div>
+          <div>{`${auctionHouse?.fee}%`}</div>
         </li>
       </ul>
-      {nft.collection && (
+      {nft.moonrankCollection && (
         <>
           <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
-          <p className="text-gray-300">{nft?.collection?.nft.description}</p>
+          <p className="text-gray-300">{nft?.collection?.description}</p>
         </>
       )}
     </>

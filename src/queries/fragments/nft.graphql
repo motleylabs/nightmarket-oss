@@ -9,6 +9,9 @@ fragment NftInfo on Nft {
   address
   name
   shortMintAddress @client
+  owner {
+    address
+  }
   creators {
     address
     displayName @client
@@ -21,15 +24,27 @@ fragment NftInfo on Nft {
     verified
     position
   }
-  collection {
-    nft {
-      address
-      name
-      image
-      mintAddress
-    }
+  moonrankCollection {
+    name
+    id
+    image(width: 100)
+  }
+  purchases {
+    id
+    previewPrice @client
+    price
+    buyer
+    seller
   }
   listings {
+    ...ListingPreview
+    previewPrice @client
+  }
+  magicEdenListings @client {
+    ...ListingPreview
+    previewPrice @client
+  }
+  marketplaceListings @client {
     ...ListingPreview
     previewPrice @client
   }

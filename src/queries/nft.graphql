@@ -39,10 +39,16 @@ query NftQuery($address: String!, $subdomain: String!) {
       traitType
       value
     }
-    collection {
-      floorPrice
-      nft {
-        ...NftInfo
+    moonrankCollection {
+      name
+      verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
       }
     }
     creators {

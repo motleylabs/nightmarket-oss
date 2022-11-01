@@ -18,6 +18,7 @@ module.exports = {
   theme: {
     extend: {
       fontSize: {
+        // xs: ['0.5rem', '0.75rem'],
         sm: ['0.75rem', '1rem'],
         // base: '1rem',
       },
@@ -28,38 +29,37 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-primary': `linear-gradient(to right, #F85C04, #7C1E05)`,
+        'gradient-hover': `linear-gradient(to right, #F85C04, #EC9D08)`,
+        'gradient-secondary': `linear-gradient(to right, #F85C04, #7C1E05)`,
       },
       borderRadius: {
         md: '0.25rem',
       },
       colors: {
         primary: {
-          500: '#2C2119',
-          600: '#7C1E05',
-          650: '#C6580A',
+          100: '#E15A0A', // 50 in figma
+          200: '#C33C00', // 100 in figma
+          500: '#ED9E09',
+          600: '#7C1E05', // primary gradient finishes here
           700: '#DA6C1D',
-          850: '#E15A0A',
-          800: '#EC9D08',
-          900: '#F85C04',
+          800: '#EC9D08', // secondary gradient finishes here
+          900: '#F85C04', // both gradients starts here
+        },
+        green: {
+          100: '#6CE9A6',
+          200: '#4AC282',
+        },
+        red: {
+          100: '#F55C47',
+          200: '#C83D2A',
         },
         gray: {
-          25: '#FEFEFE',
-          50: '#F2F2F2', // Part of new theme
           100: '#E0E0E0',
-          200: '#C6C6C6',
-          250: '#BDBDBD', // Part of new theme
-          300: '#A8A8A8', // Part of new theme
-          350: '#8B8B8E', // Part of new theme
-          400: '#8D8D8D',
-          450: '#828282', // Part of new theme
-          500: '#707070',
-          600: '#525252',
-          700: '#383838',
-          725: '#2B2A30', // Part of new theme
-          750: '#262626', // Part of new theme
-          800: '#17161C', // Part of new theme
+          200: '#BDBDBD',
+          300: '#8B8B8E',
+          800: '#17161C',
           900: '#0B0A0E',
-          // 950: '#0B0A0E', // Part of new theme
         },
       },
       keyframes: {

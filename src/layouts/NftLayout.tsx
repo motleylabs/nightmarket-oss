@@ -173,15 +173,16 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
       </div>
       <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
-          {nft.collection ? (
-            <Link href={`/collections/${nft.collection.nft.mintAddress}/nfts`}>
+          {nft.moonrankCollection ? (
+            // TODO: Update to collection id once nft is updated
+            <Link href={`/collections/${nft.moonrankCollection.id}/nfts`}>
               <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
                 <img
-                  src={nft.collection.nft.image}
+                  src={nft.moonrankCollection.image}
                   className="aspect-square w-10 rounded-md object-cover"
                   alt="collection image"
                 />
-                <h2 className="text-2xl">{nft.collection.nft.name}</h2>
+                <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
               </a>
             </Link>
           ) : (
@@ -204,7 +205,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitBuy(handleBuy)}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
             <div className="mt-4 flex flex-col gap-4 px-6 pt-8 pb-6 md:pt-0">
@@ -224,7 +225,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                     {t('buyable.floorPrice', { ns: 'common' })}
                   </p>
                   <p className="text-base font-medium text-gray-300">
-                    {nft.collection?.floorPrice} SOL
+                    {nft.moonrankCollection?.trends?.compactFloor1d} SOL
                   </p>
                 </div>
                 {listing && (
@@ -294,7 +295,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitOffer(handleOffer)}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
               {t('placeBid')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -306,14 +307,14 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 />
                 <div className="flex flex-col justify-between">
                   <h6>{nft.name}</h6>
-                  {nft.collection && <h4>{nft.collection.nft.name}</h4>}
+                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
                 </div>
               </div>
               <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.collection && (
+                {nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>{nft.collection.floorPrice} SOL</span>
+                    <span>{nft.moonrankCollection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
                 <li className="flex justify-between">
@@ -331,7 +332,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 {/* Temporarily broke out of component to make it work*/}
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -380,7 +381,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
             onSubmit={handleSubmitListNft(() => {})}
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
           >
-            <h2 className="border-b-2 border-b-gray-725 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('listNft')}
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
@@ -392,7 +393,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 />
                 <div className="flex flex-col justify-between">
                   <h6>{nft.name}</h6>
-                  {nft.collection && <h4>{nft.collection.nft.name}</h4>}
+                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
                 </div>
               </div>
               <div className="mt-6 flex flex-row items-center justify-between p-4">
@@ -405,10 +406,10 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
                 </Button>
               </div>
               <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.collection && (
+                {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>{nft.collection.floorPrice} SOL</span>
+                    <span>{nft.moonrankCollection.trends?.compactFloor1d} SOL</span>
                   </li>
                 )}
                 <li className="flex justify-between">
@@ -419,7 +420,7 @@ export default function NftLayout({ children, nft, marketplace }: NftLayoutProps
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-725 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >

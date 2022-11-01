@@ -14,8 +14,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/collections/:address',
-        destination: '/collections/:address/nfts',
+        source: '/collections/:id',
+        destination: '/collections/:id/nfts',
         permanent: true,
       },
       {
