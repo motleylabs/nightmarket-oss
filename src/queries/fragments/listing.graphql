@@ -16,5 +16,9 @@ fragment ListingInfo on AhListing {
     auctionHouseFeeAccount
     treasuryMint
     authority
+    rewardCenter {
+      address
+      sellerRewardPayoutBasisPoints
+    }
   }
 }

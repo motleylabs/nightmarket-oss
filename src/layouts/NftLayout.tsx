@@ -59,6 +59,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const listing = data?.nft.listing;
   const highestOffer = data?.nft.highestOffer;
   const viewerOffer = data?.nft.viewerOffer;
+  const sauceToEarn =
+    listing?.solPrice && listing.auctionHouse?.rewardCenter?.sellerRewardPayoutBasisPoints
+      ? (listing?.solPrice * listing.auctionHouse?.rewardCenter?.sellerRewardPayoutBasisPoints) /
+        10000
+      : 0;
 
   const {
     makeOffer,
@@ -633,7 +638,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  <p className="text-primary-700">{400} SAUCE</p>
+                  {listing && auctionHouse.rewardCenter && (
+                    <p className="text-primary-700">{sauceToEarn} $SAUCE</p>
+                  )}
                 </span>
               </div>
             )}
