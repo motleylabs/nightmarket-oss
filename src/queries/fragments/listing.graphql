@@ -19,6 +19,8 @@ fragment ListingInfo on AhListing {
     rewardCenter {
       address
       sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
     }
   }
 }

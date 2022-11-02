@@ -18,6 +18,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -59,11 +60,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const listing = data?.nft.listing;
   const highestOffer = data?.nft.highestOffer;
   const viewerOffer = data?.nft.viewerOffer;
-  const sauceToEarn =
-    listing?.solPrice && listing.auctionHouse?.rewardCenter?.sellerRewardPayoutBasisPoints
-      ? (listing?.solPrice * listing.auctionHouse?.rewardCenter?.sellerRewardPayoutBasisPoints) /
-        10000
-      : 0;
+  const rewardCenter = listing?.auctionHouse?.rewardCenter;
+  const rewards =
+    listing && rewardCenter
+      ? buyerSellerRewards(
+          listing.price,
+          rewardCenter.mathematicalOperand,
+          rewardCenter.payoutNumeral,
+          rewardCenter.sellerRewardPayoutBasisPoints
+        )
+      : { buyerRewards: 0, sellerRewards: 0 };
 
   const {
     makeOffer,
@@ -638,8 +644,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  {listing && auctionHouse.rewardCenter && (
-                    <p className="text-primary-700">{sauceToEarn} $SAUCE</p>
+                  {listing && isOwner && (
+                    <p className="text-primary-700">{rewards.sellerRewards} $SAUCE</p>
+                  )}
+                  {listing && !isOwner && (
+                    <p className="text-primary-700">{rewards.buyerRewards} $SAUCE</p>
                   )}
                 </span>
               </div>
