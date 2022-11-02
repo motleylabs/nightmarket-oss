@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft } from '../graphql.types';
@@ -61,15 +61,18 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const highestOffer = data?.nft.highestOffer;
   const viewerOffer = data?.nft.viewerOffer;
   const rewardCenter = listing?.auctionHouse?.rewardCenter;
-  const rewards =
-    listing && rewardCenter
-      ? buyerSellerRewards(
-          listing.price,
-          rewardCenter.mathematicalOperand,
-          rewardCenter.payoutNumeral,
-          rewardCenter.sellerRewardPayoutBasisPoints
-        )
-      : { buyerRewards: 0, sellerRewards: 0 };
+  const rewards = useMemo(
+    () =>
+      listing && rewardCenter
+        ? buyerSellerRewards(
+            listing.price,
+            rewardCenter.mathematicalOperand,
+            rewardCenter.payoutNumeral,
+            rewardCenter.sellerRewardPayoutBasisPoints
+          )
+        : { buyerRewards: 0, sellerRewards: 0 },
+    [listing, rewardCenter]
+  );
 
   const {
     makeOffer,
