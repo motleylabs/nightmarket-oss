@@ -25,16 +25,11 @@ enum NFTStates {
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
-  const daomarketListings = nft.listings?.filter(
-    (listing) => listing.auctionHouse?.address === process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS
-  );
-  const magicEdenListings = nft?.magicEdenListings;
+  const listing = nft.listing;
 
   const viewer = useReactiveVar(viewerVar);
 
-  const listing = daomarketListings?.sort((a, b) => a.price - b.price)[0];
-
-  const lastSale = nft.purchases[0]?.previewPrice;
+  const lastSale = nft.purchases[0]?.solPrice;
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
@@ -84,7 +79,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         <div className="relative flex flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              <span className="text-lg">{listing && `${listing?.previewPrice} SOL`}</span>
+              <span className="text-lg">{listing && `${listing?.solPrice} SOL`}</span>
               {!listing ? (
                 <Button border={ButtonBorder.Gray} color={ButtonColor.Gray} size={ButtonSize.Small}>
                   {t('list')}
@@ -104,7 +99,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             <>
               {listing ? (
                 <>
-                  <span className="text-lg">{listing?.previewPrice} SOL</span>
+                  <span className="text-lg">{listing?.solPrice} SOL</span>
                   <Button
                     onClick={onBuy}
                     size={ButtonSize.Small}

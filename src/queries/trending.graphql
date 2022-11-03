@@ -3,14 +3,14 @@ query TrendingCollectionsQuery(
   $timeFrame: CollectionInterval!
   $orderDirection: OrderDirection!
   $offset: Int!
-) @cached (ttl:300) {
+) @cached(ttl: 300) {
   collectionTrends(
     sortBy: $sortBy
     timeFrame: $timeFrame
     orderDirection: $orderDirection
     limit: 10
     offset: $offset
-  )  {
+  ) {
     floor1d
     compactFloor1d @client
     floor7d

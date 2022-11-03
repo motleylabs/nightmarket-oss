@@ -7,7 +7,7 @@ import {
   UseFormRegister,
   UseFormSetValue,
 } from 'react-hook-form';
-import { AhListing, Marketplace, Nft } from '../graphql.types';
+import { AhListing, AuctionHouse, Nft } from '../graphql.types';
 import useLogin from './login';
 import { zodResolver } from '@hookform/resolvers/zod';
 import zod from 'zod';
@@ -19,13 +19,7 @@ import {
 } from '@holaplex/hpl-reward-center';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  findAuctioneer,
-  findListingAddress,
-  findOfferAddress,
-  findPurchaseTicketAddress,
-  findRewardCenter,
-} from '../modules/reward-center/pdas';
+import { RewardCenterProgram } from '../modules/reward-center';
 
 interface BuyForm {
   amount?: number;
@@ -33,7 +27,7 @@ interface BuyForm {
 
 interface BuyListedForm extends BuyForm {
   nft: Nft;
-  marketplace: Marketplace;
+  auctionHouse: AuctionHouse;
   ahListing: AhListing;
 }
 
@@ -49,7 +43,7 @@ interface BuyContext {
   registerBuy: UseFormRegister<BuyForm>;
   handleSubmitBuy: UseFormHandleSubmit<BuyForm>;
   setValue: UseFormSetValue<BuyForm>;
-  onBuyNow: ({ amount, nft, marketplace }: BuyListedForm) => Promise<void>;
+  onBuyNow: ({ amount, nft, auctionHouse }: BuyListedForm) => Promise<void>;
   onOpenBuy: () => void;
   onCloseBuy: () => void;
   buyFormState: FormState<BuyForm>;
@@ -70,27 +64,33 @@ export default function useBuyNow(): BuyContext {
     resolver: zodResolver(schema),
   });
 
-  const onBuyNow = async ({ nft, marketplace, ahListing }: BuyListedForm) => {
-    if (connected && publicKey && signTransaction && nft.owner?.address) {
+  const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
+    if (
+      connected &&
+      publicKey &&
+      signTransaction &&
+      nft.owner?.address &&
+      auctionHouse.rewardCenter
+    ) {
       // TODO buy flow
-      const ah = marketplace.auctionHouses[0];
-      const auctionHouse = new PublicKey(ah.address);
-      const listedPrice = ahListing.price.toNumber();
+
+      const auctionHouseAddress = new PublicKey(auctionHouse.address);
+      const listedPrice = parseInt(ahListing.price);
       const seller = new PublicKey(nft?.owner?.address);
-      const authority = new PublicKey(ah.authority);
-      const ahFeeAcc = new PublicKey(ah.auctionHouseFeeAccount);
-      const auctionHouseTreasury = new PublicKey(ah.auctionHouseTreasury);
+      const authority = new PublicKey(auctionHouse.authority);
+      const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+      const auctionHouseTreasury = new PublicKey(auctionHouse.auctionHouseTreasury);
       const sellerTradeState = new PublicKey(ahListing.tradeState);
       const sellerTradeStateBump = ahListing.tradeStateBump;
-      const treasuryMint = new PublicKey(ah.treasuryMint);
+      const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-      const [buyerTradeState, buyerTradeStateBump] =
+      const [buyerTradeState, _buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
           publicKey,
-          auctionHouse,
+          auctionHouseAddress,
           treasuryMint,
           tokenMint,
           listedPrice,
@@ -98,7 +98,7 @@ export default function useBuyNow(): BuyContext {
         );
 
       const [escrowPaymentAccount, escrowPaymentBump] =
-        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, publicKey);
+        await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
       let sellerPaymentReceiptAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -116,7 +116,7 @@ export default function useBuyNow(): BuyContext {
       const [freeSellerTradeState, freeSellerTradeBump] =
         await AuctionHouseProgram.findTradeStateAddress(
           publicKey,
-          auctionHouse,
+          auctionHouseAddress,
           associatedTokenAcc,
           treasuryMint,
           tokenMint,
@@ -124,21 +124,68 @@ export default function useBuyNow(): BuyContext {
           1
         );
 
-      const [rewardCenter] = await findRewardCenter(auctionHouse);
-      const [listing] = await findListingAddress(seller, metadata, rewardCenter);
-      const [offer] = await findOfferAddress(publicKey, metadata, rewardCenter);
-      const [auctioneer] = await findAuctioneer(auctionHouse, rewardCenter);
-      const [purchaseTicket] = await findPurchaseTicketAddress(listing, offer);
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+      const [listing] = await RewardCenterProgram.findListingAddress(
+        seller,
+        metadata,
+        rewardCenter
+      );
+      const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+        auctionHouseAddress,
+        rewardCenter
+      );
+      const [purchaseTicket] = await RewardCenterProgram.findPurchaseTicketAddress(listing, offer);
+      const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        new PublicKey(auctionHouse.rewardCenter.tokenMint),
+        rewardCenter,
+        true
+      );
+
+      const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+
+      const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        publicKey
+      );
+
+      const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        buyerRewardTokenAccount,
+        publicKey,
+        publicKey
+      );
+
+      const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        seller
+      );
+
+      const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        sellerRewardTokenAccount,
+        seller,
+        publicKey
+      );
 
       const accounts: ExecuteSaleInstructionAccounts = {
         buyer: publicKey,
-        buyerRewardTokenAccount: new PublicKey(''), // TODO
+        buyerRewardTokenAccount,
         seller,
-        sellerRewardTokenAccount: new PublicKey(''), // TODO
+        sellerRewardTokenAccount,
         listing,
         offer,
         payer: publicKey,
-        purchaseTicket,
         tokenAccount: associatedTokenAcc,
         tokenMint,
         metadata,
@@ -147,14 +194,14 @@ export default function useBuyNow(): BuyContext {
         buyerReceiptTokenAccount,
         authority,
         escrowPaymentAccount,
-        auctionHouse,
+        auctionHouse: auctionHouseAddress,
         auctionHouseFeeAccount: ahFeeAcc,
         auctionHouseTreasury,
         sellerTradeState,
         buyerTradeState,
         freeSellerTradeState,
         rewardCenter,
-        rewardCenterRewardTokenAccount: new PublicKey(''), // TODO
+        rewardCenterRewardTokenAccount,
         ahAuctioneerPda: auctioneer,
         programAsSigner,
         auctionHouseProgram: AuctionHouseProgram.PUBKEY,
@@ -166,24 +213,40 @@ export default function useBuyNow(): BuyContext {
           freeTradeStateBump: freeSellerTradeBump,
           sellerTradeStateBump,
           programAsSignerBump,
-          price: listedPrice,
-          tokenSize: 1,
         },
       };
 
       const instruction = createExecuteSaleInstruction(accounts, args);
       const tx = new Transaction();
 
+      const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
+      const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
+      if (!buyerAtAInfo) {
+        tx.add(buyerATAInstruction);
+      }
+
+      if (!sellerAtAInfo) {
+        tx.add(sellerATAInstruction);
+      }
+
       tx.add(instruction);
-      const recentBlockhash = await connection.getLatestBlockhash();
-      tx.recentBlockhash = recentBlockhash.blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
       try {
         const signedTx = await signTransaction(tx);
-        const txtId = await connection.sendRawTransaction(signedTx.serialize());
-        if (txtId) {
-          await connection.confirmTransaction(txtId, 'confirmed');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        if (signature) {
+          await connection.confirmTransaction(
+            {
+              blockhash,
+              lastValidBlockHeight,
+              signature,
+            },
+            'confirmed'
+          );
           console.log(`confirmed`);
         }
       } catch (err) {
