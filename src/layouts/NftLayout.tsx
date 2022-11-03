@@ -442,7 +442,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -521,7 +521,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -586,7 +586,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
