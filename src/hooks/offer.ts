@@ -14,8 +14,15 @@ import {
   createCloseOfferInstruction,
   CloseOfferInstructionAccounts,
   CloseOfferInstructionArgs,
+  createCreateListingInstruction,
+  CreateListingInstructionAccounts,
+  CreateListingInstructionArgs,
+  createExecuteSaleInstruction,
+  ExecuteSaleInstructionAccounts,
+  ExecuteSaleInstructionArgs,
 } from '@holaplex/hpl-reward-center';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction, AccountMeta, TransactionInstruction } from '@solana/web3.js';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
@@ -152,12 +159,13 @@ export function useMakeOffer(): MakeOfferContext {
   const onOpenOffer = useCallback(() => {
     if (connected) {
       setMakeOffer(true);
+      return;
     }
     login();
   }, [setMakeOffer, login, connected]);
 
   const onCancelMakeOffer = useCallback(() => {
-    setMakeOffer(true);
+    setMakeOffer(false);
   }, [setMakeOffer]);
 
   return {
@@ -341,6 +349,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
   const onOpenUpdateOffer = useCallback(() => {
     if (connected) {
       setUpdateOffer(true);
+      return;
     }
     login();
   }, [setUpdateOffer, login, connected]);
@@ -463,19 +472,19 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
     try {
       const signedTx = await signTransaction(tx);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-        toast('Offer canceled', { type: 'success' });
+      if (!signature) {
+        return;
       }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
+      toast('Offer canceled', { type: 'success' });
     } catch (err: any) {
-      console.log('Error whilst closing offer', err);
       toast(err.message, { type: 'error' });
     } finally {
       setClosingOffer(false);
@@ -485,5 +494,280 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
   return {
     closingOffer,
     onCloseOffer,
+  };
+}
+
+interface AcceptOfferParams {
+  auctionHouse: AuctionHouse;
+  nft: Nft;
+}
+
+interface AcceptOfferContext {
+  acceptingOffer: boolean;
+  onAcceptOffer: (args: AcceptOfferParams) => Promise<void>;
+}
+export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferContext {
+  const [acceptingOffer, setAcceptingOffer] = useState(false);
+  const { connected, publicKey, signTransaction } = useWallet();
+  const { connection } = useConnection();
+  const login = useLogin();
+
+  const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
+    if (!connected || !publicKey || !signTransaction || !offer) {
+      return;
+    }
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const buyerPrice = parseInt(offer.price);
+    const authority = new PublicKey(auctionHouse.authority);
+    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const auctionHouseTreasury = new PublicKey(auctionHouse.auctionHouseTreasury);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const metadata = new PublicKey(nft.address);
+    const buyerAddress = new PublicKey(offer.buyer);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+
+    const [buyerTradeState, _buyerTradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
+        buyerAddress,
+        auctionHouseAddress,
+        treasuryMint,
+        tokenMint,
+        buyerPrice,
+        1
+      );
+
+    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+
+    const [escrowPaymentAccount, escrowPaymentBump] =
+      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, buyerAddress);
+
+    const sellerPaymentReceiptAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      treasuryMint,
+      publicKey
+    );
+
+    const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      rewardCenter,
+      true
+    );
+
+    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
+      tokenMint,
+      buyerAddress
+    );
+
+
+    const [sellerTradeState, sellerTradeStateBump] =
+      await RewardCenterProgram.findAuctioneerTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        1
+      );
+
+    const [programAsSigner, programAsSignerBump] =
+      await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+    const [freeSellerTradeState, freeTradeStateBump] =
+      await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+    const [listingAddress] = await RewardCenterProgram.findListingAddress(
+      publicKey,
+      metadata,
+      rewardCenter
+    );
+
+    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
+      buyerAddress,
+      metadata,
+      rewardCenter
+    );
+
+    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+      auctionHouseAddress,
+      rewardCenter
+    );
+
+    const listingAccounts: CreateListingInstructionAccounts = {
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+      listing: listingAddress,
+      rewardCenter: rewardCenter,
+      wallet: publicKey,
+      tokenAccount: associatedTokenAccount,
+      metadata: metadata,
+      authority: authority,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount,
+      sellerTradeState,
+      freeSellerTradeState,
+      ahAuctioneerPda: auctioneer,
+      programAsSigner: programAsSigner,
+    };
+
+    const listingArgs: CreateListingInstructionArgs = {
+      createListingParams: {
+        price: buyerPrice,
+        tokenSize: 1,
+        tradeStateBump: sellerTradeStateBump,
+        freeTradeStateBump,
+        programAsSignerBump: programAsSignerBump,
+      },
+    };
+
+    const listingIx = createCreateListingInstruction(listingAccounts, listingArgs);
+
+    const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      buyerAddress
+    );
+
+    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      buyerRewardTokenAccount,
+      buyerAddress,
+      publicKey
+    );
+
+    const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      sellerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
+    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
+    const executeSaleAccounts: ExecuteSaleInstructionAccounts = {
+      buyer: buyerAddress,
+      buyerRewardTokenAccount,
+      seller: publicKey,
+      sellerRewardTokenAccount,
+      listing: listingAddress,
+      offer: rewardsOffer,
+      payer: publicKey,
+      tokenAccount: associatedTokenAccount,
+      tokenMint,
+      metadata,
+      treasuryMint,
+      sellerPaymentReceiptAccount,
+      buyerReceiptTokenAccount,
+      authority,
+      escrowPaymentAccount,
+      auctionHouse: auctionHouseAddress,
+      auctionHouseFeeAccount,
+      auctionHouseTreasury,
+      sellerTradeState,
+      buyerTradeState,
+      freeSellerTradeState,
+      rewardCenter,
+      rewardCenterRewardTokenAccount,
+      ahAuctioneerPda: auctioneer,
+      programAsSigner,
+      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+    };
+
+    const executeSaleArgs: ExecuteSaleInstructionArgs = {
+      executeSaleParams: {
+        escrowPaymentBump,
+        freeTradeStateBump,
+        sellerTradeStateBump,
+        programAsSignerBump,
+      },
+    };
+
+    const executeSaleIx = createExecuteSaleInstruction(executeSaleAccounts, executeSaleArgs);
+
+    let remainingAccounts: AccountMeta[] = []
+
+    for (let creator of nft.creators) {
+      const creatorAccount = {
+        pubkey: new PublicKey(creator.address),
+        isSigner: false,
+        isWritable: true,
+      }
+      remainingAccounts = [...remainingAccounts, creatorAccount]
+    }
+
+    const tx = new Transaction();
+
+    if (!buyerAtAInfo) {
+      tx.add(buyerATAInstruction);
+    }
+
+    if (!sellerAtAInfo) {
+      tx.add(sellerATAInstruction);
+    }
+
+    tx.add(listingIx);
+    tx.add(
+      new TransactionInstruction({
+        programId: AuctionHouseProgram.PUBKEY,
+        data: executeSaleIx.data,
+        keys: executeSaleIx.keys.concat(remainingAccounts),
+      })
+    );
+
+    debugger;
+
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = publicKey;
+
+    try {
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (!signature) {
+        return;
+      }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
+      toast('Offer accepted', { type: 'success' });
+    } catch (err: any) {
+      toast(err.message, { type: 'error' });
+    } finally {
+      setAcceptingOffer(false);
+    }
+  };
+
+  return {
+    acceptingOffer,
+    onAcceptOffer,
   };
 }

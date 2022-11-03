@@ -137,8 +137,6 @@ export default function CollectionNfts() {
       sortBy: NftSort.Price,
       attributes: null,
     },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
   });
 
   useEffect(() => {
@@ -173,6 +171,17 @@ export default function CollectionNfts() {
 
     return subscription.unsubscribe;
   }, [watch, router.query.id, nftsQuery]);
+
+  const onLoadMore = (inView: boolean) => {
+    if (!inView) {
+      return;
+    }
+    nftsQuery.fetchMore({
+      variables: {
+        offset: nftsQuery.data?.collection.nfts.length,
+      },
+    });
+  };
 
   return (
     <>
@@ -258,21 +267,7 @@ export default function CollectionNfts() {
                       [ListGridSize.Jumbo]: [6, 8],
                     }}
                     skeleton={NftCard.Skeleton}
-                    onLoadMore={async (inView: boolean) => {
-                      if (!inView) {
-                        return;
-                      }
-
-                      const {
-                        data: { collection },
-                      } = await nftsQuery.fetchMore({
-                        variables: {
-                          offset: nftsQuery.data?.collection.nfts.length,
-                        },
-                      });
-
-                      setHasMore(collection.nfts.length > 0);
-                    }}
+                    onLoadMore={onLoadMore}
                     render={(nft, i) => (
                       <NftCard
                         key={`${nft.mintAddress}-${i}`}

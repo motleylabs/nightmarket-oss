@@ -86,6 +86,7 @@ export default function useBuyNow(): BuyContext {
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+      const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
       const [buyerTradeState, _buyerTradeStateBump] =
         await AuctionHouseProgram.findPublicBidTradeStateAddress(
@@ -135,16 +136,14 @@ export default function useBuyNow(): BuyContext {
         auctionHouseAddress,
         rewardCenter
       );
-      const [purchaseTicket] = await RewardCenterProgram.findPurchaseTicketAddress(listing, offer);
+
       const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
-        new PublicKey(auctionHouse.rewardCenter.tokenMint),
+        token,
         rewardCenter,
         true
       );
-
-      const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
       const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,

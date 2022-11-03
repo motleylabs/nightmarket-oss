@@ -404,7 +404,7 @@ const client = new ApolloClient({
       Collection: {
         fields: {
           activities: offsetLimitPagination(['$eventTypes']),
-          nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),
+          nfts: offsetLimitPagination(['$marketplaceProgram', '$auctionHouse', '$offer', '$sortBy', '$attributes']),
           holderCount: {
             read(value): string {
               if (!value) {

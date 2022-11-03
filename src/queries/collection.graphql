@@ -46,15 +46,14 @@ query CollectionAttributeGroupsQuery($id: String!) @cached(ttl: 300) {
 
 query CollectionNFTsQuery(
   $id: String!
-  $order: OrderDirection
-  $sortBy: NftSort
-  $attributes: [AttributeFilter!]
-  $limit: Int = 24
-  $offset: Int = 0
+  $limit: Int!
+  $offset: Int!
+  $auctionHouse: String
+  $marketplaceProgram: String
 ) {
   collection(id: $id) {
     id
-    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset) {
+    nfts(limit: $limit, offset: $offset, auctionHouse: $auctionHouse, marketplaceProgram: $marketplaceProgram) {
       ...NftListingInfo
     }
   }
