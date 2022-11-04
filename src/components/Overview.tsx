@@ -139,7 +139,7 @@ function Tab(props: { href: string; label: string; active: boolean }) {
       <a>
         <div
           className={clsx(
-            'flex h-10  flex-row items-center justify-center rounded-full  font-semibold',
+            'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
             props.active
               ? 'rounded-full bg-gray-800 text-white'
               : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'

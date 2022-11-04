@@ -1,5 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -48,7 +48,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
 
 interface TrendingCollectionForm {
   filter: CollectionInterval;
-  sort: SortOption;
+  sort: CollectionSort;
 }
 
 interface TrendingCollectionVariables {
@@ -79,22 +79,25 @@ const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 const Home: NextPage = () => {
   const { t } = useTranslation(['home', 'collection']);
 
-  const sortOptions: SortOption[] = [
-    {
-      value: CollectionSort.Volume,
-      label: t('collection:trendingCollectionsSort.byVolumeTraded'),
-    },
-    {
-      value: CollectionSort.Floor,
-      label: t('collection:trendingCollectionsSort.byFloorPrice'),
-    },
-  ];
+  const sortOptions: SortOption[] = useMemo(
+    () => [
+      {
+        value: CollectionSort.Volume,
+        label: t('collection:trendingCollectionsSort.byVolumeTraded'),
+      },
+      {
+        value: CollectionSort.Floor,
+        label: t('collection:trendingCollectionsSort.byFloorPrice'),
+      },
+    ],
+    [t]
+  );
   const { publicKey, connected } = useWallet();
   const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
   const onLogin = useLogin();
 
   const { watch, control } = useForm<TrendingCollectionForm>({
-    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: sortOptions[0] },
+    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: CollectionSort.Volume },
   });
 
   const timeFrame = watch('filter');
@@ -135,7 +138,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     const subscription = watch(({ filter, sort }) => {
       let variables: TrendingCollectionVariables = {
-        sortBy: sort?.value!,
+        sortBy: sort!,
         timeFrame: filter!,
         orderDirection: DEFAULT_ORDER,
         offset: 0,
@@ -265,7 +268,7 @@ const Home: NextPage = () => {
                   </ButtonGroup>
                 )}
               />
-              <div className="hidden flex-grow sm:w-48 sm:flex-grow-0 lg:block">
+              <div className="hidden sm:w-48 lg:block">
                 <Controller
                   control={control}
                   name="sort"

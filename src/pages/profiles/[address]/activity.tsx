@@ -61,7 +61,7 @@ enum ActivityFilter {
 }
 
 interface ProfileActivityForm {
-  type: { value: ActivityFilter; label: string };
+  type: ActivityFilter;
 }
 
 export default function ProfileActivity(): JSX.Element {
@@ -75,7 +75,7 @@ export default function ProfileActivity(): JSX.Element {
 
   const { watch, control } = useForm<ProfileActivityForm>({
     defaultValues: {
-      type: activityFilterOptions[0],
+      type: activityFilterOptions[0].value,
     },
   });
   const router = useRouter();
@@ -102,7 +102,7 @@ export default function ProfileActivity(): JSX.Element {
         eventTypes: null,
       };
 
-      switch (type?.value) {
+      switch (type) {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
@@ -137,7 +137,7 @@ export default function ProfileActivity(): JSX.Element {
                 value={value}
                 onChange={onChange}
                 options={activityFilterOptions}
-                className="col-span-2 md:col-span-1"
+                className="col-span-2 w-36 md:col-span-1"
               />
             )}
           />
