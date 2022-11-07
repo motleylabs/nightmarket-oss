@@ -79,13 +79,13 @@ enum ListedStatus {
 
 interface CollectionNFTForm {
   attributes: { [key: string]: string[] };
-  sortBySelect: SortOption;
+  sortBySelect: SortType;
 }
 
 enum SortType {
-  RecentlyListed,
-  PriceLowToHigh,
-  PriceHighToLow,
+  RecentlyListed = 'RecentlyListed',
+  PriceLowToHigh = 'PriceLowToHigh',
+  PriceHighToLow = 'PriceHighToLow',
 }
 interface SortOption {
   label: string;
@@ -113,8 +113,8 @@ export default function CollectionNfts() {
     },
   ];
 
-  const { watch, control, getValues, setValue } = useForm<CollectionNFTForm>({
-    defaultValues: { sortBySelect: sortOptions[0] },
+  const { watch, control } = useForm<CollectionNFTForm>({
+    defaultValues: { sortBySelect: sortOptions[0].value },
   });
 
   const sortOption = watch('sortBySelect');
@@ -182,7 +182,7 @@ export default function CollectionNfts() {
           control={control}
           name="sortBySelect"
           render={({ field: { onChange, value } }) => (
-            <Select value={value} onChange={onChange} options={sortOptions} />
+            <Select value={value} onChange={onChange} options={sortOptions} className="w-52" />
           )}
         />
       </Toolbar>

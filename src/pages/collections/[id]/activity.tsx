@@ -61,7 +61,7 @@ enum ActivityFilter {
 }
 
 interface CollectionActivityForm {
-  type: { value: ActivityFilter; label: string };
+  type: ActivityFilter;
 }
 
 export default function CollectionActivity(): JSX.Element {
@@ -73,7 +73,7 @@ export default function CollectionActivity(): JSX.Element {
     { label: t('sales'), value: ActivityFilter.Sales },
   ];
   const { watch, control } = useForm<CollectionActivityForm>({
-    defaultValues: { type: activityFilterOptions[0] },
+    defaultValues: { type: activityFilterOptions[0].value },
   });
   const router = useRouter();
   const [hasMore, setHasMore] = useState(true);
@@ -99,7 +99,7 @@ export default function CollectionActivity(): JSX.Element {
         eventTypes: null,
       };
 
-      switch (type?.value) {
+      switch (type) {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
@@ -119,7 +119,7 @@ export default function CollectionActivity(): JSX.Element {
     });
 
     return subscription.unsubscribe;
-  }, [watch, router.query.address, activitiesQuery]);
+  }, [watch, router.query.address, activitiesQuery, router.query.id]);
 
   return (
     <>
@@ -133,7 +133,7 @@ export default function CollectionActivity(): JSX.Element {
               value={value}
               onChange={onChange}
               options={activityFilterOptions}
-              className="col-span-2 md:col-span-1"
+              className="col-span-2 w-36 md:col-span-1"
             />
           )}
         />

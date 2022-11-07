@@ -61,10 +61,7 @@ enum ListedStatus {
 interface CollectionNFTForm {
   listed: ListedStatus;
   collections: (string | undefined)[] | null | undefined;
-  listedFilter: {
-    value: string;
-    label: string;
-  };
+  listedFilter: string;
 }
 
 interface CollectionNFTsData {
@@ -93,7 +90,7 @@ export default function ProfileCollected({
     defaultValues: {
       listed: ListedStatus.All,
       collections: [],
-      listedFilter: nftListedFilterOptions[0],
+      listedFilter: nftListedFilterOptions[0].value,
     },
   });
   const { publicKey } = useWallet();
@@ -143,7 +140,12 @@ export default function ProfileCollected({
           control={control}
           name="listedFilter"
           render={({ field: { onChange, value } }) => (
-            <Select value={value} onChange={onChange} options={nftListedFilterOptions} />
+            <Select
+              value={value}
+              onChange={onChange}
+              options={nftListedFilterOptions}
+              className="w-36"
+            />
           )}
         />
       </Toolbar>
