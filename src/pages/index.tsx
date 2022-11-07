@@ -3,7 +3,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import TrendingCollectionQuery from './../queries/trending.graphql';
+import {
+  TrendingCollectionsQuery,
+  TrendingCollectionsWithNFTsQuery,
+} from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import { Collection } from '../components/Collection';
 import {
@@ -30,21 +33,35 @@ import Router from 'next/router';
 import Drop from '../components/Drop';
 import { addDays } from 'date-fns';
 
-interface TrendingCollectionData {
+interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
 }
 
-export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
-  props: {
-    ...(await serverSideTranslations(locale as string, [
-      'common',
-      'home',
-      'collection',
-      'profile',
-      'launchpad',
-    ])),
-  },
-});
+interface TrendingCollectionsWithNFTsData {
+  collectionTrends: {
+    collection: {
+      id: string;
+      name: string;
+      nfts: { name: string; image: string }[];
+    };
+  }[];
+}
+
+export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'home',
+    'collection',
+    'profile',
+    'launchpad',
+  ]);
+
+  return {
+    props: {
+      ...i18n,
+    },
+  };
+};
 
 interface TrendingCollectionForm {
   filter: CollectionInterval;
@@ -92,19 +109,23 @@ const Home: NextPage = () => {
     ],
     [t]
   );
+
   const { publicKey, connected } = useWallet();
   const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
   const onLogin = useLogin();
 
   const { watch, control } = useForm<TrendingCollectionForm>({
-    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: CollectionSort.Volume },
+    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
   const timeFrame = watch('filter');
+  const sortType = watch('sort');
 
-  const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
-    TrendingCollectionQuery,
+  const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionVariables>(
+    TrendingCollectionsQuery,
     {
+      // fetchPolicy: 'network-only',
+      // nextFetchPolicy: 'standby',
       variables: {
         sortBy: DEFAULT_SORT,
         timeFrame: DEFAULT_TIME_FRAME,
@@ -114,11 +135,31 @@ const Home: NextPage = () => {
     }
   );
 
+  const trendingCollectionsNFTPreviewsQuery = useQuery<
+    TrendingCollectionsWithNFTsData,
+    TrendingCollectionVariables
+  >(TrendingCollectionsWithNFTsQuery, {
+    // fetchPolicy: 'network-only',
+    // nextFetchPolicy: 'standby',
+    variables: {
+      sortBy: DEFAULT_SORT,
+      timeFrame: DEFAULT_TIME_FRAME,
+      orderDirection: DEFAULT_ORDER,
+      offset: 0,
+    },
+  });
+
   const onShowMoreTrends = () => {
     trendingCollectionsQuery.fetchMore({
       variables: {
         ...trendingCollectionsQuery.variables,
         offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
+      },
+    });
+    trendingCollectionsNFTPreviewsQuery.fetchMore({
+      variables: {
+        ...trendingCollectionsNFTPreviewsQuery.variables,
+        offset: trendingCollectionsNFTPreviewsQuery.data?.collectionTrends.length ?? 0,
       },
     });
   };
@@ -136,20 +177,175 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    const subscription = watch(({ filter, sort }) => {
-      let variables: TrendingCollectionVariables = {
-        sortBy: sort!,
-        timeFrame: filter!,
-        orderDirection: DEFAULT_ORDER,
-        offset: 0,
-      };
+    console.log('effect sort filter', { sortType, timeFrame });
+    let variables: TrendingCollectionVariables = {
+      sortBy: sortType,
+      timeFrame: timeFrame,
+      orderDirection: DEFAULT_ORDER,
+      offset: 0,
+    };
+    // trendingCollectionsQuery.refetch(variables);
+    // trendingCollectionsNFTPreviewsQuery.refetch(variables);
+    // if (!trendingCollectionsQuery.loading) {
+    // }
+  }, [sortType, timeFrame]);
 
-      trendingCollectionsQuery.refetch(variables);
-    });
-    return subscription.unsubscribe;
-  }, [watch, trendingCollectionsQuery]);
+  // useEffect(() => {
+  //   const subscription = watch(({ filter, sort }) => {
+  //     let variables: TrendingCollectionVariables = {
+  //       sortBy: sort!,
+  //       timeFrame: filter!,
+  //       orderDirection: DEFAULT_ORDER,
+  //       offset: 0,
+  //     };
+  //     if (!trendingCollectionsQuery.loading) {
+  //       trendingCollectionsQuery.refetch(variables);
+  //     }
+  //   });
+  //   return subscription.unsubscribe;
+  // }, [watch]);
 
   const nfts: any[] = [];
+
+  const trendingCollectionsWithNftPreviews = useMemo(() => {
+    return trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+      let selectedTrend: SelectedTrend;
+      let volumeLabel: string;
+
+      const nftPreviews =
+        trendingCollectionsNFTPreviewsQuery.data?.collectionTrends?.[i]?.collection?.nfts;
+
+      // console.log(
+      //   'nft previews',
+      //   nftPreviews,
+      //   trend.collection?.name,
+      //   trendingCollectionsNFTPreviewsQuery.data
+      // );
+
+      switch (timeFrame) {
+        case CollectionInterval.OneDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor1d,
+            floorPriceChange: trend.changeFloor1d,
+            volume: trend.compactVolume1d,
+            volumeChange: trend.changeVolume1d,
+            listedCount: trend.compactListed1d,
+            listedCountChange: trend.changeListed7d,
+          };
+          volumeLabel = t('collection:24hVolume');
+          break;
+        case CollectionInterval.SevenDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor7d,
+            floorPriceChange: trend.changeFloor7d,
+            volume: trend.compactVolume7d,
+            volumeChange: trend.changeVolume7d,
+            listedCount: trend.compactListed7d,
+            listedCountChange: trend.changeListed7d,
+          };
+          volumeLabel = t('collection:7dVolume');
+          break;
+        case CollectionInterval.ThirtyDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor30d,
+            floorPriceChange: trend.changeFloor30d,
+            volume: trend.compactVolume30d,
+            volumeChange: trend.changeVolume30d,
+            listedCount: trend.compactListed30d,
+            listedCountChange: trend.changeListed30d,
+          };
+          volumeLabel = t('collection:30dVolume');
+          break;
+      }
+
+      if (trend.collection) {
+        return (
+          <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
+            <Collection.List.Col className="flex-none">
+              <img
+                src={trend.collection.image}
+                alt={trend.collection.name}
+                className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
+              />
+            </Collection.List.Col>
+            <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+              <div className="w-32 lg:w-40">{trend.collection.name}</div>
+              <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
+                <Collection.List.DataPoint
+                  value={selectedTrend.floorPrice}
+                  icon={<Icon.Sol />}
+                  name={t('collection:globalFloor')}
+                  status={
+                    <Collection.List.DataPoint.Status value={selectedTrend.floorPriceChange} />
+                  }
+                />
+                <Collection.List.DataPoint
+                  value={selectedTrend.volume}
+                  icon={<Icon.Sol />}
+                  name={volumeLabel}
+                  status={<Collection.List.DataPoint.Status value={selectedTrend.volumeChange} />}
+                />
+                <Collection.List.DataPoint
+                  value={selectedTrend.listedCount}
+                  name={t('collection:listings')}
+                  status={
+                    <Collection.List.DataPoint.Status value={selectedTrend.listedCountChange} />
+                  }
+                />
+              </div>
+              <div className="flex gap-4">
+                <div className="hidden gap-4 lg:flex">
+                  {!nftPreviews ? (
+                    <>
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                    </>
+                  ) : (
+                    nftPreviews
+                      .slice(0, 3)
+                      .map((nft) => (
+                        <Collection.List.ShowcaseNft
+                          key={nft.name}
+                          image={nft.image}
+                          name={nft.name}
+                          price={26}
+                        />
+                      ))
+                  )}
+                </div>
+                <div className="hidden gap-4 xl:flex">
+                  {!nftPreviews ? (
+                    <>
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
+                    </>
+                  ) : (
+                    nftPreviews
+                      .slice(3, 6)
+                      .map((nft) => (
+                        <Collection.List.ShowcaseNft
+                          key={nft.name}
+                          image={nft.image}
+                          name={nft.name}
+                          price={26}
+                        />
+                      ))
+                  )}
+                </div>
+              </div>
+            </Collection.List.Col>
+          </Collection.List.Row>
+        );
+      }
+    });
+  }, [
+    t,
+    timeFrame,
+    trendingCollectionsQuery.data?.collectionTrends,
+    trendingCollectionsNFTPreviewsQuery.data,
+  ]);
 
   return (
     <>
@@ -288,131 +484,7 @@ const Home: NextPage = () => {
                 <Collection.List.Loading />
               </>
             ) : (
-              trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
-                let selectedTrend: SelectedTrend;
-                let volumeLabel: string;
-
-                switch (timeFrame) {
-                  case CollectionInterval.OneDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.compactVolume1d,
-                      volumeChange: trend.changeVolume1d,
-                      listedCount: trend.compactListed1d,
-                      listedCountChange: trend.changeListed7d,
-                    };
-                    volumeLabel = t('collection:24hVolume');
-                    break;
-                  case CollectionInterval.SevenDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor7d,
-                      floorPriceChange: trend.changeFloor7d,
-                      volume: trend.compactVolume7d,
-                      volumeChange: trend.changeVolume7d,
-                      listedCount: trend.compactListed7d,
-                      listedCountChange: trend.changeListed7d,
-                    };
-                    volumeLabel = t('collection:7dVolume');
-                    break;
-                  case CollectionInterval.ThirtyDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor30d,
-                      floorPriceChange: trend.changeFloor30d,
-                      volume: trend.compactVolume30d,
-                      volumeChange: trend.changeVolume30d,
-                      listedCount: trend.compactListed30d,
-                      listedCountChange: trend.changeListed30d,
-                    };
-                    volumeLabel = t('collection:30dVolume');
-                    break;
-                }
-
-                if (trend.collection) {
-                  return (
-                    <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
-                      <Collection.List.Col className="flex-none">
-                        <img
-                          src={trend.collection.image}
-                          alt={trend.collection.name}
-                          className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
-                        />
-                      </Collection.List.Col>
-                      <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                        <div className="w-32 lg:w-40">{trend.collection.name}</div>
-                        <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
-                          <Collection.List.DataPoint
-                            value={selectedTrend.floorPrice}
-                            icon={<Icon.Sol />}
-                            name={t('collection:globalFloor')}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.floorPriceChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.volume}
-                            icon={<Icon.Sol />}
-                            name={volumeLabel}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.volumeChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.listedCount}
-                            name={t('collection:listings')}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.listedCountChange}
-                              />
-                            }
-                          />
-                        </div>
-                        {/* TODO: Add real data */}
-                        <div className="flex gap-4">
-                          <div className="hidden gap-4 lg:flex">
-                            <Collection.List.ShowcaseNft
-                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                              name="abc"
-                              price={26}
-                            />
-                          </div>
-                          <div className="hidden gap-4 xl:flex">
-                            <Collection.List.ShowcaseNft
-                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                              name="abc"
-                              price={26}
-                            />
-                          </div>
-                        </div>
-                      </Collection.List.Col>
-                    </Collection.List.Row>
-                  );
-                }
-              })
+              trendingCollectionsWithNftPreviews
             )}
           </Collection.List>
           <Button
