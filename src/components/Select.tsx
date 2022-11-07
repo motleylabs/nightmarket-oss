@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React, { Fragment } from 'react';
 
 export default function Select<T>(props: {
-  value: string;
+  value: T;
   onChange: any;
   options: { label: string; value: T }[];
   className?: string;
