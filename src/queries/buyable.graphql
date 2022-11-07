@@ -1,17 +1,17 @@
 #import "./fragments/listing.graphql"
 # TODO: add in listing rewards when indexed
 
-query BuyableQuery($address: String!, $subdomain: String!) {
-  marketplace(subdomain: $subdomain) {
-    configAddress
-    auctionHouses {
+query BuyableQuery($address: String!, $auctionHouse: String!) {
+  auctionHouse(address: $auctionHouse) {
+    address
+    sellerFeeBasisPoints
+    fee @client
+    treasuryMint
+    authority
+    auctionHouseFeeAccount
+    auctionHouseTreasury
+    rewardCenter {
       address
-      sellerFeeBasisPoints
-      fee @client
-      treasuryMint
-      authority
-      auctionHouseFeeAccount
-      auctionHouseTreasury
     }
   }
 
@@ -30,14 +30,14 @@ query BuyableQuery($address: String!, $subdomain: String!) {
     }
     listings {
       ...ListingInfo
-      previewPrice @client
+      solPrice @client
       tradeState
       tradeStateBump
     }
     purchases {
       id
       price
-      previewPrice @client
+      solPrice @client
     }
     owner {
       address

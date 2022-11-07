@@ -81,7 +81,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <section className="mx-4 my-8 flex flex-col ">
+      <section className="mx-4 my-8 flex flex-col">
         <div className="mb-8 flex  items-center justify-center gap-4  md:flex-row md:gap-6 ">
           <Overview.Avatar src={wallet.previewImage as string} circle />
           <div className="flex flex-col items-center gap-6 md:items-start">
@@ -118,8 +118,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-2  justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
+        <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
           <ProfileFigure
             figure={(currenciesReady && portfolioValue && solToUsdString(portfolioValue)) || '0'}
             label="Net Worth"

@@ -3,6 +3,7 @@
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/grid';
+@import 'react-toastify/dist/ReactToastify.css';
 
 @tailwind base;
 @tailwind components;
@@ -25,7 +26,7 @@ html {
 }
 
 .input {
-  @apply rounded-md border border-gray-800;
+  @apply rounded-md border border-gray-700;
 }
 .wallet-modal-theme .wallet-adapter-modal-wrapper {
   @apply rounded-2xl bg-gray-800 font-sans;

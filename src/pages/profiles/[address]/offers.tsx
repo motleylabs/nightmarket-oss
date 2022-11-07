@@ -68,7 +68,7 @@ enum OffersFilter {
 }
 
 interface ProfileOffersForm {
-  type: { value: OffersFilter; label: string };
+  type: string;
 }
 
 export default function ProfileOffers(): JSX.Element {
@@ -83,7 +83,7 @@ export default function ProfileOffers(): JSX.Element {
 
   const { watch, control } = useForm<ProfileOffersForm>({
     defaultValues: {
-      type: activityFilterOptions[0],
+      type: activityFilterOptions[0].value,
     },
   });
   const router = useRouter();
@@ -101,7 +101,7 @@ export default function ProfileOffers(): JSX.Element {
   useEffect(() => {
     const subscription = watch(({ type }) => {
       let offerType = null;
-      switch (type?.value) {
+      switch (type) {
         case OffersFilter.Placed:
           offerType = OfferType.OfferPlaced;
           break;
@@ -134,7 +134,12 @@ export default function ProfileOffers(): JSX.Element {
             control={control}
             name="type"
             render={({ field: { onChange, value } }) => (
-              <Select value={value} onChange={onChange} options={activityFilterOptions} />
+              <Select
+                value={value}
+                onChange={onChange}
+                options={activityFilterOptions}
+                className="w-48"
+              />
             )}
           />
         </div>

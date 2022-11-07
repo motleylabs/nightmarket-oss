@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React, { Fragment } from 'react';
 
 export default function Select<T>(props: {
-  value: { label: string; value: T };
+  value: string;
   onChange: any;
   options: { label: string; value: T }[];
   className?: string;
@@ -15,12 +15,12 @@ export default function Select<T>(props: {
         <div className={clsx('relative', props.className)}>
           <Listbox.Button
             className={clsx(
-              'relative w-full cursor-pointer rounded-full border border-gray-800 bg-gray-800 py-3 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2  focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
+              'relative w-full cursor-pointer rounded-full border border-gray-800 bg-gray-800 py-4 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
               open && ''
             )}
           >
             <span className="block truncate text-center">
-              {props.options.find((o) => o.value === props.value.value)?.label}
+              {props.options.find((o) => o.value === props.value)?.label}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
               <ChevronDownIcon
@@ -37,26 +37,23 @@ export default function Select<T>(props: {
           >
             <Listbox.Options
               className={clsx(
-                'border-ima absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-auto rounded-md bg-gray-800 text-base shadow-lg ring-1 ring-black ring-opacity-5  focus:outline-none'
+                'absolute left-0 right-0 z-30 mt-1 max-h-64 overflow-auto rounded-lg bg-gray-800 py-4 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'
               )}
             >
               {props.options.map((option, optionIdx) => (
                 <Listbox.Option
                   key={optionIdx}
-                  className={({ active }) =>
-                    `relative cursor-pointer select-none py-2 px-4 ${
-                      active ? 'bg-primary-100 text-white' : 'text-white'
-                    }`
+                  className={({ selected }) =>
+                    clsx(
+                      'relative mx-4 cursor-pointer select-none rounded-lg p-4 text-white hover:bg-gradient-primary hover:text-white',
+                      {
+                        'text-primary-500': selected,
+                      }
+                    )
                   }
-                  value={option}
+                  value={option.value}
                 >
-                  {({ selected }) => (
-                    <span
-                      className={clsx('block truncate', selected ? 'font-medium' : 'font-normal')}
-                    >
-                      {option.label}
-                    </span>
-                  )}
+                  <span className={clsx('', {})}>{option.label}</span>
                 </Listbox.Option>
               ))}
             </Listbox.Options>

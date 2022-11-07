@@ -9,6 +9,10 @@ fragment OfferInfo on Offer {
     name
     mintAddress
     image(width: 100)
+    owner {
+      address
+      associatedTokenAccountAddress
+    }
   }
   buyer
   buyerWallet {

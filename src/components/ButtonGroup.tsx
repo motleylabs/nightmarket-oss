@@ -45,7 +45,7 @@ function ButtonGroupOption<T>({ children, value, plain }: ButtonGroupButtonProps
       className={({ checked }) =>
         clsx(
           'flex items-center justify-center text-sm md:text-base',
-          !plain && 'h-10 w-28 rounded-full',
+          !plain && 'h-12 w-28 rounded-full',
           checked
             ? plain
               ? 'border-b border-b-white text-white'

@@ -67,8 +67,8 @@ query ProfileActivitiesQuery(
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) @cached(ttl: 120) {
-  wallet(address: $address) {
+) {
+  wallet(address: $address) @cached(ttl: 120) {
     address
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
       id
@@ -143,8 +143,8 @@ query ProfileOffersQuery(
   }
 }
 
-query ProfileInfoByAddressQuery($address: PublicKey!) @cached(ttl: 300) {
-  wallet(address: $address) {
+query ProfileInfoByAddressQuery($address: PublicKey!) {
+  wallet(address: $address) @cached(ttl: 300) {
     address
     previewImage @client
     displayName @client
