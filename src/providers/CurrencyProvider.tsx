@@ -57,6 +57,7 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
   const solToUsd: ICurrencyContext['solToUsd'] = useCallback(
     (sol) => {
       if (solPrice == null) {
+        return NaN;
         throw new Error('No known conversion rate from SOL to USD.');
       }
       return sol * solPrice;
