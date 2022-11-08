@@ -47,14 +47,16 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                   'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
                 )}
               />
-              <span className="absolute left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
-                <img
-                  src="/images/moonrank-logo.svg"
-                  className="h-2.5 w-auto object-cover"
-                  alt="moonrank logo"
-                />
-                {nft.moonrankRank}
-              </span>
+              {nft.moonrankRank && (
+                <span className="absolute left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+                  <img
+                    src="/images/moonrank-logo.svg"
+                    className="h-2.5 w-auto object-cover"
+                    alt="moonrank logo"
+                  />
+                  {nft.moonrankRank}
+                </span>
+              )}
             </div>
 
             <div className="z-20 p-4">
