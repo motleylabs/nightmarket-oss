@@ -309,7 +309,7 @@ const Home: NextPage = () => {
                           key={nft.name}
                           image={nft.image}
                           name={nft.name}
-                          price={26}
+                          price={undefined}
                         />
                       ))
                   )}
@@ -329,7 +329,7 @@ const Home: NextPage = () => {
                           key={nft.name}
                           image={nft.image}
                           name={nft.name}
-                          price={26}
+                          price={undefined}
                         />
                       ))
                   )}

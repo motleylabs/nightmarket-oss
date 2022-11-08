@@ -325,7 +325,7 @@ CollectionListDataPoint.Status = CollectionListDataPointStatus;
 interface CollectionListShowcaseNftProps {
   image: string;
   name: string;
-  price: number;
+  price?: number;
 }
 function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
   return (
@@ -333,20 +333,22 @@ function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcas
       <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
         <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
       </a>
-      <div className="group ">
-        <Button
-          icon={<Icon.Sol className="h-3 w-3" />}
-          color={ButtonColor.Gray}
-          background={ButtonBackground.Slate}
-          size={ButtonSize.Tiny}
-          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-        >
-          {price}
-        </Button>
-        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-          Buy
-        </Button>
-      </div>
+      {price && (
+        <div className="group ">
+          <Button
+            icon={<Icon.Sol className="h-3 w-3" />}
+            color={ButtonColor.Gray}
+            background={ButtonBackground.Slate}
+            size={ButtonSize.Tiny}
+            className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+          >
+            {price}
+          </Button>
+          <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+            Buy
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
