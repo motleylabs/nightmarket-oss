@@ -182,7 +182,12 @@ export default function CollectionNfts() {
           control={control}
           name="sortBySelect"
           render={({ field: { onChange, value } }) => (
-            <Select value={value} onChange={onChange} options={sortOptions} className="w-52" />
+            <Select
+              value={value}
+              onChange={onChange}
+              options={sortOptions}
+              className="w-full md:w-40 lg:w-52"
+            />
           )}
         />
       </Toolbar>
