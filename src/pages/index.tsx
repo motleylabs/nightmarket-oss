@@ -149,8 +149,6 @@ const Home: NextPage = () => {
     return subscription.unsubscribe;
   }, [watch, trendingCollectionsQuery]);
 
-  const nfts: any[] = [];
-
   return (
     <>
       <Head>
@@ -184,29 +182,7 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside>
-            <Hero.Preview
-              imgUrlTemp="https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000"
-              nft={nfts[0]}
-              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
-              hPosition="left"
-              vPosition="bottom"
-            />
-            <Hero.Preview
-              imgUrlTemp="https://metadata.degods.com/g/3097.png"
-              nft={nfts[0]}
-              className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
-              hPosition="left"
-              vPosition="top"
-            />
-            <Hero.Preview
-              imgUrlTemp="https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png"
-              nft={nfts[0]}
-              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
-              hPosition="right"
-              vPosition="bottom"
-            />
-          </Hero.Aside>
+          <Hero.Aside />
         </Hero>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
