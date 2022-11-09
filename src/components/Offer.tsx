@@ -14,6 +14,8 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
   const { publicKey } = useWallet();
   const { t } = useTranslation('offers');
   const { closingOffer, onCloseOffer } = useCloseOffer(offer);
+  const viewerAddress = publicKey?.toBase58();
+
   return (
     <Activity
       avatar={
@@ -33,30 +35,34 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
         />
       }
       actionButton={
-        publicKey &&
-        (offer.buyer === publicKey?.toBase58() ? (
-          <Button
-            background={ButtonBackground.Slate}
-            border={ButtonBorder.Gray}
-            color={ButtonColor.Gray}
-            size={ButtonSize.Small}
-            loading={closingOffer}
-            disabled={closingOffer}
-            onClick={() => onCloseOffer({ nft: offer.nft, auctionHouse: offer.auctionHouse })}
-          >
-            {t('common:cancel')}
-          </Button>
-        ) : (
-          <Button
-            background={ButtonBackground.Slate}
-            border={ButtonBorder.Gradient}
-            color={ButtonColor.Gradient}
-            size={ButtonSize.Small}
-            onClick={() => {}}
-          >
-            {t('accept')}
-          </Button>
-        ))
+        publicKey && (
+          <>
+            {offer.buyer == viewerAddress && (
+              <Button
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
+                size={ButtonSize.Small}
+                loading={closingOffer}
+                disabled={closingOffer}
+                onClick={() => onCloseOffer({ nft: offer.nft, auctionHouse: offer.auctionHouse })}
+              >
+                {t('common:cancel')}
+              </Button>
+            )}
+            {offer.nft?.owner?.address === viewerAddress && (
+              <Button
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+                size={ButtonSize.Small}
+                onClick={() => {}}
+              >
+                {t('accept')}
+              </Button>
+            )}
+          </>
+        )
       }
     >
       <Activity.Price amount={offer.solPrice} />

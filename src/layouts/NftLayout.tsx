@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import { AuctionHouse, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
-import { useMakeOffer, useUpdateOffer, useCloseOffer } from '../hooks/offer';
+import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
 import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import { Form } from '../components/Form';
 import Head from 'next/head';
@@ -133,6 +133,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   };
 
   const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
+
+  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
+
+  const handleAcceptOffer = async () => {
+    if (!auctionHouse || !nft) {
+      return;
+    }
+
+    await onAcceptOffer({ auctionHouse, nft });
+  };
 
   const {
     onOpenUpdateOffer,
@@ -702,7 +712,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 <div className="col-span-12 md:col-span-6">
                   {isOwner &&
                     (highestOffer ? (
-                      <Button block onClick={onListNftClick}>
+                      <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
                         {t('accept')}
                       </Button>
                     ) : (
