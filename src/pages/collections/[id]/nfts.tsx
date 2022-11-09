@@ -117,8 +117,6 @@ export default function CollectionNfts() {
     defaultValues: { sortBySelect: sortOptions[0] },
   });
 
-  const sortOption = watch('sortBySelect');
-
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
     CollectionAttributeGroupsVariables
@@ -135,7 +133,6 @@ export default function CollectionNfts() {
       id: router.query.id as string,
       order: OrderDirection.Desc,
       sortBy: NftSort.Price,
-      attributes: null,
     },
   });
 
@@ -171,17 +168,6 @@ export default function CollectionNfts() {
 
     return subscription.unsubscribe;
   }, [watch, router.query.id, nftsQuery]);
-
-  const onLoadMore = (inView: boolean) => {
-    if (!inView) {
-      return;
-    }
-    nftsQuery.fetchMore({
-      variables: {
-        offset: nftsQuery.data?.collection.nfts.length,
-      },
-    });
-  };
 
   return (
     <>
@@ -267,7 +253,21 @@ export default function CollectionNfts() {
                       [ListGridSize.Jumbo]: [6, 8],
                     }}
                     skeleton={NftCard.Skeleton}
-                    onLoadMore={onLoadMore}
+                    onLoadMore={async (inView: boolean) => {
+                      if (!inView) {
+                        return;
+                      }
+
+                      const {
+                        data: { collection },
+                      } = await nftsQuery.fetchMore({
+                        variables: {
+                          offset: nftsQuery.data?.collection.nfts.length,
+                        },
+                      });
+
+                      setHasMore(collection.nfts.length > 0);
+                    }}
                     render={(nft, i) => (
                       <NftCard
                         key={`${nft.mintAddress}-${i}`}

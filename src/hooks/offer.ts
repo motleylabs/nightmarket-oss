@@ -563,7 +563,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       buyerAddress
     );
 
-
     const [sellerTradeState, sellerTradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
         publicKey,
@@ -708,15 +707,15 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const executeSaleIx = createExecuteSaleInstruction(executeSaleAccounts, executeSaleArgs);
 
-    let remainingAccounts: AccountMeta[] = []
+    let remainingAccounts: AccountMeta[] = [];
 
     for (let creator of nft.creators) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
         isSigner: false,
         isWritable: true,
-      }
-      remainingAccounts = [...remainingAccounts, creatorAccount]
+      };
+      remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
     const tx = new Transaction();
