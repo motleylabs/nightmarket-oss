@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { Nft, Purchase } from '../graphql.types';
+import { Nft, Purchase, RewardPayout } from '../graphql.types';
 import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
 
@@ -51,9 +51,12 @@ function HeroActions({ children }: HeroActionsProps): JSX.Element {
 
 Hero.Actions = HeroActions;
 
-function HeroAside(): JSX.Element {
+interface HeroAsideProps {
+  payouts: RewardPayout[] | undefined;
+}
+
+function HeroAside({ payouts }: HeroAsideProps): JSX.Element {
   const ITEMS_TO_SHOW = 3;
-  const nfts: any[] = [];
   const purchases: Purchase[] = useMemo(
     () => [
       {

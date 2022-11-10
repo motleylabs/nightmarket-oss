@@ -4,6 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
 import TrendingCollectionQuery from './../queries/trending.graphql';
+import PayoutsQuery from './../queries/payouts.graphql';
 import { useQuery } from '@apollo/client';
 import { Collection } from '../components/Collection';
 import {
@@ -12,6 +13,7 @@ import {
   CollectionTrend,
   OrderDirection,
   Maybe,
+  AuctionHouse,
 } from '../graphql.types';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Hero from '../components/Hero';
@@ -29,6 +31,7 @@ import useLogin from '../hooks/login';
 import Router from 'next/router';
 import Drop from '../components/Drop';
 import { addDays } from 'date-fns';
+import config from '../app.config';
 
 interface TrendingCollectionData {
   collectionTrends: CollectionTrend[];
@@ -55,6 +58,16 @@ interface TrendingCollectionVariables {
   sortBy: CollectionSort;
   timeFrame: CollectionInterval;
   orderDirection: OrderDirection;
+  offset: number;
+}
+
+interface PayoutsData {
+  auctionHouse: AuctionHouse;
+}
+
+interface PayoutsVariables {
+  address: String;
+  limit: number;
   offset: number;
 }
 
@@ -101,6 +114,14 @@ const Home: NextPage = () => {
   });
 
   const timeFrame = watch('filter');
+
+  const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
+    variables: {
+      address: config.auctionHouse as string,
+      limit: 10,
+      offset: 0,
+    },
+  });
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
     TrendingCollectionQuery,
@@ -182,7 +203,7 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside />
+          <Hero.Aside payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts} />
         </Hero>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">

@@ -35,7 +35,7 @@ extend type Nft {
   royalties: Int
   listing: AhListing
   highestOffer: Offer
-  viewerOffer(address: String!): Offer
+  viewerOffer(address: String): Offer
 }
 
 extend type Offer {

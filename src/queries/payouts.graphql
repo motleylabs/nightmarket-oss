@@ -1,0 +1,13 @@
+query PayoutsQuery($address: String!, $limit: Int!, $offset: Int!) @cached(ttl: 300) {
+  auctionHouse(address: $address) {
+    address
+    rewardCenter {
+      address
+      payouts(limit: $limit, offset: $offset) {
+        buyerReward
+        sellerReward
+        createdAt
+      }
+    }
+  }
+}
