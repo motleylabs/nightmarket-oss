@@ -13,7 +13,7 @@ query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
   }
 }
 
-query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: String!) @client(ttl: 120) {
+query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) @client(ttl: 120) {
   wallet(address: $address) {
     address
     totalRewards(rewardCenter: $rewardCenter)

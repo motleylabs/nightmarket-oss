@@ -52,7 +52,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     {
       variables: {
         address: address as string,
-        rewardCenter: config.rewardCenterAddress,
+        rewardCenter: config.rewardCenterAddress as string,
       },
     }
   );
@@ -140,7 +140,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
-                {walletProfileClientQuery.data?.wallet.totalRewards}
+                {walletProfileClientQuery.data?.wallet.totalRewards.toNumber()}
               </div>
             }
           />
