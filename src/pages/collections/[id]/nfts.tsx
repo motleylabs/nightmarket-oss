@@ -117,8 +117,6 @@ export default function CollectionNfts() {
     defaultValues: { sortBySelect: sortOptions[0].value },
   });
 
-  const sortOption = watch('sortBySelect');
-
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
     CollectionAttributeGroupsVariables
@@ -135,10 +133,7 @@ export default function CollectionNfts() {
       id: router.query.id as string,
       order: OrderDirection.Desc,
       sortBy: NftSort.Price,
-      attributes: null,
     },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
   });
 
   useEffect(() => {
@@ -162,9 +157,7 @@ export default function CollectionNfts() {
         []
       );
 
-      if (nextAttributes.length > 0) {
-        variables.attributes = nextAttributes;
-      }
+      variables.attributes = nextAttributes;
 
       nftsQuery.refetch(variables).then(({ data: { collection } }) => {
         setHasMore(collection.nfts.length > 0);
@@ -182,7 +175,12 @@ export default function CollectionNfts() {
           control={control}
           name="sortBySelect"
           render={({ field: { onChange, value } }) => (
-            <Select value={value} onChange={onChange} options={sortOptions} className="w-52" />
+            <Select
+              value={value}
+              onChange={onChange}
+              options={sortOptions}
+              className="w-full md:w-40 lg:w-52"
+            />
           )}
         />
       </Toolbar>

@@ -138,19 +138,19 @@ function asActivityPrimaryWallet(
   }
 }
 
-function asNftMarketplace(
-  _: void,
-  { readField }: { readField: ReadFieldFunction }
-): NftMarketplace {
-  const marketplaceProgramAddress: string | undefined = readField('marketplaceProgramAddress');
-  const auctionHouse: AuctionHouse | undefined = readField('auctionHouse');
+function nftMarketplace(item: {
+  marketplaceProgramAddress: string | null;
+  auctionHouse: AuctionHouse | null;
+}): NftMarketplace {
+  const marketplaceProgramAddress = item.marketplaceProgramAddress;
+  const auctionHouse = item.auctionHouse;
 
   let result: NftMarketplace[] | NftMarketplace | undefined;
 
   const unknownMarketplace = {
     logo: '/images/unknown-marketplace.svg',
     name: 'Unknown Marketplace',
-    link: undefined,
+    link: null,
   };
   result = marketplaces.filter(
     (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
@@ -190,7 +190,7 @@ const client = new ApolloClient({
               return null;
             },
           },
-          collectionTrends: offsetLimitPagination(['$sortBy', '$timeFrame', '$orderDirection']),
+          collectionTrends: offsetLimitPagination(['sortBy', 'timeFrame', 'orderDirection']),
           viewer: {
             read() {
               return viewerVar();
@@ -201,9 +201,9 @@ const client = new ApolloClient({
       Wallet: {
         keyFields: ['address'],
         fields: {
-          activities: offsetLimitPagination(['$eventTypes']),
-          offers: offsetLimitPagination(['$offerType']),
-          nfts: offsetLimitPagination(['$marketplaceProgram', '$auctionHouse', '$collections']),
+          activities: offsetLimitPagination(),
+          offers: offsetLimitPagination(),
+          nfts: offsetLimitPagination(),
           displayName: {
             read: asDisplayName,
           },
@@ -276,9 +276,6 @@ const client = new ApolloClient({
       WalletActivity: {
         keyFields: ['id'],
         fields: {
-          nftMarketplace: {
-            read: asNftMarketplace,
-          },
           price: {
             read: asBN,
           },
@@ -405,9 +402,10 @@ const client = new ApolloClient({
         },
       },
       Collection: {
+        keyFields: ['id'],
         fields: {
-          activities: offsetLimitPagination(['$eventTypes']),
-          nfts: offsetLimitPagination(['$order', '$sortBy', '$attributes']),
+          activities: offsetLimitPagination(),
+          nfts: offsetLimitPagination(),
           holderCount: {
             read(value): string {
               if (!value) {
@@ -562,6 +560,9 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          solPrice: {
+            read: asSOL,
+          },
         },
       },
       AhListing: {
@@ -569,9 +570,6 @@ const client = new ApolloClient({
         fields: {
           price: {
             read: asBN,
-          },
-          nftMarketplace: {
-            read: asNftMarketplace,
           },
           solPrice: {
             read: asSOL,
@@ -581,9 +579,6 @@ const client = new ApolloClient({
       NftActivity: {
         keyFields: ['id'],
         fields: {
-          nftMarketplace: {
-            read: asNftMarketplace,
-          },
           price: {
             read: asBN,
           },
@@ -601,9 +596,6 @@ const client = new ApolloClient({
       Offer: {
         keyFields: ['id'],
         fields: {
-          nftMarketplace: {
-            read: asNftMarketplace,
-          },
           price: {
             read: asBN,
           },
@@ -638,9 +630,16 @@ const client = new ApolloClient({
   }),
   resolvers: {
     AhListing: {
+      nftMarketplace,
       solPrice(listing: AhListing) {
         return toSol(parseInt(listing.price));
       },
+    },
+    NftActivity: {
+      nftMarketplace,
+    },
+    WalletActivity: {
+      nftMarketplace,
     },
     Wallet: {
       previewImage(wallet: Wallet) {
@@ -663,37 +662,7 @@ const client = new ApolloClient({
       },
     },
     Offer: {
-      nftMarketplace(offer: Offer) {
-        const marketplaceProgramAddress = offer.marketplaceProgramAddress;
-        const auctionHouse = offer.auctionHouse;
-
-        let result: NftMarketplace[] | NftMarketplace | undefined;
-
-        const unknownMarketplace = {
-          logo: '/images/unknown-marketplace.svg',
-          name: 'Unknown Marketplace',
-          link: undefined,
-        };
-        result = marketplaces.filter(
-          (marketplace) => marketplace.marketplaceProgramAddress === marketplaceProgramAddress
-        );
-
-        if (result.length === 0) {
-          return unknownMarketplace;
-        } else if (result.length === 1) {
-          return result[0];
-        }
-
-        result = result.find(
-          (marketplace) => marketplace.auctionHouseAddress === auctionHouse?.address
-        );
-
-        if (!result) {
-          return unknownMarketplace;
-        }
-
-        return result;
-      },
+      nftMarketplace,
       solPrice(listing: AhListing) {
         return toSol(parseInt(listing.price));
       },
