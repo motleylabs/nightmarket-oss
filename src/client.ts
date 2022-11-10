@@ -531,6 +531,13 @@ const client = new ApolloClient({
           },
         },
       },
+      LastSale: {
+        fields: {
+          price: {
+            read: asBN,
+          },
+        },
+      },
       Creator: {
         keyFields: ['address'],
       },

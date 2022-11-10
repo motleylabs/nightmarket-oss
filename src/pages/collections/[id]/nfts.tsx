@@ -136,6 +136,8 @@ export default function CollectionNfts() {
     },
   });
 
+  console.log('nftsQuery', nftsQuery);
+
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
       let variables: CollectionNFTsVariables = {

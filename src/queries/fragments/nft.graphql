@@ -40,6 +40,9 @@ fragment NftInfo on Nft {
   listings {
     ...ListingInfo
   }
+  lastSale {
+    price
+  }
 }
 
 fragment NftListingInfo on Nft {

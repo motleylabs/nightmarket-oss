@@ -112,8 +112,11 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 </>
               ) : (
                 <>
-                  {/* TODO: last sale price */}
-                  <span className="text-lg"></span>
+                  {nft.lastSale?.price && (
+                    <span className="text-lg">{`${t(
+                      'lastSale'
+                    )} ${nft.lastSale.price.toNumber()} SOL`}</span>
+                  )}
                   <Button
                     onClick={onMakeOffer}
                     border={ButtonBorder.Gray}
