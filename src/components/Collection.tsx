@@ -281,7 +281,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
-      <div className="flex flex-row items-center justify-start gap-2 sm:w-32">
+      <div className="flex flex-col justify-start gap-2 sm:w-32 sm:flex-row sm:items-center">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
           {value}
