@@ -93,7 +93,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-10 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed  inset-0 z-10 flex-shrink-0 overflow-y-auto bg-black px-4 pb-24 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'
@@ -108,7 +108,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
       </aside>
       {open && (
         // Fixes stacking order
-        <div className="fixed  bottom-8 left-4 right-4 z-30 md:hidden">
+        <div className="fixed bottom-8 left-4 right-4 z-30 md:hidden">
           <Button onClick={onChange} className="w-full">
             Done
           </Button>
