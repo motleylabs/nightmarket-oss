@@ -8,29 +8,6 @@ export function Sidebar(): JSX.Element {
   return <div></div>;
 }
 
-interface SidebarFilterIconProps {
-  className?: string;
-}
-function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
-  return (
-    <svg
-      viewBox={`0 0 24 24`}
-      className={className}
-      stroke="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 12H18M3 6H21M9 18H15"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-Sidebar.FilterIcon = SidebarFilterIcon;
-
 interface SidebarControlProps {
   label: string;
   open: boolean;
@@ -106,7 +83,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
         // Fixes stacking order
         <>
           <div className="fixed top-0 z-50 flex w-full items-center justify-between bg-black py-4 pr-8 pl-2 text-white md:hidden">
-            <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
+            <div></div>
             {t('filters')}
             <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
           </div>
