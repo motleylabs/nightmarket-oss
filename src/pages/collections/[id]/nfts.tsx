@@ -157,9 +157,7 @@ export default function CollectionNfts() {
         []
       );
 
-      if (nextAttributes.length > 0) {
-        variables.attributes = nextAttributes;
-      }
+      variables.attributes = nextAttributes;
 
       nftsQuery.refetch(variables).then(({ data: { collection } }) => {
         setHasMore(collection.nfts.length > 0);
