@@ -26,7 +26,18 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/sp
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
+import client from '../client';
+import { NftOffersQuery } from '../../src/queries/offers.graphql';
+import { gql, useApolloClient, useLazyQuery } from '@apollo/client';
+import { addressAvatar } from '../modules/address';
 
+interface NFTOffersVariables {
+  address: string;
+}
+
+interface NFTOffersData {
+  nftOffers: Partial<Nft>;
+}
 interface OfferForm {
   amount: string;
 }
@@ -55,6 +66,7 @@ interface MakeOfferContext {
 
 export function useMakeOffer(): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
+  const { writeFragment } = useApolloClient();
   const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
@@ -67,10 +79,13 @@ export function useMakeOffer(): MakeOfferContext {
     resolver: zodResolver(schema),
   });
 
+  const [offersQuery] = useLazyQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery);
+
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (!connected || !publicKey || !signTransaction) {
       return;
     }
+
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const offerPrice = toLamports(Number(amount));
     const authority = new PublicKey(auctionHouse.authority);
@@ -135,20 +150,68 @@ export function useMakeOffer(): MakeOfferContext {
     tx.feePayer = publicKey;
 
     try {
-      const signedTx = await signTransaction(tx);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      // const signedTx = await signTransaction(tx);
+      // const signature = await connection.sendRawTransaction(signedTx.serialize());
 
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-      }
+      // if (signature) {
+      //   await connection.confirmTransaction(
+      //     {
+      //       blockhash,
+      //       lastValidBlockHeight,
+      //       signature,
+      //     },
+      //     'confirmed'
+      //   );
+      // }
       toast('You offer is in', { type: 'success' });
+
+      const { data } = await offersQuery({
+        variables: {
+          address: nft.mintAddress,
+        },
+      });
+
+      if (data?.nftOffers.offers) {
+        client.cache.modify({
+          broadcast: false,
+          id: client.cache.identify(data.nftOffers),
+          fields: {
+            offers(currOffers) {
+              const offers = [];
+              offers.push(...currOffers);
+              offers.push({
+                id: `temp-id-offer-${publicKey.toBase58()}`,
+                tradeState: buyerTradeState,
+                nft: {
+                  address: nft.address,
+                  name: nft.name,
+                  mintAddress: nft.mintAddress,
+                  image: nft.image,
+                  owner: {
+                    address: publicKey.toBase58(),
+                    associatedTokenAccountAddress: associatedTokenAcc,
+                  },
+                },
+                buyer: publicKey.toBase58(),
+                buyerWallet: {
+                  address: publicKey.toBase58(),
+                  previewImage: addressAvatar(publicKey.toBase58()),
+                },
+                metadata: metadata,
+                auctionHouse: {
+                  address: auctionHouse.address,
+                },
+                price: offerPrice,
+                marketplaceProgramAddress: auctionHouseAddress.toBase58(),
+              });
+              console.log(offers);
+
+              return offers;
+            },
+          },
+        });
+        console.log(client.cache);
+      }
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {
