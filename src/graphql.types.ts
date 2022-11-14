@@ -16,6 +16,8 @@ export type Scalars = {
   I64: any;
   /** NaiveDateTime */
   NaiveDateTime: any;
+  /** Numeric data type */
+  Numeric: any;
   /** PublicKey */
   PublicKey: any;
   /** U64 */
@@ -215,7 +217,7 @@ export type CandyMachineWhitelistMintSetting = {
 export type CollectedCollection = {
   __typename?: 'CollectedCollection';
   collection?: Maybe<Collection>;
-  estimatedValue: Scalars['U64'];
+  estimatedValue: Scalars['Numeric'];
   nftsOwned: Scalars['Int'];
 };
 
@@ -410,24 +412,24 @@ export type CollectionTrend = {
   compactVolume1d?: Maybe<Scalars['String']>;
   compactVolume7d?: Maybe<Scalars['String']>;
   compactVolume30d?: Maybe<Scalars['String']>;
-  floor1d: Scalars['U64'];
-  floor7d: Scalars['U64'];
-  floor30d: Scalars['U64'];
-  lastFloor1d: Scalars['U64'];
-  lastFloor7d: Scalars['U64'];
-  lastFloor30d: Scalars['U64'];
-  lastListed1d: Scalars['Int'];
-  lastListed7d: Scalars['Int'];
-  lastListed30d: Scalars['Int'];
-  lastVolume1d: Scalars['U64'];
-  lastVolume7d: Scalars['U64'];
-  lastVolume30d: Scalars['U64'];
-  listed1d: Scalars['Int'];
-  listed7d: Scalars['Int'];
-  listed30d: Scalars['Int'];
-  volume1d: Scalars['U64'];
-  volume7d: Scalars['U64'];
-  volume30d: Scalars['U64'];
+  floor1d: Scalars['Numeric'];
+  floor7d: Scalars['Numeric'];
+  floor30d: Scalars['Numeric'];
+  lastFloor1d: Scalars['Numeric'];
+  lastFloor7d: Scalars['Numeric'];
+  lastFloor30d: Scalars['Numeric'];
+  lastListed1d: Scalars['I64'];
+  lastListed7d: Scalars['I64'];
+  lastListed30d: Scalars['I64'];
+  lastVolume1d: Scalars['Numeric'];
+  lastVolume7d: Scalars['Numeric'];
+  lastVolume30d: Scalars['Numeric'];
+  listed1d: Scalars['I64'];
+  listed7d: Scalars['I64'];
+  listed30d: Scalars['I64'];
+  volume1d: Scalars['Numeric'];
+  volume7d: Scalars['Numeric'];
+  volume30d: Scalars['Numeric'];
 };
 
 export type ConnectionCounts = {
@@ -688,6 +690,7 @@ export type LastSale = {
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
   price?: Maybe<Scalars['U64']>;
   purchase?: Maybe<Purchase>;
+  solPrice?: Maybe<Scalars['Int']>;
 };
 
 export type Listing = {

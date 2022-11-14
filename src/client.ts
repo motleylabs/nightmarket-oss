@@ -536,6 +536,9 @@ const client = new ApolloClient({
           price: {
             read: asBN,
           },
+          solPrice: {
+            read: asSOL,
+          },
         },
       },
       Creator: {

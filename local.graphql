@@ -120,3 +120,7 @@ extend type MetadataJson {
 extend type QueryRoot {
   viewer: Viewer
 }
+
+extend type LastSale {
+  solPrice: Int
+}

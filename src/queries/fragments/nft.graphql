@@ -42,6 +42,7 @@ fragment NftInfo on Nft {
   }
   lastSale {
     price
+    solPrice @client
   }
 }
 
