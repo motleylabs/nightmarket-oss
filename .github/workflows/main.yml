@@ -36,9 +36,13 @@ jobs:
           git_branch=${GITHUB_REF##*/}
           solana_endpoint="https://holaplex-main-9e4a.mainnet.rpcpool.com"
           node_env=production
-          graphql_endpoint="https://graph-test.holaplex.com/v1"
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
 
+          if [ $git_branch == 'main' ];then
+            graphql_endpoint="https://graph.holaplex.com/v1"
+          else
+            graphql_endpoint="https://graph-test.holaplex.tools/v1"
+          fi
           #build
           docker build -t $image_tag  \
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
@@ -66,7 +70,6 @@ jobs:
             });
 
       - name: Triggering deployment manifest update in kubes repository (prod)
-        if: github.ref == 'refs/heads/main'
         uses: actions/github-script@v6
         env:
           BRANCH: ${{ github.ref_name }}
