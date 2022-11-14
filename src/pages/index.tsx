@@ -32,6 +32,7 @@ import useLogin from '../hooks/login';
 import Router from 'next/router';
 import Drop from '../components/Drop';
 import { addDays } from 'date-fns';
+import Link from 'next/link';
 
 interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
@@ -42,7 +43,7 @@ interface TrendingCollectionsWithNFTsData {
     collection: {
       id: string;
       name: string;
-      nfts: { name: string; image: string }[];
+      nfts: { mintAddress: string; name: string; image: string }[];
     };
   }[];
 }
@@ -261,79 +262,85 @@ const Home: NextPage = () => {
       if (trend.collection) {
         return (
           <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
-            <Collection.List.Col className="flex-none">
-              <img
-                src={trend.collection.image}
-                alt={trend.collection.name}
-                className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
-              />
-            </Collection.List.Col>
-            <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-              <div className="w-32 lg:w-40">{trend.collection.name}</div>
-              <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
-                <Collection.List.DataPoint
-                  value={selectedTrend.floorPrice}
-                  icon={<Icon.Sol />}
-                  name={t('collection:globalFloor')}
-                  status={
-                    <Collection.List.DataPoint.Status value={selectedTrend.floorPriceChange} />
-                  }
-                />
-                <Collection.List.DataPoint
-                  value={selectedTrend.volume}
-                  icon={<Icon.Sol />}
-                  name={volumeLabel}
-                  status={<Collection.List.DataPoint.Status value={selectedTrend.volumeChange} />}
-                />
-                <Collection.List.DataPoint
-                  value={selectedTrend.listedCount}
-                  name={t('collection:listings')}
-                  status={
-                    <Collection.List.DataPoint.Status value={selectedTrend.listedCountChange} />
-                  }
-                />
+            <Link href={`/collections/${trend.collection.id}`}>
+              <a className="flex w-full items-center justify-between gap-4 rounded-2xl lg:gap-7">
+                <Collection.List.Col className="flex-none">
+                  <img
+                    src={trend.collection.image}
+                    alt={trend.collection.name}
+                    className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
+                  />
+                </Collection.List.Col>
+                <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                  <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
+                  <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
+                    <Collection.List.DataPoint
+                      value={selectedTrend.floorPrice}
+                      icon={<Icon.Sol />}
+                      name={t('collection:globalFloor')}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.floorPriceChange} />
+                      }
+                    />
+                    <Collection.List.DataPoint
+                      value={selectedTrend.volume}
+                      icon={<Icon.Sol />}
+                      name={volumeLabel}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.volumeChange} />
+                      }
+                    />
+                    <Collection.List.DataPoint
+                      value={selectedTrend.listedCount}
+                      name={t('collection:listings')}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.listedCountChange} />
+                      }
+                    />
+                  </div>
+                </Collection.List.Col>
+              </a>
+            </Link>
+            <Collection.List.Col className={'hidden gap-4 lg:flex'}>
+              <div className="hidden gap-4 lg:flex">
+                {!nftPreviews ? (
+                  <>
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                  </>
+                ) : (
+                  nftPreviews
+                    .slice(0, 3)
+                    .map((nft) => (
+                      <Collection.List.ShowcaseNft
+                        key={nft.name}
+                        image={nft.image}
+                        name={nft.name}
+                        price={undefined}
+                      />
+                    ))
+                )}
               </div>
-              <div className="flex gap-4">
-                <div className="hidden gap-4 lg:flex">
-                  {!nftPreviews ? (
-                    <>
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                    </>
-                  ) : (
-                    nftPreviews
-                      .slice(0, 3)
-                      .map((nft) => (
-                        <Collection.List.ShowcaseNft
-                          key={nft.name}
-                          image={nft.image}
-                          name={nft.name}
-                          price={undefined}
-                        />
-                      ))
-                  )}
-                </div>
-                <div className="hidden gap-4 xl:flex">
-                  {!nftPreviews ? (
-                    <>
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                      <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-800" />
-                    </>
-                  ) : (
-                    nftPreviews
-                      .slice(3, 6)
-                      .map((nft) => (
-                        <Collection.List.ShowcaseNft
-                          key={nft.name}
-                          image={nft.image}
-                          name={nft.name}
-                          price={undefined}
-                        />
-                      ))
-                  )}
-                </div>
+              <div className="hidden gap-4 xl:flex">
+                {!nftPreviews ? (
+                  <>
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                  </>
+                ) : (
+                  nftPreviews
+                    .slice(3, 6)
+                    .map((nft) => (
+                      <Collection.List.ShowcaseNft
+                        key={nft.mintAddress}
+                        image={nft.image}
+                        name={nft.name}
+                        price={undefined}
+                      />
+                    ))
+                )}
               </div>
             </Collection.List.Col>
           </Collection.List.Row>

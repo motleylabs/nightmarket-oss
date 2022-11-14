@@ -250,11 +250,11 @@ interface CollectionListRowProps {
 }
 function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${id}`}>
-      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
-        {children}
-      </a>
-    </Link>
+    // <Link href={`/collections/${id}`}>
+    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
+      {children}
+    </div>
+    // </Link>
   );
 }
 
@@ -281,7 +281,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
-      <div className="flex flex-row items-center justify-start gap-2 sm:w-32">
+      <div className="flex flex-col justify-start gap-2 sm:w-32 sm:flex-row sm:items-center">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
           {value}
