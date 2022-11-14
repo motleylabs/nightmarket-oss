@@ -219,6 +219,18 @@ const client = new ApolloClient({
           totalRewards: {
             read: asBN,
           },
+          solTotalRewards: {
+            read(_, { readField }) {
+              const rewards: BN | undefined = readField('totalRewards');
+
+              if (!rewards) {
+                return 0;
+              }
+
+              return toSol(rewards.toNumber());
+            },
+          },
+
           compactFollowingCount: {
             read(_, { readField }) {
               const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
