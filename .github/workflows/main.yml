@@ -1,4 +1,4 @@
-name: Build push and Deploy
+name: Build, push and Deploy
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push Frontend to Amazon ECR
-        id: build-frontend-image
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ github.event.repository.name }}
