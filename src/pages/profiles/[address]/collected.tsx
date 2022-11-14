@@ -25,6 +25,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import Select from '../../../components/Select';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -72,6 +73,7 @@ interface CollectionNFTsVariables {
   address: string;
   offset: number;
   limit: number;
+  auctionHouse: string;
   collections?: (string | undefined)[] | null | undefined;
 }
 
@@ -103,6 +105,7 @@ export default function ProfileCollected({
       offset: 0,
       limit: 24,
       address: router.query.address as string,
+      auctionHouse: config.auctionHouse,
     },
   });
 
@@ -112,6 +115,7 @@ export default function ProfileCollected({
         offset: 0,
         limit: 24,
         address: router.query.address as string,
+        auctionHouse: config.auctionHouse,
         collections,
       };
 
