@@ -1,5 +1,5 @@
 import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
-import { Wallet } from '../graphql.types';
+import { AuctionHouse, Wallet } from '../graphql.types';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
@@ -24,6 +24,7 @@ export interface WalletProfileVariables {
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
@@ -39,7 +40,7 @@ function ProfileFigure(props: { figure: ReactNode; label: string; loading: boole
   );
 }
 
-function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
+function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
   const router = useRouter();
@@ -52,11 +53,10 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     {
       variables: {
         address: address as string,
-        rewardCenter: config.rewardCenterAddress as string,
+        rewardCenter: auctionHouse.rewardCenter?.address as string,
       },
     }
   );
-
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),

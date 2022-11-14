@@ -1,7 +1,7 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 
-query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
+query WalletProfileQuery($address: PublicKey!, $auctionHouse: String!) @cached(ttl: 300) {
   wallet(address: $address) {
     address
     displayName @client
@@ -9,6 +9,12 @@ query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
     previewImage @client
     profile {
       ...ProfileInfo
+    }
+  }
+  auctionHouse(address: $auctionHouse) {
+    address
+    rewardCenter {
+      address
     }
   }
 }

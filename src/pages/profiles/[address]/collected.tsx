@@ -6,7 +6,7 @@ import ProfileLayout, {
 } from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../graphql.types';
+import { AuctionHouse, Wallet } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
@@ -25,20 +25,22 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import Select from '../../../components/Select';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
 
   const {
-    data: { wallet },
+    data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
     variables: {
       address: params?.address,
+      auctionHouse: config.auctionHouseAddress,
     },
   });
 
-  if (wallet === null) {
+  if (wallet === null || auctionHouse === null) {
     return {
       notFound: true,
     };
@@ -47,6 +49,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       wallet,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -266,11 +269,17 @@ export default function ProfileCollected({
 interface CollectionNftsLayout {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 ProfileCollected.getLayout = function ProfileCollectedLayout({
   children,
   wallet,
+  auctionHouse,
 }: CollectionNftsLayout): JSX.Element {
-  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
+  return (
+    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
+      {children}
+    </ProfileLayout>
+  );
 };

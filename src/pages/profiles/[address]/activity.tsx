@@ -3,7 +3,7 @@ import { ReactElement, useEffect, useState } from 'react';
 import { WalletProfileQuery, ProfileActivitiesQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../graphql.types';
+import { AuctionHouse, Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
@@ -15,20 +15,22 @@ import { InView } from 'react-intersection-observer';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
   const {
-    data: { wallet },
+    data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
     variables: {
       address: params?.address,
+      auctionHouse: config.auctionHouseAddress,
     },
   });
 
-  if (wallet === null) {
+  if (wallet === null || auctionHouse === null) {
     return {
       notFound: true,
     };
@@ -37,6 +39,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       wallet,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -208,11 +211,17 @@ export default function ProfileActivity(): JSX.Element {
 interface ProfileActivityLayoutProps {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 ProfileActivity.getLayout = function ProfileActivityLayout({
   children,
   wallet,
+  auctionHouse,
 }: ProfileActivityLayoutProps): JSX.Element {
-  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
+  return (
+    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
+      {children}
+    </ProfileLayout>
+  );
 };
