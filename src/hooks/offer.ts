@@ -7,6 +7,7 @@ import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
@@ -26,9 +27,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/sp
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
-import client from '../client';
-import { NftOffersQuery } from '../../src/queries/offers.graphql';
-import { gql, useApolloClient, useLazyQuery } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import { addressAvatar } from '../modules/address';
 
 interface NFTOffersVariables {
@@ -68,6 +67,7 @@ export function useMakeOffer(): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { writeFragment } = useApolloClient();
   const { connection } = useConnection();
+  const client = useApolloClient();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
   const {
@@ -78,8 +78,6 @@ export function useMakeOffer(): MakeOfferContext {
   } = useForm<OfferForm>({
     resolver: zodResolver(schema),
   });
-
-  const [offersQuery] = useLazyQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery);
 
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (!connected || !publicKey || !signTransaction) {
@@ -150,72 +148,59 @@ export function useMakeOffer(): MakeOfferContext {
     tx.feePayer = publicKey;
 
     try {
-      // const signedTx = await signTransaction(tx);
-      // const signature = await connection.sendRawTransaction(signedTx.serialize());
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
 
-      // if (signature) {
-      //   await connection.confirmTransaction(
-      //     {
-      //       blockhash,
-      //       lastValidBlockHeight,
-      //       signature,
-      //     },
-      //     'confirmed'
-      //   );
-      // }
-      toast('You offer is in', { type: 'success' });
-
-      const { data } = await offersQuery({
-        variables: {
-          address: nft.mintAddress,
-        },
-      });
-
-      if (data?.nftOffers.offers) {
-        client.cache.modify({
-          broadcast: false,
-          id: client.cache.identify(data.nftOffers),
-          fields: {
-            offers(currOffers) {
-              const offers = [];
-              offers.push(...currOffers);
-              offers.push({
-                id: `temp-id-offer-${publicKey.toBase58()}`,
-                tradeState: buyerTradeState,
-                nft: {
-                  address: nft.address,
-                  name: nft.name,
-                  mintAddress: nft.mintAddress,
-                  image: nft.image,
-                  owner: {
-                    address: publicKey.toBase58(),
-                    associatedTokenAccountAddress: associatedTokenAcc,
-                  },
-                },
-                buyer: publicKey.toBase58(),
-                buyerWallet: {
-                  address: publicKey.toBase58(),
-                  previewImage: addressAvatar(publicKey.toBase58()),
-                },
-                metadata: metadata,
-                auctionHouse: {
-                  address: auctionHouse.address,
-                },
-                price: offerPrice,
-                marketplaceProgramAddress: auctionHouseAddress.toBase58(),
-              });
-              console.log(offers);
-
-              return offers;
-            },
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
           },
-        });
-        console.log(client.cache);
+          'confirmed'
+        );
       }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offer = {
+            __typename: 'Offer',
+            id: `temp-id-offer-${publicKey.toBase58()}`,
+            tradeState: buyerTradeState.toBase58(),
+            buyer: publicKey.toBase58(),
+            metadata: metadata.toBase58(),
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            price: offerPrice.toString(),
+          };
+
+          const offers = [...data.nft.offers, offer];
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
+
+      toast('Your offer is in', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {
-      setMakeOffer(true);
+      setMakeOffer(false);
     }
   };
 
@@ -257,6 +242,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
   const { connection } = useConnection();
   const login = useLogin();
   const [updateOffer, setUpdateOffer] = useState(false);
+  const client = useApolloClient();
   const {
     register: registerUpdateOffer,
     handleSubmit: handleSubmitUpdateOffer,
@@ -294,7 +280,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
         auctionHouseAddress,
         treasuryMint,
         tokenMint,
-        Number(offer.price),
+        offer.price.toNumber(),
         1
       );
 
@@ -321,17 +307,12 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
       rewardCenter
     );
 
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
-      tokenMint,
-      publicKey
-    );
-
     const closeOfferAccounts: CloseOfferInstructionAccounts = {
       wallet: publicKey,
       offer: rewardsOffer,
       treasuryMint,
       tokenAccount: associatedTokenAcc,
-      receiptAccount: buyerReceiptTokenAccount,
+      receiptAccount: publicKey,
       escrowPaymentAccount: escrowPaymentAcc,
       metadata,
       tokenMint,
@@ -402,10 +383,48 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
         );
         toast('Offer updated', { type: 'success' });
       }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const buyerPubkey = publicKey.toBase58();
+
+          let offers = data.nfts.offers.filter((offer: Offer) => offer.buyer !== buyerPubkey);
+
+          const offer = {
+            __typename: 'Offer',
+            id: `temp-id-offer-${publicKey.toBase58()}`,
+            tradeState: buyerTradeState.toBase58(),
+            buyer: publicKey.toBase58(),
+            metadata: metadata.toBase58(),
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            price: newOfferPrice.toString(),
+          };
+
+          offers = [...offers, offer];
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {
-      setUpdateOffer(true);
+      setUpdateOffer(false);
     }
   };
 
@@ -469,24 +488,19 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    
+    const [buyerTradeState, _tradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        treasuryMint,
+        tokenMint,
+        offer.price.toNumber(),
+        1
+      );
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
-      tokenMint,
-      publicKey
-    );
-
-    const [buyerTradeState, _tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      associatedTokenAcc,
-      treasuryMint,
-      tokenMint,
-      Number(offer.price),
-      1
-    );
 
     const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
@@ -506,7 +520,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
       offer: rewardsOffer,
       treasuryMint,
       tokenAccount: associatedTokenAcc,
-      receiptAccount: buyerReceiptTokenAccount,
+      receiptAccount: publicKey,
       escrowPaymentAccount: escrowPaymentAcc,
       metadata,
       tokenMint,

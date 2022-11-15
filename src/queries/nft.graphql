@@ -112,7 +112,7 @@ query NftActivitiesQuery($address: String!) {
   }
 }
 
-query NftMarketInfoQuery($address: String!, $viewerAddress: String) {
+query NftMarketInfoQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
@@ -126,25 +126,6 @@ query NftMarketInfoQuery($address: String!, $viewerAddress: String) {
       auctionHouse {
         address
       }
-    }
-    viewerOffer(address: $viewerAddress) @client {
-      id
-      tradeState
-      buyer
-      metadata
-      price
-      solPrice @client
-    }
-    highestOffer @client {
-      id
-      tradeState
-      buyer
-      metadata
-      price
-      solPrice @client
-    }
-    listing @client {
-      ...ListingInfo
     }
     listings {
       ...ListingInfo

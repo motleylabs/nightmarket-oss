@@ -16,6 +16,8 @@ export type Scalars = {
   I64: any;
   /** NaiveDateTime */
   NaiveDateTime: any;
+  /** Numeric data type */
+  Numeric: any;
   /** PublicKey */
   PublicKey: any;
   /** U64 */
@@ -215,7 +217,7 @@ export type CandyMachineWhitelistMintSetting = {
 export type CollectedCollection = {
   __typename?: 'CollectedCollection';
   collection?: Maybe<Collection>;
-  estimatedValue: Scalars['U64'];
+  estimatedValue: Scalars['Numeric'];
   nftsOwned: Scalars['Int'];
 };
 
@@ -302,7 +304,6 @@ export type CollectionNft = {
   address: Scalars['String'];
   /** @deprecated use `nft { animation_url }` */
   animationUrl?: Maybe<Scalars['String']>;
-  attributeGroups: Array<AttributeGroup>;
   /** @deprecated use `nft { attributes }` */
   attributes: Array<NftAttribute>;
   /** @deprecated use `nft { category }` */
@@ -403,24 +404,24 @@ export type CollectionTrend = {
   compactVolume1d?: Maybe<Scalars['String']>;
   compactVolume7d?: Maybe<Scalars['String']>;
   compactVolume30d?: Maybe<Scalars['String']>;
-  floor1d: Scalars['U64'];
-  floor7d: Scalars['U64'];
-  floor30d: Scalars['U64'];
-  lastFloor1d: Scalars['U64'];
-  lastFloor7d: Scalars['U64'];
-  lastFloor30d: Scalars['U64'];
-  lastListed1d: Scalars['Int'];
-  lastListed7d: Scalars['Int'];
-  lastListed30d: Scalars['Int'];
-  lastVolume1d: Scalars['U64'];
-  lastVolume7d: Scalars['U64'];
-  lastVolume30d: Scalars['U64'];
-  listed1d: Scalars['Int'];
-  listed7d: Scalars['Int'];
-  listed30d: Scalars['Int'];
-  volume1d: Scalars['U64'];
-  volume7d: Scalars['U64'];
-  volume30d: Scalars['U64'];
+  floor1d: Scalars['Numeric'];
+  floor7d: Scalars['Numeric'];
+  floor30d: Scalars['Numeric'];
+  lastFloor1d: Scalars['Numeric'];
+  lastFloor7d: Scalars['Numeric'];
+  lastFloor30d: Scalars['Numeric'];
+  lastListed1d: Scalars['I64'];
+  lastListed7d: Scalars['I64'];
+  lastListed30d: Scalars['I64'];
+  lastVolume1d: Scalars['Numeric'];
+  lastVolume7d: Scalars['Numeric'];
+  lastVolume30d: Scalars['Numeric'];
+  listed1d: Scalars['I64'];
+  listed7d: Scalars['I64'];
+  listed30d: Scalars['I64'];
+  volume1d: Scalars['Numeric'];
+  volume7d: Scalars['Numeric'];
+  volume30d: Scalars['Numeric'];
 };
 
 export type ConnectionCounts = {
@@ -675,6 +676,13 @@ export enum InstructionExecutionFlags {
   UseTransaction = 'USE_TRANSACTION',
 }
 
+export type LastSale = {
+  __typename?: 'LastSale';
+  createdAt?: Maybe<Scalars['DateTimeUtc']>;
+  price?: Maybe<Scalars['U64']>;
+  purchase?: Maybe<Purchase>;
+};
+
 export type Listing = {
   __typename?: 'Listing';
   address: Scalars['String'];
@@ -776,11 +784,10 @@ export type Nft = {
   description: Scalars['String'];
   externalUrl?: Maybe<Scalars['String']>;
   files: Array<NftFile>;
-  highestOffer?: Maybe<Offer>;
   image: Scalars['String'];
   /** Get the original URL of the image as stored in the NFT's metadata */
   imageOriginal: Scalars['String'];
-  listing?: Maybe<AhListing>;
+  lastSale?: Maybe<LastSale>;
   listings: Array<AhListing>;
   mintAddress: Scalars['String'];
   moonrankCollection?: Maybe<Collection>;
@@ -806,15 +813,10 @@ export type Nft = {
   shortMintAddress?: Maybe<Scalars['String']>;
   tokenAccountAddress: Scalars['String'];
   updateAuthorityAddress: Scalars['String'];
-  viewerOffer?: Maybe<Offer>;
 };
 
 export type NftImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
-};
-
-export type NftViewerOfferArgs = {
-  address: Scalars['String'];
 };
 
 export type NftActivity = {
@@ -1403,6 +1405,8 @@ export type QueryRootProposalsArgs = {
 export type QueryRootRealmsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   communityMints?: InputMaybe<Array<Scalars['PublicKey']>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 export type QueryRootSearchCollectionsArgs = {
@@ -1448,6 +1452,7 @@ export type Realm = {
   authority?: Maybe<Scalars['PublicKey']>;
   communityMint: Scalars['PublicKey'];
   name: Scalars['String'];
+  programId?: Maybe<Scalars['PublicKey']>;
   realmConfig?: Maybe<RealmConfig>;
   votingProposalCount: Scalars['Int'];
 };
