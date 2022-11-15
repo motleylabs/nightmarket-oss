@@ -11,6 +11,7 @@ query TrendingCollectionsQuery(
     limit: 10
     offset: $offset
   ) {
+    #  __ref: "trendingCollections"
     floor1d
     compactFloor1d @client
     floor7d
@@ -41,6 +42,17 @@ query TrendingCollectionsQuery(
       name
       description
       image(width: 100)
+      nfts(limit: 6, offset: 0, sortBy: LISTED_AT, order: DESC) {
+        name
+        # address
+        mintAddress
+        image(width: 100)
+        listings {
+          id
+          createdAt
+          price
+        }
+      }
     }
   }
 }
@@ -58,19 +70,20 @@ query TrendingCollectionsWithNFTsQuery(
     limit: 10
     offset: $offset
   ) {
+    #  __ref: "nftPreviews"
     collection {
       id
       name
       nfts(limit: 6, offset: 0, sortBy: LISTED_AT, order: DESC) {
         name
-        address
+        # address
         mintAddress
         image(width: 100)
-        listings {
-          id
-          createdAt
-          price
-        }
+        # listings {
+        #   id
+        #   createdAt
+        #   price
+        # }
       }
     }
   }

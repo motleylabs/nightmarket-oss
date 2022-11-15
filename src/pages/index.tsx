@@ -38,15 +38,15 @@ interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
 }
 
-interface TrendingCollectionsWithNFTsData {
-  collectionTrends: {
-    collection: {
-      id: string;
-      name: string;
-      nfts: { mintAddress: string; name: string; image: string }[];
-    };
-  }[];
-}
+// interface TrendingCollectionsWithNFTsData {
+//   collectionTrends: {
+//     collection: {
+//       id: string;
+//       name: string;
+//       nfts: { mintAddress: string; name: string; image: string }[];
+//     };
+//   }[];
+// }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
   const i18n = await serverSideTranslations(locale as string, [
@@ -126,7 +126,8 @@ const Home: NextPage = () => {
     TrendingCollectionsQuery,
     {
       // fetchPolicy: 'network-only',
-      // nextFetchPolicy: 'standby',
+      // nextFetchPolicy: 'cache-first',
+      notifyOnNetworkStatusChange: true,
       variables: {
         sortBy: DEFAULT_SORT,
         timeFrame: DEFAULT_TIME_FRAME,
@@ -136,19 +137,19 @@ const Home: NextPage = () => {
     }
   );
 
-  const trendingCollectionsNFTPreviewsQuery = useQuery<
-    TrendingCollectionsWithNFTsData,
-    TrendingCollectionVariables
-  >(TrendingCollectionsWithNFTsQuery, {
-    // fetchPolicy: 'network-only',
-    // nextFetchPolicy: 'standby',
-    variables: {
-      sortBy: DEFAULT_SORT,
-      timeFrame: DEFAULT_TIME_FRAME,
-      orderDirection: DEFAULT_ORDER,
-      offset: 0,
-    },
-  });
+  // const trendingCollectionsNFTPreviewsQuery = useQuery<
+  //   TrendingCollectionsWithNFTsData,
+  //   TrendingCollectionVariables
+  // >(TrendingCollectionsWithNFTsQuery, {
+  //   // fetchPolicy: 'network-only',
+  //   // nextFetchPolicy: 'cache-first',
+  //   variables: {
+  //     sortBy: DEFAULT_SORT,
+  //     timeFrame: DEFAULT_TIME_FRAME,
+  //     orderDirection: DEFAULT_ORDER,
+  //     offset: 0,
+  //   },
+  // });
 
   const onShowMoreTrends = () => {
     trendingCollectionsQuery.fetchMore({
@@ -157,12 +158,12 @@ const Home: NextPage = () => {
         offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
       },
     });
-    trendingCollectionsNFTPreviewsQuery.fetchMore({
-      variables: {
-        ...trendingCollectionsNFTPreviewsQuery.variables,
-        offset: trendingCollectionsNFTPreviewsQuery.data?.collectionTrends.length ?? 0,
-      },
-    });
+    // trendingCollectionsNFTPreviewsQuery.fetchMore({
+    //   variables: {
+    //     ...trendingCollectionsNFTPreviewsQuery.variables,
+    //     offset: trendingCollectionsNFTPreviewsQuery.data?.collectionTrends.length ?? 0,
+    //   },
+    // });
   };
 
   const onExploreNftsClick = () => {
@@ -178,33 +179,15 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log('effect sort filter', { sortType, timeFrame });
     let variables: TrendingCollectionVariables = {
       sortBy: sortType,
       timeFrame: timeFrame,
       orderDirection: DEFAULT_ORDER,
       offset: 0,
     };
-    // trendingCollectionsQuery.refetch(variables);
+    trendingCollectionsQuery.refetch(variables);
     // trendingCollectionsNFTPreviewsQuery.refetch(variables);
-    // if (!trendingCollectionsQuery.loading) {
-    // }
-  }, [sortType, timeFrame]);
-
-  // useEffect(() => {
-  //   const subscription = watch(({ filter, sort }) => {
-  //     let variables: TrendingCollectionVariables = {
-  //       sortBy: sort!,
-  //       timeFrame: filter!,
-  //       orderDirection: DEFAULT_ORDER,
-  //       offset: 0,
-  //     };
-  //     if (!trendingCollectionsQuery.loading) {
-  //       trendingCollectionsQuery.refetch(variables);
-  //     }
-  //   });
-  //   return subscription.unsubscribe;
-  // }, [watch]);
+  }, [sortType, timeFrame, trendingCollectionsQuery]);
 
   const nfts: any[] = [];
 
@@ -213,15 +196,7 @@ const Home: NextPage = () => {
       let selectedTrend: SelectedTrend;
       let volumeLabel: string;
 
-      const nftPreviews =
-        trendingCollectionsNFTPreviewsQuery.data?.collectionTrends?.[i]?.collection?.nfts;
-
-      // console.log(
-      //   'nft previews',
-      //   nftPreviews,
-      //   trend.collection?.name,
-      //   trendingCollectionsNFTPreviewsQuery.data
-      // );
+      const nftPreviews = trendingCollectionsQuery.data?.collectionTrends?.[i]?.collection?.nfts;
 
       switch (timeFrame) {
         case CollectionInterval.OneDay:
@@ -272,7 +247,9 @@ const Home: NextPage = () => {
                   />
                 </Collection.List.Col>
                 <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                  <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
+                  <div className="w-full md:w-32 lg:w-40">
+                    {trend.collection.name} ({i})
+                  </div>
                   <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
                     <Collection.List.DataPoint
                       value={selectedTrend.floorPrice}
@@ -314,7 +291,7 @@ const Home: NextPage = () => {
                     .slice(0, 3)
                     .map((nft) => (
                       <Collection.List.ShowcaseNft
-                        key={nft.name}
+                        key={nft.mintAddress}
                         image={nft.image}
                         name={nft.name}
                         price={undefined}
@@ -351,7 +328,7 @@ const Home: NextPage = () => {
     t,
     timeFrame,
     trendingCollectionsQuery.data?.collectionTrends,
-    trendingCollectionsNFTPreviewsQuery.data,
+    // trendingCollectionsNFTPreviewsQuery.data,
   ]);
 
   return (
@@ -483,15 +460,14 @@ const Home: NextPage = () => {
             </div>
           </header>
           <Collection.List>
-            {trendingCollectionsQuery.loading ? (
+            {trendingCollectionsWithNftPreviews?.length && trendingCollectionsWithNftPreviews}{' '}
+            {trendingCollectionsQuery.loading && (
               <>
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
               </>
-            ) : (
-              trendingCollectionsWithNftPreviews
             )}
           </Collection.List>
           <Button
