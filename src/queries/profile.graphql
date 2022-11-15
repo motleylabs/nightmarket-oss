@@ -50,12 +50,13 @@ query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
 query CollectedNFTsQuery(
   $address: PublicKey!
   $collections: [String!]
+  $auctionHouse: String
   $limit: Int!
   $offset: Int!
 ) {
   wallet(address: $address) {
     address
-    nfts(collections: $collections, limit: $limit, offset: $offset) {
+    nfts(collections: $collections, auctionHouse: $auctionHouse, limit: $limit, offset: $offset) {
       ...NftInfo
     }
   }

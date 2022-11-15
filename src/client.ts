@@ -446,9 +446,11 @@ const client = new ApolloClient({
         fields: {
           estimatedValue: {
             read(value) {
-              const lamports = asBN(value);
+              if (!value) {
+                return '0';
+              }
 
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+              return asCompactNumber(toSol(parseInt(value)));
             },
           },
         },
