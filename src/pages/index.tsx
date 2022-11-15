@@ -3,10 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import {
-  TrendingCollectionsQuery,
-  TrendingCollectionsWithNFTsQuery,
-} from './../queries/trending.graphql';
+import { TrendingCollectionsQuery } from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import { Collection } from '../components/Collection';
 import {
@@ -37,16 +34,6 @@ import Link from 'next/link';
 interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
 }
-
-// interface TrendingCollectionsWithNFTsData {
-//   collectionTrends: {
-//     collection: {
-//       id: string;
-//       name: string;
-//       nfts: { mintAddress: string; name: string; image: string }[];
-//     };
-//   }[];
-// }
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
   const i18n = await serverSideTranslations(locale as string, [
@@ -125,8 +112,6 @@ const Home: NextPage = () => {
   const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionVariables>(
     TrendingCollectionsQuery,
     {
-      // fetchPolicy: 'network-only',
-      // nextFetchPolicy: 'cache-first',
       notifyOnNetworkStatusChange: true,
       variables: {
         sortBy: DEFAULT_SORT,
@@ -137,20 +122,6 @@ const Home: NextPage = () => {
     }
   );
 
-  // const trendingCollectionsNFTPreviewsQuery = useQuery<
-  //   TrendingCollectionsWithNFTsData,
-  //   TrendingCollectionVariables
-  // >(TrendingCollectionsWithNFTsQuery, {
-  //   // fetchPolicy: 'network-only',
-  //   // nextFetchPolicy: 'cache-first',
-  //   variables: {
-  //     sortBy: DEFAULT_SORT,
-  //     timeFrame: DEFAULT_TIME_FRAME,
-  //     orderDirection: DEFAULT_ORDER,
-  //     offset: 0,
-  //   },
-  // });
-
   const onShowMoreTrends = () => {
     trendingCollectionsQuery.fetchMore({
       variables: {
@@ -158,12 +129,6 @@ const Home: NextPage = () => {
         offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
       },
     });
-    // trendingCollectionsNFTPreviewsQuery.fetchMore({
-    //   variables: {
-    //     ...trendingCollectionsNFTPreviewsQuery.variables,
-    //     offset: trendingCollectionsNFTPreviewsQuery.data?.collectionTrends.length ?? 0,
-    //   },
-    // });
   };
 
   const onExploreNftsClick = () => {
@@ -186,8 +151,11 @@ const Home: NextPage = () => {
       offset: 0,
     };
     trendingCollectionsQuery.refetch(variables);
-    // trendingCollectionsNFTPreviewsQuery.refetch(variables);
-  }, [sortType, timeFrame, trendingCollectionsQuery]);
+  }, [
+    sortType,
+    timeFrame,
+    //   trendingCollectionsQuery // don't add this, it causes infinite loop
+  ]);
 
   const nfts: any[] = [];
 
@@ -247,9 +215,7 @@ const Home: NextPage = () => {
                   />
                 </Collection.List.Col>
                 <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                  <div className="w-full md:w-32 lg:w-40">
-                    {trend.collection.name} ({i})
-                  </div>
+                  <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
                   <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
                     <Collection.List.DataPoint
                       value={selectedTrend.floorPrice}
@@ -292,6 +258,7 @@ const Home: NextPage = () => {
                     .map((nft) => (
                       <Collection.List.ShowcaseNft
                         key={nft.mintAddress}
+                        mintAddress={nft.mintAddress}
                         image={nft.image}
                         name={nft.name}
                         price={undefined}
@@ -312,6 +279,7 @@ const Home: NextPage = () => {
                     .map((nft) => (
                       <Collection.List.ShowcaseNft
                         key={nft.mintAddress}
+                        mintAddress={nft.mintAddress}
                         image={nft.image}
                         name={nft.name}
                         price={undefined}
@@ -324,12 +292,7 @@ const Home: NextPage = () => {
         );
       }
     });
-  }, [
-    t,
-    timeFrame,
-    trendingCollectionsQuery.data?.collectionTrends,
-    // trendingCollectionsNFTPreviewsQuery.data,
-  ]);
+  }, [t, timeFrame, trendingCollectionsQuery.data?.collectionTrends]);
 
   return (
     <>
