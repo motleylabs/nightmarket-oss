@@ -3,7 +3,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { WalletProfileQuery } from './../../../queries/profile.graphql';
 import { ReactElement, useMemo } from 'react';
 import client from '../../../client';
-import { Wallet } from '../../../graphql.types';
+import { AuctionHouse, Wallet } from '../../../graphql.types';
 import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
@@ -14,20 +14,22 @@ import { Chart, DateRangeOption } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
 import { useForm } from 'react-hook-form';
 import { formatDistanceToNow, subDays } from 'date-fns';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'analytics']);
 
   const {
-    data: { wallet },
+    data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
     variables: {
       address: params?.address,
+      auctionHouse: config.auctionHouseAddress,
     },
   });
 
-  if (wallet === null) {
+  if (wallet === null || auctionHouse === null) {
     return {
       notFound: true,
     };
@@ -36,6 +38,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       wallet,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -177,9 +180,15 @@ const CustomizedLabel = (props: { x: number; y: number; fill: string; value: num
 ProfileAnalyticsPage.getLayout = function ProfileAnalyticsLayout({
   children,
   wallet,
+  auctionHouse,
 }: {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }): JSX.Element {
-  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
+  return (
+    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
+      {children}
+    </ProfileLayout>
+  );
 };

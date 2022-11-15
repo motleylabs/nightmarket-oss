@@ -1,7 +1,7 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 
-query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
+query WalletProfileQuery($address: PublicKey!, $auctionHouse: String!) @cached(ttl: 300) {
   wallet(address: $address) {
     address
     displayName @client
@@ -11,11 +11,18 @@ query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
       ...ProfileInfo
     }
   }
+  auctionHouse(address: $auctionHouse) {
+    address
+    rewardCenter {
+      address
+    }
+  }
 }
 
-query WalletProfileClientQuery($address: PublicKey!) @cached(ttl: 120) {
+query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) @client(ttl: 120) {
   wallet(address: $address) {
     address
+    totalRewards(rewardCenter: $rewardCenter)
     compactOwnedCount @client
     nftCounts {
       owned
@@ -50,12 +57,13 @@ query FollowingProfileQuery($from: PublicKey!, $to: PublicKey!) {
 query CollectedNFTsQuery(
   $address: PublicKey!
   $collections: [String!]
+  $auctionHouse: String
   $limit: Int!
   $offset: Int!
 ) {
   wallet(address: $address) {
     address
-    nfts(collections: $collections, limit: $limit, offset: $offset) {
+    nfts(collections: $collections, auctionHouse: $auctionHouse, limit: $limit, offset: $offset) {
       ...NftInfo
     }
   }

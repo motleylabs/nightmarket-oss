@@ -833,7 +833,7 @@ export type NftImageArgs = {
 
 
 export type NftViewerOfferArgs = {
-  address: Scalars['String'];
+  address?: InputMaybe<Scalars['String']>;
 };
 
 export type NftActivity = {

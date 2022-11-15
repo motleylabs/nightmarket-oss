@@ -217,6 +217,20 @@ const client = new ApolloClient({
           shortAddress: {
             read: asShortAddress,
           },
+          totalRewards: {
+            read(value) {
+              const unitRewards = asBN(value);
+
+              if (!unitRewards) {
+                return asCompactNumber(0);
+              }
+              var unitDecimals = Math.pow(10, 9);
+              const rewards = Math.round(unitRewards.toNumber() / unitDecimals);
+
+              return asCompactNumber(rewards);
+            },
+          },
+
           compactFollowingCount: {
             read(_, { readField }) {
               const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
