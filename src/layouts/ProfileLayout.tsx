@@ -140,7 +140,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
-                {walletProfileClientQuery.data?.wallet.solTotalRewards}
+                {walletProfileClientQuery.data?.wallet.totalRewards}
               </div>
             }
           />

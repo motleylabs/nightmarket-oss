@@ -308,7 +308,6 @@ export type CollectionNft = {
   address: Scalars['String'];
   /** @deprecated use `nft { animation_url }` */
   animationUrl?: Maybe<Scalars['String']>;
-  attributeGroups: Array<AttributeGroup>;
   /** @deprecated use `nft { attributes }` */
   attributes: Array<NftAttribute>;
   /** @deprecated use `nft { category }` */
@@ -1458,6 +1457,8 @@ export type QueryRootProposalsArgs = {
 export type QueryRootRealmsArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   communityMints?: InputMaybe<Array<Scalars['PublicKey']>>;
+  limit?: InputMaybe<Scalars['Int']>;
+  offset?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -1510,6 +1511,7 @@ export type Realm = {
   authority?: Maybe<Scalars['PublicKey']>;
   communityMint: Scalars['PublicKey'];
   name: Scalars['String'];
+  programId?: Maybe<Scalars['PublicKey']>;
   realmConfig?: Maybe<RealmConfig>;
   votingProposalCount: Scalars['Int'];
 };
@@ -1712,7 +1714,6 @@ export type Wallet = {
   previewImage?: Maybe<Scalars['String']>;
   profile?: Maybe<TwitterProfile>;
   shortAddress?: Maybe<Scalars['String']>;
-  solTotalRewards?: Maybe<Scalars['Int']>;
   totalRewards: Scalars['U64'];
   twitterHandle?: Maybe<Scalars['String']>;
 };

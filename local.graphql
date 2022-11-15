@@ -87,7 +87,6 @@ extend type Wallet {
   compactOwnedCount: String
   compactCreatedCount: String
   portfolioValue: Int
-  solTotalRewards: Int
 }
 
 extend type NftCreator {

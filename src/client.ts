@@ -217,17 +217,16 @@ const client = new ApolloClient({
             read: asShortAddress,
           },
           totalRewards: {
-            read: asBN,
-          },
-          solTotalRewards: {
-            read(_, { readField }) {
-              const rewards: BN | undefined = readField('totalRewards');
+            read(value) {
+              const unitRewards = asBN(value);
 
-              if (!rewards) {
-                return 0;
+              if (!unitRewards) {
+                return asCompactNumber(0);
               }
+              var unitDecimals = Math.pow(10, 9);
+              const rewards = Math.round(unitRewards.toNumber() / unitDecimals);
 
-              return toSol(rewards.toNumber());
+              return asCompactNumber(rewards);
             },
           },
 
