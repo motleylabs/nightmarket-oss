@@ -117,6 +117,10 @@ extend type MetadataJson {
   creatorDisplayName: String
 }
 
+extend type RewardPayout {
+  totalRewards: Int
+}
+
 extend type QueryRoot {
   viewer: Viewer
 }

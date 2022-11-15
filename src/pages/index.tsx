@@ -118,9 +118,10 @@ const Home: NextPage = () => {
   const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
     variables: {
       address: config.auctionHouse as string,
-      limit: 10,
+      limit: 3,
       offset: 0,
     },
+    pollInterval: 2000,
   });
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
@@ -134,7 +135,6 @@ const Home: NextPage = () => {
       },
     }
   );
-
   const onShowMoreTrends = () => {
     trendingCollectionsQuery.fetchMore({
       variables: {

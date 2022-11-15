@@ -56,118 +56,27 @@ interface HeroAsideProps {
 }
 
 function HeroAside({ payouts }: HeroAsideProps): JSX.Element {
-  const ITEMS_TO_SHOW = 3;
-  const purchases: Purchase[] = useMemo(
-    () => [
-      {
-        id: '1',
-        buyer: '',
-        createdAt: '',
-        price: '12',
-        marketplaceProgramAddress: '',
-        metadata: '',
-        seller: '',
-        tokenSize: 12,
-        nft: {
-          image:
-            'https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000',
-        },
-      },
-      {
-        id: '2',
-        buyer: '',
-        createdAt: '',
-        price: '22',
-        marketplaceProgramAddress: '',
-        metadata: '',
-        seller: '',
-        tokenSize: 12,
-        nft: {
-          image: 'https://metadata.degods.com/g/3097.png',
-        },
-      },
-      {
-        id: '3',
-        buyer: '',
-        createdAt: '',
-        price: '32',
-        marketplaceProgramAddress: '',
-        metadata: '',
-        seller: '',
-        tokenSize: 12,
-        nft: {
-          image:
-            'https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png',
-        },
-      },
-      {
-        id: '4',
-        buyer: '',
-        createdAt: '',
-        price: '42',
-        marketplaceProgramAddress: '',
-        metadata: '',
-        seller: '',
-        tokenSize: 12,
-        nft: {
-          image: 'https://metadata.degods.com/g/3098.png',
-        },
-      },
-      {
-        id: '5',
-        buyer: '',
-        createdAt: '',
-        price: '52',
-        marketplaceProgramAddress: '',
-        metadata: '',
-        seller: '',
-        tokenSize: 12,
-        nft: {
-          image: 'https://metadata.degods.com/g/3010.png',
-        },
-      },
-    ],
-    []
-  );
-  const [selectedPurchases, setSelectedPurchases] = useState<Purchase[]>(purchases.slice(0, 3));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      let nextIndex = purchases.findIndex((obj) => {
-        return obj.id === selectedPurchases[ITEMS_TO_SHOW - 1]?.id;
-      });
-      nextIndex = nextIndex >= 0 ? nextIndex + 1 : 0;
-      let newArr: Purchase[] = [];
-      while (newArr.length < ITEMS_TO_SHOW) {
-        if (nextIndex >= purchases.length) {
-          nextIndex = 0;
-        }
-        newArr.push(purchases[nextIndex]);
-        nextIndex++;
-      }
-      setSelectedPurchases(newArr);
-    }, 3500);
-
-    return () => clearInterval(interval);
-  }, [purchases, selectedPurchases]);
   return (
-    <aside key={selectedPurchases[0].id || ''} className="hidden w-1/2 md:flex md:justify-center">
-      {selectedPurchases.length >= 3 && (
+    <aside
+      key={payouts && payouts[0] ? payouts[0].purchaseTicket : ''}
+      className="hidden w-1/2 md:flex md:justify-center"
+    >
+      {payouts && payouts?.length >= 3 && (
         <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px] ">
           <Hero.Preview
-            purchase={selectedPurchases[0]}
+            payout={payouts[0]}
             className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
             hPosition="left"
             vPosition="bottom"
           />
           <Hero.Preview
-            purchase={selectedPurchases[1]}
+            payout={payouts[1]}
             className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
             hPosition="left"
             vPosition="top"
           />
           <Hero.Preview
-            purchase={selectedPurchases[2]}
+            payout={payouts[2]}
             className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
             hPosition="right"
             vPosition="bottom"
@@ -181,14 +90,14 @@ function HeroAside({ payouts }: HeroAsideProps): JSX.Element {
 Hero.Aside = HeroAside;
 
 interface HeroPreviewProps {
-  purchase?: Purchase;
+  payout?: RewardPayout;
   className?: string;
   hPosition: 'left' | 'right';
   vPosition: 'top' | 'bottom';
 }
 
 const HeroPreview = ({
-  purchase,
+  payout,
   className,
   hPosition,
   vPosition,
@@ -209,7 +118,7 @@ const HeroPreview = ({
         <img
           className="h-32 w-32 rounded-2xl object-contain lg:h-48 lg:w-48"
           alt="nft name"
-          src={purchase?.nft?.image}
+          src={payout?.nft?.image}
         />
         <div
           className={clsx(
@@ -223,7 +132,9 @@ const HeroPreview = ({
           )}
         >
           <span className="truncate text-xs text-gray-500">Sold 1min ago</span>
-          <span className=" text-xs text-orange-600 lg:text-sm ">+{purchase?.price} SAUCE</span>
+          <span className=" text-xs text-orange-600 lg:text-sm ">
+            +{payout?.totalRewards} SAUCE
+          </span>
           <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
         </div>
       </div>
