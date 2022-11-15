@@ -132,7 +132,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
         queryKey="floorPrice"
       />
 
-      <div className="grid grid-cols-2 gap-8 py-8">
+      <div className="flex flex-col gap-8 py-8 sm:grid sm:grid-cols-2">
         <Chart.TimeseriesCard
           className="h-96"
           title={t('collection.listedCountChartTitle')}
