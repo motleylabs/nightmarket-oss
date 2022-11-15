@@ -250,11 +250,9 @@ interface CollectionListRowProps {
 }
 function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    // <Link href={`/collections/${id}`}>
     <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
       {children}
     </div>
-    // </Link>
   );
 }
 
@@ -335,7 +333,7 @@ function CollectionListShowcaseNft({
   price,
 }: CollectionListShowcaseNftProps) {
   return (
-    <Link href={'/nfts/' + mintAddress} passHref>
+    <Link href={`/nfts/${mintAddress}`} passHref>
       <a>
         <div className=" flex w-16 flex-col items-center">
           <div className=" rounded-lg p-0.5 hover:bg-gradient-primary">
