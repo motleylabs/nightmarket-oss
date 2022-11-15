@@ -29,8 +29,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
 
   const viewer = useReactiveVar(viewerVar);
 
-  const lastSale = nft.purchases[0]?.solPrice;
-
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
   return (

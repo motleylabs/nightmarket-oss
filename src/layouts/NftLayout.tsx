@@ -2,13 +2,13 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
-import { useMakeOffer, useUpdateOffer, useCloseOffer } from '../hooks/offer';
+import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
 import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import { Form } from '../components/Form';
 import Head from 'next/head';
@@ -18,6 +18,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
+import { asCompactNumber } from '../modules/number';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -59,6 +61,19 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const listing = data?.nft.listing;
   const highestOffer = data?.nft.highestOffer;
   const viewerOffer = data?.nft.viewerOffer;
+  const rewardCenter = listing?.auctionHouse?.rewardCenter;
+  const rewards = useMemo(
+    () =>
+      listing && rewardCenter
+        ? buyerSellerRewards(
+            listing.price,
+            rewardCenter.mathematicalOperand,
+            rewardCenter.payoutNumeral,
+            rewardCenter.sellerRewardPayoutBasisPoints
+          )
+        : { buyerRewards: 0, sellerRewards: 0 },
+    [listing, rewardCenter]
+  );
 
   const {
     makeOffer,
@@ -133,6 +148,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   };
 
   const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
+
+  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
+
+  const handleAcceptOffer = async () => {
+    if (!auctionHouse || !nft) {
+      return;
+    }
+
+    await onAcceptOffer({ auctionHouse, nft });
+  };
 
   const {
     onOpenUpdateOffer,
@@ -428,7 +453,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -507,7 +532,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -572,7 +597,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -633,7 +658,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  <p className="text-primary-700">{400} SAUCE</p>
+                  {listing && isOwner && (
+                    <p className="text-primary-700">
+                      {asCompactNumber(rewards.sellerRewards)} $SAUCE
+                    </p>
+                  )}
+                  {listing && !isOwner && (
+                    <p className="text-primary-700">
+                      {asCompactNumber(rewards.buyerRewards)} $SAUCE
+                    </p>
+                  )}
                 </span>
               </div>
             )}
@@ -702,7 +736,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 <div className="col-span-12 md:col-span-6">
                   {isOwner &&
                     (highestOffer ? (
-                      <Button block onClick={onListNftClick}>
+                      <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
                         {t('accept')}
                       </Button>
                     ) : (

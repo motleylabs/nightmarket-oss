@@ -112,7 +112,7 @@ query NftActivitiesQuery($address: String!) {
   }
 }
 
-query NftMarketInfoQuery($address: String!, $viewerAddress: String) {
+query NftMarketInfoQuery($address: String!, $viewerAddress: String!) {
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
