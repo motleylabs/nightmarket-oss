@@ -212,7 +212,7 @@ const Home: NextPage = () => {
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
             <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
           </header>
-          <div className="flex flex-col items-center justify-start gap-12 md:flex-row">
+          <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
             <Drop
               launchDate={addDays(new Date(), 3)}
               title={'Team Motley'}
