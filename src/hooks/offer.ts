@@ -7,7 +7,7 @@ import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import { NftMarketInfoQuery } from './../queries/nft.graphql';
+import { NftMarketInfoQuery, NftQuery } from './../queries/nft.graphql';
 import { NftOffersQuery } from './../queries/offers.graphql';
 import {
   createCreateOfferInstruction,
@@ -454,19 +454,18 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     tx.feePayer = publicKey;
 
     try {
-      // const signedTx = await signTransaction(tx);
-      // const signature = await connection.sendRawTransaction(signedTx.serialize());
-      // if (signature) {
-      //   await connection.confirmTransaction(
-      //     {
-      //       blockhash,
-      //       lastValidBlockHeight,
-      //       signature,
-      //     },
-      //     'confirmed'
-      //   );
-      //
-      // }
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          },
+          'confirmed'
+        );
+      }
 
       client.cache.updateQuery(
         {
@@ -708,7 +707,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const buyerAddress = new PublicKey(offer.buyer);
-    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+    const token = new PublicKey(tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
     const [buyerTradeState, _buyerTradeStateBump] =
@@ -920,7 +919,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       })
     );
 
-    debugger;
+    // debugger;
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -940,6 +939,51 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         },
         'confirmed'
       );
+
+      // update details
+      // client.cache.updateQuery(
+      //   {
+      //     query: NftQuery,
+      //     broadcast: false,
+      //     overwrite: true,
+      //     variables: {
+      //       address: nft.mintAddress,
+      //     },
+      //   },
+      //   (data) => {
+      //     console.log(data);
+      //     return {
+      //       nft: {
+      //         ...data.nft,
+      //         owner: {
+      //           address: offer.buyer,
+      //         },
+      //       },
+      //     };
+      //   }
+      // );
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offers = [...data.nft.offers].filter((offer: Offer) => offer.id !== offer.id);
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
+
       toast('Offer accepted', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
