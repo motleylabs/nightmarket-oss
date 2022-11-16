@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import TrendingCollectionQuery from './../queries/trending.graphql';
+import { TrendingCollectionsQuery } from './../queries/trending.graphql';
 import { useQuery } from '@apollo/client';
 import { Collection } from '../components/Collection';
 import {
@@ -32,21 +32,25 @@ import { addDays } from 'date-fns';
 import Link from 'next/link';
 import config from '../app.config';
 
-interface TrendingCollectionData {
+interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
 }
 
-export const getStaticProps = async ({ locale }: GetStaticPropsContext) => ({
-  props: {
-    ...(await serverSideTranslations(locale as string, [
-      'common',
-      'home',
-      'collection',
-      'profile',
-      'launchpad',
-    ])),
-  },
-});
+export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'home',
+    'collection',
+    'profile',
+    'launchpad',
+  ]);
+
+  return {
+    props: {
+      ...i18n,
+    },
+  };
+};
 
 interface TrendingCollectionForm {
   filter: CollectionInterval;
@@ -94,19 +98,22 @@ const Home: NextPage = () => {
     ],
     [t]
   );
+
   const { publicKey, connected } = useWallet();
   const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
   const onLogin = useLogin();
 
   const { watch, control } = useForm<TrendingCollectionForm>({
-    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: CollectionSort.Volume },
+    defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
   const timeFrame = watch('filter');
+  const sortType = watch('sort');
 
-  const trendingCollectionsQuery = useQuery<TrendingCollectionData, TrendingCollectionVariables>(
-    TrendingCollectionQuery,
+  const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionVariables>(
+    TrendingCollectionsQuery,
     {
+      notifyOnNetworkStatusChange: true,
       variables: {
         sortBy: DEFAULT_SORT,
         timeFrame: DEFAULT_TIME_FRAME,
@@ -138,20 +145,155 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    const subscription = watch(({ filter, sort }) => {
-      let variables: TrendingCollectionVariables = {
-        sortBy: sort!,
-        timeFrame: filter!,
-        orderDirection: DEFAULT_ORDER,
-        offset: 0,
-      };
-
-      trendingCollectionsQuery.refetch(variables);
-    });
-    return subscription.unsubscribe;
-  }, [watch, trendingCollectionsQuery]);
+    let variables: TrendingCollectionVariables = {
+      sortBy: sortType,
+      timeFrame: timeFrame,
+      orderDirection: DEFAULT_ORDER,
+      offset: 0,
+    };
+    trendingCollectionsQuery.refetch(variables);
+  }, [
+    sortType,
+    timeFrame,
+    //   trendingCollectionsQuery // don't add this, it causes infinite loop
+  ]);
 
   const nfts: any[] = [];
+
+  const trendingCollectionsWithNftPreviews = useMemo(() => {
+    return trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+      let selectedTrend: SelectedTrend;
+      let volumeLabel: string;
+
+      const nftPreviews = trendingCollectionsQuery.data?.collectionTrends?.[i]?.collection?.nfts;
+
+      switch (timeFrame) {
+        case CollectionInterval.OneDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor1d,
+            floorPriceChange: trend.changeFloor1d,
+            volume: trend.compactVolume1d,
+            volumeChange: trend.changeVolume1d,
+            listedCount: trend.compactListed1d,
+            listedCountChange: trend.changeListed7d,
+          };
+          volumeLabel = t('collection:24hVolume');
+          break;
+        case CollectionInterval.SevenDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor7d,
+            floorPriceChange: trend.changeFloor7d,
+            volume: trend.compactVolume7d,
+            volumeChange: trend.changeVolume7d,
+            listedCount: trend.compactListed7d,
+            listedCountChange: trend.changeListed7d,
+          };
+          volumeLabel = t('collection:7dVolume');
+          break;
+        case CollectionInterval.ThirtyDay:
+          selectedTrend = {
+            floorPrice: trend.compactFloor30d,
+            floorPriceChange: trend.changeFloor30d,
+            volume: trend.compactVolume30d,
+            volumeChange: trend.changeVolume30d,
+            listedCount: trend.compactListed30d,
+            listedCountChange: trend.changeListed30d,
+          };
+          volumeLabel = t('collection:30dVolume');
+          break;
+      }
+
+      if (trend.collection) {
+        return (
+          <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
+            <Link href={`/collections/${trend.collection.id}`}>
+              <a className="flex w-full items-center justify-between gap-4 rounded-2xl lg:gap-7">
+                <Collection.List.Col className="flex-none">
+                  <img
+                    src={trend.collection.image}
+                    alt={trend.collection.name}
+                    className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
+                  />
+                </Collection.List.Col>
+                <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                  <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
+                  <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
+                    <Collection.List.DataPoint
+                      value={selectedTrend.floorPrice}
+                      icon={<Icon.Sol />}
+                      name={t('collection:globalFloor')}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.floorPriceChange} />
+                      }
+                    />
+                    <Collection.List.DataPoint
+                      value={selectedTrend.volume}
+                      icon={<Icon.Sol />}
+                      name={volumeLabel}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.volumeChange} />
+                      }
+                    />
+                    <Collection.List.DataPoint
+                      value={selectedTrend.listedCount}
+                      name={t('collection:listings')}
+                      status={
+                        <Collection.List.DataPoint.Status value={selectedTrend.listedCountChange} />
+                      }
+                    />
+                  </div>
+                </Collection.List.Col>
+              </a>
+            </Link>
+            <Collection.List.Col className={'hidden gap-4 lg:flex'}>
+              <div className="hidden gap-4 lg:flex">
+                {!nftPreviews ? (
+                  <>
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                  </>
+                ) : (
+                  nftPreviews
+                    .slice(0, 3)
+                    .map((nft) => (
+                      <Collection.List.ShowcaseNft
+                        key={nft.mintAddress}
+                        mintAddress={nft.mintAddress}
+                        image={nft.image}
+                        name={nft.name}
+                        price={undefined}
+                      />
+                    ))
+                )}
+              </div>
+              <div className="hidden gap-4 xl:flex">
+                {!nftPreviews ? (
+                  <>
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+                  </>
+                ) : (
+                  nftPreviews
+                    .slice(3, 6)
+                    .map((nft) => (
+                      <Collection.List.ShowcaseNft
+                        key={nft.mintAddress}
+                        mintAddress={nft.mintAddress}
+                        image={nft.image}
+                        name={nft.name}
+                        price={undefined}
+                      />
+                    ))
+                )}
+              </div>
+            </Collection.List.Col>
+          </Collection.List.Row>
+        );
+      }
+    });
+  }, [t, timeFrame, trendingCollectionsQuery.data?.collectionTrends]);
 
   return (
     <>
@@ -214,7 +356,7 @@ const Home: NextPage = () => {
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
             <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
           </header>
-          <div className="flex flex-col items-center justify-start gap-12 md:flex-row">
+          <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
             <Drop
               launchDate={addDays(new Date(), 3)}
               title={'Team Motley'}
@@ -282,139 +424,14 @@ const Home: NextPage = () => {
             </div>
           </header>
           <Collection.List>
-            {trendingCollectionsQuery.loading ? (
+            {trendingCollectionsWithNftPreviews?.length && trendingCollectionsWithNftPreviews}{' '}
+            {trendingCollectionsQuery.loading && (
               <>
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
               </>
-            ) : (
-              trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
-                let selectedTrend: SelectedTrend;
-                let volumeLabel: string;
-
-                switch (timeFrame) {
-                  case CollectionInterval.OneDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.compactVolume1d,
-                      volumeChange: trend.changeVolume1d,
-                      listedCount: trend.compactListed1d,
-                      listedCountChange: trend.changeListed7d,
-                    };
-                    volumeLabel = t('collection:24hVolume');
-                    break;
-                  case CollectionInterval.SevenDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor7d,
-                      floorPriceChange: trend.changeFloor7d,
-                      volume: trend.compactVolume7d,
-                      volumeChange: trend.changeVolume7d,
-                      listedCount: trend.compactListed7d,
-                      listedCountChange: trend.changeListed7d,
-                    };
-                    volumeLabel = t('collection:7dVolume');
-                    break;
-                  case CollectionInterval.ThirtyDay:
-                    selectedTrend = {
-                      floorPrice: trend.compactFloor30d,
-                      floorPriceChange: trend.changeFloor30d,
-                      volume: trend.compactVolume30d,
-                      volumeChange: trend.changeVolume30d,
-                      listedCount: trend.compactListed30d,
-                      listedCountChange: trend.changeListed30d,
-                    };
-                    volumeLabel = t('collection:30dVolume');
-                    break;
-                }
-
-                if (trend.collection) {
-                  return (
-                    <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
-                      <Collection.List.Col className="flex-none">
-                        <img
-                          src={trend.collection.image}
-                          alt={trend.collection.name}
-                          className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
-                        />
-                      </Collection.List.Col>
-                      <Collection.List.Col className="flex w-full flex-col justify-between gap-1 py-1 sm:gap-2 md:flex-row md:items-center md:gap-6 xl:gap-8">
-                        <div className="w-full md:w-32 lg:w-32">{trend.collection.name}</div>
-                        <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
-                          <Collection.List.DataPoint
-                            value={selectedTrend.floorPrice}
-                            icon={<Icon.Sol />}
-                            name={t('collection:globalFloor')}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.floorPriceChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.volume}
-                            icon={<Icon.Sol />}
-                            name={volumeLabel}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.volumeChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.listedCount}
-                            name={t('collection:listings')}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.listedCountChange}
-                              />
-                            }
-                          />
-                        </div>
-                        {/* TODO: Add real data */}
-                        <div className="flex gap-4">
-                          <div className="hidden gap-4 lg:flex">
-                            <Collection.List.ShowcaseNft
-                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                              name="abc"
-                              price={26}
-                            />
-                          </div>
-                          <div className="hidden gap-4 xl:flex">
-                            <Collection.List.ShowcaseNft
-                              image="https://www.thismorningonchain.com/content/images/2022/01/solana-opensea-degenerate-ape.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://miro.medium.com/max/503/1*WeVD3wTaKIeFigDiEX6fhg.png"
-                              name="abc"
-                              price={26}
-                            />
-                            <Collection.List.ShowcaseNft
-                              image="https://pbs.twimg.com/media/E-JerziXoAQHCIN.jpg"
-                              name="abc"
-                              price={26}
-                            />
-                          </div>
-                        </div>
-                      </Collection.List.Col>
-                    </Collection.List.Row>
-                  );
-                }
-              })
             )}
           </Collection.List>
           <Button
