@@ -124,3 +124,7 @@ extend type RewardPayout {
 extend type QueryRoot {
   viewer: Viewer
 }
+
+extend type LastSale {
+  solPrice: Int
+}

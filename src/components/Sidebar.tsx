@@ -28,7 +28,7 @@ function SidebarControl({ open, label, onChange, disabled }: SidebarControlProps
         disabled={disabled}
         onClick={onChange}
       >
-        <span className="">{label}</span>
+        <span className="pl-2">{label}</span>
         <ChevronRightIcon
           className={clsx(
             'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',

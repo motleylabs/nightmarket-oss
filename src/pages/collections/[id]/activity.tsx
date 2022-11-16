@@ -124,19 +124,21 @@ export default function CollectionActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div />
-        <Controller
-          control={control}
-          name="type"
-          render={({ field: { onChange, value } }) => (
-            <Select
-              value={value}
-              onChange={onChange}
-              options={activityFilterOptions}
-              className="col-span-2 w-36 md:col-span-1"
-            />
-          )}
-        />
+        <div className="block" />
+        <div className="flex justify-end">
+          <Controller
+            control={control}
+            name="type"
+            render={({ field: { onChange, value } }) => (
+              <Select
+                value={value}
+                onChange={onChange}
+                options={activityFilterOptions}
+                className="w-36"
+              />
+            )}
+          />
+        </div>
       </Toolbar>
       <div className="flex flex-col px-4 md:px-8">
         {activitiesQuery.loading ? (

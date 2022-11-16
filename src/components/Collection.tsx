@@ -2,11 +2,14 @@ import clsx from 'clsx';
 import React, { ReactElement, ReactNode } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
-import { Nft, Maybe } from '../graphql.types';
+import { CollectionNftPreviewsQuery } from './../queries/collection.graphql';
+import { Nft, Maybe, Collection } from '../graphql.types';
 import Icon from './Icon';
 import Link from 'next/link';
+import { useQuery } from '@apollo/client';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import config from '../app.config';
 
 export function Collection() {
   return <div />;
@@ -208,7 +211,7 @@ Collection.List = CollectionList;
 
 function CollectionListLoading() {
   return (
-    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
+    <div className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
       {/* Collection Image */}
       <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
@@ -245,20 +248,91 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  id: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, id }: CollectionListRowProps) {
+function CollectionListRow({ children }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${id}`}>
-      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
-        {children}
-      </a>
-    </Link>
+    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 xl:gap-7">
+      {children}
+    </div>
   );
 }
 
 CollectionList.Row = CollectionListRow;
+
+interface CollectionListNftPreviewProps {
+  collection?: string;
+}
+
+interface CollectionNftPreviewsVariables {
+  auctionHouse: string;
+  id: string | undefined;
+}
+
+interface CollectionNftPreviewData {
+  collection: Collection;
+}
+
+function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps): JSX.Element {
+  const nftPreviewQuery = useQuery<CollectionNftPreviewData, CollectionNftPreviewsVariables>(
+    CollectionNftPreviewsQuery,
+    {
+      variables: {
+        id: collection,
+        auctionHouse: config.auctionHouse,
+      },
+    }
+  );
+
+  return (
+    <>
+      <div className="hidden gap-4 lg:flex">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(0, 3)
+            .map((nft) => (
+              <Collection.List.ShowcaseNft
+                key={nft.mintAddress}
+                mintAddress={nft.mintAddress}
+                image={nft.image}
+                name={nft.name}
+                price={undefined}
+              />
+            ))
+        )}
+      </div>
+      <div className="hidden gap-4 xl:flex">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(3, 6)
+            .map((nft) => (
+              <Collection.List.ShowcaseNft
+                key={nft.mintAddress}
+                mintAddress={nft.mintAddress}
+                image={nft.image}
+                name={nft.name}
+                price={undefined}
+              />
+            ))
+        )}
+      </div>
+    </>
+  );
+}
+
+CollectionList.NftPreview = CollectionListNftPreview;
 
 interface CollectionListColProps {
   className?: String;
@@ -311,7 +385,7 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
     >
       {Math.abs(value)}%
       <ArrowUpIcon
-        className={clsx(clsx, 'h-3 w-3', {
+        className={clsx(clsx, 'h-2 w-2 md:h-3 md:w-3', {
           'rotate-180 transform': value < 0,
           'rotate-0 transform': value >= 0,
         })}
@@ -323,31 +397,43 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
 CollectionListDataPoint.Status = CollectionListDataPointStatus;
 
 interface CollectionListShowcaseNftProps {
+  mintAddress: string;
   image: string;
   name: string;
-  price: number;
+  price?: number;
 }
-function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
+function CollectionListShowcaseNft({
+  mintAddress,
+  image,
+  name,
+  price,
+}: CollectionListShowcaseNftProps) {
   return (
-    <div className=" flex w-16 flex-col items-center">
-      <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
-        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+    <Link href={`/nfts/${mintAddress}`} passHref>
+      <a>
+        <div className=" flex w-16 flex-col items-center">
+          <div className=" rounded-lg p-0.5 hover:bg-gradient-primary">
+            <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+          </div>
+          {price && (
+            <div className="group ">
+              <Button
+                icon={<Icon.Sol className="h-3 w-3" />}
+                color={ButtonColor.Gray}
+                background={ButtonBackground.Slate}
+                size={ButtonSize.Tiny}
+                className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+              >
+                {price}
+              </Button>
+              <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+                Buy
+              </Button>
+            </div>
+          )}
+        </div>
       </a>
-      <div className="group ">
-        <Button
-          icon={<Icon.Sol className="h-3 w-3" />}
-          color={ButtonColor.Gray}
-          background={ButtonBackground.Slate}
-          size={ButtonSize.Tiny}
-          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-        >
-          {price}
-        </Button>
-        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-          Buy
-        </Button>
-      </div>
-    </div>
+    </Link>
   );
 }
 

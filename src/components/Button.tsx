@@ -83,9 +83,9 @@ const Button = ({
           'border-2 border-gray-300 bg-none hover:border-white active:text-white':
             border === ButtonBorder.Gray,
           'w-full': block,
-          'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
-          'py-1 px-4 text-xs md:text-sm':
-            size === ButtonSize.Small && border !== ButtonBorder.Gradient,
+          'py-1 px-4 text-sm':
+            (size === ButtonSize.Tiny || size === ButtonSize.Small) &&
+            border !== ButtonBorder.Gradient,
           'py-3 px-6': size === ButtonSize.Large && border !== ButtonBorder.Gradient,
           'disabled:opacity-50': disabled,
           'px-0 py-0': circle,
@@ -100,9 +100,9 @@ const Button = ({
           'flex h-full w-full grow-0 items-center justify-center gap-1 rounded-full text-center',
           {
             [background]: border === ButtonBorder.Gradient,
-            'py-1 px-4 text-xs': size === ButtonSize.Tiny && border === ButtonBorder.Gradient,
-            'py-1 px-4 text-xs md:text-sm':
-              size === ButtonSize.Small && border === ButtonBorder.Gradient,
+            'py-1 px-4 text-sm':
+              (size === ButtonSize.Tiny || size === ButtonSize.Small) &&
+              border === ButtonBorder.Gradient,
             'py-3 px-6': size === ButtonSize.Large && border === ButtonBorder.Gradient,
           }
         )}

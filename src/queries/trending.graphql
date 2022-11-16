@@ -40,7 +40,17 @@ query TrendingCollectionsQuery(
       verifiedCollectionAddress
       name
       description
-      image(width: 100)
+      image(width: 400)
+      nfts(limit: 6, offset: 0, sortBy: LISTED_AT, order: DESC) {
+        name
+        mintAddress
+        image(width: 400)
+        listings {
+          id
+          createdAt
+          price
+        }
+      }
     }
   }
 }
