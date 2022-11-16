@@ -339,7 +339,7 @@ const Home: NextPage = () => {
                 return (
                   <Collection.List.Row key={trend.collection?.id}>
                     <Link href={`/collections/${trend.collection?.id}`}>
-                      <a className="flex w-full items-center justify-start gap-4 rounded-2xl lg:gap-7">
+                      <a className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8">
                         <Collection.List.Col className="flex-none">
                           <img
                             src={trend.collection?.image}
@@ -347,11 +347,11 @@ const Home: NextPage = () => {
                             className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
                           />
                         </Collection.List.Col>
-                        <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                        <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center xl:gap-8">
                           <div className="w-full line-clamp-2 md:w-24 xl:w-36">
                             {trend.collection?.name}
                           </div>
-                          <div className="flex gap-1 lg:w-96 lg:justify-start lg:gap-8">
+                          <div className="flex gap-1  lg:justify-start lg:gap-8">
                             <Collection.List.DataPoint
                               value={selectedTrend.floorPrice}
                               icon={<Icon.Sol />}
