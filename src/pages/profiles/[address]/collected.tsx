@@ -150,7 +150,7 @@ export default function ProfileCollected({
               value={value}
               onChange={onChange}
               options={nftListedFilterOptions}
-              className="w-36"
+              className="w-full md:w-36"
             />
           )}
         />
