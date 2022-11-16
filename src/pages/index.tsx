@@ -302,7 +302,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className=" mx-auto px-6 pb-28 md:px-20">
+      <main className="container mx-auto px-6 pb-28 md:px-24">
         <Hero>
           <Hero.Main>
             <Hero.Title>{t('hero.title')}</Hero.Title>
