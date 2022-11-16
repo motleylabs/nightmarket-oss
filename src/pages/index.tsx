@@ -340,8 +340,8 @@ const Home: NextPage = () => {
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
                         />
                       </Collection.List.Col>
-                      <Collection.List.Col className="flex w-full flex-col justify-between gap-1 py-1 sm:gap-2 md:flex-row md:items-center lg:gap-8">
-                        <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
+                      <Collection.List.Col className="flex w-full flex-col justify-between gap-1 py-1 sm:gap-2 md:flex-row md:items-center md:gap-6 xl:gap-8">
+                        <div className="w-full md:w-32 lg:w-32">{trend.collection.name}</div>
                         <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
                           <Collection.List.DataPoint
                             value={selectedTrend.floorPrice}
