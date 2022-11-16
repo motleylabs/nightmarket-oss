@@ -745,15 +745,25 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       </Button>
                     ))}
                   {notOwner && !listing && !viewerOffer && (
-                    <Button
-                      onClick={onOpenOffer}
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                      block
-                    >
-                      {t('bid')}
-                    </Button>
+                    <>
+                      {nft.lastSale?.price ? (
+                        <span className="flex gap-1 text-sm text-gray-300">
+                          {t('lastSale')} <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                          {nft.lastSale?.solPrice}
+                        </span>
+                      ) : (
+                        <div className="block" />
+                      )}
+                      <Button
+                        onClick={onOpenOffer}
+                        background={ButtonBackground.Slate}
+                        border={ButtonBorder.Gradient}
+                        color={ButtonColor.Gradient}
+                        block
+                      >
+                        {t('bid')}
+                      </Button>
+                    </>
                   )}
                   {viewerOffer && (
                     <Button

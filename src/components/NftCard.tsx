@@ -113,11 +113,13 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
-                  {nft.lastSale?.price && (
+                  {nft.lastSale?.price ? (
                     <span className="flex gap-1 text-sm text-gray-300">
                       {t('lastSale')} <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                       {nft.lastSale?.solPrice}
                     </span>
+                  ) : (
+                    <div className="block" />
                   )}
                   <Button
                     onClick={onMakeOffer}
