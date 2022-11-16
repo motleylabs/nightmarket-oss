@@ -1559,6 +1559,7 @@ export type RewardPayout = {
   seller: Wallet;
   sellerReward: Scalars['U64'];
   slot: Scalars['U64'];
+  totalRewards?: Maybe<Scalars['Int']>;
   writeVersion: Scalars['U64'];
 };
 

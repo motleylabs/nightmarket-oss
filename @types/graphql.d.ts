@@ -105,6 +105,15 @@ declare module '*/offers.graphql' {
 }
     
 
+declare module '*/payouts.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const PayoutsQuery: DocumentNode;
+
+  export default defaultDocument;
+}
+    
+
 declare module '*/search.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
