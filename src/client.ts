@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
 import { viewerVar } from './cache';
@@ -20,7 +21,6 @@ import {
   Offer,
   Nft,
 } from './graphql.types';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
 import { asCompactNumber } from './modules/number';
@@ -172,9 +172,12 @@ function nftMarketplace(item: {
 }
 
 const client = new ApolloClient({
-  uri: config.graphqlUrl,
+  link: new BatchHttpLink({
+    uri: config.graphqlUrl,
+    batchMax: 5,
+    batchInterval: 20,
+  }),
   typeDefs,
-
   cache: new InMemoryCache({
     typePolicies: {
       Query: {

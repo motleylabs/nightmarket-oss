@@ -8,7 +8,7 @@ interface AppConfig {
     medium?: string;
   };
   website: string;
-  auctionHouseAddress: string;
+  auctionHouse: string;
 }
 
 const config: AppConfig = {
@@ -21,7 +21,7 @@ const config: AppConfig = {
     medium: 'https://medium.com/@MotleyLabs',
   },
   website: 'https://motleylabs.com',
-  auctionHouseAddress: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
+  auctionHouse: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
 };
 
 export default config;

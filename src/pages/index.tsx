@@ -1,5 +1,5 @@
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
@@ -12,6 +12,7 @@ import {
   CollectionTrend,
   OrderDirection,
   Maybe,
+  Nft,
 } from '../graphql.types';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Hero from '../components/Hero';
@@ -57,7 +58,7 @@ interface TrendingCollectionForm {
   sort: CollectionSort;
 }
 
-interface TrendingCollectionVariables {
+interface TrendingCollectionsVariables {
   sortBy: CollectionSort;
   timeFrame: CollectionInterval;
   orderDirection: OrderDirection;
@@ -83,6 +84,7 @@ const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
 const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
+  const [loadingMore, setLoadingMore] = useState(false);
   const { t } = useTranslation(['home', 'collection']);
 
   const sortOptions: SortOption[] = useMemo(
@@ -110,10 +112,9 @@ const Home: NextPage = () => {
   const timeFrame = watch('filter');
   const sortType = watch('sort');
 
-  const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionVariables>(
+  const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(
     TrendingCollectionsQuery,
     {
-      notifyOnNetworkStatusChange: true,
       variables: {
         sortBy: DEFAULT_SORT,
         timeFrame: DEFAULT_TIME_FRAME,
@@ -123,13 +124,14 @@ const Home: NextPage = () => {
     }
   );
 
-  const onShowMoreTrends = () => {
-    trendingCollectionsQuery.fetchMore({
+  const onShowMoreTrends = async () => {
+    setLoadingMore(true);
+    await trendingCollectionsQuery.fetchMore({
       variables: {
-        ...trendingCollectionsQuery.variables,
         offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
       },
     });
+    setLoadingMore(false);
   };
 
   const onExploreNftsClick = () => {
@@ -144,156 +146,18 @@ const Home: NextPage = () => {
     }
   };
 
+  const nfts: Nft[] = [];
+
   useEffect(() => {
-    let variables: TrendingCollectionVariables = {
+    let variables: TrendingCollectionsVariables = {
       sortBy: sortType,
       timeFrame: timeFrame,
       orderDirection: DEFAULT_ORDER,
       offset: 0,
     };
+
     trendingCollectionsQuery.refetch(variables);
-  }, [
-    sortType,
-    timeFrame,
-    //   trendingCollectionsQuery // don't add this, it causes infinite loop
-  ]);
-
-  const nfts: any[] = [];
-
-  const trendingCollectionsWithNftPreviews = useMemo(() => {
-    return trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
-      let selectedTrend: SelectedTrend;
-      let volumeLabel: string;
-
-      const nftPreviews = trendingCollectionsQuery.data?.collectionTrends?.[i]?.collection?.nfts;
-
-      switch (timeFrame) {
-        case CollectionInterval.OneDay:
-          selectedTrend = {
-            floorPrice: trend.compactFloor1d,
-            floorPriceChange: trend.changeFloor1d,
-            volume: trend.compactVolume1d,
-            volumeChange: trend.changeVolume1d,
-            listedCount: trend.compactListed1d,
-            listedCountChange: trend.changeListed7d,
-          };
-          volumeLabel = t('collection:24hVolume');
-          break;
-        case CollectionInterval.SevenDay:
-          selectedTrend = {
-            floorPrice: trend.compactFloor7d,
-            floorPriceChange: trend.changeFloor7d,
-            volume: trend.compactVolume7d,
-            volumeChange: trend.changeVolume7d,
-            listedCount: trend.compactListed7d,
-            listedCountChange: trend.changeListed7d,
-          };
-          volumeLabel = t('collection:7dVolume');
-          break;
-        case CollectionInterval.ThirtyDay:
-          selectedTrend = {
-            floorPrice: trend.compactFloor30d,
-            floorPriceChange: trend.changeFloor30d,
-            volume: trend.compactVolume30d,
-            volumeChange: trend.changeVolume30d,
-            listedCount: trend.compactListed30d,
-            listedCountChange: trend.changeListed30d,
-          };
-          volumeLabel = t('collection:30dVolume');
-          break;
-      }
-
-      if (trend.collection) {
-        return (
-          <Collection.List.Row id={trend.collection.id} key={trend.collection.id}>
-            <Link href={`/collections/${trend.collection.id}`}>
-              <a className="flex w-full items-center justify-between gap-4 rounded-2xl lg:gap-7">
-                <Collection.List.Col className="flex-none">
-                  <img
-                    src={trend.collection.image}
-                    alt={trend.collection.name}
-                    className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
-                  />
-                </Collection.List.Col>
-                <Collection.List.Col className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                  <div className="w-full md:w-32 lg:w-40">{trend.collection.name}</div>
-                  <div className="flex gap-1 lg:w-96 lg:justify-between lg:gap-8">
-                    <Collection.List.DataPoint
-                      value={selectedTrend.floorPrice}
-                      icon={<Icon.Sol />}
-                      name={t('collection:globalFloor')}
-                      status={
-                        <Collection.List.DataPoint.Status value={selectedTrend.floorPriceChange} />
-                      }
-                    />
-                    <Collection.List.DataPoint
-                      value={selectedTrend.volume}
-                      icon={<Icon.Sol />}
-                      name={volumeLabel}
-                      status={
-                        <Collection.List.DataPoint.Status value={selectedTrend.volumeChange} />
-                      }
-                    />
-                    <Collection.List.DataPoint
-                      value={selectedTrend.listedCount}
-                      name={t('collection:listings')}
-                      status={
-                        <Collection.List.DataPoint.Status value={selectedTrend.listedCountChange} />
-                      }
-                    />
-                  </div>
-                </Collection.List.Col>
-              </a>
-            </Link>
-            <Collection.List.Col className={'hidden gap-4 lg:flex'}>
-              <div className="hidden gap-4 lg:flex">
-                {!nftPreviews ? (
-                  <>
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                  </>
-                ) : (
-                  nftPreviews
-                    .slice(0, 3)
-                    .map((nft) => (
-                      <Collection.List.ShowcaseNft
-                        key={nft.mintAddress}
-                        mintAddress={nft.mintAddress}
-                        image={nft.image}
-                        name={nft.name}
-                        price={undefined}
-                      />
-                    ))
-                )}
-              </div>
-              <div className="hidden gap-4 xl:flex">
-                {!nftPreviews ? (
-                  <>
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                    <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-                  </>
-                ) : (
-                  nftPreviews
-                    .slice(3, 6)
-                    .map((nft) => (
-                      <Collection.List.ShowcaseNft
-                        key={nft.mintAddress}
-                        mintAddress={nft.mintAddress}
-                        image={nft.image}
-                        name={nft.name}
-                        price={undefined}
-                      />
-                    ))
-                )}
-              </div>
-            </Collection.List.Col>
-          </Collection.List.Row>
-        );
-      }
-    });
-  }, [t, timeFrame, trendingCollectionsQuery.data?.collectionTrends]);
+  }, [sortType, timeFrame]);
 
   return (
     <>
@@ -424,14 +288,107 @@ const Home: NextPage = () => {
             </div>
           </header>
           <Collection.List>
-            {trendingCollectionsWithNftPreviews?.length && trendingCollectionsWithNftPreviews}{' '}
-            {trendingCollectionsQuery.loading && (
+            {trendingCollectionsQuery.loading ? (
               <>
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
               </>
+            ) : (
+              trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
+                let selectedTrend: SelectedTrend;
+                let volumeLabel: string;
+
+                switch (timeFrame) {
+                  case CollectionInterval.OneDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloor1d,
+                      floorPriceChange: trend.changeFloor1d,
+                      volume: trend.compactVolume1d,
+                      volumeChange: trend.changeVolume1d,
+                      listedCount: trend.compactListed1d,
+                      listedCountChange: trend.changeListed7d,
+                    };
+                    volumeLabel = t('collection:24hVolume');
+                    break;
+                  case CollectionInterval.SevenDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloor7d,
+                      floorPriceChange: trend.changeFloor7d,
+                      volume: trend.compactVolume7d,
+                      volumeChange: trend.changeVolume7d,
+                      listedCount: trend.compactListed7d,
+                      listedCountChange: trend.changeListed7d,
+                    };
+                    volumeLabel = t('collection:7dVolume');
+                    break;
+                  case CollectionInterval.ThirtyDay:
+                    selectedTrend = {
+                      floorPrice: trend.compactFloor30d,
+                      floorPriceChange: trend.changeFloor30d,
+                      volume: trend.compactVolume30d,
+                      volumeChange: trend.changeVolume30d,
+                      listedCount: trend.compactListed30d,
+                      listedCountChange: trend.changeListed30d,
+                    };
+                    volumeLabel = t('collection:30dVolume');
+                    break;
+                }
+
+                return (
+                  <Collection.List.Row key={trend.collection?.id}>
+                    <Link href={`/collections/${trend.collection?.id}`}>
+                      <a className="flex w-full items-center justify-start gap-4 rounded-2xl lg:gap-7">
+                        <Collection.List.Col className="flex-none">
+                          <img
+                            src={trend.collection?.image}
+                            alt={trend.collection?.name}
+                            className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
+                          />
+                        </Collection.List.Col>
+                        <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center lg:gap-8">
+                          <div className="w-full md:w-32 lg:w-40">{trend.collection?.name}</div>
+                          <div className="flex gap-1 lg:w-96 lg:justify-start lg:gap-8">
+                            <Collection.List.DataPoint
+                              value={selectedTrend.floorPrice}
+                              icon={<Icon.Sol />}
+                              name={t('collection:globalFloor')}
+                              status={
+                                <Collection.List.DataPoint.Status
+                                  value={selectedTrend.floorPriceChange}
+                                />
+                              }
+                            />
+                            <Collection.List.DataPoint
+                              value={selectedTrend.volume}
+                              icon={<Icon.Sol />}
+                              name={volumeLabel}
+                              status={
+                                <Collection.List.DataPoint.Status
+                                  value={selectedTrend.volumeChange}
+                                />
+                              }
+                            />
+                            <Collection.List.DataPoint
+                              value={selectedTrend.listedCount}
+                              name={t('collection:listings')}
+                              status={
+                                <Collection.List.DataPoint.Status
+                                  value={selectedTrend.listedCountChange}
+                                />
+                              }
+                            />
+                          </div>
+                        </Collection.List.Col>
+                      </a>
+                    </Link>
+                    <Collection.List.Col className="hidden gap-4 lg:flex">
+                      <Collection.List.NftPreview collection={trend.collection?.id} />
+                    </Collection.List.Col>
+                  </Collection.List.Row>
+                );
+              })
             )}
           </Collection.List>
           <Button
@@ -440,6 +397,8 @@ const Home: NextPage = () => {
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
             color={ButtonColor.Gradient}
+            loading={loadingMore}
+            disabled={loadingMore}
           >
             {t('collection:showMoreCollections')}
           </Button>
