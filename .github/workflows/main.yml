@@ -36,11 +36,12 @@ jobs:
           git_branch=${GITHUB_REF##*/}
           solana_endpoint="https://holaplex-main-9e4a.mainnet.rpcpool.com"
 
-          #if [ $git_branch == 'main' ];then
-          #  graphql_endpoint="https://graph.holaplex.com/v1"
-          # else
+          if [ $git_branch == 'main' ];then
+            # Replace for prod endpoint after indexer/graphql release
             graphql_endpoint="https://graph.dev.holaplex.tools/v1/graphql"
-          #fi
+          else
+            graphql_endpoint="https://graph.dev.holaplex.tools/v1/graphql"
+          fi
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
           #build
           docker build -t $image_tag  \
