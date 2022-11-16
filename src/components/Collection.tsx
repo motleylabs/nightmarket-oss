@@ -311,7 +311,7 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
     >
       {Math.abs(value)}%
       <ArrowUpIcon
-        className={clsx(clsx, 'h-3 w-3', {
+        className={clsx(clsx, 'h-2 w-2 md:h-3 md:w-3', {
           'rotate-180 transform': value < 0,
           'rotate-0 transform': value >= 0,
         })}
