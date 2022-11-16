@@ -107,7 +107,7 @@ function SearchInput({
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!e.ctrlKey) return;
+    if (!e.metaKey) return;
     switch (e.key) {
       case 'k':
         e.preventDefault();

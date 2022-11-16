@@ -166,7 +166,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="container mx-auto px-6 pb-28 md:px-24">
+      <main className="container mx-auto px-4 pb-28 lg:px-24">
         <Hero>
           <Hero.Main>
             <Hero.Title>{t('hero.title')}</Hero.Title>
@@ -210,7 +210,7 @@ const Home: NextPage = () => {
             <Hero.Preview
               imgUrlTemp="https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png"
               nft={nfts[0]}
-              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
+              className="absolute bottom-1/2 right-0 -mb-20 hidden lg:-mb-14 lg:block"
               hPosition="right"
               vPosition="bottom"
             />
@@ -344,11 +344,13 @@ const Home: NextPage = () => {
                           <img
                             src={trend.collection?.image}
                             alt={trend.collection?.name}
-                            className="relative aspect-square w-16 rounded-lg object-cover md:w-12"
+                            className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
                           />
                         </Collection.List.Col>
                         <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center lg:gap-8">
-                          <div className="w-full md:w-32 lg:w-40">{trend.collection?.name}</div>
+                          <div className="w-full line-clamp-2 md:w-24 xl:w-36">
+                            {trend.collection?.name}
+                          </div>
                           <div className="flex gap-1 lg:w-96 lg:justify-start lg:gap-8">
                             <Collection.List.DataPoint
                               value={selectedTrend.floorPrice}
@@ -383,7 +385,7 @@ const Home: NextPage = () => {
                         </Collection.List.Col>
                       </a>
                     </Link>
-                    <Collection.List.Col className="hidden gap-4 lg:flex">
+                    <Collection.List.Col className="hidden gap-4 md:flex">
                       <Collection.List.NftPreview collection={trend.collection?.id} />
                     </Collection.List.Col>
                   </Collection.List.Row>

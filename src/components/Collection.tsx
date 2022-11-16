@@ -286,12 +286,13 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
 
   return (
     <>
-      <div className="hidden gap-4 lg:flex">
+      <div className="hidden gap-4 md:flex">
+        {/* <div className="m-0.5 h-16 w-16 animate-pulse rounded-lg bg-gray-700 flex" /> */}
         {nftPreviewQuery.loading ? (
           <>
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
@@ -310,13 +311,34 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
       <div className="hidden gap-4 xl:flex">
         {nftPreviewQuery.loading ? (
           <>
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            {/* <div className="h-16 w-16 animate-pulse p-0.5 rounded-lg bg-gray-700 flex" /> */}
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
-            .slice(3, 6)
+            .slice(3, 5)
+            .map((nft) => (
+              <Collection.List.ShowcaseNft
+                key={nft.mintAddress}
+                mintAddress={nft.mintAddress}
+                image={nft.image}
+                name={nft.name}
+                price={undefined}
+              />
+            ))
+        )}
+      </div>
+      <div className="hidden gap-4 2xl:flex">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            {/* <div className="h-16 w-16 animate-pulse p-0.5 rounded-lg bg-gray-700 flex" /> */}
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(5, 7)
             .map((nft) => (
               <Collection.List.ShowcaseNft
                 key={nft.mintAddress}
@@ -355,7 +377,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
-      <div className="flex flex-col justify-start gap-2 sm:w-32 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-start gap-2 sm:w-28 sm:flex-row sm:items-center">
         <p className="flex items-center text-sm font-semibold md:text-base">
           {icon}
           {value}
@@ -411,8 +433,8 @@ function CollectionListShowcaseNft({
   return (
     <Link href={`/nfts/${mintAddress}`} passHref>
       <a>
-        <div className=" flex w-16 flex-col items-center">
-          <div className=" rounded-lg p-0.5 hover:bg-gradient-primary">
+        <div className="flex w-16 flex-col items-center">
+          <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
             <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
           </div>
           {price && (
