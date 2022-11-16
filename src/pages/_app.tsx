@@ -464,13 +464,6 @@ function MobileNavMenu({
                   </a>
                 </Link>
               </section>
-              <section className="flex flex-col" id="mobile-nav">
-                <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
-                    {t('navigation.collections')}
-                  </a>
-                </Link>
-              </section>
 
               <section
                 className="mt-auto mb-4 flex flex-col justify-end gap-4"
@@ -510,13 +503,6 @@ function MobileNavMenu({
             </>
           ) : (
             <>
-              <section className="flex flex-col" id="mobile-nav">
-                <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
-                    {t('navigation.collections')}
-                  </a>
-                </Link>
-              </section>
               <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
                 <Button className="w-full font-semibold" onClick={onLogin}>
                   {t('connect')}
