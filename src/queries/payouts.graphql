@@ -10,6 +10,7 @@ query PayoutsQuery($address: String!, $limit: Int!, $offset: Int!) @cached(ttl: 
         totalRewards @client
         createdAt
         nft {
+          mintAddress
           image
         }
       }

@@ -628,22 +628,24 @@ const client = new ApolloClient({
       RewardPayout: {
         keyFields: ['purchaseTicket'],
         fields: {
-          read(_, { readField }) {
-            const buyerReward: BN | undefined = readField('buyerReward');
-            const sellerReward: BN | undefined = readField('sellerReward');
+          totalRewards: {
+            read(_, { readField }) {
+              const buyerReward: BN | undefined = readField('buyerReward');
+              const sellerReward: BN | undefined = readField('sellerReward');
 
-            if (!buyerReward && !sellerReward) {
-              return asCompactNumber(0);
-            }
+              if (!buyerReward && !sellerReward) {
+                return asCompactNumber(0);
+              }
 
-            var totalRewards = 0;
-            if (buyerReward) totalRewards += buyerReward.toNumber();
-            if (sellerReward) totalRewards += sellerReward.toNumber();
+              var totalRewards = 0;
+              if (buyerReward) totalRewards += buyerReward.toNumber();
+              if (sellerReward) totalRewards += sellerReward.toNumber();
 
-            var unitDecimals = Math.pow(10, 9);
-            totalRewards = Math.round(totalRewards / unitDecimals);
+              var unitDecimals = Math.pow(10, 9);
+              totalRewards = Math.round(totalRewards / unitDecimals);
 
-            return asCompactNumber(totalRewards);
+              return asCompactNumber(totalRewards);
+            },
           },
         },
       },
