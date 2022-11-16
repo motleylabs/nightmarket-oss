@@ -256,9 +256,9 @@ const Home: NextPage = () => {
           </div>
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
-          <header className={'mb-10 flex w-full flex-col justify-between gap-4 md:flex-row'}>
+          <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
             <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-4">
               <Controller
                 control={control}
                 name="filter"

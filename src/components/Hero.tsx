@@ -97,9 +97,9 @@ const HeroPreview = ({
           }
         )}
       >
-        <span className="truncate text-xs text-gray-500">Sold 1min ago</span>
-        <span className=" text-xs text-orange-600 lg:text-sm ">+22 SAUCE</span>
-        <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
+        <span className="truncate text-sm text-gray-500">Sold 1min ago</span>
+        <span className="text-sm text-orange-600 lg:text-sm ">+22 SAUCE</span>
+        <span className=" truncate text-sm text-gray-500">to buyer and seller</span>
       </div>
     </div>
   );

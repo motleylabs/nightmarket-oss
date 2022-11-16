@@ -314,12 +314,12 @@ function ProfilePopover(props: { wallet: Wallet }) {
               </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link href={`/profiles/${props.wallet.address}/collected`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800">
                     {t('profileMenu.collected')}
                   </a>
                 </Link>
                 <Link href={`/profiles/${props.wallet.address}/activity`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800">
                     {t('profileMenu.activity')}
                   </a>
                 </Link>
@@ -451,7 +451,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   passHref
                 >
-                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-sm hover:bg-gray-800">
                     {t('profileMenu.collected')}
                   </a>
                 </Link>
@@ -459,15 +459,8 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
                   passHref
                 >
-                  <a className="flex cursor-pointer py-2 text-xs hover:bg-gray-800">
+                  <a className="flex cursor-pointer py-2 text-sm hover:bg-gray-800">
                     {t('profileMenu.activity')}
-                  </a>
-                </Link>
-              </section>
-              <section className="flex flex-col" id="mobile-nav">
-                <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
-                    {t('navigation.collections')}
                   </a>
                 </Link>
               </section>
@@ -510,13 +503,6 @@ function MobileNavMenu({
             </>
           ) : (
             <>
-              <section className="flex flex-col" id="mobile-nav">
-                <Link href={'/collections'}>
-                  <a className="flex w-full transform rounded-md py-4 text-base font-semibold text-white hover:bg-gray-800">
-                    {t('navigation.collections')}
-                  </a>
-                </Link>
-              </section>
               <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
                 <Button className="w-full font-semibold" onClick={onLogin}>
                   {t('connect')}

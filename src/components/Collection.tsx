@@ -252,7 +252,7 @@ interface CollectionListRowProps {
 }
 function CollectionListRow({ children }: CollectionListRowProps) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
+    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 xl:gap-7">
       {children}
     </div>
   );
@@ -385,7 +385,7 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
     >
       {Math.abs(value)}%
       <ArrowUpIcon
-        className={clsx(clsx, 'h-3 w-3', {
+        className={clsx(clsx, 'h-2 w-2 md:h-3 md:w-3', {
           'rotate-180 transform': value < 0,
           'rotate-0 transform': value >= 0,
         })}

@@ -130,8 +130,8 @@ export default function ProfileActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div className="hidden md:block" />
-        <div className="col-span-2 md:col-span-1">
+        <div className="block" />
+        <div className="flex justify-end">
           <Controller
             control={control}
             name="type"
@@ -140,7 +140,7 @@ export default function ProfileActivity(): JSX.Element {
                 value={value}
                 onChange={onChange}
                 options={activityFilterOptions}
-                className="col-span-2 w-36 md:col-span-1"
+                className="w-36"
               />
             )}
           />
