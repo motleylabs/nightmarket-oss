@@ -36,7 +36,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     query: WalletProfileQuery,
     variables: {
       address: params?.address,
-      auctionHouse: config.auctionHouseAddress,
+      auctionHouse: config.auctionHouse,
     },
   });
 
