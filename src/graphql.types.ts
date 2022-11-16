@@ -681,6 +681,7 @@ export type LastSale = {
   createdAt?: Maybe<Scalars['DateTimeUtc']>;
   price?: Maybe<Scalars['U64']>;
   purchase?: Maybe<Purchase>;
+  solPrice?: Maybe<Scalars['Int']>;
 };
 
 export type Listing = {

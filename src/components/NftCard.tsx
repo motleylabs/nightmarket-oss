@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import Icon from './Icon';
 
 interface NftCardProps {
   nft: Nft;
@@ -111,9 +112,13 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                   </Button>
                 </>
               ) : (
-                <>
-                  {/* TODO: last sale price */}
-                  <span className="text-lg"></span>
+                <div className="flex w-full items-center justify-between gap-1">
+                  {nft.lastSale?.price && (
+                    <span className="flex gap-1 text-sm text-gray-300">
+                      {t('lastSale')} <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                      {nft.lastSale?.solPrice}
+                    </span>
+                  )}
                   <Button
                     onClick={onMakeOffer}
                     border={ButtonBorder.Gray}
@@ -122,7 +127,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                   >
                     {t('offer')}
                   </Button>
-                </>
+                </div>
               )}
             </>
           )}
