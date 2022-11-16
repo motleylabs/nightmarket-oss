@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import { TrendingCollectionsQuery } from './../queries/trending.graphql';
+import TrendingCollectionQuery from './../queries/trending.graphql';
+import PayoutsQuery from './../queries/payouts.graphql';
 import { useQuery } from '@apollo/client';
 import { Collection } from '../components/Collection';
 import {
@@ -12,6 +13,7 @@ import {
   CollectionTrend,
   OrderDirection,
   Maybe,
+  AuctionHouse,
   Nft,
 } from '../graphql.types';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -65,6 +67,16 @@ interface TrendingCollectionsVariables {
   offset: number;
 }
 
+interface PayoutsData {
+  auctionHouse: AuctionHouse;
+}
+
+interface PayoutsVariables {
+  address: String;
+  limit: number;
+  offset: number;
+}
+
 interface SelectedTrend {
   listedCount: Maybe<string> | undefined;
   listedCountChange: Maybe<number> | undefined;
@@ -112,8 +124,17 @@ const Home: NextPage = () => {
   const timeFrame = watch('filter');
   const sortType = watch('sort');
 
+  const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
+    variables: {
+      address: config.auctionHouse as string,
+      limit: 3,
+      offset: 0,
+    },
+    pollInterval: 2000,
+  });
+
   const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(
-    TrendingCollectionsQuery,
+    TrendingCollectionQuery,
     {
       variables: {
         sortBy: DEFAULT_SORT,
@@ -157,7 +178,7 @@ const Home: NextPage = () => {
     };
 
     trendingCollectionsQuery.refetch(variables);
-  }, [sortType, timeFrame]);
+  }, [sortType, timeFrame, trendingCollectionsQuery]);
 
   return (
     <>
@@ -192,29 +213,7 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside>
-            <Hero.Preview
-              imgUrlTemp="https://img.freepik.com/free-vector/hand-drawn-nft-style-ape-illustration_23-2149611030.jpg?w=2000"
-              nft={nfts[0]}
-              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
-              hPosition="left"
-              vPosition="bottom"
-            />
-            <Hero.Preview
-              imgUrlTemp="https://metadata.degods.com/g/3097.png"
-              nft={nfts[0]}
-              className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
-              hPosition="left"
-              vPosition="top"
-            />
-            <Hero.Preview
-              imgUrlTemp="https://assets.holaplex.tools/ipfs/bafybeickme6bmkora47xisln47mz5wckpcx7pjvotouo37dpkdyzcznxvm?width=400&path=2503.png"
-              nft={nfts[0]}
-              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
-              hPosition="right"
-              vPosition="bottom"
-            />
-          </Hero.Aside>
+          <Hero.Aside payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts} />
         </Hero>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
