@@ -41,6 +41,16 @@ query TrendingCollectionsQuery(
       name
       description
       image(width: 100)
+      nfts(limit: 6, offset: 0, sortBy: LISTED_AT, order: DESC) {
+        name
+        mintAddress
+        image(width: 100)
+        listings {
+          id
+          createdAt
+          price
+        }
+      }
     }
   }
 }

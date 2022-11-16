@@ -174,6 +174,7 @@ function nftMarketplace(item: {
 const client = new ApolloClient({
   uri: config.graphqlUrl,
   typeDefs,
+
   cache: new InMemoryCache({
     typePolicies: {
       Query: {

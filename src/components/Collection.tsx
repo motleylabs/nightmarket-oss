@@ -208,7 +208,7 @@ Collection.List = CollectionList;
 
 function CollectionListLoading() {
   return (
-    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
+    <div className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
       {/* Collection Image */}
       <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
@@ -250,11 +250,9 @@ interface CollectionListRowProps {
 }
 function CollectionListRow({ children, id }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${id}`}>
-      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
-        {children}
-      </a>
-    </Link>
+    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
+      {children}
+    </div>
   );
 }
 
@@ -323,31 +321,43 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
 CollectionListDataPoint.Status = CollectionListDataPointStatus;
 
 interface CollectionListShowcaseNftProps {
+  mintAddress: string;
   image: string;
   name: string;
-  price: number;
+  price?: number;
 }
-function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
+function CollectionListShowcaseNft({
+  mintAddress,
+  image,
+  name,
+  price,
+}: CollectionListShowcaseNftProps) {
   return (
-    <div className=" flex w-16 flex-col items-center">
-      <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
-        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+    <Link href={`/nfts/${mintAddress}`} passHref>
+      <a>
+        <div className=" flex w-16 flex-col items-center">
+          <div className=" rounded-lg p-0.5 hover:bg-gradient-primary">
+            <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
+          </div>
+          {price && (
+            <div className="group ">
+              <Button
+                icon={<Icon.Sol className="h-3 w-3" />}
+                color={ButtonColor.Gray}
+                background={ButtonBackground.Slate}
+                size={ButtonSize.Tiny}
+                className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+              >
+                {price}
+              </Button>
+              <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+                Buy
+              </Button>
+            </div>
+          )}
+        </div>
       </a>
-      <div className="group ">
-        <Button
-          icon={<Icon.Sol className="h-3 w-3" />}
-          color={ButtonColor.Gray}
-          background={ButtonBackground.Slate}
-          size={ButtonSize.Tiny}
-          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-        >
-          {price}
-        </Button>
-        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-          Buy
-        </Button>
-      </div>
-    </div>
+    </Link>
   );
 }
 

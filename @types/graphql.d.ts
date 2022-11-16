@@ -117,6 +117,7 @@ declare module '*/trending.graphql' {
   import { DocumentNode } from 'graphql';
   const defaultDocument: DocumentNode;
   export const TrendingCollectionsQuery: DocumentNode;
+export const TrendingCollectionsWithNFTsQuery: DocumentNode;
 
   export default defaultDocument;
 }
