@@ -1,5 +1,5 @@
 import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
-import { Wallet } from '../graphql.types';
+import { AuctionHouse, Wallet } from '../graphql.types';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
@@ -10,6 +10,7 @@ import { useCurrencies } from '../hooks/currencies';
 import Icon from '../components/Icon';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
+import config from '../app.config';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -17,11 +18,13 @@ export interface WalletProfileData {
 
 export interface WalletProfileVariables {
   address: string;
+  rewardCenter: string;
 }
 
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
@@ -37,7 +40,7 @@ function ProfileFigure(props: { figure: ReactNode; label: string; loading: boole
   );
 }
 
-function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
+function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
   const router = useRouter();
@@ -50,10 +53,10 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     {
       variables: {
         address: address as string,
+        rewardCenter: auctionHouse.rewardCenter?.address as string,
       },
     }
   );
-
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
@@ -137,7 +140,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
-                824
+                {walletProfileClientQuery.data?.wallet.totalRewards}
               </div>
             }
           />
