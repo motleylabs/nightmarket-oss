@@ -81,6 +81,11 @@ interface SearchInputProps {
   autofocus?: boolean;
 }
 
+const getOs = () => {
+  const os = ['Win32', 'Mac']; // add your OS values
+  return os.find((v) => (global as any).window?.navigator.platform.indexOf(v) >= 0);
+};
+
 function SearchInput({
   onChange,
   onFocus,
@@ -91,10 +96,15 @@ function SearchInput({
 }: SearchInputProps): JSX.Element {
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-  });
+    const os = getOs();
+    if (os === 'Win32') {
+      setSearchKeyboardPrompt('CTRL + K');
+    }
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (!e.ctrlKey) return;
@@ -133,10 +143,10 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
-      <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
-        <span className="hidden h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
-          K
-        </span>
+      <button className="pointer-events-none absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
+        <kbd className=" hidden h-6 items-center justify-center rounded bg-gray-800 px-2 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
+          {searchKeyboardPrompt}
+        </kbd>
       </button>
     </div>
   );
