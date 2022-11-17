@@ -55,7 +55,7 @@ export default function Drop({
             </p>
           </li>
           {/* Will be added in later */}
-          {/* <li className="flex    min-w-[92px] flex-col items-start whitespace-nowrap">
+          {/* <li className="flex min-w-[92px] flex-col items-start whitespace-nowrap">
             <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
             <p className="text-sm  font-semibold md:text-base">
               {days}d {hours}h {minutes}m {seconds}s

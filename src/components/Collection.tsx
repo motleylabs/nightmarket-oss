@@ -295,9 +295,8 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(0, 2)
-            .map((nft, i) => (
+            .map((nft) => (
               <Collection.List.ShowcaseNft
-                i={i}
                 key={nft.mintAddress}
                 mintAddress={nft.mintAddress}
                 image={nft.image}
@@ -307,7 +306,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
             ))
         )}
       </div>
-      <div className="hidden justify-end gap-2 lg:gap-4 xl:flex">
+      <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
         {nftPreviewQuery.loading ? (
           <>
             <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
@@ -317,9 +316,8 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(2, 5)
-            .map((nft, i) => (
+            .map((nft) => (
               <Collection.List.ShowcaseNft
-                i={i + 2}
                 key={nft.mintAddress}
                 mintAddress={nft.mintAddress}
                 image={nft.image}
@@ -338,9 +336,8 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(5, 7)
-            .map((nft, i) => (
+            .map((nft) => (
               <Collection.List.ShowcaseNft
-                i={i + 5}
                 key={nft.mintAddress}
                 mintAddress={nft.mintAddress}
                 image={nft.image}
@@ -423,14 +420,12 @@ interface CollectionListShowcaseNftProps {
   image: string;
   name: string;
   price?: number;
-  i: number;
 }
 function CollectionListShowcaseNft({
   mintAddress,
   image,
   name,
   price,
-  i,
 }: CollectionListShowcaseNftProps) {
   return (
     <Link href={`/nfts/${mintAddress}`} passHref>
@@ -438,7 +433,6 @@ function CollectionListShowcaseNft({
         <div className="flex w-16 flex-col items-center">
           <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
             <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-            {/* {i} */}
           </div>
           {price && (
             <div className="group ">
