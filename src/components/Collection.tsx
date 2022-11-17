@@ -291,7 +291,6 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
           <>
             <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
@@ -307,9 +306,10 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
             ))
         )}
       </div>
-      <div className="hidden justify-end gap-2 lg:gap-4 xl:flex">
+      <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
         {nftPreviewQuery.loading ? (
           <>
+            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
@@ -335,7 +335,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
-            .slice(5, 8)
+            .slice(5, 7)
             .map((nft) => (
               <Collection.List.ShowcaseNft
                 key={nft.mintAddress}
