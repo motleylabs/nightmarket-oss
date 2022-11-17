@@ -19,6 +19,8 @@ import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import config from '../app.config';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
+import { asCompactNumber } from '../modules/number';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -80,6 +82,19 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     return offer || null;
   }, [data?.nft.offers, publicKey]);
+  const rewardCenter = listing?.auctionHouse?.rewardCenter;
+  const rewards = useMemo(
+    () =>
+      listing && rewardCenter
+        ? buyerSellerRewards(
+            listing.price,
+            rewardCenter.mathematicalOperand,
+            rewardCenter.payoutNumeral,
+            rewardCenter.sellerRewardPayoutBasisPoints
+          )
+        : { buyerRewards: 0, sellerRewards: 0 },
+    [listing, rewardCenter]
+  );
 
   const {
     makeOffer,
@@ -459,7 +474,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -538,7 +553,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -603,7 +618,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span>
+                    <span className="flex flex-row items-center justify-center">
                       <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -664,7 +679,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  <p className="text-primary-700">{400} SAUCE</p>
+                  {listing && isOwner && (
+                    <p className="text-primary-700">
+                      {asCompactNumber(rewards.sellerRewards)} $SAUCE
+                    </p>
+                  )}
+                  {listing && !isOwner && (
+                    <p className="text-primary-700">
+                      {asCompactNumber(rewards.buyerRewards)} $SAUCE
+                    </p>
+                  )}
                 </span>
               </div>
             )}

@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
 import { viewerVar } from './cache';
@@ -19,8 +20,8 @@ import {
   Maybe,
   Offer,
   Nft,
+  Datapoint,
 } from './graphql.types';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
 import { asCompactNumber } from './modules/number';
@@ -172,7 +173,11 @@ function nftMarketplace(item: {
 }
 
 const client = new ApolloClient({
-  uri: config.graphqlUrl,
+  link: new BatchHttpLink({
+    uri: config.graphqlUrl,
+    batchMax: 5,
+    batchInterval: 20,
+  }),
   typeDefs,
   cache: new InMemoryCache({
     typePolicies: {
@@ -216,6 +221,20 @@ const client = new ApolloClient({
           shortAddress: {
             read: asShortAddress,
           },
+          totalRewards: {
+            read(value) {
+              const unitRewards = asBN(value);
+
+              if (!unitRewards) {
+                return asCompactNumber(0);
+              }
+              var unitDecimals = Math.pow(10, 9);
+              const rewards = Math.round(unitRewards.toNumber() / unitDecimals);
+
+              return asCompactNumber(rewards);
+            },
+          },
+
           compactFollowingCount: {
             read(_, { readField }) {
               const connectionCounts: ConnectionCounts | undefined = readField('connectionCounts');
@@ -442,13 +461,22 @@ const client = new ApolloClient({
           },
         },
       },
+      Pricepoint: {
+        fields: {
+          value: {
+            read: asBN,
+          },
+        },
+      },
       CollectedCollection: {
         fields: {
           estimatedValue: {
             read(value) {
-              const lamports = asBN(value);
+              if (!value) {
+                return '0';
+              }
 
-              return (lamports.toNumber() / LAMPORTS_PER_SOL).toFixed(1);
+              return asCompactNumber(toSol(parseInt(value)));
             },
           },
         },
@@ -531,6 +559,16 @@ const client = new ApolloClient({
           },
         },
       },
+      LastSale: {
+        fields: {
+          price: {
+            read: asBN,
+          },
+          solPrice: {
+            read: asSOL,
+          },
+        },
+      },
       Creator: {
         keyFields: ['address'],
       },
@@ -590,6 +628,53 @@ const client = new ApolloClient({
           },
         },
       },
+      Datapoint: {
+        fields: {
+          amount: {
+            read(amount: number): number {
+              return amount;
+            },
+          },
+        },
+      },
+      Timeseries: {
+        fields: {
+          floorPrice: {
+            read(floorPrice: Datapoint[]): Datapoint[] {
+              const datapoints = floorPrice?.map((point: Datapoint) => {
+                const amount = toSol(parseInt(point.value));
+
+                return {
+                  ...point,
+                  amount,
+                };
+              });
+
+              return datapoints || [];
+            },
+          },
+          listedCount: {
+            read(listedCount: Datapoint[]): Datapoint[] {
+              const datapoints = listedCount?.map((point: Datapoint) => ({
+                ...point,
+                amount: parseInt(point.value),
+              }));
+
+              return datapoints || [];
+            },
+          },
+          holderCount: {
+            read(holderCount: Datapoint[]): Datapoint[] {
+              const datapoints = holderCount?.map((point: Datapoint) => ({
+                ...point,
+                amount: parseInt(point.value),
+              }));
+
+              return datapoints || [];
+            },
+          },
+        },
+      },
       Offer: {
         keyFields: ['id'],
         fields: {
@@ -622,6 +707,30 @@ const client = new ApolloClient({
       },
       NftAttribute: {
         keyFields: ['traitType', 'value'],
+      },
+      RewardPayout: {
+        keyFields: ['purchaseTicket'],
+        fields: {
+          totalRewards: {
+            read(_, { readField }) {
+              const buyerReward: BN | undefined = readField('buyerReward');
+              const sellerReward: BN | undefined = readField('sellerReward');
+
+              if (!buyerReward && !sellerReward) {
+                return asCompactNumber(0);
+              }
+
+              var totalRewards = 0;
+              if (buyerReward) totalRewards += buyerReward.toNumber();
+              if (sellerReward) totalRewards += sellerReward.toNumber();
+
+              var unitDecimals = Math.pow(10, 9);
+              totalRewards = Math.round(totalRewards / unitDecimals);
+
+              return asCompactNumber(totalRewards);
+            },
+          },
+        },
       },
     },
   }),

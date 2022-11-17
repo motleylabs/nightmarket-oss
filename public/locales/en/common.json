@@ -6,7 +6,7 @@
   "cancel": "Cancel",
   "unfollow": "Unfollow",
   "connect": "Connect",
-  "filters": "Collections",
+  "filters": "Filters",
   "buy": "Buy",
   "all": "Show all",
   "listed": "Listed",
@@ -60,6 +60,7 @@
   "offer": "Offer",
   "update": "Update",
   "list": "List",
+  "lastSale": "Last sale",
   "viewProfile": "View profile",
   "switchWallet": "Switch wallet",
   "disconnectWallet": "Disconnect wallet"

@@ -6,7 +6,7 @@ import ProfileLayout, {
 } from '../../../layouts/ProfileLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Wallet } from '../../../graphql.types';
+import { AuctionHouse, Wallet } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
@@ -25,20 +25,22 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import Select from '../../../components/Select';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
 
   const {
-    data: { wallet },
+    data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
     variables: {
       address: params?.address,
+      auctionHouse: config.auctionHouse,
     },
   });
 
-  if (wallet === null) {
+  if (wallet === null || auctionHouse === null) {
     return {
       notFound: true,
     };
@@ -47,6 +49,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       wallet,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -72,6 +75,7 @@ interface CollectionNFTsVariables {
   address: string;
   offset: number;
   limit: number;
+  auctionHouse: string;
   collections?: (string | undefined)[] | null | undefined;
 }
 
@@ -103,6 +107,7 @@ export default function ProfileCollected({
       offset: 0,
       limit: 24,
       address: router.query.address as string,
+      auctionHouse: config.auctionHouse,
     },
   });
 
@@ -112,6 +117,7 @@ export default function ProfileCollected({
         offset: 0,
         limit: 24,
         address: router.query.address as string,
+        auctionHouse: config.auctionHouse,
         collections,
       };
 
@@ -144,7 +150,7 @@ export default function ProfileCollected({
               value={value}
               onChange={onChange}
               options={nftListedFilterOptions}
-              className="w-36"
+              className="w-full md:w-36"
             />
           )}
         />
@@ -266,11 +272,17 @@ export default function ProfileCollected({
 interface CollectionNftsLayout {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 ProfileCollected.getLayout = function ProfileCollectedLayout({
   children,
   wallet,
+  auctionHouse,
 }: CollectionNftsLayout): JSX.Element {
-  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
+  return (
+    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
+      {children}
+    </ProfileLayout>
+  );
 };

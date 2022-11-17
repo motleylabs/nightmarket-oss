@@ -8,29 +8,6 @@ export function Sidebar(): JSX.Element {
   return <div></div>;
 }
 
-interface SidebarFilterIconProps {
-  className?: string;
-}
-function SidebarFilterIcon({ className }: SidebarFilterIconProps) {
-  return (
-    <svg
-      viewBox={`0 0 24 24`}
-      className={className}
-      stroke="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 12H18M3 6H21M9 18H15"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-Sidebar.FilterIcon = SidebarFilterIcon;
-
 interface SidebarControlProps {
   label: string;
   open: boolean;
@@ -51,7 +28,7 @@ function SidebarControl({ open, label, onChange, disabled }: SidebarControlProps
         disabled={disabled}
         onClick={onChange}
       >
-        <span className="">{label}</span>
+        <span className="pl-2">{label}</span>
         <ChevronRightIcon
           className={clsx(
             'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
@@ -93,26 +70,29 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-10 flex-shrink-0 overflow-y-auto bg-black px-4 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0',
+          'fixed inset-0 z-50 flex-shrink-0 overflow-y-auto bg-black px-4 pb-24 pt-12 md:sticky md:top-[74px] md:max-h-[calc(100vh-74px)] md:px-0 md:pt-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'
         )}
       >
-        <div className="flex w-full justify-between px-2 pt-4 pb-2  md:hidden">
-          <Sidebar.FilterIcon className={clsx('h-6 w-6')} />
-          {t('filters')}
-          <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
-        </div>
         {children}
       </aside>
+
       {open && (
         // Fixes stacking order
-        <div className="fixed  bottom-8 left-4 right-4 z-30 md:hidden">
-          <Button onClick={onChange} className="w-full">
-            Done
-          </Button>
-        </div>
+        <>
+          <div className="fixed top-0 z-50 flex w-full items-center justify-between bg-black py-4 pr-8 pl-2 text-white md:hidden">
+            <div></div>
+            {t('filters')}
+            <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
+          </div>
+          <div className="fixed bottom-8 left-4 right-4 z-50 md:hidden">
+            <Button onClick={onChange} className="w-full">
+              Done
+            </Button>
+          </div>
+        </>
       )}
     </>
   );

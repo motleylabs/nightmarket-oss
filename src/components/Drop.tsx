@@ -28,43 +28,43 @@ export default function Drop({
   const { days, hours, minutes, seconds } = useCountdown(launchDate);
   const { t } = useTranslation('home');
   return (
-    <div className="flex max-w-5xl flex-col gap-6 rounded-2xl bg-gray-800 p-6 md:flex-row">
-      <div className="flex flex-row items-center gap-4 md:inline-block md:w-3/4 md:items-start">
+    <div className="w-full max-w-3xl flex-shrink-0 items-center  gap-6 rounded-2xl bg-gray-800 p-4 md:flex md:p-6">
+      <div className="flex flex-shrink-0 flex-row items-center gap-4 md:inline-block md:items-start">
         <img
           src={image}
           alt={`${title}-drop`}
-          className="aspect-square max-h-12 rounded-lg object-cover md:max-h-80 md:w-full"
+          className="aspect-square max-h-12  rounded-lg object-cover md:max-h-80 "
         />
         <h6 className="inline-block text-xl font-semibold md:hidden">{title}</h6>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
-        <p className="text-xs text-gray-300 md:text-base">{description}</p>
-        <ul className="flex flex-row flex-wrap items-center justify-between gap-4 sm:flex-nowrap md:justify-start">
-          <li className="flex w-20 flex-col items-start whitespace-nowrap md:w-32">
-            <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
-            {/* TODO: timer */}
-            <p className="text-sm  font-semibold md:text-base">
-              {days}d {hours}h {minutes}m {seconds}s
-            </p>
-          </li>
-          <li className="flex w-20 flex-col items-start md:w-auto">
+        <p className="mt-2 text-xs text-gray-300 md:text-base">{description}</p>
+        <ul className="mt-2 flex flex-row flex-wrap items-center gap-6  sm:flex-nowrap md:mt-6 md:justify-start md:gap-8">
+          <li className="flex    flex-col items-start ">
             <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>
           </li>
-          <li className="flex w-20 flex-col items-start md:w-auto">
+          <li className="flex    flex-col items-start ">
             <p className="text-xs font-light text-gray-300">{t('drops.supply')}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               {asCompactNumber(supply)}
             </p>
           </li>
-          {/* 
-          PS: Not removing this comment quite yet as we might want to go back to this structure
-          <li className="mt-4 flex w-full justify-end  md:hidden">
+          {/* Will be added in later */}
+          {/* <li className="flex min-w-[92px] flex-col items-start whitespace-nowrap">
+            <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
+            <p className="text-sm  font-semibold md:text-base">
+              {days}d {hours}h {minutes}m {seconds}s
+            </p>
+          </li> */}
+
+          <li className="flex items-center justify-end  md:hidden">
             <Button
+              size={ButtonSize.Small}
               className="w-full font-semibold"
               background={ButtonBackground.Slate}
               border={ButtonBorder.Gradient}
@@ -72,22 +72,18 @@ export default function Drop({
             >
               {t('drops.view')}
             </Button>
-          </li> */}
+          </li>
         </ul>
-        <div className="inline-block">
-          <Link href={link}>
-            <a target={'_self'}>
-              <Button
-                size={ButtonSize.Small}
-                className="inline-block w-full font-semibold md:w-auto"
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
-              >
-                {t('drops.details')}
-              </Button>
-            </a>
-          </Link>
+        <div className="mt-6 hidden md:inline-block">
+          <Button
+            className="inline-block w-full font-semibold md:w-auto"
+            background={ButtonBackground.Slate}
+            border={ButtonBorder.Gray}
+            color={ButtonColor.Gray}
+            disabled={true}
+          >
+            {t('drops.details')}
+          </Button>
         </div>
       </div>
     </div>

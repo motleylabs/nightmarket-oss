@@ -27,7 +27,6 @@ import Select from '../../../components/Select';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
-
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
@@ -83,9 +82,9 @@ interface CollectionNFTForm {
 }
 
 enum SortType {
-  RecentlyListed = 'RecentlyListed',
   PriceLowToHigh = 'PriceLowToHigh',
   PriceHighToLow = 'PriceHighToLow',
+  RecentlyListed = 'RecentlyListed',
 }
 interface SortOption {
   label: string;
@@ -102,7 +101,6 @@ export default function CollectionNfts() {
   const [hasMore, setHasMore] = useState(true);
 
   const sortOptions: SortOption[] = [
-    { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
     {
       value: SortType.PriceLowToHigh,
       label: t('sort.priceLowToHigh'),
@@ -111,6 +109,7 @@ export default function CollectionNfts() {
       value: SortType.PriceHighToLow,
       label: t('sort.priceHighToLow'),
     },
+    { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
   ];
 
   const { watch, control } = useForm<CollectionNFTForm>({
@@ -131,7 +130,7 @@ export default function CollectionNfts() {
       offset: 0,
       limit: 24,
       id: router.query.id as string,
-      order: OrderDirection.Desc,
+      order: OrderDirection.Asc,
       sortBy: NftSort.Price,
     },
   });
@@ -142,8 +141,8 @@ export default function CollectionNfts() {
         offset: 0,
         limit: 24,
         id: router.query.id as string,
-        sortBy: NftSort.Price,
-        order: OrderDirection.Asc,
+        sortBy: sortBySelect === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
+        order: sortBySelect === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc,
       };
 
       const nextAttributes = Object.entries(attributes || {}).reduce(
@@ -157,9 +156,7 @@ export default function CollectionNfts() {
         []
       );
 
-      if (nextAttributes.length > 0) {
-        variables.attributes = nextAttributes;
-      }
+      variables.attributes = nextAttributes;
 
       nftsQuery.refetch(variables).then(({ data: { collection } }) => {
         setHasMore(collection.nfts.length > 0);

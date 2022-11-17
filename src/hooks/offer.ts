@@ -919,8 +919,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       })
     );
 
-    // debugger;
-
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;

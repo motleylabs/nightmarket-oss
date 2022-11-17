@@ -29,6 +29,10 @@ extend type Purchase {
   solPrice: String
 }
 
+extend type Datapoint {
+  amount: Int
+}
+
 extend type Nft {
   shortAddress: String
   shortMintAddress: String
@@ -114,6 +118,14 @@ extend type MetadataJson {
   creatorDisplayName: String
 }
 
+extend type RewardPayout {
+  totalRewards: Int
+}
+
 extend type QueryRoot {
   viewer: Viewer
+}
+
+extend type LastSale {
+  solPrice: Int
 }
