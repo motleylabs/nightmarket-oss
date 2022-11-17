@@ -1,4 +1,4 @@
-# Night Market
+# Rewards center marketplace
 
 A Solana NFT marketplace built by the people for the people using opensource software by [Holaplex](https://holaplex.com/) and [Metaplex](https://metaplex.com/).
 
