@@ -15,7 +15,7 @@ export default function Select<T>(props: {
         <div className={clsx('relative', props.className)}>
           <Listbox.Button
             className={clsx(
-              'relative w-full cursor-pointer rounded-full border border-gray-800 bg-gray-800 py-4 pl-4 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
+              'relative w-full cursor-pointer rounded-full border border-gray-800 bg-gray-800 py-4 pl-5 pr-10 text-left text-base text-white shadow-md hover:border-white focus:outline-none focus-visible:border-gray-500 focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300',
               open && ''
             )}
           >
