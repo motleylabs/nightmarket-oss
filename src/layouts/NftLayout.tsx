@@ -710,7 +710,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             {!listing && (
               <div className="grid w-full grid-cols-12 gap-4 px-6 pb-6">
                 <div className="col-span-12 flex flex-row justify-start gap-4 text-gray-300 md:col-span-6">
-                  {(highestOffer || viewerOffer) && (
+                  {highestOffer || viewerOffer ? (
                     <>
                       {highestOffer && (
                         <div>
@@ -731,6 +731,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         </div>
                       )}
                     </>
+                  ) : nft.lastSale?.price ? (
+                    <div>
+                      {t('lastSale')}
+                      <span className="flex flex-row items-center justify-start">
+                        <Icon.Sol />
+                        {nft.lastSale?.solPrice}
+                      </span>
+                    </div>
+                  ) : (
+                    <></>
                   )}
                 </div>
                 <div className="col-span-12 md:col-span-6">
@@ -745,25 +755,15 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       </Button>
                     ))}
                   {notOwner && !listing && !viewerOffer && (
-                    <>
-                      {nft.lastSale?.price ? (
-                        <span className="flex gap-1 text-sm text-gray-300">
-                          {t('lastSale')} <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                          {nft.lastSale?.solPrice}
-                        </span>
-                      ) : (
-                        <div className="block" />
-                      )}
-                      <Button
-                        onClick={onOpenOffer}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                        block
-                      >
-                        {t('bid')}
-                      </Button>
-                    </>
+                    <Button
+                      onClick={onOpenOffer}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      block
+                    >
+                      {t('bid')}
+                    </Button>
                   )}
                   {viewerOffer && (
                     <Button
