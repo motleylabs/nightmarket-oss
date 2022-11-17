@@ -165,7 +165,7 @@ function NavigationBar() {
                         key={`search-collection-${collection.id}-${i}`}
                         image={collection.image || '/images/placeholder.png'}
                         name={collection.name}
-                        address={collection.id}
+                        slug={collection.id}
                       />
                     ));
                   }}
@@ -179,7 +179,7 @@ function NavigationBar() {
                         key={`search-profile-${wallet.address}-${i}`}
                         image={wallet.previewImage || '/images/placeholder.png'}
                         name={wallet.displayName}
-                        address={wallet.address}
+                        slug={wallet.address}
                       />
                     ));
                   }}
@@ -197,7 +197,7 @@ function NavigationBar() {
                         key={`search-wallet-${result?.address}`}
                         image={result.previewImage || '/images/placeholder.png'}
                         name={result.displayName}
-                        address={result.address}
+                        slug={result.address}
                       />
                     );
                   }}
@@ -210,9 +210,9 @@ function NavigationBar() {
                         nft={nft}
                         key={`search-mintAddress-${nft.address}-${i}`}
                         image={nft.image}
-                        address={nft.mintAddress}
                         name={nft.name}
                         creator={nft.creators[0]}
+                        slug={nft.mintAddress}
                       />
                     ));
                   }}

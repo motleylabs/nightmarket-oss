@@ -232,7 +232,7 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 Search.Group = SearchGroup;
 
 interface SearchResultProps {
-  address: string;
+  slug: string;
   image: string;
   name?: Maybe<string> | undefined;
   value: SearchResultItemType | MetadataJson;
@@ -247,16 +247,17 @@ function CollectionSearchResult({
   image,
   collection,
   value,
+  slug,
 }: CollectionSearchResultProps): JSX.Element {
   const router = useRouter();
 
   return (
     <Combobox.Option
-      key={`collection-${collection?.id}`}
+      key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${collection?.id}/nfts`);
-      }, [router, collection?.id])}
+        router.push(`/collections/${slug}/nfts`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -268,7 +269,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || collection?.id}
+              alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -288,7 +289,7 @@ interface MintAddressSearchResultProps extends SearchResultProps {
 
 function MintAddressSearchResult({
   creator,
-  address,
+  slug,
   name,
   image,
   nft,
@@ -298,11 +299,11 @@ function MintAddressSearchResult({
 
   return (
     <Combobox.Option
-      key={`nft-${address}`}
+      key={`nft-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/nfts/${address}`);
-      }, [router, address])}
+        router.push(`/nfts/${slug}`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -314,7 +315,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || address}
+              alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -340,7 +341,7 @@ interface ProfileSearchResultProps extends SearchResultProps {
 
 function ProfileSearchResult({
   image,
-  address,
+  slug,
   profile,
   value,
 }: ProfileSearchResultProps): JSX.Element | null {
@@ -348,11 +349,11 @@ function ProfileSearchResult({
 
   return (
     <Combobox.Option
-      key={`profile-${address}`}
+      key={`profile-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/profiles/${address}/collected`);
-      }, [router, address])}
+        router.push(`/profiles/${slug}/collected`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -365,7 +366,7 @@ function ProfileSearchResult({
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <img
                 src={image}
-                alt={`profile-${address}`}
+                alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />
             </div>
