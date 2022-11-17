@@ -29,12 +29,9 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     };
   }
 
-  // To bypass serialization issue
-  const parsedNft = JSON.parse(JSON.stringify(nft));
-
   return {
     props: {
-      nft: parsedNft,
+      nft,
       auctionHouse,
       ...i18n,
     },
