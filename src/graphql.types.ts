@@ -830,10 +830,6 @@ export type NftImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
 };
 
-export type NftViewerOfferArgs = {
-  address?: InputMaybe<Scalars['String']>;
-};
-
 export type NftActivity = {
   __typename?: 'NftActivity';
   activityType: Scalars['String'];
