@@ -84,10 +84,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
       <Overview>
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
-            <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
+            <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-800">
               <img
                 src={collection.image}
-                className="inline-block h-36 w-36 rounded-md shadow-xl md:h-36 md:w-36"
+                className="inline-block aspect-square h-36 w-36 rounded-md object-cover shadow-xl md:h-36 md:w-36"
                 alt="overview avatar"
               />
             </div>
