@@ -1,6 +1,25 @@
-# DAO Marketplace
+# Night Market
 
 A Solana NFT marketplace built by the people for the people using opensource software by [Holaplex](https://holaplex.com/) and [Metaplex](https://metaplex.com/).
+
+## Overview
+
+- `@types/*` - Auto-generated graphql typescript declarations.
+- `public/*` - Static assets including fonts, images and locales.
+- `src/components/*` - The different reusable components used throughout the app including Button, Icon, Avatar, Form, List, NftCard etc.
+- `src/hooks/*` - Useful hooks used throught the app.
+- `src/layouts/*` - The different layouts used by pages.
+- `src/modules/*` - Various helper methods and utilities worthy of converting to a helper library.
+- `src/pages/*` - Contains all the app's pages.
+- `src/providers/*` - Providers to provide context at various places.
+- `src/queries/*` - All the graphql queries segregated by pages or components.
+- `src/queries/fragments/*` - Reusable graphql query fragments.
+- `src/app.config.ts` - Global config values used throughout the app like app's base url, graphql url, solana rpc url, market's auctionhouse address etc.
+- `src/cache.ts` - Contains cache data used by graphql client.
+- `src/client.ts` - Apollo Graphql Client
+- `src/graphql.types.ts` - Auto-generated graphql types.
+- `styles/globals.css` - A small amount of global styles since the app mostly make use of vanilla Tailwind CSS.
+- `local.graphql` - Type extensions for graphql types.
 
 ## Getting Started
 
