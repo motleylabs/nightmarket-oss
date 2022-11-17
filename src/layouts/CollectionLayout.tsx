@@ -64,7 +64,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 alt="overview avatar"
               />
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 md:mt-2">
               <Overview.Title>{collection.name}</Overview.Title>
               <p
                 className={clsx(
