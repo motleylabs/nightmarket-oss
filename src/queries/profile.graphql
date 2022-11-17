@@ -19,7 +19,7 @@ query WalletProfileQuery($address: PublicKey!, $auctionHouse: String!) @cached(t
   }
 }
 
-query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) @client(ttl: 120) {
+query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) @cached(ttl: 120) {
   wallet(address: $address) {
     address
     totalRewards(rewardCenter: $rewardCenter)
@@ -74,8 +74,8 @@ query ProfileActivitiesQuery(
   $eventTypes: [String!]
   $limit: Int = 25
   $offset: Int = 0
-) {
-  wallet(address: $address) @cached(ttl: 120) {
+) @cached(ttl: 120) {
+  wallet(address: $address) {
     address
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
       id

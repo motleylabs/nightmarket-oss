@@ -246,10 +246,9 @@ export default function useBuyNow(): BuyContext {
             },
             'confirmed'
           );
-          console.log(`confirmed`);
         }
       } catch (err) {
-        console.log('Error whilst purchasing from a listing', err);
+        console.error('Error whilst purchasing from a listing', err);
       } finally {
         setBuy(true);
       }

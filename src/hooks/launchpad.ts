@@ -217,10 +217,9 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
           },
           'confirmed'
         );
-        console.log(`Successfully minted`);
       }
     } catch (err) {
-      console.log('Error whilst minting', err);
+      console.error('Error whilst minting', err);
     } finally {
       await fetchCandyMachine();
       setIsMinting(false);

@@ -10,7 +10,6 @@ import { useCurrencies } from '../hooks/currencies';
 import Icon from '../components/Icon';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
-import config from '../app.config';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -25,6 +24,12 @@ interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
   auctionHouse: AuctionHouse;
+}
+
+enum ProfilePath {
+  Collected = '/profiles/[address]/collected',
+  Offers = '/profiles/[address]/offers',
+  Activity = '/profiles/[address]/activity',
 }
 
 function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
@@ -150,17 +155,17 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
         <Overview.Tab
           label="NFTs"
           href={`/profiles/${router.query.address}/collected`}
-          active={router.pathname.includes('collected')}
+          active={router.pathname === ProfilePath.Collected}
         />
         <Overview.Tab
           label={t('activity')}
           href={`/profiles/${router.query.address}/activity`}
-          active={router.pathname.includes('activity')}
+          active={router.pathname === ProfilePath.Activity}
         />
         <Overview.Tab
           label={t('offers')}
           href={`/profiles/${router.query.address}/offers`}
-          active={router.pathname.includes('offers')}
+          active={router.pathname === ProfilePath.Offers}
         />
       </Overview.Tabs>
       {cloneElement(children, { walletProfileClientQuery })}

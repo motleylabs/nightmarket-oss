@@ -3,13 +3,13 @@ import Head from 'next/head';
 import { Collection } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
-import { useCurrencies } from '../hooks/currencies';
 import { CollectionQueryClient } from './../queries/collection.graphql';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
+import { subDays, format, startOfDay, endOfDay } from 'date-fns';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -37,15 +37,43 @@ function CollectionFigure({
   );
 }
 
+interface CollectionData {
+  collection: Collection;
+}
+
+interface CollectionVariables {
+  id: string;
+  startTime: string;
+  endTime: string;
+}
+
+enum CollectionPath {
+  Nfts = '/collections/[id]/nfts',
+  Analytics = '/collections/[id]/analytics',
+  Activity = '/collections/[id]/activity',
+}
+
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
-  const { initialized: currenciesReady, solToUsdString } = useCurrencies();
   const router = useRouter();
+  const startTime = format(
+    startOfDay(subDays(new Date(), 1)),
+    "yyyy-MM-dd'T'hh:mm:ssxxx"
+  ) as string;
+  const endTime = format(endOfDay(new Date()), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
 
-  const collectionQueryClient = useQuery(CollectionQueryClient, {
-    variables: { id: router.query.id },
-  });
+  const collectionQueryClient = useQuery<CollectionData, CollectionVariables>(
+    CollectionQueryClient,
+    {
+      variables: {
+        id: router.query.id as string,
+        startTime,
+        endTime,
+      },
+    }
+  );
 
+  console.log(router);
   return (
     <>
       <Head>
@@ -55,7 +83,6 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
       </Head>
       <Overview>
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
-          {/* Image, [Title, Description] */}
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-900">
               <img
@@ -86,10 +113,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 dateRange={t('timeInterval.day')}
                 chart={
                   <Chart.TinyLineChart
-                    data={Array.from({ length: 10 }, (v, i) => ({
-                      label: i > 5 ? i - 5 : i,
-                      price: Math.floor(Math.random() * 40) + 10,
-                    }))}
+                    data={collectionQueryClient.data?.collection.timeseries.floorPrice}
                   />
                 }
               />
@@ -99,10 +123,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 dateRange={t('timeInterval.day')}
                 chart={
                   <Chart.TinyLineChart
-                    data={Array.from({ length: 10 }, (v, i) => ({
-                      label: i > 5 ? i - 5 : i,
-                      price: Math.floor(Math.random() * 40) + 10,
-                    }))}
+                    data={collectionQueryClient.data?.collection.timeseries.listedCount}
                   />
                 }
               />
@@ -133,17 +154,17 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           <Overview.Tab
             label={t('nfts')}
             href={`/collections/${collection.id}/nfts`}
-            active={router.pathname.includes('nfts')}
+            active={router.pathname === CollectionPath.Nfts}
           />
           <Overview.Tab
             label="Activity"
             href={`/collections/${collection.id}/activity`}
-            active={router.pathname.includes('activity')}
+            active={router.pathname === CollectionPath.Activity}
           />
           <Overview.Tab
             label={t('analytics')}
             href={`/collections/${collection.id}/analytics`}
-            active={router.pathname.includes('analytics')}
+            active={router.pathname === CollectionPath.Analytics}
           />
         </Overview.Tabs>
         {children}

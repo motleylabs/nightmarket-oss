@@ -20,6 +20,7 @@ import {
   Maybe,
   Offer,
   Nft,
+  Datapoint,
 } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
@@ -460,6 +461,13 @@ const client = new ApolloClient({
           },
         },
       },
+      Pricepoint: {
+        fields: {
+          value: {
+            read: asBN,
+          },
+        },
+      },
       CollectedCollection: {
         fields: {
           estimatedValue: {
@@ -617,6 +625,53 @@ const client = new ApolloClient({
           },
           primaryWallet: {
             read: asActivityPrimaryWallet,
+          },
+        },
+      },
+      Datapoint: {
+        fields: {
+          amount: {
+            read(amount: number): number {
+              return amount;
+            },
+          },
+        },
+      },
+      Timeseries: {
+        fields: {
+          floorPrice: {
+            read(floorPrice: Datapoint[]): Datapoint[] {
+              const datapoints = floorPrice?.map((point: Datapoint) => {
+                const amount = toSol(parseInt(point.value));
+
+                return {
+                  ...point,
+                  amount,
+                };
+              });
+
+              return datapoints || [];
+            },
+          },
+          listedCount: {
+            read(listedCount: Datapoint[]): Datapoint[] {
+              const datapoints = listedCount?.map((point: Datapoint) => ({
+                ...point,
+                amount: parseInt(point.value),
+              }));
+
+              return datapoints || [];
+            },
+          },
+          holderCount: {
+            read(holderCount: Datapoint[]): Datapoint[] {
+              const datapoints = holderCount?.map((point: Datapoint) => ({
+                ...point,
+                amount: parseInt(point.value),
+              }));
+
+              return datapoints || [];
+            },
           },
         },
       },
