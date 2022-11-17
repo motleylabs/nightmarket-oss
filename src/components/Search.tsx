@@ -247,16 +247,17 @@ function CollectionSearchResult({
   image,
   collection,
   value,
+  address,
 }: CollectionSearchResultProps): JSX.Element {
   const router = useRouter();
 
   return (
     <Combobox.Option
-      key={`collection-${collection?.id}`}
+      key={`collection-${address}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${collection?.id}/nfts`);
-      }, [router, collection?.id])}
+        router.push(`/collections/${address}/nfts`);
+      }, [router, address])}
     >
       {({ active }) => (
         <div
@@ -268,7 +269,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || collection?.id}
+              alt={name || address}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
