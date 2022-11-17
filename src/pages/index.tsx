@@ -222,7 +222,7 @@ const Home: NextPage = () => {
           <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
             <Drop
               launchDate={addDays(new Date(), 3)}
-              title={'Team Motley'}
+              title={'Motley Friends'}
               description={
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi'
               }
@@ -289,6 +289,8 @@ const Home: NextPage = () => {
           <Collection.List>
             {trendingCollectionsQuery.loading ? (
               <>
+                <Collection.List.Loading />
+                <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />
                 <Collection.List.Loading />

@@ -54,15 +54,14 @@ export default function Drop({
               {asCompactNumber(supply)}
             </p>
           </li>
-          <li className="flex    min-w-[92px] flex-col items-start whitespace-nowrap">
+          {/* Will be added in later */}
+          {/* <li className="flex    min-w-[92px] flex-col items-start whitespace-nowrap">
             <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
-            {/* TODO: timer */}
             <p className="text-sm  font-semibold md:text-base">
               {days}d {hours}h {minutes}m {seconds}s
             </p>
-          </li>
+          </li> */}
 
-          {/* PS: Not removing this comment quite yet as we might want to go back to this structure */}
           <li className="flex items-center justify-end  md:hidden">
             <Button
               size={ButtonSize.Small}
@@ -76,19 +75,15 @@ export default function Drop({
           </li>
         </ul>
         <div className="mt-6 hidden md:inline-block">
-          <Link href={link}>
-            <a target={'_self'}>
-              <Button
-                // size={ButtonSize.Small}
-                className="inline-block w-full font-semibold md:w-auto"
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
-              >
-                {t('drops.details')}
-              </Button>
-            </a>
-          </Link>
+          <Button
+            className="inline-block w-full font-semibold md:w-auto"
+            background={ButtonBackground.Slate}
+            border={ButtonBorder.Gray}
+            color={ButtonColor.Gray}
+            disabled={true}
+          >
+            {t('drops.details')}
+          </Button>
         </div>
       </div>
     </div>
