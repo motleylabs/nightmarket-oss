@@ -29,6 +29,10 @@ extend type Purchase {
   solPrice: String
 }
 
+extend type Datapoint {
+  amount: Int
+}
+
 extend type Nft {
   shortAddress: String
   shortMintAddress: String

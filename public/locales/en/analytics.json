@@ -6,6 +6,9 @@
     "priceDistributionChartTitle": "Price distribution",
     "holdersVsTokensHeldChartTitle": "Holders vs Tokens held"
   },
+  "oneDay": "One Day",
+  "oneWeek": "One Week",
+  "oneMonth": "One Month",
   "profile": {
     "walletValueChartTitle": "Wallet value",
     "totalAssetBreakdownChartTitle": "Total asset breakdown",

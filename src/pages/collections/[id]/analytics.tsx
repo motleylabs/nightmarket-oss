@@ -3,6 +3,7 @@ import client from '../../../client';
 import { Collection } from '../../../graphql.types';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import { CollectionQuery, CollectionAnalyticsQuery } from './../../../queries/collection.graphql';
+import { CollectionAnalyticsData, CollectionAnalyticsVariables } from './../../../app.types';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import { Chart, DateRangeOption } from '../../../components/Chart';
@@ -10,34 +11,6 @@ import { useTranslation } from 'next-i18next';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { getDateTimeRange } from '../../../modules/time';
-
-const priceDistributionData = Array.from({ length: 24 }).map((_, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 200) + 930,
-}));
-
-const holdersVsTokensHeldData = [
-  {
-    y: 2012,
-    label: '1',
-  },
-  {
-    y: 959,
-    label: '2-5',
-  },
-  {
-    y: 60,
-    label: '6-24',
-  },
-  {
-    y: 4,
-    label: '25-50',
-  },
-  {
-    y: 0,
-    label: '50+',
-  },
-];
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -66,16 +39,6 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       ...i18n,
     },
   };
-}
-
-export interface CollectionAnalyticsData {
-  collection: Collection;
-}
-
-export interface CollectionAnalyticsVariables {
-  id: string;
-  startTime: string;
-  endTime: string;
 }
 
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
@@ -125,36 +88,26 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
 
   return (
     <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
-      <Chart.TimeseriesCard
+      <Chart.Timeseries
         className="h-96"
         title={t('collection.floorPriceChartTitle')}
         query={floorDataQuery}
-        queryKey="floorPrice"
+        timeseries={floorDataQuery.data?.collection.timeseries.floorPrice}
       />
-
       <div className="flex flex-col gap-8 py-8 sm:grid sm:grid-cols-2">
-        <Chart.TimeseriesCard
+        <Chart.Timeseries
           className="h-96"
           title={t('collection.listedCountChartTitle')}
           query={listedCountQuery}
-          queryKey="listedCount"
+          timeseries={listedCountQuery.data?.collection.timeseries.listedCount}
         />
-
-        <Chart.TimeseriesCard
+        <Chart.Timeseries
           className="h-96"
           title={t('collection.holderCountChartTitle')}
           query={holderCountQuery}
-          queryKey="holderCount"
+          timeseries={holderCountQuery.data?.collection.timeseries.holderCount}
         />
       </div>
-
-      {/* <Chart.Card
-        className="h-96"
-        title={t('collection.holdersVsTokensHeldChartTitle')}
-        dateRangeId="holdersVsHeldDateRange"
-        control={control}
-        chart={<Chart.BarChart data={holdersVsTokensHeldData} />}
-      /> */}
     </div>
   );
 }

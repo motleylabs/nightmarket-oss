@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, subDays } from 'date-fns';
+import { format, formatDistanceToNow, subDays, startOfDay, endOfDay } from 'date-fns';
 import { DateRangeOption } from '../components/Chart';
 
 export function formatTimeAgo(date: Date) {
@@ -13,9 +13,9 @@ export function getDateTimeRange(dateRangeOption: DateRangeOption): {
   endTime: string;
 } {
   const startTime = format(
-    subDays(new Date(), parseInt(dateRangeOption)),
+    subDays(startOfDay(new Date()), parseInt(dateRangeOption)),
     "yyyy-MM-dd'T'hh:mm:ssxxx"
   ) as string;
-  const endTime = format(new Date(), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+  const endTime = format(endOfDay(new Date()), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
   return { startTime, endTime };
 }

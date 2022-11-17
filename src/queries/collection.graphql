@@ -33,10 +33,12 @@ query CollectionQueryClient($id: String!, $startTime: DateTimeUtc!, $endTime: Da
       floorPrice {
         timestamp
         value
+        amount @client
       }
       listedCount {
         timestamp
         value
+        amount @client
       }
     }
   }
@@ -150,14 +152,17 @@ query CollectionAnalyticsQuery($id: String!, $startTime: DateTimeUtc!, $endTime:
       floorPrice {
         timestamp
         value
+        amount @client
       }
       listedCount {
         timestamp
         value
+        amount @client
       }
       holderCount {
         timestamp
         value
+        amount @client
       }
     }
   }
