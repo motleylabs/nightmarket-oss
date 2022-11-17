@@ -60,6 +60,10 @@ query NftQuery($address: String!, $auctionHouse: String!) {
         ...ProfileInfo
       }
     }
+    lastSale {
+      price
+      solPrice @client
+    }
   }
 }
 

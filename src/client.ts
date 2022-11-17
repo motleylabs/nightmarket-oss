@@ -561,11 +561,14 @@ const client = new ApolloClient({
       },
       LastSale: {
         fields: {
-          price: {
-            read: asBN,
-          },
           solPrice: {
-            read: asSOL,
+            read(_, { readField }): number {
+              const price: string | undefined = readField('price');
+              if (!price) {
+                return 0;
+              }
+              return toSol(parseInt(price));
+            },
           },
         },
       },

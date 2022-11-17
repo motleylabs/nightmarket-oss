@@ -710,7 +710,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             {!listing && (
               <div className="grid w-full grid-cols-12 gap-4 px-6 pb-6">
                 <div className="col-span-12 flex flex-row justify-start gap-4 text-gray-300 md:col-span-6">
-                  {(highestOffer || viewerOffer) && (
+                  {highestOffer || viewerOffer ? (
                     <>
                       {highestOffer && (
                         <div>
@@ -731,6 +731,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         </div>
                       )}
                     </>
+                  ) : nft.lastSale?.price ? (
+                    <div>
+                      {t('lastSale')}
+                      <span className="flex flex-row items-center justify-start">
+                        <Icon.Sol />
+                        {nft.lastSale?.solPrice}
+                      </span>
+                    </div>
+                  ) : (
+                    <></>
                   )}
                 </div>
                 <div className="col-span-12 md:col-span-6">
