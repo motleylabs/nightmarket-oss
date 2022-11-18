@@ -32,6 +32,12 @@ export function Chart() {
   return <div />;
 }
 
+const tickGapDict = {
+  [DateRangeOption.DAY]: 60,
+  [DateRangeOption.WEEK]: 200,
+  [DateRangeOption.MONTH]: 90,
+};
+
 function StyledLineChart(props: {
   dateRange?: DateRangeOption;
   height?: number;
@@ -64,17 +70,18 @@ function StyledLineChart(props: {
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
+          height={1}
           dataKey="timestamp"
           type="number"
           scale={'time'}
           domain={['auto', 'auto']}
+          minTickGap={(props.dateRange && tickGapDict[props.dateRange]) || 5}
           tickFormatter={(tick) => {
-            console.log('tick', tick);
             const dateTime = roundToNearestMinutes(tick, { nearestTo: 30 });
             if (props.dateRange === DateRangeOption.DAY) {
               return format(dateTime, 'hh:mm'); // 12:30
             } else if (props.dateRange === DateRangeOption.WEEK) {
-              return format(dateTime, 'do hh:mm'); // 24th 14:30
+              return format(dateTime, 'do'); // 24th
             } else {
               return format(dateTime, 'do'); // 24th
             }
@@ -83,7 +90,8 @@ function StyledLineChart(props: {
         <YAxis
           tickCount={3}
           tickLine={false}
-          width={25}
+          allowDecimals={false}
+          width={30}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
@@ -123,7 +131,7 @@ function TinyLineChart(props: {
 
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data} margin={{ top: 0, right: 12, bottom: 0, left: 12 }}>
+      <LineChart data={props.data} margin={{ top: 0, right: 24, bottom: 0, left: 50 }}>
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -135,7 +143,7 @@ function TinyLineChart(props: {
           tickCount={4}
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
-          width={15}
+          width={10}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
         />
@@ -297,8 +305,8 @@ function ChartPreview({
   className?: string;
 }) {
   return (
-    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 p-6', className)}>
-      <div className="flex items-center justify-between">
+    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 py-6', className)}>
+      <div className="flex items-center justify-between px-6">
         <h2 className="text-sm text-gray-300">{title}</h2>
         <h2 className="text-sm text-gray-300">{dateRange}</h2>
       </div>
