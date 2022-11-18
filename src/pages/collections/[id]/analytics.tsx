@@ -50,6 +50,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
   const floorDataQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
     CollectionAnalyticsQuery,
     {
+      notifyOnNetworkStatusChange: true,
       variables: {
         id: router.query.id as string,
         startTime: defaultDateRange.startTime,
@@ -63,6 +64,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
   const listedCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
     CollectionAnalyticsQuery,
     {
+      notifyOnNetworkStatusChange: true,
       variables: {
         id: router.query.id as string,
         startTime: defaultDateRange.startTime,
@@ -76,6 +78,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
   const holderCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
     CollectionAnalyticsQuery,
     {
+      notifyOnNetworkStatusChange: true,
       variables: {
         id: router.query.id as string,
         startTime: defaultDateRange.startTime,

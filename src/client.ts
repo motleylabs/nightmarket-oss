@@ -633,6 +633,13 @@ const client = new ApolloClient({
       },
       Datapoint: {
         fields: {
+          timestamp: {
+            read(dateString: string) {
+              // this could potentially be moved to the backend
+              // it needs to be in unix for ReCharts to process it more efficently
+              return new Date(dateString).getTime();
+            },
+          },
           amount: {
             read(amount: number): number {
               return amount;

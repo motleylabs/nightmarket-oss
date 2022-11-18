@@ -1,6 +1,6 @@
 import { QueryResult } from '@apollo/client';
 import clsx from 'clsx';
-import { format } from 'date-fns';
+import { format, roundToNearestMinutes } from 'date-fns';
 import { ReactNode, useEffect, useMemo, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { CollectionAnalyticsData, CollectionAnalyticsVariables } from '../app.types';
@@ -31,6 +31,12 @@ export enum DateRangeOption {
 export function Chart() {
   return <div />;
 }
+
+const tickGapDict = {
+  [DateRangeOption.DAY]: 60,
+  [DateRangeOption.WEEK]: 200,
+  [DateRangeOption.MONTH]: 90,
+};
 
 function StyledLineChart(props: {
   dateRange?: DateRangeOption;
@@ -64,12 +70,28 @@ function StyledLineChart(props: {
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
+          height={1}
           dataKey="timestamp"
+          type="number"
+          scale={'time'}
+          domain={['auto', 'auto']}
+          minTickGap={(props.dateRange && tickGapDict[props.dateRange]) || 5}
+          tickFormatter={(tick) => {
+            const dateTime = roundToNearestMinutes(tick, { nearestTo: 30 });
+            if (props.dateRange === DateRangeOption.DAY) {
+              return format(dateTime, 'h:mm'); // 12:30
+            } else if (props.dateRange === DateRangeOption.WEEK) {
+              return format(dateTime, 'do'); // 24th
+            } else {
+              return format(dateTime, 'do'); // 24th
+            }
+          }}
         />
         <YAxis
           tickCount={3}
           tickLine={false}
-          width={25}
+          allowDecimals={false}
+          width={30}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
@@ -109,7 +131,7 @@ function TinyLineChart(props: {
 
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data} margin={{ top: 0, right: 12, bottom: 0, left: 12 }}>
+      <LineChart data={props.data} margin={{ top: 0, right: 24, bottom: 0, left: 50 }}>
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -121,7 +143,7 @@ function TinyLineChart(props: {
           tickCount={4}
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
-          width={15}
+          width={10}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
         />
@@ -208,33 +230,6 @@ function ChartTimeseries(props: {
 
   const dateRange = watch('range');
 
-  const seriesData = useMemo(() => {
-    const timeseries = props.timeseries?.map(({ timestamp, value, amount }: Datapoint) => {
-      const date = new Date(timestamp);
-      let compactDate: string;
-
-      switch (dateRange) {
-        case DateRangeOption.DAY:
-          compactDate = format(date, 'h:mm aaa');
-          break;
-        case DateRangeOption.WEEK:
-          compactDate = format(date, 'M/d - h aaa');
-          break;
-        case DateRangeOption.MONTH:
-          compactDate = format(date, 'M/d - h aaa');
-          break;
-      }
-
-      return {
-        timestamp: compactDate,
-        value,
-        amount,
-      };
-    });
-
-    return timeseries || [];
-  }, [props.timeseries, dateRange]);
-
   const selectedDateRange = useMemo(() => {
     switch (dateRange) {
       case DateRangeOption.DAY:
@@ -287,7 +282,11 @@ function ChartTimeseries(props: {
           )}
         />
       </div>
-      <Chart.LineChart dateRange={dateRange} data={seriesData} loading={props.query.loading} />
+      <Chart.LineChart
+        dateRange={dateRange}
+        data={props.timeseries || []}
+        loading={props.query.loading}
+      />
     </div>
   );
 }
@@ -306,8 +305,8 @@ function ChartPreview({
   className?: string;
 }) {
   return (
-    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 p-6', className)}>
-      <div className="flex items-center justify-between">
+    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 py-6', className)}>
+      <div className="flex items-center justify-between px-6">
         <h2 className="text-sm text-gray-300">{title}</h2>
         <h2 className="text-sm text-gray-300">{dateRange}</h2>
       </div>
