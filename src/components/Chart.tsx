@@ -104,7 +104,7 @@ function TinyLineChart(props: {
 
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data}>
+      <LineChart data={props.data} margin={{ top: 0, right: 12, bottom: 0, left: 12 }}>
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
