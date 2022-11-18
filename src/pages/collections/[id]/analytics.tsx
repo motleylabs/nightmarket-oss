@@ -91,11 +91,7 @@ export default function CollectionAnalyticsPage(props: { collection: Collection 
     <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
       <Chart.Timeseries
         className="h-96"
-        title={
-          t('collection.floorPriceChartTitle') +
-          ' ' +
-          floorDataQuery.data?.collection.timeseries.floorPrice.length
-        }
+        title={t('collection.floorPriceChartTitle')}
         query={floorDataQuery}
         timeseries={floorDataQuery.data?.collection.timeseries.floorPrice}
       />

@@ -222,33 +222,6 @@ function ChartTimeseries(props: {
 
   const dateRange = watch('range');
 
-  // const seriesData = useMemo(() => {
-  //   const timeseries = props.timeseries?.map(({ timestamp, value, amount }: Datapoint) => {
-  //     const date = new Date(timestamp);
-  //     let compactDate: string;
-
-  //     switch (dateRange) {
-  //       case DateRangeOption.DAY:
-  //         compactDate = format(date, 'h:mm aaa');
-  //         break;
-  //       case DateRangeOption.WEEK:
-  //         compactDate = format(date, 'M/d - h aaa');
-  //         break;
-  //       case DateRangeOption.MONTH:
-  //         compactDate = format(date, 'M/d - h aaa');
-  //         break;
-  //     }
-
-  //     return {
-  //       timestamp: date.getTime(), //compactDate,
-  //       value,
-  //       amount,
-  //     };
-  //   });
-
-  //   return timeseries || [];
-  // }, [props.timeseries, dateRange]);
-
   const selectedDateRange = useMemo(() => {
     switch (dateRange) {
       case DateRangeOption.DAY:
@@ -304,7 +277,6 @@ function ChartTimeseries(props: {
       <Chart.LineChart
         dateRange={dateRange}
         data={props.timeseries || []}
-        // data={seriesData}
         loading={props.query.loading}
       />
     </div>

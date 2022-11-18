@@ -636,6 +636,7 @@ const client = new ApolloClient({
           timestamp: {
             read(dateString: string) {
               // this could potentially be moved to the backend
+              // it needs to be in unix for ReCharts to process it more efficently
               return new Date(dateString).getTime();
             },
           },
@@ -652,10 +653,9 @@ const client = new ApolloClient({
             read(floorPrice: Datapoint[]): Datapoint[] {
               const datapoints = floorPrice?.map((point: Datapoint) => {
                 const amount = toSol(parseInt(point.value));
-                // const timestamp = new Date(point.timestamp);
+
                 return {
                   ...point,
-                  // timestamp: new Date(point.timestamp),
                   amount,
                 };
               });
@@ -667,7 +667,6 @@ const client = new ApolloClient({
             read(listedCount: Datapoint[]): Datapoint[] {
               const datapoints = listedCount?.map((point: Datapoint) => ({
                 ...point,
-                // timestamp: new Date(point.timestamp),
                 amount: parseInt(point.value),
               }));
 
@@ -678,7 +677,6 @@ const client = new ApolloClient({
             read(holderCount: Datapoint[]): Datapoint[] {
               const datapoints = holderCount?.map((point: Datapoint) => ({
                 ...point,
-                // timestamp: new Date(point.timestamp),
                 amount: parseInt(point.value),
               }));
 
