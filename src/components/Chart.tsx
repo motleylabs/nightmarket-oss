@@ -35,12 +35,15 @@ function StyledLineChart(props: {
   dateRange?: DateRangeOption;
   height?: number;
   data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return props.data.length > 0 ? (
+  const { t } = useTranslation('analytics');
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data} margin={{ top: 24, right: 10, bottom: 24, left: 10 }}>
         <defs>
@@ -81,20 +84,25 @@ function StyledLineChart(props: {
       </LineChart>
     </ResponsiveContainer>
   ) : (
-    <div className="my-auto mx-auto pb-10 text-lg text-gray-300">No Data</div>
+    <div className="my-auto mx-auto pb-10 text-lg text-gray-300">
+      {props.loading ? t('loading') : t('noData')}
+    </div>
   );
 }
 Chart.LineChart = StyledLineChart;
 
 function TinyLineChart(props: {
   height?: number;
-  data: Datapoint[] | undefined;
+  data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return (
+  const { t } = useTranslation('analytics');
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data}>
         <defs>
@@ -122,6 +130,10 @@ function TinyLineChart(props: {
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto text-sm text-gray-300">
+      {props.loading ? t('loading') : t('noData')}
+    </div>
   );
 }
 Chart.TinyLineChart = TinyLineChart;
@@ -266,7 +278,7 @@ function ChartTimeseries(props: {
           )}
         />
       </div>
-      <Chart.LineChart dateRange={dateRange} data={seriesData} />
+      <Chart.LineChart dateRange={dateRange} data={seriesData} loading={props.query.loading} />
     </div>
   );
 }

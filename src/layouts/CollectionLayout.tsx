@@ -113,7 +113,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 dateRange={t('timeInterval.day')}
                 chart={
                   <Chart.TinyLineChart
-                    data={collectionQueryClient.data?.collection.timeseries.floorPrice}
+                    data={collectionQueryClient.data?.collection.timeseries.floorPrice || []}
+                    loading={collectionQueryClient.loading}
                   />
                 }
               />
@@ -123,7 +124,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 dateRange={t('timeInterval.day')}
                 chart={
                   <Chart.TinyLineChart
-                    data={collectionQueryClient.data?.collection.timeseries.listedCount}
+                    data={collectionQueryClient.data?.collection.timeseries.listedCount || []}
+                    loading={collectionQueryClient.loading}
                   />
                 }
               />
