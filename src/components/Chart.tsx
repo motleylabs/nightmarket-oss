@@ -40,7 +40,7 @@ function StyledLineChart(props: {
   };
   children?: ReactNode;
 }) {
-  return (
+  return props.data.length > 0 ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data} margin={{ top: 24, right: 10, bottom: 24, left: 10 }}>
         <defs>
@@ -80,6 +80,8 @@ function StyledLineChart(props: {
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto pb-10 text-lg text-gray-300">No Data</div>
   );
 }
 Chart.LineChart = StyledLineChart;
@@ -244,7 +246,7 @@ function ChartTimeseries(props: {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h2>{props.title}</h2>
-          <p className="text-gray-250 text-xs">{selectedDateRange}</p>
+          <p className="text-gray-250 text-sm">{selectedDateRange}</p>
         </div>
         <Controller
           control={control}
