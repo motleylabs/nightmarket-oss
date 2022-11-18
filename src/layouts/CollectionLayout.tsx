@@ -73,7 +73,6 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
     }
   );
 
-  console.log(router);
   return (
     <>
       <Head>

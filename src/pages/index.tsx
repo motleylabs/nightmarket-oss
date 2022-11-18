@@ -130,7 +130,7 @@ const Home: NextPage = () => {
       limit: 3,
       offset: 0,
     },
-    pollInterval: 2000,
+    pollInterval: 10_000,
   });
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(

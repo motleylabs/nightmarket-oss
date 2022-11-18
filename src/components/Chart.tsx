@@ -1,6 +1,6 @@
 import { QueryResult } from '@apollo/client';
 import clsx from 'clsx';
-import { format } from 'date-fns';
+import { format, roundToNearestMinutes } from 'date-fns';
 import { ReactNode, useEffect, useMemo, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { CollectionAnalyticsData, CollectionAnalyticsVariables } from '../app.types';
@@ -65,6 +65,20 @@ function StyledLineChart(props: {
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
           dataKey="timestamp"
+          type="number"
+          scale={'time'}
+          domain={['auto', 'auto']}
+          tickFormatter={(tick) => {
+            console.log('tick', tick);
+            const dateTime = roundToNearestMinutes(tick, { nearestTo: 30 });
+            if (props.dateRange === DateRangeOption.DAY) {
+              return format(dateTime, 'hh:mm'); // 12:30
+            } else if (props.dateRange === DateRangeOption.WEEK) {
+              return format(dateTime, 'do hh:mm'); // 24th 14:30
+            } else {
+              return format(dateTime, 'do'); // 24th
+            }
+          }}
         />
         <YAxis
           tickCount={3}
@@ -208,32 +222,32 @@ function ChartTimeseries(props: {
 
   const dateRange = watch('range');
 
-  const seriesData = useMemo(() => {
-    const timeseries = props.timeseries?.map(({ timestamp, value, amount }: Datapoint) => {
-      const date = new Date(timestamp);
-      let compactDate: string;
+  // const seriesData = useMemo(() => {
+  //   const timeseries = props.timeseries?.map(({ timestamp, value, amount }: Datapoint) => {
+  //     const date = new Date(timestamp);
+  //     let compactDate: string;
 
-      switch (dateRange) {
-        case DateRangeOption.DAY:
-          compactDate = format(date, 'h:mm aaa');
-          break;
-        case DateRangeOption.WEEK:
-          compactDate = format(date, 'M/d - h aaa');
-          break;
-        case DateRangeOption.MONTH:
-          compactDate = format(date, 'M/d - h aaa');
-          break;
-      }
+  //     switch (dateRange) {
+  //       case DateRangeOption.DAY:
+  //         compactDate = format(date, 'h:mm aaa');
+  //         break;
+  //       case DateRangeOption.WEEK:
+  //         compactDate = format(date, 'M/d - h aaa');
+  //         break;
+  //       case DateRangeOption.MONTH:
+  //         compactDate = format(date, 'M/d - h aaa');
+  //         break;
+  //     }
 
-      return {
-        timestamp: compactDate,
-        value,
-        amount,
-      };
-    });
+  //     return {
+  //       timestamp: date.getTime(), //compactDate,
+  //       value,
+  //       amount,
+  //     };
+  //   });
 
-    return timeseries || [];
-  }, [props.timeseries, dateRange]);
+  //   return timeseries || [];
+  // }, [props.timeseries, dateRange]);
 
   const selectedDateRange = useMemo(() => {
     switch (dateRange) {
@@ -287,7 +301,12 @@ function ChartTimeseries(props: {
           )}
         />
       </div>
-      <Chart.LineChart dateRange={dateRange} data={seriesData} loading={props.query.loading} />
+      <Chart.LineChart
+        dateRange={dateRange}
+        data={props.timeseries || []}
+        // data={seriesData}
+        loading={props.query.loading}
+      />
     </div>
   );
 }
