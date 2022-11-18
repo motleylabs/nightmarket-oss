@@ -20,6 +20,7 @@ import { ButtonGroup } from './ButtonGroup';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getDateTimeRange } from '../modules/time';
+import { TailSpin } from 'react-loader-spinner';
 
 export enum DateRangeOption {
   DAY = '1',
@@ -35,12 +36,15 @@ function StyledLineChart(props: {
   dateRange?: DateRangeOption;
   height?: number;
   data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return (
+  const { t } = useTranslation('analytics');
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data} margin={{ top: 24, right: 10, bottom: 24, left: 10 }}>
         <defs>
@@ -80,21 +84,32 @@ function StyledLineChart(props: {
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto pb-10 text-lg text-gray-300">
+      {props.loading ? (
+        <TailSpin height="40px" width="40px" color="#ED9E09" ariaLabel={t('loading')} />
+      ) : (
+        t('noData')
+      )}
+    </div>
   );
 }
 Chart.LineChart = StyledLineChart;
 
 function TinyLineChart(props: {
   height?: number;
-  data: Datapoint[] | undefined;
+  data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return (
+  const { t } = useTranslation('analytics');
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data}>
+      <LineChart data={props.data} margin={{ top: 0, right: 12, bottom: 0, left: 12 }}>
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -120,6 +135,14 @@ function TinyLineChart(props: {
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto text-sm text-gray-300">
+      {props.loading ? (
+        <TailSpin height="20px" width="20px" color="#ED9E09" ariaLabel={t('loading')} />
+      ) : (
+        t('noData')
+      )}
+    </div>
   );
 }
 Chart.TinyLineChart = TinyLineChart;
@@ -244,7 +267,7 @@ function ChartTimeseries(props: {
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h2>{props.title}</h2>
-          <p className="text-gray-250 text-xs">{selectedDateRange}</p>
+          <p className="text-gray-250 text-sm">{selectedDateRange}</p>
         </div>
         <Controller
           control={control}
@@ -264,7 +287,7 @@ function ChartTimeseries(props: {
           )}
         />
       </div>
-      <Chart.LineChart dateRange={dateRange} data={seriesData} />
+      <Chart.LineChart dateRange={dateRange} data={seriesData} loading={props.query.loading} />
     </div>
   );
 }

@@ -14,5 +14,7 @@
     "totalAssetBreakdownChartTitle": "Total asset breakdown",
     "listedCountChartTitle": "Listed count",
     "nftsBoughtVsNftsSoldChartTitle": "NFTs bought vs NFTs sold "
-  }
+  },
+  "loading": "Loading...",
+  "noData": "No Data"
 }
