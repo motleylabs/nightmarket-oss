@@ -79,7 +79,7 @@ function StyledLineChart(props: {
           tickFormatter={(tick) => {
             const dateTime = roundToNearestMinutes(tick, { nearestTo: 30 });
             if (props.dateRange === DateRangeOption.DAY) {
-              return format(dateTime, 'hh:mm'); // 12:30
+              return format(dateTime, 'h:mm'); // 12:30
             } else if (props.dateRange === DateRangeOption.WEEK) {
               return format(dateTime, 'do'); // 24th
             } else {
