@@ -794,12 +794,10 @@ export type Nft = {
   description: Scalars['String'];
   externalUrl?: Maybe<Scalars['String']>;
   files: Array<NftFile>;
-  highestOffer?: Maybe<Offer>;
   image: Scalars['String'];
   /** Get the original URL of the image as stored in the NFT's metadata */
   imageOriginal: Scalars['String'];
   lastSale?: Maybe<LastSale>;
-  listing?: Maybe<AhListing>;
   listings: Array<AhListing>;
   mintAddress: Scalars['String'];
   moonrankCollection?: Maybe<Collection>;
@@ -825,17 +823,11 @@ export type Nft = {
   shortMintAddress?: Maybe<Scalars['String']>;
   tokenAccountAddress: Scalars['String'];
   updateAuthorityAddress: Scalars['String'];
-  viewerOffer?: Maybe<Offer>;
 };
 
 
 export type NftImageArgs = {
   width?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type NftViewerOfferArgs = {
-  address?: InputMaybe<Scalars['String']>;
 };
 
 export type NftActivity = {

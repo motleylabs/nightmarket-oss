@@ -37,9 +37,6 @@ extend type Nft {
   shortAddress: String
   shortMintAddress: String
   royalties: Int
-  listing: AhListing
-  highestOffer: Offer
-  viewerOffer(address: String): Offer
 }
 
 extend type Offer {

@@ -49,9 +49,6 @@ fragment NftInfo on Nft {
 fragment NftListingInfo on Nft {
   ...NftInfo
 
-  listing @client {
-    ...ListingInfo
-  }
   listings {
     ...ListingInfo
   }

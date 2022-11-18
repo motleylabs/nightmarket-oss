@@ -159,55 +159,58 @@ export default function ProfileOffers(): JSX.Element {
           <>
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) =>
-                offersQuery.data?.wallet.offers.map((offer) => (
-                  <Activity
-                    avatar={
-                      <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
-                        <a className="cursor-pointer transition hover:scale-[1.02]">
-                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                        </a>
-                      </Link>
-                    }
-                    type={ActivityType.Offer}
-                    key={offer.id}
-                    meta={
-                      <Activity.Meta
-                        title={<Activity.Tag />}
-                        marketplace={offer.nftMarketplace}
-                        source={<Activity.Wallet wallet={offer.buyerWallet} />}
-                      />
-                    }
-                    actionButton={
-                      <>
-                        {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
-                          <Button
-                            background={ButtonBackground.Slate}
-                            border={ButtonBorder.Gray}
-                            color={ButtonColor.Gray}
-                            size={ButtonSize.Small}
-                            onClick={() => {}}
-                          >
-                            {t('profile:update')}
-                          </Button>
-                        )}
-                        {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
-                          <Button
-                            background={ButtonBackground.Slate}
-                            border={ButtonBorder.Gradient}
-                            color={ButtonColor.Gradient}
-                            size={ButtonSize.Small}
-                            onClick={() => {}}
-                          >
-                            {t('profile:accept')}
-                          </Button>
-                        )}
-                      </>
-                    }
-                  >
-                    <Activity.Price amount={offer.solPrice} />
-                    <Activity.Timestamp timeSince={offer.timeSince} />
-                  </Activity>
-                ))
+                offersQuery.data?.wallet.offers.map((offer) => {
+                  console.log(offer);
+                  return (
+                    <Activity
+                      avatar={
+                        <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
+                          <a className="cursor-pointer transition hover:scale-[1.02]">
+                            <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
+                          </a>
+                        </Link>
+                      }
+                      type={ActivityType.Offer}
+                      key={offer.id}
+                      meta={
+                        <Activity.Meta
+                          title={<Activity.Tag />}
+                          marketplace={offer.nftMarketplace}
+                          source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                        />
+                      }
+                      actionButton={
+                        <>
+                          {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
+                            <Button
+                              background={ButtonBackground.Slate}
+                              border={ButtonBorder.Gray}
+                              color={ButtonColor.Gray}
+                              size={ButtonSize.Small}
+                              onClick={() => {}}
+                            >
+                              {t('profile:update')}
+                            </Button>
+                          )}
+                          {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
+                            <Button
+                              background={ButtonBackground.Slate}
+                              border={ButtonBorder.Gradient}
+                              color={ButtonColor.Gradient}
+                              size={ButtonSize.Small}
+                              onClick={() => {}}
+                            >
+                              {t('profile:accept')}
+                            </Button>
+                          )}
+                        </>
+                      }
+                    >
+                      <Activity.Price amount={offer.solPrice} />
+                      <Activity.Timestamp timeSince={offer.timeSince} />
+                    </Activity>
+                  );
+                })
               }
             </Offerable>
             {hasMore && (

@@ -783,29 +783,6 @@ const client = new ApolloClient({
         return toSol(parseInt(listing.price));
       },
     },
-    Nft: {
-      listing(nft: Nft): Maybe<AhListing> | null {
-        const listing = nft.listings?.find((listing: AhListing) => {
-          return listing.auctionHouse?.address === config.auctionHouse;
-        });
-
-        return listing || null;
-      },
-      highestOffer(nft: Nft): Maybe<Offer> | null {
-        const offers = nft.offers
-          .filter((offer: Offer) => offer.auctionHouse?.address === config.auctionHouse)
-          .sort((a: Offer, b: Offer) => {
-            return parseInt(a.price) - parseInt(b.price);
-          });
-
-        return offers[0] || null;
-      },
-      viewerOffer(nft: Nft, { address }): Maybe<Offer> | null {
-        const offer = nft.offers.find((offer: Offer) => offer.buyer === address);
-
-        return offer || null;
-      },
-    },
   },
 });
 

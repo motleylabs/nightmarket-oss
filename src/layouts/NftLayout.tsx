@@ -2,10 +2,10 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState, useMemo } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { AuctionHouse, Nft } from '../graphql.types';
+import { AuctionHouse, Nft, Offer, AhListing } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
@@ -17,6 +17,7 @@ import Icon from '../components/Icon';
 import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
+import config from '../app.config';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
 import { asCompactNumber } from '../modules/number';
@@ -33,7 +34,6 @@ interface NftMarketData {
 
 interface NftMarketVariables {
   address: string;
-  viewerAddress: string;
 }
 
 enum NftPage {
@@ -52,15 +52,36 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
     variables: {
       address: router.query.address as string,
-      viewerAddress: publicKey?.toBase58() as string,
     },
   });
 
   const isOwner = viewer?.address === nft.owner?.address;
   const notOwner = !isOwner;
-  const listing = data?.nft.listing;
-  const highestOffer = data?.nft.highestOffer;
-  const viewerOffer = data?.nft.viewerOffer;
+  const listing: AhListing | null = useMemo(() => {
+    const listing = data?.nft.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [data?.nft.listings]);
+  const highestOffer: Offer | null = useMemo(() => {
+    const offers = data?.nft.offers
+      .filter((offer: Offer) => offer.auctionHouse?.address === config.auctionHouse)
+      .sort((a: Offer, b: Offer) => {
+        return (b.solPrice as number) - (a.solPrice as number);
+      });
+
+    if (!offers) {
+      return null;
+    }
+
+    return offers[0] || null;
+  }, [data?.nft.offers]);
+  const viewerOffer: Offer | null = useMemo(() => {
+    const offer = data?.nft.offers.find((offer: Offer) => offer.buyer === publicKey?.toBase58());
+
+    return offer || null;
+  }, [data?.nft.offers, publicKey]);
   const rewardCenter = listing?.auctionHouse?.rewardCenter;
   const rewards = useMemo(
     () =>
