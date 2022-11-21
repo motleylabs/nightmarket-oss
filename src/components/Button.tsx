@@ -111,9 +111,8 @@ const Button = ({
           <TailSpin
             height={spinnerSize}
             width={spinnerSize}
-            color={color !== ButtonColor.Gradient ? 'text-primary-500' : 'text-primary-700'}
-            ariaLabel="loading"
-            wrapperClass="inline aspect-square mr-1"
+            color="#ED9E09"
+            wrapperClass="inline aspect-square mr-2"
           />
         )}
         {icon && icon}
