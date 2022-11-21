@@ -17,7 +17,9 @@ export const CollectionAttributeGroupsQuery: DocumentNode;
 export const CollectionNFTsQuery: DocumentNode;
 export const CollectionActivitiesQuery: DocumentNode;
 export const CollectionNftPreviewsQuery: DocumentNode;
-export const CollectionAnalyticsQuery: DocumentNode;
+export const CollectionAnalyticsFloorPriceQuery: DocumentNode;
+export const CollectionAnalyticsListedCountQuery: DocumentNode;
+export const CollectionAnalyticsHolderCountQuery: DocumentNode;
 
   export default defaultDocument;
 }

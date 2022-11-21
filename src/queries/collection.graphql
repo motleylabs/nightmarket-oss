@@ -144,21 +144,48 @@ query CollectionNftPreviewsQuery($id: String!, $auctionHouse: String) @cached(tt
   }
 }
 
-query CollectionAnalyticsQuery($id: String!, $startTime: DateTimeUtc!, $endTime: DateTimeUtc!)
-@cached(ttl: 300) {
+query CollectionAnalyticsFloorPriceQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
   collection(id: $id) {
     id
-    timeseries(startTime: $startTime, endTime: $endTime) {
+    floorPriceSeries: timeseries(startTime: $startTime, endTime: $endTime) {
       floorPrice {
         timestamp
         value
         amount @client
       }
+    }
+  }
+}
+
+query CollectionAnalyticsListedCountQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    listedCountSeries: timeseries(startTime: $startTime, endTime: $endTime) {
       listedCount {
         timestamp
         value
         amount @client
       }
+    }
+  }
+}
+
+query CollectionAnalyticsHolderCountQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    holderCountSeries: timeseries(startTime: $startTime, endTime: $endTime) {
       holderCount {
         timestamp
         value
