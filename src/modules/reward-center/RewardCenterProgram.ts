@@ -5,6 +5,8 @@ import { BN } from 'bn.js';
 const REWARD_CENTER_PROGRAM = new PublicKey('RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki');
 
 export class RewardCenterProgram {
+  static PUBKEY = REWARD_CENTER_PROGRAM;
+  
   static findRewardCenterAddress(auctionHouse: PublicKey): Promise<[PublicKey, number]> {
     return PublicKey.findProgramAddress(
       [Buffer.from('reward_center', 'utf8'), auctionHouse.toBuffer()],
