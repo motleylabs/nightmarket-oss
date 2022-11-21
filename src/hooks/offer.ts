@@ -19,7 +19,13 @@ import {
   AcceptOfferInstructionAccounts,
   AcceptOfferInstructionArgs,
 } from '@holaplex/hpl-reward-center';
-import { PublicKey, Transaction, AccountMeta, TransactionInstruction, ComputeBudgetProgram } from '@solana/web3.js';
+import {
+  PublicKey,
+  Transaction,
+  AccountMeta,
+  TransactionInstruction,
+  ComputeBudgetProgram,
+} from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
@@ -151,7 +157,6 @@ export function useMakeOffer(): MakeOfferContext {
     );
 
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
-
 
     if (!buyerAtAInfo) {
       tx.add(buyerATAInstruction);
@@ -708,6 +713,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     if (!connected || !publicKey || !signTransaction || !offer) {
       return;
     }
+
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = parseInt(offer.price);
     const authority = new PublicKey(auctionHouse.authority);
@@ -717,7 +723,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const buyerAddress = new PublicKey(offer.buyer);
-    const token = new PublicKey(tokenMint);
+    const token = new PublicKey(auctionHouse.rewardCenter?.tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
     const [buyerTradeState, buyerTradeStateBump] =
@@ -848,7 +854,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const acceptOfferIx = createAcceptOfferInstruction(acceptOfferAccounts, acceptOfferArgs);
 
     let remainingAccounts: AccountMeta[] = [];
-    
+
     for (let creator of nft.creators) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
@@ -860,14 +866,15 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const tx = new Transaction();
 
-    if (!sellerAtAInfo) {
-      tx.add(sellerATAInstruction);
-    }
-
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 350000 });
-    tx.add(ix)
+
+    tx.add(ix);
+
+    if (!sellerAtAInfo) {
+      tx.add(sellerATAInstruction);
+    }
 
     tx.add(
       new TransactionInstruction({

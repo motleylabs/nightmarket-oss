@@ -24,6 +24,7 @@ import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -61,6 +62,7 @@ interface CollectionNFTsVariables {
   attributes?: AttributeFilter[] | null;
   sortBy: NftSort;
   order: OrderDirection;
+  auctionHouse: string;
 }
 
 interface CollectionAttributeGroupsData {
@@ -132,6 +134,7 @@ export default function CollectionNfts() {
       id: router.query.id as string,
       order: OrderDirection.Asc,
       sortBy: NftSort.Price,
+      auctionHouse: config.auctionHouse,
     },
   });
 
@@ -143,6 +146,7 @@ export default function CollectionNfts() {
         id: router.query.id as string,
         sortBy: sortBySelect === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
         order: sortBySelect === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc,
+        auctionHouse: config.auctionHouse,
       };
 
       const nextAttributes = Object.entries(attributes || {}).reduce(

@@ -18,6 +18,7 @@ fragment ListingInfo on AhListing {
     authority
     rewardCenter {
       address
+      tokenMint
       sellerRewardPayoutBasisPoints
       payoutNumeral
       mathematicalOperand
