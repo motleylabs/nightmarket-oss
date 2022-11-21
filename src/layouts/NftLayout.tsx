@@ -115,13 +115,10 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
   const {
     buy,
-    registerBuy,
     onBuyNow,
     onOpenBuy,
     onCloseBuy,
-    handleSubmitBuy,
-    buyFormState,
-    setValue,
+    buying,
   } = useBuyNow();
 
   const handleBuy = async () => {
@@ -197,10 +194,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     await onUpdateOffer({ amount, nft, auctionHouse });
   };
-
-  useEffect(() => {
-    setValue('amount', listing?.solPrice as number);
-  }, [setValue, listing]);
 
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
@@ -281,8 +274,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         </div>
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
-          <Form
-            onSubmit={handleSubmitBuy(handleBuy)}
+          <div
             className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
           >
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
@@ -345,7 +337,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       className="font-semibold"
                       block
                       htmlType="submit"
-                      loading={buyFormState.isSubmitting}
+                      loading={buying}
+                      onClick={handleBuy}
                     >
                       {t('buyable.buyNowButton', { ns: 'common' })}
                     </Button>
@@ -369,7 +362,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 )}
               </div>
             </div>
-          </Form>
+          </div>
         )}
         {makeOffer && (
           <Form

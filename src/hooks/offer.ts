@@ -7,8 +7,7 @@ import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import { NftMarketInfoQuery, NftQuery } from './../queries/nft.graphql';
-import { NftOffersQuery } from './../queries/offers.graphql';
+import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
@@ -16,30 +15,18 @@ import {
   createCloseOfferInstruction,
   CloseOfferInstructionAccounts,
   CloseOfferInstructionArgs,
-  createCreateListingInstruction,
-  CreateListingInstructionAccounts,
-  CreateListingInstructionArgs,
-  createExecuteSaleInstruction,
-  ExecuteSaleInstructionAccounts,
-  ExecuteSaleInstructionArgs,
+  createAcceptOfferInstruction,
+  AcceptOfferInstructionAccounts,
+  AcceptOfferInstructionArgs,
 } from '@holaplex/hpl-reward-center';
-import { PublicKey, Transaction, AccountMeta, TransactionInstruction } from '@solana/web3.js';
+import { PublicKey, Transaction, AccountMeta, TransactionInstruction, ComputeBudgetProgram } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
-import { useRouter } from 'next/router';
-import useViewer from './viewer';
 import client from '../client';
 
-interface NFTOffersVariables {
-  address: string;
-}
-
-interface NFTOffersData {
-  nftOffers: Partial<Nft>;
-}
 interface OfferForm {
   amount: string;
 }
@@ -68,8 +55,6 @@ interface MakeOfferContext {
 
 export function useMakeOffer(): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
-  const { data: viewerData } = useViewer();
-  const { route } = useRouter();
 
   const { connection } = useConnection();
   const client = useApolloClient();
@@ -97,6 +82,7 @@ export function useMakeOffer(): MakeOfferContext {
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
@@ -147,6 +133,30 @@ export function useMakeOffer(): MakeOfferContext {
 
     const instruction = createCreateOfferInstruction(accounts, args);
     const tx = new Transaction();
+
+    const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      buyerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
+
+
+    if (!buyerAtAInfo) {
+      tx.add(buyerATAInstruction);
+    }
+
     tx.add(instruction);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -710,7 +720,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const token = new PublicKey(tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
-    const [buyerTradeState, _buyerTradeStateBump] =
+    const [buyerTradeState, buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(
         buyerAddress,
         auctionHouseAddress,
@@ -724,13 +734,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const [escrowPaymentAccount, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, buyerAddress);
-
-    const sellerPaymentReceiptAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      treasuryMint,
-      publicKey
-    );
 
     const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -769,12 +772,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         1
       );
 
-    const [listingAddress] = await RewardCenterProgram.findListingAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
     const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
       buyerAddress,
       metadata,
@@ -786,48 +783,11 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       rewardCenter
     );
 
-    const listingAccounts: CreateListingInstructionAccounts = {
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      listing: listingAddress,
-      rewardCenter: rewardCenter,
-      wallet: publicKey,
-      tokenAccount: associatedTokenAccount,
-      metadata: metadata,
-      authority: authority,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount,
-      sellerTradeState,
-      freeSellerTradeState,
-      ahAuctioneerPda: auctioneer,
-      programAsSigner: programAsSigner,
-    };
-
-    const listingArgs: CreateListingInstructionArgs = {
-      createListingParams: {
-        price: buyerPrice,
-        tokenSize: 1,
-        tradeStateBump: sellerTradeStateBump,
-        freeTradeStateBump,
-        programAsSignerBump: programAsSignerBump,
-      },
-    };
-
-    const listingIx = createCreateListingInstruction(listingAccounts, listingArgs);
-
     const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       token,
       buyerAddress
-    );
-
-    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      token,
-      buyerRewardTokenAccount,
-      buyerAddress,
-      publicKey
     );
 
     const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
@@ -846,22 +806,19 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       publicKey
     );
 
-    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
     const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
-    const executeSaleAccounts: ExecuteSaleInstructionAccounts = {
+    const acceptOfferAccounts: AcceptOfferInstructionAccounts = {
       buyer: buyerAddress,
       buyerRewardTokenAccount,
       seller: publicKey,
       sellerRewardTokenAccount,
-      listing: listingAddress,
       offer: rewardsOffer,
-      payer: publicKey,
       tokenAccount: associatedTokenAccount,
       tokenMint,
       metadata,
       treasuryMint,
-      sellerPaymentReceiptAccount,
+      sellerPaymentReceiptAccount: publicKey,
       buyerReceiptTokenAccount,
       authority,
       escrowPaymentAccount,
@@ -878,19 +835,20 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       auctionHouseProgram: AuctionHouseProgram.PUBKEY,
     };
 
-    const executeSaleArgs: ExecuteSaleInstructionArgs = {
-      executeSaleParams: {
+    const acceptOfferArgs: AcceptOfferInstructionArgs = {
+      acceptOfferParams: {
         escrowPaymentBump,
         freeTradeStateBump,
         sellerTradeStateBump,
         programAsSignerBump,
+        buyerTradeStateBump,
       },
     };
 
-    const executeSaleIx = createExecuteSaleInstruction(executeSaleAccounts, executeSaleArgs);
+    const acceptOfferIx = createAcceptOfferInstruction(acceptOfferAccounts, acceptOfferArgs);
 
     let remainingAccounts: AccountMeta[] = [];
-
+    
     for (let creator of nft.creators) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
@@ -902,20 +860,20 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const tx = new Transaction();
 
-    if (!buyerAtAInfo) {
-      tx.add(buyerATAInstruction);
-    }
-
     if (!sellerAtAInfo) {
       tx.add(sellerATAInstruction);
     }
 
-    tx.add(listingIx);
+    const keys = acceptOfferIx.keys.concat(remainingAccounts);
+
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 350000 });
+    tx.add(ix)
+
     tx.add(
       new TransactionInstruction({
-        programId: AuctionHouseProgram.PUBKEY,
-        data: executeSaleIx.data,
-        keys: executeSaleIx.keys.concat(remainingAccounts),
+        programId: RewardCenterProgram.PUBKEY,
+        data: acceptOfferIx.data,
+        keys,
       })
     );
 

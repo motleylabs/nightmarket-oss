@@ -16,6 +16,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toast } from 'react-toastify';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
@@ -67,6 +68,7 @@ export function useListNft(): ListNftContext {
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
@@ -134,7 +136,30 @@ export function useListNft(): ListNftContext {
 
     const instruction = createCreateListingInstruction(accounts, args);
 
+    const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      sellerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
     const tx = new Transaction();
+
+    if (!sellerAtAInfo) {
+      tx.add(sellerATAInstruction);
+    }
+
     tx.add(instruction);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
