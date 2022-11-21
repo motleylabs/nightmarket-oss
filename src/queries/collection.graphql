@@ -62,12 +62,13 @@ query CollectionNFTsQuery(
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
+  $auctionHouse: String!
   $limit: Int = 24
   $offset: Int = 0
 ) {
   collection(id: $id) {
     id
-    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset) {
+    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset, auctionHouse: $auctionHouse) {
       ...NftListingInfo
     }
   }

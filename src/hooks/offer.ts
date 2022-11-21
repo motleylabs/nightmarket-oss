@@ -717,7 +717,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const buyerAddress = new PublicKey(offer.buyer);
-    const token = new PublicKey(tokenMint);
+    const token = new PublicKey(auctionHouse.rewardCenter?.tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
     const [buyerTradeState, buyerTradeStateBump] =

@@ -192,19 +192,13 @@ export function useListNft(): ListNftContext {
           },
         },
         (data) => {
+          debugger;
           const listing = {
             __typename: 'AhListing',
             id: `temp-id-listing-${publicKey.toBase58()}`,
             address: listingAddress.toBase58(),
             createdAt: new Date().toISOString(),
-            auctionHouse: {
-              __typename: 'AuctionHouse',
-              address: config.auctionHouse,
-              auctionHouseFeeAccount: auctionHouse.auctionHouseFeeAccount,
-              treasuryMint: treasuryMint.toBase58(),
-              authority: authority.toBase58(),
-              rewardCenter: null,
-            },
+            auctionHouse,
             seller: publicKey.toBase58(),
             marketplaceProgramAddress: config.auctionHouse,
             tradeState: sellerTradeState.toBase58(),
@@ -532,9 +526,10 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
           },
         },
         (data) => {
-          const listings = [...data.nft.listings].filter(
+          const listings = data.nft.listings.filter(
             (listing: AhListing) => listing.seller !== publicKey.toBase58()
           );
+          
           return {
             nft: {
               ...data.nft,

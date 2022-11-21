@@ -30,29 +30,38 @@ import config from '../../../app.config';
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
 
-  const {
-    data: { wallet, auctionHouse },
-  } = await client.query({
-    query: WalletProfileQuery,
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+  try {
+    const {
+      data: { wallet, auctionHouse },
+    } = await client.query({
+      query: WalletProfileQuery,
+      variables: {
+        address: params?.address,
+        auctionHouse: config.auctionHouse,
+      },
+    });
 
-  if (wallet === null || auctionHouse === null) {
+    if (wallet === null || auctionHouse === null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        wallet,
+        auctionHouse,
+        ...i18n,
+      },
     };
+  } catch (e: any) {
+    console.log('there was an error', e.message)
+    return {
+      props: {
+        ...i18n,
+      }
+    }
   }
-
-  return {
-    props: {
-      wallet,
-      auctionHouse,
-      ...i18n,
-    },
-  };
 }
 
 enum ListedStatus {

@@ -20,7 +20,6 @@ import useLogin from '../hooks/login';
 import config from '../app.config';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
-import { asCompactNumber } from '../modules/number';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -113,13 +112,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onMakeOffer({ amount, nft, auctionHouse });
   };
 
-  const {
-    buy,
-    onBuyNow,
-    onOpenBuy,
-    onCloseBuy,
-    buying,
-  } = useBuyNow();
+  const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
@@ -274,9 +267,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         </div>
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
-          <div
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
-          >
+          <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
@@ -288,7 +279,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-primary-700">{400} SAUCE</p>
+                  <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
@@ -663,7 +654,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           })}
         >
           <div className="flex flex-col items-center justify-between rounded-lg bg-gray-800">
-            {(listing || highestOffer) && (
+            {listing && (
               <div className="flex w-full flex-row items-center justify-between border-b-[1px] border-b-gray-900 py-4 px-6">
                 <img
                   src="/images/nightmarket.svg"
@@ -673,14 +664,10 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
                   {listing && isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.sellerRewards)} $SAUCE
-                    </p>
+                    <p className="text-primary-700">{rewards.sellerRewards} SAUCE</p>
                   )}
                   {listing && !isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.buyerRewards)} $SAUCE
-                    </p>
+                    <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
                   )}
                 </span>
               </div>
