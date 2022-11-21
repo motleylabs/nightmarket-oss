@@ -277,6 +277,7 @@ export default function CollectionNfts() {
                         onMakeOffer={() => makeOffer(nft.mintAddress)}
                         onBuy={() => buyNow(nft.mintAddress)}
                         nft={nft}
+                        showCollectionThumbnail={false}
                       />
                     )}
                   />

@@ -10,6 +10,7 @@ import Icon from './Icon';
 interface NftCardProps {
   nft: Nft;
   link: string;
+  showCollectionThumbnail?: boolean;
   onBuy?: () => void;
   onMakeOffer?: () => void;
 }
@@ -23,7 +24,13 @@ enum NFTStates {
 }
 
 // TODO: listing & update listing when instructions done
-export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
+export function NftCard({
+  nft,
+  onBuy,
+  showCollectionThumbnail = true,
+  onMakeOffer,
+  link,
+}: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
   const listing = nft.listing;
@@ -62,7 +69,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
               {/* <Link href={link} passHref>
               <a> */}
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.moonrankCollection?.image && (
+                {nft.moonrankCollection?.image && showCollectionThumbnail && (
                   <img
                     src={nft.moonrankCollection?.image}
                     alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
