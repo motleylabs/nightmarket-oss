@@ -2,6 +2,7 @@ import { useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import config from '../app.config';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
@@ -26,7 +27,9 @@ enum NFTStates {
 export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
-  const listing = nft.listing;
+  const listing = nft.listings?.find((listing) => {
+    return listing.auctionHouse?.address === config.auctionHouse;
+  });
 
   const viewer = useReactiveVar(viewerVar);
 
