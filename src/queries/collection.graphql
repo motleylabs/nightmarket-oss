@@ -148,10 +148,10 @@ query CollectionAnalyticsFloorPriceQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) @cached(ttl: 300) {
+) {
   collection(id: $id) {
     id
-    floorPriceSeries: timeseries(startTime: $startTime, endTime: $endTime) {
+    timeseries(startTime: $startTime, endTime: $endTime) {
       floorPrice {
         timestamp
         value
@@ -165,10 +165,10 @@ query CollectionAnalyticsListedCountQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) @cached(ttl: 300) {
+) {
   collection(id: $id) {
     id
-    listedCountSeries: timeseries(startTime: $startTime, endTime: $endTime) {
+    timeseries(startTime: $startTime, endTime: $endTime) {
       listedCount {
         timestamp
         value
@@ -182,10 +182,10 @@ query CollectionAnalyticsHolderCountQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) @cached(ttl: 300) {
+) {
   collection(id: $id) {
     id
-    holderCountSeries: timeseries(startTime: $startTime, endTime: $endTime) {
+    timeseries(startTime: $startTime, endTime: $endTime) {
       holderCount {
         timestamp
         value

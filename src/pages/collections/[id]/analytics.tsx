@@ -65,14 +65,13 @@ const FloorPriceChart = () => {
       nextFetchPolicy: 'cache-first',
     }
   );
-  console.log('floorDataQuery', floorDataQuery);
 
   return (
     <Chart.Timeseries
       className="h-96"
       title={t('collection.floorPriceChartTitle')}
       query={floorDataQuery}
-      timeseries={floorDataQuery.data?.collection.floorPriceSeries.floorPrice}
+      timeseries={floorDataQuery.data?.collection.timeseries.floorPrice}
     />
   );
 };
@@ -94,14 +93,13 @@ const ListedCountChart = () => {
       nextFetchPolicy: 'cache-first',
     }
   );
-  console.log('listedCountQuery', listedCountQuery);
 
   return (
     <Chart.Timeseries
       className="h-96"
       title={t('collection.listedCountChartTitle')}
       query={listedCountQuery}
-      timeseries={listedCountQuery.data?.collection.listedCountSeries.listedCount}
+      timeseries={listedCountQuery.data?.collection.timeseries.listedCount}
     />
   );
 };
@@ -123,14 +121,13 @@ const HolderCountChart = () => {
       nextFetchPolicy: 'cache-first',
     }
   );
-  console.log('holderCountQuery', holderCountQuery);
 
   return (
     <Chart.Timeseries
       className="h-96"
       title={t('collection.holderCountChartTitle')}
       query={holderCountQuery}
-      timeseries={holderCountQuery.data?.collection.holderCountSeries.holderCount}
+      timeseries={holderCountQuery.data?.collection.timeseries.holderCount}
     />
   );
 };

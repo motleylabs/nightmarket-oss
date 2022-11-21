@@ -648,6 +648,7 @@ const client = new ApolloClient({
         },
       },
       Timeseries: {
+        keyFields: [],
         fields: {
           floorPrice: {
             read(floorPrice: Datapoint[]): Datapoint[] {
