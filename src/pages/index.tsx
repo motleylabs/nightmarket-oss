@@ -96,8 +96,9 @@ const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
 const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
 
 const Home: NextPage = () => {
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingMoreTrends, setLoadingMoreTrends] = useState(false);
   const { t } = useTranslation(['home', 'collection']);
+  const [hasMoreTrends, setHasMoreTrends] = useState(true);
 
   const sortOptions: SortOption[] = useMemo(
     () => [
@@ -122,7 +123,6 @@ const Home: NextPage = () => {
   });
 
   const timeFrame = watch('filter');
-  const sortType = watch('sort');
 
   // const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
   //   variables: {
@@ -146,13 +146,17 @@ const Home: NextPage = () => {
   );
 
   const onShowMoreTrends = async () => {
-    setLoadingMore(true);
-    await trendingCollectionsQuery.fetchMore({
+    if (!hasMoreTrends) return;
+    setLoadingMoreTrends(true);
+    const {
+      data: { collectionTrends },
+    } = await trendingCollectionsQuery.fetchMore({
       variables: {
         offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
       },
     });
-    setLoadingMore(false);
+    setLoadingMoreTrends(false);
+    setHasMoreTrends(collectionTrends && collectionTrends.length >= 0);
   };
 
   const onExploreNftsClick = () => {
@@ -168,15 +172,18 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    let variables: TrendingCollectionsVariables = {
-      sortBy: sortType,
-      timeFrame: timeFrame,
-      orderDirection: DEFAULT_ORDER,
-      offset: 0,
-    };
+    const subscription = watch(({ filter, sort }) => {
+      let variables: TrendingCollectionsVariables = {
+        sortBy: sort ?? DEFAULT_SORT,
+        timeFrame: filter ?? DEFAULT_TIME_FRAME,
+        orderDirection: DEFAULT_ORDER,
+        offset: 0,
+      };
 
-    trendingCollectionsQuery.refetch(variables);
-  }, [sortType, timeFrame, trendingCollectionsQuery]);
+      trendingCollectionsQuery.refetch(variables);
+    });
+    return subscription.unsubscribe;
+  }, [timeFrame, trendingCollectionsQuery, watch]);
 
   return (
     <>
@@ -403,8 +410,8 @@ const Home: NextPage = () => {
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
             color={ButtonColor.Gradient}
-            loading={loadingMore}
-            disabled={loadingMore}
+            loading={loadingMoreTrends}
+            disabled={loadingMoreTrends}
           >
             {t('collection:showMoreCollections')}
           </Button>
