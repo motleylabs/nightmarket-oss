@@ -12,6 +12,7 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     auctionHouseTreasury
     rewardCenter {
       address
+      tokenMint
     }
   }
 

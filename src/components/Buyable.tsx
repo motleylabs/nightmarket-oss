@@ -44,7 +44,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
     (listing) => listing.auctionHouse?.address === config.auctionHouse
   );
 
-  const { onBuyNow, buying, onCloseBuy } = useBuyNow()
+  const { onBuyNow, buying, onCloseBuy } = useBuyNow();
   const handleBuy = async () => {
     if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
       await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });

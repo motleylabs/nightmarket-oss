@@ -79,9 +79,11 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         <div className="relative flex flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              <span className="flex items-center justify-center gap-1 text-lg">
-                {listing && listing?.solPrice} <Icon.Sol />
-              </span>
+              {listing && (
+                <span className="flex items-center justify-center gap-1 text-lg">
+                  {listing?.solPrice} <Icon.Sol />
+                </span>
+              )}
             </>
           ) : (
             <>

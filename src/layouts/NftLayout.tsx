@@ -250,7 +250,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.moonrankCollection ? (
-            // TODO: Update to collection id once nft is updated
             <Link href={`/collections/${nft.moonrankCollection.id}/nfts`}>
               <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
                 <img

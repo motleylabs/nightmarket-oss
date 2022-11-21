@@ -6,7 +6,7 @@ const REWARD_CENTER_PROGRAM = new PublicKey('RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHz
 
 export class RewardCenterProgram {
   static PUBKEY = REWARD_CENTER_PROGRAM;
-  
+
   static findRewardCenterAddress(auctionHouse: PublicKey): Promise<[PublicKey, number]> {
     return PublicKey.findProgramAddress(
       [Buffer.from('reward_center', 'utf8'), auctionHouse.toBuffer()],

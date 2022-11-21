@@ -192,7 +192,6 @@ export function useListNft(): ListNftContext {
           },
         },
         (data) => {
-          debugger;
           const listing = {
             __typename: 'AhListing',
             id: `temp-id-listing-${publicKey.toBase58()}`,
@@ -529,7 +528,7 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
           const listings = data.nft.listings.filter(
             (listing: AhListing) => listing.seller !== publicKey.toBase58()
           );
-          
+
           return {
             nft: {
               ...data.nft,

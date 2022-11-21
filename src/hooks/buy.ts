@@ -10,7 +10,13 @@ import {
   BuyListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { toast } from 'react-toastify';
-import { PublicKey, Transaction, AccountMeta, TransactionInstruction, ComputeBudgetProgram } from '@solana/web3.js';
+import {
+  PublicKey,
+  Transaction,
+  AccountMeta,
+  TransactionInstruction,
+  ComputeBudgetProgram,
+} from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
 
@@ -45,7 +51,6 @@ export default function useBuyNow(): BuyContext {
   const login = useLogin();
   const [buy, setBuy] = useState(false);
   const [buying, setBuying] = useState(false);
-
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
     if (
@@ -106,7 +111,7 @@ export default function useBuyNow(): BuyContext {
         metadata,
         rewardCenter
       );
-    
+
       const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
         auctionHouseAddress,
         rewardCenter
@@ -178,11 +183,11 @@ export default function useBuyNow(): BuyContext {
           freeTradeStateBump: freeSellerTradeBump,
           sellerTradeStateBump,
           programAsSignerBump,
-          buyerTradeStateBump
+          buyerTradeStateBump,
         },
       };
 
-      const   buyListingIx = createBuyListingInstruction(accounts, args);
+      const buyListingIx = createBuyListingInstruction(accounts, args);
 
       let remainingAccounts: AccountMeta[] = [];
 
@@ -199,14 +204,15 @@ export default function useBuyNow(): BuyContext {
 
       const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
 
-      if (!buyerAtAInfo) {
-        tx.add(buyerATAInstruction);
-      }
-      
       const keys = buyListingIx.keys.concat(remainingAccounts);
 
       const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 350000 });
-      tx.add(ix)
+      tx.add(ix);
+
+      if (!buyerAtAInfo) {
+        tx.add(buyerATAInstruction);
+      }
+
       tx.add(
         new TransactionInstruction({
           programId: RewardCenterProgram.PUBKEY,
