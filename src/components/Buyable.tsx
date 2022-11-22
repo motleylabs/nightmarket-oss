@@ -4,7 +4,7 @@ import { AuctionHouse, Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
-import { useLazyQuery, useReactiveVar } from '@apollo/client';
+import { useApolloClient, useLazyQuery, useReactiveVar } from '@apollo/client';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import useBuyNow from '../hooks/buy';
 import { viewerVar } from '../cache';
@@ -28,6 +28,7 @@ interface BuyableProps {
 export function Buyable({ children, connected = false }: BuyableProps) {
   const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
+  const client = useApolloClient();
   const openBuyNow = (mintAddress: string) => {
     buyableQuery({
       variables: { address: mintAddress, auctionHouse: config.auctionHouse },
@@ -48,7 +49,29 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const handleBuy = async () => {
     if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
       await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });
-      await refetch();
+      client.cache.updateQuery(
+        {
+          query: BuyableQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: data.nft.mintAddress,
+            auctionHouse: data.auctionHouse.address,
+          },
+        },
+        (oldData) => {
+          return {
+            ...oldData,
+            nft: {
+              ...oldData.nft,
+              owner: {
+                ...oldData.nft.owner,
+                address: viewer?.address,
+              },
+            },
+          };
+        }
+      );
     }
   };
 
