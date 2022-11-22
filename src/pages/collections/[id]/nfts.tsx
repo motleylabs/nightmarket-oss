@@ -145,7 +145,7 @@ export default function CollectionNfts() {
         limit: 24,
         id: router.query.id as string,
         sortBy: sortBySelect === SortType.RecentlyListed ? NftSort.ListedAt : NftSort.Price,
-        order: sortBySelect === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc,
+        order: sortBySelect === SortType.PriceHighToLow ? OrderDirection.Desc : OrderDirection.Asc,
         auctionHouse: config.auctionHouse,
       };
 
