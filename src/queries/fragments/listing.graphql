@@ -4,24 +4,9 @@ fragment ListingInfo on AhListing {
   price
   marketplaceProgramAddress
   solPrice @client
-  nftMarketplace @client {
-    name
-    logo
-    link
-  }
   tradeState
   tradeStateBump
   auctionHouse {
     address
-    auctionHouseFeeAccount
-    treasuryMint
-    authority
-    rewardCenter {
-      address
-      tokenMint
-      sellerRewardPayoutBasisPoints
-      payoutNumeral
-      mathematicalOperand
-    }
   }
 }
