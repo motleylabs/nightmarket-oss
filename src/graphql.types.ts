@@ -1591,7 +1591,7 @@ export type Storefront = {
 export type Timeseries = {
   __typename?: 'Timeseries';
   floorPrice: Array<Datapoint>;
-  holderCount: Array<Datapoint>;
+  holderCountData: Array<Datapoint>;
   listedCount: Array<Datapoint>;
 };
 

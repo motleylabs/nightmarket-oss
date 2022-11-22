@@ -148,7 +148,7 @@ query CollectionAnalyticsFloorPriceQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) {
+) @cached(ttl: 300) {
   collection(id: $id) {
     id
     timeseries(startTime: $startTime, endTime: $endTime) {
@@ -165,7 +165,7 @@ query CollectionAnalyticsListedCountQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) {
+) @cached(ttl: 300) {
   collection(id: $id) {
     id
     timeseries(startTime: $startTime, endTime: $endTime) {
@@ -182,11 +182,11 @@ query CollectionAnalyticsHolderCountQuery(
   $id: String!
   $startTime: DateTimeUtc!
   $endTime: DateTimeUtc!
-) {
+) @cached(ttl: 300) {
   collection(id: $id) {
     id
     timeseries(startTime: $startTime, endTime: $endTime) {
-      holderCount {
+      holderCountData {
         timestamp
         value
         amount @client
