@@ -15,6 +15,9 @@ query NftQuery($address: String!, $auctionHouse: String!) {
     rewardCenter {
       address
       tokenMint
+      sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
     }
   }
 

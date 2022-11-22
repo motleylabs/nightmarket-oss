@@ -81,7 +81,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     return offer || null;
   }, [data?.nft.offers, publicKey]);
-  const rewardCenter = listing?.auctionHouse?.rewardCenter;
+  const rewardCenter = auctionHouse?.rewardCenter;
   const rewards = useMemo(
     () =>
       listing && rewardCenter
@@ -127,8 +127,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     handleSubmitListNft,
     registerListNft,
     onSubmitListNft,
-    onCancelListNftClick,
     onListNftClick,
+    onCancelListNftClick,
     listNftState,
   } = useListNft();
 
@@ -139,7 +139,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onSubmitListNft({ amount, nft, auctionHouse });
   };
 
-  const { onCloseListing, closingListing } = useCloseListing({ listing, nft });
+  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
 
   const {
     updateListing,
