@@ -186,7 +186,7 @@ query CollectionAnalyticsHolderCountQuery(
   collection(id: $id) {
     id
     timeseries(startTime: $startTime, endTime: $endTime) {
-      holderCountData {
+      ownersCount {
         timestamp
         value
         amount @client

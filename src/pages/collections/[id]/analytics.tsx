@@ -127,7 +127,7 @@ const HolderCountChart = () => {
       className="h-96"
       title={t('collection.holderCountChartTitle')}
       query={holderCountQuery}
-      timeseries={holderCountQuery.data?.collection.timeseries.holderCountData}
+      timeseries={holderCountQuery.data?.collection.timeseries.ownersCount}
     />
   );
 };
