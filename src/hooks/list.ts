@@ -16,6 +16,7 @@ import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toast } from 'react-toastify';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
@@ -67,6 +68,7 @@ export function useListNft(): ListNftContext {
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
@@ -134,7 +136,30 @@ export function useListNft(): ListNftContext {
 
     const instruction = createCreateListingInstruction(accounts, args);
 
+    const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      sellerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
     const tx = new Transaction();
+
+    if (!sellerAtAInfo) {
+      tx.add(sellerATAInstruction);
+    }
+
     tx.add(instruction);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -156,7 +181,6 @@ export function useListNft(): ListNftContext {
         toast('Listing posted', { type: 'success' });
       }
 
-      // TODO: fix ui updating
       client.cache.updateQuery(
         {
           query: NftMarketInfoQuery,
@@ -169,22 +193,16 @@ export function useListNft(): ListNftContext {
         (data) => {
           const listing = {
             __typename: 'AhListing',
-            id: `temp-id-listing-${publicKey.toBase58()}`,
-            address: listingAddress.toBase58(),
-            createdAt: new Date().toISOString(),
-            auctionHouse: {
-              __typename: 'AuctionHouse',
-              address: config.auctionHouse,
-              auctionHouseFeeAccount: auctionHouse.auctionHouseFeeAccount,
-              treasuryMint: treasuryMint.toBase58(),
-              authority: authority.toBase58(),
-              rewardCenter: null,
-            },
+            id: `temp-id-listing-${listingAddress.toBase58()}`,
             seller: publicKey.toBase58(),
-            marketplaceProgramAddress: config.auctionHouse,
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
             tradeState: sellerTradeState.toBase58(),
             tradeStateBump: tradeStateBump,
             price: buyerPrice.toString(),
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
           };
 
           const listings = [...data.nft.listings, listing];
@@ -278,6 +296,8 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const metadata = new PublicKey(nft.address);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
 
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
@@ -287,6 +307,15 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
       publicKey,
       metadata,
       rewardCenter
+    );
+
+    const [tradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
+      publicKey,
+      auctionHouseAddress,
+      associatedTokenAccount,
+      treasuryMint,
+      tokenMint,
+      1
     );
 
     const accounts: UpdateListingInstructionAccounts = {
@@ -326,7 +355,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
           'confirmed'
         );
 
-        toast('Listing posted', { type: 'success' });
+        toast('Listing price updated', { type: 'success' });
       }
 
       // TODO: fix update UI
@@ -340,26 +369,21 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
           },
         },
         (data) => {
-          const listings = [...data.nft.listings].filter(
-            (listing: AhListing) => listing.seller !== publicKey.toBase58()
+          const listings = data.nft.listings.filter(
+            (listing: AhListing) => listing.tradeState !== tradeState.toBase58()
           );
+
           const listing = {
             __typename: 'AhListing',
             id: `temp-id-listing-${publicKey.toBase58()}`,
-            address: listingAddress.toBase58(),
-            createdAt: new Date().toISOString(),
             auctionHouse: {
               __typename: 'AuctionHouse',
               address: config.auctionHouse,
-              auctionHouseFeeAccount: auctionHouse.auctionHouseFeeAccount,
-              treasuryMint: 'temp-treasuryMint',
-              authority: 'temp-authority',
-              rewardCenter: null,
             },
             seller: publicKey.toBase58(),
-            marketplaceProgramAddress: config.auctionHouse,
-            tradeState: 'temp-tradeState',
-            tradeStateBump: 0,
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+            tradeState: tradeState.toBase58(),
+            tradeStateBump: tradeStateBump,
             price: buyerPrice.toString(),
           };
 
@@ -405,6 +429,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
 interface CloseListingArgs {
   listing: Maybe<AhListing> | undefined;
   nft: Nft;
+  auctionHouse: Maybe<AuctionHouse> | undefined;
 }
 
 interface CancelListingContext {
@@ -412,17 +437,20 @@ interface CancelListingContext {
   closingListing: boolean;
 }
 
-export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListingContext {
+export function useCloseListing({
+  listing,
+  nft,
+  auctionHouse,
+}: CloseListingArgs): CancelListingContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const [closingListing, setClosing] = useState(false);
 
   const onCloseListing = async () => {
-    if (!publicKey || !signTransaction || !listing || !listing.auctionHouse) {
+    if (!publicKey || !signTransaction || !listing || !auctionHouse) {
       return;
     }
     setClosing(true);
-    const auctionHouse = listing.auctionHouse;
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const authority = new PublicKey(auctionHouse.authority);
@@ -432,8 +460,6 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
     const metadata = new PublicKey(nft.address);
 
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
-
-    listing.auctionHouse?.treasuryMint;
 
     const [sellerTradeState, _tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
@@ -507,9 +533,10 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
           },
         },
         (data) => {
-          const listings = [...data.nft.listings].filter(
-            (listing: AhListing) => listing.seller !== publicKey.toBase58()
+          const listings = data.nft.listings.filter(
+            (listing: AhListing) => listing.tradeState !== sellerTradeState.toBase58()
           );
+
           return {
             nft: {
               ...data.nft,

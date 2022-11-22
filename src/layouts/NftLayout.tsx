@@ -20,7 +20,6 @@ import useLogin from '../hooks/login';
 import config from '../app.config';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
-import { asCompactNumber } from '../modules/number';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -82,7 +81,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     return offer || null;
   }, [data?.nft.offers, publicKey]);
-  const rewardCenter = listing?.auctionHouse?.rewardCenter;
+  const rewardCenter = auctionHouse?.rewardCenter;
   const rewards = useMemo(
     () =>
       listing && rewardCenter
@@ -113,16 +112,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onMakeOffer({ amount, nft, auctionHouse });
   };
 
-  const {
-    buy,
-    registerBuy,
-    onBuyNow,
-    onOpenBuy,
-    onCloseBuy,
-    handleSubmitBuy,
-    buyFormState,
-    setValue,
-  } = useBuyNow();
+  const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
@@ -137,8 +127,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     handleSubmitListNft,
     registerListNft,
     onSubmitListNft,
-    onCancelListNftClick,
     onListNftClick,
+    onCancelListNftClick,
     listNftState,
   } = useListNft();
 
@@ -149,7 +139,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onSubmitListNft({ amount, nft, auctionHouse });
   };
 
-  const { onCloseListing, closingListing } = useCloseListing({ listing, nft });
+  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
 
   const {
     updateListing,
@@ -197,10 +187,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     await onUpdateOffer({ amount, nft, auctionHouse });
   };
-
-  useEffect(() => {
-    setValue('amount', listing?.solPrice as number);
-  }, [setValue, listing]);
 
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
@@ -264,16 +250,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.moonrankCollection ? (
-            // TODO: Update to collection id once nft is updated
-            <Link href={`/collections/${nft.moonrankCollection.id}/nfts`}>
-              <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
-                <img
-                  src={nft.moonrankCollection.image}
-                  className="aspect-square w-10 rounded-md object-cover"
-                  alt="collection image"
-                />
-                <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
-              </a>
+            <Link
+              className="flex flex-row items-center gap-2 transition hover:scale-[1.02]"
+              href={`/collections/${nft.moonrankCollection.id}/nfts`}
+            >
+              <img
+                src={nft.moonrankCollection.image}
+                className="aspect-square w-10 rounded-md object-cover"
+                alt="collection image"
+              />
+              <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
             </Link>
           ) : (
             <div />
@@ -281,10 +267,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         </div>
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
-          <Form
-            onSubmit={handleSubmitBuy(handleBuy)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
-          >
+          <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
             <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
               {t('buy')}
             </h2>
@@ -296,7 +279,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-primary-700">{400} SAUCE</p>
+                  <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
@@ -345,7 +328,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       className="font-semibold"
                       block
                       htmlType="submit"
-                      loading={buyFormState.isSubmitting}
+                      loading={buying}
+                      onClick={handleBuy}
                     >
                       {t('buyable.buyNowButton', { ns: 'common' })}
                     </Button>
@@ -369,7 +353,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 )}
               </div>
             </div>
-          </Form>
+          </div>
         )}
         {makeOffer && (
           <Form
@@ -670,7 +654,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           })}
         >
           <div className="flex flex-col items-center justify-between rounded-lg bg-gray-800">
-            {(listing || highestOffer) && (
+            {listing && (
               <div className="flex w-full flex-row items-center justify-between border-b-[1px] border-b-gray-900 py-4 px-6">
                 <img
                   src="/images/nightmarket.svg"
@@ -680,14 +664,10 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
                   {listing && isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.sellerRewards)} $SAUCE
-                    </p>
+                    <p className="text-primary-700">{rewards.sellerRewards} SAUCE</p>
                   )}
                   {listing && !isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.buyerRewards)} $SAUCE
-                    </p>
+                    <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
                   )}
                 </span>
               </div>
@@ -832,17 +812,17 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="align-self-start mb-10 w-full md:pr-10 lg:w-1/2">
         <div className="mb-10 flex flex-row items-center justify-center">
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
-            <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/details`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/offers`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/offers`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/activity`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/activity`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
               </a>

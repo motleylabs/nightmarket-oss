@@ -2,6 +2,7 @@ import { useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import config from '../app.config';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
@@ -10,6 +11,7 @@ import Icon from './Icon';
 interface NftCardProps {
   nft: Nft;
   link: string;
+  showCollectionThumbnail?: boolean;
   onBuy?: () => void;
   onMakeOffer?: () => void;
 }
@@ -23,10 +25,18 @@ enum NFTStates {
 }
 
 // TODO: listing & update listing when instructions done
-export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.Element {
+export function NftCard({
+  nft,
+  onBuy,
+  showCollectionThumbnail = true,
+  onMakeOffer,
+  link,
+}: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
-  const listing = nft.listing;
+  const listing = nft.listings?.find((listing) => {
+    return listing.auctionHouse?.address === config.auctionHouse;
+  });
 
   const viewer = useReactiveVar(viewerVar);
 
@@ -35,7 +45,7 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
   return (
     <>
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
-        <Link href={link} passHref>
+        <Link href={link}>
           <a>
             <div className="relative block overflow-hidden">
               <img
@@ -59,10 +69,8 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
             </div>
 
             <div className="z-20 p-4">
-              {/* <Link href={link} passHref>
-              <a> */}
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.moonrankCollection?.image && (
+                {nft.moonrankCollection?.image && showCollectionThumbnail && (
                   <img
                     src={nft.moonrankCollection?.image}
                     alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
@@ -71,8 +79,6 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                 )}
                 <span className="truncate">{nft.name}</span>
               </div>
-              {/* </a>
-            </Link> */}
             </div>
           </a>
         </Link>
@@ -80,36 +86,31 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
         <div className="relative flex flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              <span className="text-lg">{listing && `${listing?.solPrice} SOL`}</span>
-              {!listing ? (
-                <Button border={ButtonBorder.Gray} color={ButtonColor.Gray} size={ButtonSize.Small}>
-                  {t('list')}
-                </Button>
-              ) : (
-                <Button
-                  disabled
-                  border={ButtonBorder.Gradient}
-                  color={ButtonColor.Gradient}
-                  size={ButtonSize.Small}
-                >
-                  {t('update')}
-                </Button>
+              {listing && (
+                <span className="flex items-center justify-center gap-1 text-lg">
+                  {listing?.solPrice} <Icon.Sol />
+                </span>
               )}
             </>
           ) : (
             <>
               {listing ? (
                 <>
-                  <span className="text-lg">{listing?.solPrice} SOL</span>
-                  <Button
-                    onClick={onBuy}
-                    size={ButtonSize.Small}
-                    background={ButtonBackground.Slate}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                  >
-                    {t('buy')}
-                  </Button>
+                  <span className="flex items-center justify-start gap-1 text-lg">
+                    {listing?.solPrice} <Icon.Sol />
+                  </span>
+                  <Link href={link}>
+                    <a>
+                      <Button
+                        size={ButtonSize.Small}
+                        background={ButtonBackground.Slate}
+                        border={ButtonBorder.Gradient}
+                        color={ButtonColor.Gradient}
+                      >
+                        {t('buy')}
+                      </Button>
+                    </a>
+                  </Link>
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
@@ -124,14 +125,17 @@ export function NftCard({ nft, onBuy, onMakeOffer, link }: NftCardProps): JSX.El
                   ) : (
                     <div className="block" />
                   )}
-                  <Button
-                    onClick={onMakeOffer}
-                    border={ButtonBorder.Gray}
-                    color={ButtonColor.Gray}
-                    size={ButtonSize.Small}
-                  >
-                    {t('offer')}
-                  </Button>
+                  <Link href={link}>
+                    <a>
+                      <Button
+                        border={ButtonBorder.Gray}
+                        color={ButtonColor.Gray}
+                        size={ButtonSize.Small}
+                      >
+                        {t('offer')}
+                      </Button>
+                    </a>
+                  </Link>
                 </div>
               )}
             </>

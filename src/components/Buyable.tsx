@@ -6,7 +6,6 @@ import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
 import { useLazyQuery, useReactiveVar } from '@apollo/client';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
-import { Form } from './Form';
 import useBuyNow from '../hooks/buy';
 import { viewerVar } from '../cache';
 import config from './../app.config';
@@ -41,17 +40,11 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [buyableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<BuyableData>(BuyableQuery);
 
-  const marketplaceListings = data?.nft.listings?.filter(
+  const listing = data?.nft.listings?.find(
     (listing) => listing.auctionHouse?.address === config.auctionHouse
   );
-  const listing = marketplaceListings?.sort((a, b) => a.price - b.price)[0];
 
-  const { onBuyNow, handleSubmitBuy, onCloseBuy, buyFormState, setValue } = useBuyNow();
-  useEffect(() => {
-    setValue('amount', listing?.price.toString());
-    // TODO: handle form errors somehow
-  }, [setValue, listing]);
-
+  const { onBuyNow, buying, onCloseBuy } = useBuyNow();
   const handleBuy = async () => {
     if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
       await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });
@@ -107,8 +100,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               </section>
             </>
           ) : (
-            <Form onSubmit={handleSubmitBuy(handleBuy)} className="flex flex-col gap-6">
-              <section id={'preview-card'} className="flex flex-row gap-4">
+            <div className="flex flex-col gap-6">
+              <section className="flex flex-row gap-4">
                 <img
                   src={data?.nft.image}
                   alt={data?.nft.name}
@@ -169,12 +162,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               <section id={'buy-buttons'} className="flex flex-col gap-4">
                 {connected ? (
                   <>
-                    <Button
-                      className="font-semibold"
-                      block
-                      htmlType="submit"
-                      loading={buyFormState.isSubmitting}
-                    >
+                    <Button className="font-semibold" block loading={buying} onClick={handleBuy}>
                       {t('buyable.buyNowButton')}
                     </Button>
                     <Button
@@ -197,7 +185,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   </Button>
                 )}
               </section>
-            </Form>
+            </div>
           )}
         </div>
       </Modal>

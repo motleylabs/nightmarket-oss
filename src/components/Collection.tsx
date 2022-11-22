@@ -295,15 +295,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(0, 2)
-            .map((nft) => (
-              <Collection.List.ShowcaseNft
-                key={nft.mintAddress}
-                mintAddress={nft.mintAddress}
-                image={nft.image}
-                name={nft.name}
-                price={nft.listing?.price}
-              />
-            ))
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
       <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
@@ -316,15 +308,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(2, 5)
-            .map((nft) => (
-              <Collection.List.ShowcaseNft
-                key={nft.mintAddress}
-                mintAddress={nft.mintAddress}
-                image={nft.image}
-                name={nft.name}
-                price={nft.listing?.price}
-              />
-            ))
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
       <div className="hidden justify-end gap-2 lg:gap-4 2xl:flex">
@@ -336,15 +320,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
         ) : (
           nftPreviewQuery.data?.collection.nfts
             .slice(5, 7)
-            .map((nft) => (
-              <Collection.List.ShowcaseNft
-                key={nft.mintAddress}
-                mintAddress={nft.mintAddress}
-                image={nft.image}
-                name={nft.name}
-                price={nft.listing?.price}
-              />
-            ))
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
     </>
@@ -416,42 +392,36 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
 CollectionListDataPoint.Status = CollectionListDataPointStatus;
 
 interface CollectionListShowcaseNftProps {
-  mintAddress: string;
-  image: string;
-  name: string;
-  price?: number;
+  nft: Nft;
 }
-function CollectionListShowcaseNft({
-  mintAddress,
-  image,
-  name,
-  price,
-}: CollectionListShowcaseNftProps) {
+function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
+  const listing = nft.listings?.find((listing) => {
+    return listing.auctionHouse?.address === config.auctionHouse;
+  });
+
   return (
-    <Link href={`/nfts/${mintAddress}`} passHref>
-      <a>
-        <div className="flex w-16 flex-col items-center">
-          <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
-            <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-          </div>
-          {price && (
-            <div className="group ">
-              <Button
-                icon={<Icon.Sol className="h-3 w-3" />}
-                color={ButtonColor.Gray}
-                background={ButtonBackground.Slate}
-                size={ButtonSize.Tiny}
-                className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-              >
-                {price}
-              </Button>
-              <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-                Buy
-              </Button>
-            </div>
-          )}
+    <Link href={`/nfts/${nft.mintAddress}`}>
+      <div className="flex w-16 flex-col items-center">
+        <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
+          <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />
         </div>
-      </a>
+        {listing?.price && (
+          <div className="group ">
+            <Button
+              icon={<Icon.Sol className="h-3 w-3" />}
+              color={ButtonColor.Gray}
+              background={ButtonBackground.Slate}
+              size={ButtonSize.Tiny}
+              className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+            >
+              {listing?.price}
+            </Button>
+            <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+              Buy
+            </Button>
+          </div>
+        )}
+      </div>
     </Link>
   );
 }

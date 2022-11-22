@@ -135,7 +135,7 @@ Overview.Tabs = Tabs;
 
 function Tab(props: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={props.href} passHref>
+    <Link href={props.href}>
       <a>
         <div
           className={clsx(
@@ -179,7 +179,7 @@ Overview.Tab = Tab;
 //   const router = useRouter();
 
 //   return (
-//     <Link href={href} passHref>
+//     <Link href={href} >
 //       <a
 //         className={clsx(
 //           'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',
