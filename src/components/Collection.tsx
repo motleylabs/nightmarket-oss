@@ -400,30 +400,28 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   });
 
   return (
-    <Link href={`/nfts/${nft.mintAddress}`} passHref>
-      <a>
-        <div className="flex w-16 flex-col items-center">
-          <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
-            <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />
-          </div>
-          {listing?.price && (
-            <div className="group ">
-              <Button
-                icon={<Icon.Sol className="h-3 w-3" />}
-                color={ButtonColor.Gray}
-                background={ButtonBackground.Slate}
-                size={ButtonSize.Tiny}
-                className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-              >
-                {listing?.price}
-              </Button>
-              <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-                Buy
-              </Button>
-            </div>
-          )}
+    <Link href={`/nfts/${nft.mintAddress}`}>
+      <div className="flex w-16 flex-col items-center">
+        <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
+          <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />
         </div>
-      </a>
+        {listing?.price && (
+          <div className="group ">
+            <Button
+              icon={<Icon.Sol className="h-3 w-3" />}
+              color={ButtonColor.Gray}
+              background={ButtonBackground.Slate}
+              size={ButtonSize.Tiny}
+              className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+            >
+              {listing?.price}
+            </Button>
+            <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+              Buy
+            </Button>
+          </div>
+        )}
+      </div>
     </Link>
   );
 }

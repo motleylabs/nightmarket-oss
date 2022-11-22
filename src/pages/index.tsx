@@ -349,52 +349,53 @@ const Home: NextPage = () => {
 
                 return (
                   <Collection.List.Row key={trend.collection?.id}>
-                    <Link href={`/collections/${trend.collection?.id}`}>
-                      <a className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8">
-                        <Collection.List.Col className="flex-none">
-                          <img
-                            src={trend.collection?.image}
-                            alt={trend.collection?.name}
-                            className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
+                    <Link
+                      className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
+                      href={`/collections/${trend.collection?.id}`}
+                    >
+                      <Collection.List.Col className="flex-none">
+                        <img
+                          src={trend.collection?.image}
+                          alt={trend.collection?.name}
+                          className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
+                        />
+                      </Collection.List.Col>
+                      <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center xl:gap-8">
+                        <div className="w-full line-clamp-2 md:w-24 xl:w-36">
+                          {trend.collection?.name}
+                        </div>
+                        <div className="flex gap-1  lg:justify-start lg:gap-8">
+                          <Collection.List.DataPoint
+                            value={selectedTrend.floorPrice}
+                            icon={<Icon.Sol />}
+                            name={t('collection:globalFloor')}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.floorPriceChange}
+                              />
+                            }
                           />
-                        </Collection.List.Col>
-                        <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center xl:gap-8">
-                          <div className="w-full line-clamp-2 md:w-24 xl:w-36">
-                            {trend.collection?.name}
-                          </div>
-                          <div className="flex gap-1  lg:justify-start lg:gap-8">
-                            <Collection.List.DataPoint
-                              value={selectedTrend.floorPrice}
-                              icon={<Icon.Sol />}
-                              name={t('collection:globalFloor')}
-                              status={
-                                <Collection.List.DataPoint.Status
-                                  value={selectedTrend.floorPriceChange}
-                                />
-                              }
-                            />
-                            <Collection.List.DataPoint
-                              value={selectedTrend.volume}
-                              icon={<Icon.Sol />}
-                              name={volumeLabel}
-                              status={
-                                <Collection.List.DataPoint.Status
-                                  value={selectedTrend.volumeChange}
-                                />
-                              }
-                            />
-                            <Collection.List.DataPoint
-                              value={selectedTrend.listedCount}
-                              name={t('collection:listings')}
-                              status={
-                                <Collection.List.DataPoint.Status
-                                  value={selectedTrend.listedCountChange}
-                                />
-                              }
-                            />
-                          </div>
-                        </Collection.List.Col>
-                      </a>
+                          <Collection.List.DataPoint
+                            value={selectedTrend.volume}
+                            icon={<Icon.Sol />}
+                            name={volumeLabel}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.volumeChange}
+                              />
+                            }
+                          />
+                          <Collection.List.DataPoint
+                            value={selectedTrend.listedCount}
+                            name={t('collection:listings')}
+                            status={
+                              <Collection.List.DataPoint.Status
+                                value={selectedTrend.listedCountChange}
+                              />
+                            }
+                          />
+                        </div>
+                      </Collection.List.Col>
                     </Link>
                     <Collection.List.Col className="hidden gap-4 md:flex">
                       <Collection.List.NftPreview collection={trend.collection?.id} />
@@ -421,14 +422,15 @@ const Home: NextPage = () => {
         <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
           <div>
             {/* Logos */}
-            <Link href="/" passHref>
-              <a className="flex flex-row gap-2 whitespace-nowrap pb-6 text-2xl font-bold">
-                <img
-                  src="/images/nightmarket-stacked.svg"
-                  className="h-8 w-auto object-fill md:h-20"
-                  alt="night market logo"
-                />
-              </a>
+            <Link
+              className="flex flex-row gap-2 whitespace-nowrap pb-6 text-2xl font-bold"
+              href="/"
+            >
+              <img
+                src="/images/nightmarket-stacked.svg"
+                className="h-8 w-auto object-fill md:h-20"
+                alt="night market logo"
+              />
             </Link>
             <div>
               <svg
@@ -494,37 +496,44 @@ const Home: NextPage = () => {
           </div>
           <div className="flex flex-col justify-center gap-10 text-right text-white md:flex-row">
             {/* Links */}
-            <Link href={config.website}>
-              <a className="hover:underline" target={'_blank'}>
-                About the DAO
-              </a>
+            <Link className="hover:underline" target={'_blank'} href={config.website}>
+              About the DAO
             </Link>
-            <Link href="#">
-              <a className="hover:underline">Legal</a>
+            <Link className="hover:underline" href="#">
+              Legal
             </Link>
           </div>
           <div className="flex  gap-6 text-[#A8A8A8] md:justify-end ">
             {/* Social media */}
             {config.socialMedia.twitter && (
-              <Link href={config.socialMedia.twitter}>
-                <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
-                  <Icon.Twitter />
-                </a>
+              <Link
+                target="_blank"
+                rel="nofollow noreferrer"
+                className="hover:text-white"
+                href={config.socialMedia.twitter}
+              >
+                <Icon.Twitter />
               </Link>
             )}
             {config.socialMedia.discord && (
-              <Link href={config.socialMedia.discord}>
-                <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
-                  <Icon.Discord />
-                </a>
+              <Link
+                target="_blank"
+                rel="nofollow noreferrer"
+                className="hover:text-white"
+                href={config.socialMedia.discord}
+              >
+                <Icon.Discord />
               </Link>
             )}
 
             {config.socialMedia.medium && (
-              <Link href={config.socialMedia.medium}>
-                <a target="_blank" rel="nofollow noreferrer" className="hover:text-white">
-                  <Icon.Medium />
-                </a>
+              <Link
+                target="_blank"
+                rel="nofollow noreferrer"
+                className="hover:text-white"
+                href={config.socialMedia.medium}
+              >
+                <Icon.Medium />
               </Link>
             )}
           </div>

@@ -250,15 +250,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
         <div className="mb-4 flex flex-row items-center justify-between gap-2">
           {nft.moonrankCollection ? (
-            <Link href={`/collections/${nft.moonrankCollection.id}/nfts`}>
-              <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
-                <img
-                  src={nft.moonrankCollection.image}
-                  className="aspect-square w-10 rounded-md object-cover"
-                  alt="collection image"
-                />
-                <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
-              </a>
+            <Link
+              className="flex flex-row items-center gap-2 transition hover:scale-[1.02]"
+              href={`/collections/${nft.moonrankCollection.id}/nfts`}
+            >
+              <img
+                src={nft.moonrankCollection.image}
+                className="aspect-square w-10 rounded-md object-cover"
+                alt="collection image"
+              />
+              <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
             </Link>
           ) : (
             <div />
@@ -811,17 +812,17 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="align-self-start mb-10 w-full md:pr-10 lg:w-1/2">
         <div className="mb-10 flex flex-row items-center justify-center">
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
-            <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/details`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/offers`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/offers`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/activity`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/activity`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
               </a>

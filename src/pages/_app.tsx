@@ -39,6 +39,21 @@ import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
 import { ToastContainer } from 'react-toastify';
+import localFont from '@next/font/local';
+
+const BriceFont = localFont({
+  src: './Brice-Bold.woff2',
+  weight: '700',
+  style: 'normal',
+  variable: '--font-brice',
+});
+const HauoraFont = localFont({
+  src: [
+    { path: './Hauora-Regular.woff2', weight: '400', style: 'normal' },
+    { path: './Hauora-Bold.woff2', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-hauora',
+});
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -89,14 +104,12 @@ function NavigationBar() {
           hidden: searchExpanded,
         })}
       >
-        <Link href="/" passHref>
-          <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-            <img
-              src="/images/nightmarket-stacked.svg"
-              className="h-8 w-auto object-fill md:h-11"
-              alt="night market logo"
-            />
-          </a>
+        <Link href="/" className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
+          <img
+            src="/images/nightmarket-stacked.svg"
+            className="h-8 w-auto object-fill md:h-11"
+            alt="night market logo"
+          />
         </Link>
       </div>
       {/* Search */}
@@ -313,25 +326,28 @@ function ProfilePopover(props: { wallet: Wallet }) {
                 </button>
               </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
-                <Link href={`/profiles/${props.wallet.address}/collected`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800">
-                    {t('profileMenu.collected')}
-                  </a>
+                <Link
+                  className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
+                  href={`/profiles/${props.wallet.address}/collected`}
+                >
+                  {t('profileMenu.collected')}
                 </Link>
-                <Link href={`/profiles/${props.wallet.address}/activity`} passHref>
-                  <a className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800">
-                    {t('profileMenu.activity')}
-                  </a>
+                <Link
+                  className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
+                  href={`/profiles/${props.wallet.address}/activity`}
+                >
+                  {t('profileMenu.activity')}
                 </Link>
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex px-4">
-                  <Link href={`/profiles/${props.wallet.address}/collected`} passHref>
-                    <a className="flex w-full">
-                      <Button onClick={() => close()} className="w-full">
-                        {t('viewProfile')}
-                      </Button>
-                    </a>
+                  <Link
+                    className="flex w-full"
+                    href={`/profiles/${props.wallet.address}/collected`}
+                  >
+                    <Button onClick={() => close()} className="w-full">
+                      {t('viewProfile')}
+                    </Button>
                   </Link>
                 </div>
                 <div className="flex w-full px-4">
@@ -403,14 +419,12 @@ function MobileNavMenu({
       )}
     >
       <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
-        <Link href="/" passHref>
-          <a className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
-            <img
-              src="/images/nightmarket-stacked.svg"
-              className="h-8 w-auto object-fill"
-              alt="night market logo"
-            />
-          </a>
+        <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
+          <img
+            src="/images/nightmarket-stacked.svg"
+            className="h-8 w-auto object-fill"
+            alt="night market logo"
+          />
         </Link>
         <button
           className="rounded-full bg-transparent bg-white p-3 transition hover:bg-gray-100"
@@ -449,19 +463,15 @@ function MobileNavMenu({
                 </div>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  passHref
+                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
-                  <a className="flex cursor-pointer py-2 text-sm hover:bg-gray-800">
-                    {t('profileMenu.collected')}
-                  </a>
+                  {t('profileMenu.collected')}
                 </Link>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
-                  passHref
+                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
-                  <a className="flex cursor-pointer py-2 text-sm hover:bg-gray-800">
-                    {t('profileMenu.activity')}
-                  </a>
+                  {t('profileMenu.activity')}
                 </Link>
               </section>
 
@@ -471,11 +481,9 @@ function MobileNavMenu({
               >
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  passHref
+                  className="flex w-full"
                 >
-                  <a className="flex w-full">
-                    <Button className="w-full font-semibold">{t('viewProfile')}</Button>
-                  </a>
+                  <Button className="w-full font-semibold">{t('viewProfile')}</Button>
                 </Link>
 
                 <Button
@@ -545,23 +553,25 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
 
   return (
-    <ApolloProvider client={client}>
-      <ToastContainer />
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider className="wallet-modal-theme">
-            <ViewerProvider>
-              <CurrencyProvider>
-                <NavigationBar />
-                <PageLayout {...pageProps}>
-                  <Component {...pageProps} />
-                </PageLayout>
-              </CurrencyProvider>
-            </ViewerProvider>
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </ApolloProvider>
+    <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
+      <ApolloProvider client={client}>
+        <ToastContainer />
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={wallets} autoConnect>
+            <WalletModalProvider className="wallet-modal-theme">
+              <ViewerProvider>
+                <CurrencyProvider>
+                  <NavigationBar />
+                  <PageLayout {...pageProps}>
+                    <Component {...pageProps} />
+                  </PageLayout>
+                </CurrencyProvider>
+              </ViewerProvider>
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
+      </ApolloProvider>
+    </div>
   );
 }
 

@@ -45,7 +45,7 @@ export function NftCard({
   return (
     <>
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
-        <Link href={link} passHref>
+        <Link href={link}>
           <a>
             <div className="relative block overflow-hidden">
               <img
@@ -99,7 +99,7 @@ export function NftCard({
                   <span className="flex items-center justify-start gap-1 text-lg">
                     {listing?.solPrice} <Icon.Sol />
                   </span>
-                  <Link href={link} passHref>
+                  <Link href={link}>
                     <a>
                       <Button
                         size={ButtonSize.Small}
@@ -125,7 +125,7 @@ export function NftCard({
                   ) : (
                     <div className="block" />
                   )}
-                  <Link href={link} passHref>
+                  <Link href={link}>
                     <a>
                       <Button
                         border={ButtonBorder.Gray}

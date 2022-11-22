@@ -130,7 +130,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
         )}
         <li className="flex items-center justify-between">
           <div>{t('owner')}</div>
-          <Link href={`/profiles/${nft.owner?.address}/collected`} passHref>
+          <Link href={`/profiles/${nft.owner?.address}/collected`}>
             <a className="flex flex-row items-center gap-1">
               <img
                 src={nft.owner?.previewImage as string}
