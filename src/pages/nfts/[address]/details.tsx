@@ -153,7 +153,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
       {nft.moonrankCollection && (
         <>
           <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
-          <p className="text-gray-300">{nft?.collection?.description}</p>
+          <p className="text-gray-300">{nft?.moonrankCollection.description}</p>
         </>
       )}
     </>
