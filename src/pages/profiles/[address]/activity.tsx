@@ -160,8 +160,13 @@ export default function ProfileActivity(): JSX.Element {
               <Activity
                 avatar={
                   <Link
+<<<<<<< HEAD
                     className="cursor-pointer transition hover:scale-[1.02]"
                     href={`/nfts/${activity.nft?.mintAddress}/details`}
+=======
+                    href={`/nfts/${activity.nft?.mintAddress}/details`}
+                    className="cursor-pointer transition hover:scale-[1.02]"
+>>>>>>> 701fd2f (feat: cleanup links & update offerable/buyable to match new hook requirements)
                   >
                     <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
                   </Link>

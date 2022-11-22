@@ -8,6 +8,14 @@ query OfferableQuery($address: String!, $auctionHouse: String!) {
     treasuryMint
     authority
     auctionHouseFeeAccount
+    auctionHouseTreasury
+    rewardCenter {
+      address
+      tokenMint
+      sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
+    }
   }
 
   nft: nftByMintAddress(address: $address) {

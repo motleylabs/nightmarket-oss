@@ -6,7 +6,9 @@ import config from '../app.config';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import { Buyable } from './Buyable';
 import Icon from './Icon';
+import { Offerable } from './Offerable';
 
 interface NftCardProps {
   nft: Nft;
@@ -97,16 +99,19 @@ export function NftCard({
                   <span className="flex items-center justify-start gap-1 text-lg">
                     {listing?.solPrice} <Icon.Sol />
                   </span>
-                  <Link href={link}>
-                    <Button
-                      size={ButtonSize.Small}
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                    >
-                      {t('buy')}
-                    </Button>
-                  </Link>
+                  <Buyable connected={Boolean(viewer)}>
+                    {({ buyNow }) => (
+                      <Button
+                        onClick={() => buyNow(nft.mintAddress)}
+                        size={ButtonSize.Small}
+                        background={ButtonBackground.Slate}
+                        border={ButtonBorder.Gradient}
+                        color={ButtonColor.Gradient}
+                      >
+                        {t('buy')}
+                      </Button>
+                    )}
+                  </Buyable>
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
@@ -121,15 +126,18 @@ export function NftCard({
                   ) : (
                     <div className="block" />
                   )}
-                  <Link href={link}>
-                    <Button
-                      border={ButtonBorder.Gray}
-                      color={ButtonColor.Gray}
-                      size={ButtonSize.Small}
-                    >
-                      {t('offer')}
-                    </Button>
-                  </Link>
+                  <Offerable connected={Boolean(viewer)}>
+                    {({ makeOffer }) => (
+                      <Button
+                        onClick={() => makeOffer(nft.mintAddress)}
+                        border={ButtonBorder.Gray}
+                        color={ButtonColor.Gray}
+                        size={ButtonSize.Small}
+                      >
+                        {t('offer')}
+                      </Button>
+                    )}
+                  </Offerable>
                 </div>
               )}
             </>
