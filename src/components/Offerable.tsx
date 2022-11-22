@@ -2,7 +2,6 @@ import { useApolloClient, useLazyQuery, useReactiveVar } from '@apollo/client';
 import React, { useState } from 'react';
 import Modal from './Modal';
 import OfferableQuery from './../queries/offerable.graphql';
-import { CollectionNFTsQuery } from './../queries/collection.graphql';
 import { AuctionHouse, Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
@@ -13,6 +12,8 @@ import useLogin from '../hooks/login';
 import clsx from 'clsx';
 import { viewerVar } from '../cache';
 import config from './../app.config';
+import { BN } from 'bn.js';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 interface OfferableData {
   nft: Nft;
@@ -47,6 +48,10 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   const [offerableQuery, { data, loading, refetch, previousData }] =
     useLazyQuery<OfferableData>(OfferableQuery);
 
+  const myOffer = data?.nft.offers?.find((offer) => {
+    return offer.buyer === viewer?.address;
+  });
+
   const {
     makeOffer,
     registerOffer,
@@ -59,7 +64,44 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (data?.nft && data?.auctionHouse) {
       await onMakeOffer({ amount, nft: data?.nft, auctionHouse: data.auctionHouse });
-      await refetch();
+      client.cache.updateQuery(
+        {
+          query: OfferableQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: data.nft.mintAddress,
+            auctionHouse: data.auctionHouse.address,
+          },
+        },
+        (oldData) => {
+          const offer = {
+            __typename: 'Offer',
+            id: `temp-id-offer-${viewer?.address}`,
+            tradeState: 'temp-tradeState',
+            buyer: viewer?.address,
+            metadata: 'temp-metadata',
+            auctionHouse: {
+              address: data.auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            price: new BN(Number(amount) * LAMPORTS_PER_SOL),
+          };
+
+          const offers = [...oldData.nft.offers, offer];
+
+          console.log(offers);
+
+          return {
+            ...oldData,
+            nft: {
+              ...oldData.nft,
+              offers,
+            },
+          };
+          console.log(oldData);
+        }
+      );
     }
   };
 
@@ -135,6 +177,14 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
+                {myOffer && (
+                  <div className="flex flex-row justify-between">
+                    <p className="text-base font-medium text-gray-300">
+                      {t('offerable.yourOffer')}
+                    </p>
+                    <p className="text-base font-medium text-gray-300">{myOffer?.solPrice} SOL</p>
+                  </div>
+                )}
                 {data?.nft.moonrankCollection?.trends && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">

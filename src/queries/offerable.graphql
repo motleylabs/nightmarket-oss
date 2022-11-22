@@ -31,6 +31,17 @@ query OfferableQuery($address: String!, $auctionHouse: String!) {
         compactFloor1d @client
       }
     }
+    offers {
+      id
+      tradeState
+      buyer
+      metadata
+      price
+      solPrice @client
+      auctionHouse {
+        address
+      }
+    }
     listings {
       ...ListingInfo
     }
