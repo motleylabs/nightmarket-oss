@@ -23,8 +23,8 @@ module.exports = {
         // base: '1rem',
       },
       fontFamily: {
-        serif: ['Brice', ...defaultTheme.fontFamily.serif],
-        sans: ['Hauora', 'Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['var(--font-brice)'],
+        sans: ['var(--font-hauora)', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {
