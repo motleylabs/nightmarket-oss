@@ -33,6 +33,7 @@
     "discover": "Discover"
   },
   "offerable": {
+    "yourOffer": "Your offer",
     "makeOffer": "Make an offer",
     "floorPrice": "Current floor price",
     "listPrice": "Current listed price",

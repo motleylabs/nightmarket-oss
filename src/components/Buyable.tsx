@@ -48,6 +48,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const handleBuy = async () => {
     if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
       await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });
+      await refetch();
     }
   };
 

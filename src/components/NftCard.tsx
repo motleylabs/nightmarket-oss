@@ -5,6 +5,7 @@ import Link from 'next/link';
 import config from '../app.config';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
+import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 import { Buyable } from './Buyable';
 import Icon from './Icon';
@@ -36,8 +37,14 @@ export function NftCard({
 }: NftCardProps): JSX.Element {
   const { t } = useTranslation('common');
 
+  const { data } = useViewer();
+
   const listing = nft.listings?.find((listing) => {
     return listing.auctionHouse?.address === config.auctionHouse;
+  });
+
+  const myOffer = nft.offers?.find((offer) => {
+    return offer.buyer === data?.wallet.address;
   });
 
   const viewer = useReactiveVar(viewerVar);
@@ -121,6 +128,14 @@ export function NftCard({
                       <div className="flex gap-1">
                         <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                         {nft.lastSale?.solPrice}
+                      </div>
+                    </span>
+                  ) : myOffer ? (
+                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                      {t('offerable.yourOffer')}
+                      <div className="flex gap-1">
+                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                        {myOffer.solPrice}
                       </div>
                     </span>
                   ) : (
