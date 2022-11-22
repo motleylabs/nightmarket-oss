@@ -14,7 +14,7 @@ export enum ActivityType {
 
 interface ActivityProps {
   children: JSX.Element | JSX.Element[];
-  avatar: JSX.Element;
+  avatar?: JSX.Element;
   meta: JSX.Element;
   type: ActivityType;
   actionButton?: ReactNode;
@@ -30,7 +30,7 @@ export function Activity({
   return (
     <div className="mb-4 flex items-center justify-between rounded-2xl bg-gray-800 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
-        {avatar}
+        {avatar && avatar}
         {cloneElement(meta, { type })}
       </div>
       <div className="flex items-center gap-4">
