@@ -36,7 +36,7 @@ export default function LaunchpadPage() {
           />
         </div>
         <div className="top-20 mb-10 flex w-full flex-col gap-6 pt-0 lg:sticky lg:w-1/2 lg:pl-10">
-          <h6 className="!font-serif text-2xl font-bold">{t('phaseTitle')}</h6>
+          <h6 className="font-serif text-2xl font-bold">{t('phaseTitle')}</h6>
           <Launchpad candyMachineId={'9ACm8nAqgzTExSRQpb8JxYnZeEMTgLzsHDpRv8TmQVBY'}>
             {({ onMint, launchpadState, isMinting }) => (
               <>

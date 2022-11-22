@@ -400,7 +400,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   });
 
   return (
-    <Link href={`/nfts/${nft.mintAddress}`} passHref>
+    <Link href={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
         <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
           <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />

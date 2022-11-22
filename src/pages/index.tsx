@@ -425,7 +425,6 @@ const Home: NextPage = () => {
             <Link
               className="flex flex-row gap-2 whitespace-nowrap pb-6 text-2xl font-bold"
               href="/"
-              passHref
             >
               <img
                 src="/images/nightmarket-stacked.svg"

@@ -159,7 +159,7 @@ export default function ProfileActivity(): JSX.Element {
             {activitiesQuery.data?.wallet.activities.map((activity) => (
               <Activity
                 avatar={
-                  <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
+                  <Link href={`/nfts/${activity.nft?.mintAddress}/details`}>
                     <a className="cursor-pointer transition hover:scale-[1.02]">
                       <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
                     </a>

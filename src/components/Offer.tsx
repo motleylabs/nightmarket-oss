@@ -22,7 +22,6 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
         <Link
           className="cursor-pointer transition hover:scale-[1.02]"
           href={`/nfts/${offer.nft?.mintAddress}/details`}
-          passHref
         >
           <a>
             <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />

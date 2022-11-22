@@ -183,7 +183,7 @@ export default function ProfileCollected({
                               selected={selected}
                               avatar={
                                 // TODO: Update to collection id once collection nft is updated
-                                <Link passHref href={`/collections/${cc.collection?.id}/nfts`}>
+                                <Link href={`/collections/${cc.collection?.id}/nfts`}>
                                   <a className="group relative">
                                     <Collection.Option.Avatar
                                       src={cc.collection?.image as string}

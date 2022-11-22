@@ -71,7 +71,7 @@ export default function NftActivity() {
           {activitiesQuery.data?.nft.activities.map((activity) => (
             <Activity
               avatar={
-                <Link href={`/profiles/${activity.primaryWallet.address}/collected`} passHref>
+                <Link href={`/profiles/${activity.primaryWallet.address}/collected`}>
                   <a className="cursor-pointer transition hover:scale-[1.02]">
                     <Avatar
                       circle

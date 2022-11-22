@@ -812,17 +812,17 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <div className="align-self-start mb-10 w-full md:pr-10 lg:w-1/2">
         <div className="mb-10 flex flex-row items-center justify-center">
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
-            <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/details`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/offers`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/offers`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
               </a>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/activity`} passHref>
+            <Link href={`/nfts/${nft.mintAddress}/activity`}>
               <a>
                 <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
               </a>

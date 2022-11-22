@@ -164,7 +164,7 @@ export default function ProfileOffers(): JSX.Element {
                   return (
                     <Activity
                       avatar={
-                        <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
+                        <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
                           <a className="cursor-pointer transition hover:scale-[1.02]">
                             <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
                           </a>

@@ -43,14 +43,14 @@ import localFont from '@next/font/local';
 
 const BriceFont = localFont({
   src: './Brice-Bold.woff2',
-  // weight: '700',
-  // style: 'normal',
+  weight: '700',
+  style: 'normal',
   variable: '--font-brice',
 });
 const HauoraFont = localFont({
   src: [
-    { path: './../../styles/fonts/Hauora-Regular.otf', weight: '400', style: 'normal' },
-    { path: './../../styles/fonts/Hauora-Bold.otf', weight: '700', style: 'normal' },
+    { path: './Hauora-Regular.woff2', weight: '400', style: 'normal' },
+    { path: './Hauora-Bold.woff2', weight: '700', style: 'normal' },
   ],
   variable: '--font-hauora',
 });
@@ -104,11 +104,7 @@ function NavigationBar() {
           hidden: searchExpanded,
         })}
       >
-        <Link
-          href="/"
-          passHref
-          className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
-        >
+        <Link href="/" className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold">
           <img
             src="/images/nightmarket-stacked.svg"
             className="h-8 w-auto object-fill md:h-11"
@@ -333,14 +329,12 @@ function ProfilePopover(props: { wallet: Wallet }) {
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
                   href={`/profiles/${props.wallet.address}/collected`}
-                  passHref
                 >
                   {t('profileMenu.collected')}
                 </Link>
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
                   href={`/profiles/${props.wallet.address}/activity`}
-                  passHref
                 >
                   {t('profileMenu.activity')}
                 </Link>
@@ -350,7 +344,6 @@ function ProfilePopover(props: { wallet: Wallet }) {
                   <Link
                     className="flex w-full"
                     href={`/profiles/${props.wallet.address}/collected`}
-                    passHref
                   >
                     <Button onClick={() => close()} className="w-full">
                       {t('viewProfile')}
@@ -426,11 +419,7 @@ function MobileNavMenu({
       )}
     >
       <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
-        <Link
-          className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
-          href="/"
-          passHref
-        >
+        <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
           <img
             src="/images/nightmarket-stacked.svg"
             className="h-8 w-auto object-fill"
@@ -474,14 +463,12 @@ function MobileNavMenu({
                 </div>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  passHref
                   className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
                   {t('profileMenu.collected')}
                 </Link>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
-                  passHref
                   className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
                   {t('profileMenu.activity')}
@@ -494,7 +481,6 @@ function MobileNavMenu({
               >
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  passHref
                   className="flex w-full"
                 >
                   <Button className="w-full font-semibold">{t('viewProfile')}</Button>
