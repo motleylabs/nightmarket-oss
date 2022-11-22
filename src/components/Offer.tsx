@@ -1,16 +1,15 @@
-import { Offer } from '../graphql.types';
+import { AuctionHouse, Offer, Maybe } from '../graphql.types';
 import Button, { ButtonSize, ButtonBackground, ButtonColor, ButtonBorder } from './Button';
-import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import { Avatar, AvatarSize } from './Avatar';
 import { Activity, ActivityType } from './Activity';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useCloseOffer } from './../hooks/offer';
 
 interface OfferProps {
   offer: Offer;
+  auctionHouse: Maybe<AuctionHouse> | undefined;
 }
-export default function OfferUI({ offer }: OfferProps): JSX.Element {
+export default function OfferUI({ offer, auctionHouse }: OfferProps): JSX.Element {
   const { publicKey } = useWallet();
   const { t } = useTranslation('offers');
   const { closingOffer, onCloseOffer } = useCloseOffer(offer);
@@ -18,16 +17,6 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
 
   return (
     <Activity
-      avatar={
-        <Link
-          className="cursor-pointer transition hover:scale-[1.02]"
-          href={`/nfts/${offer.nft?.mintAddress}/details`}
-        >
-          <a>
-            <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-          </a>
-        </Link>
-      }
       type={ActivityType.Offer}
       key={offer.id}
       meta={
@@ -48,7 +37,7 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
                 size={ButtonSize.Small}
                 loading={closingOffer}
                 disabled={closingOffer}
-                onClick={() => onCloseOffer({ nft: offer.nft, auctionHouse: offer.auctionHouse })}
+                onClick={() => onCloseOffer({ nft: offer.nft, auctionHouse })}
               >
                 {t('common:cancel')}
               </Button>

@@ -755,7 +755,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         {t('listNft')}
                       </Button>
                     ))}
-                  {notOwner && !listing && !viewerOffer && (
+                  {notOwner && !viewerOffer && (
                     <Button
                       onClick={onOpenOffer}
                       background={ButtonBackground.Slate}
