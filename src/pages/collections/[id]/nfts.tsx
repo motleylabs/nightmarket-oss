@@ -155,6 +155,7 @@ export default function CollectionNfts() {
   });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       offset: 0,
       limit: 24,
@@ -214,43 +215,45 @@ export default function CollectionNfts() {
           )}
         />
       </Toolbar>
+      <div className="mx-4 mb-10 mt-6 p-1 md:mx-10">
+        {selectedAttributes.length > 0 && (
+          <div className="flex flex-col gap-2 md:hidden">
+            <span className="text-sm text-gray-200">Filters:</span>
+            <div className="flex flex-wrap gap-2">
+              <>
+                {selectedAttributes.map((attribute) => (
+                  <div
+                    className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
+                    key={attribute}
+                  >
+                    <div className="flex gap-2">
+                      {attribute}{' '}
+                      <XMarkIcon
+                        className="h-4 w-4 cursor-pointer"
+                        onClick={() => onRemoveFilter(attribute)}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {selectedAttributes.length > 1 && (
+                  <Button
+                    background={ButtonBackground.Black}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                    size={ButtonSize.Tiny}
+                    onClick={onClearClick}
+                  >
+                    {t('common:clear')}
+                  </Button>
+                )}
+              </>
+            </div>
+          </div>
+        )}
+      </div>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-6 flex w-full flex-col gap-6">
-            {selectedAttributes.length > 0 && (
-              <div className="flex flex-col gap-2 md:hidden">
-                <span className="text-sm text-gray-200">Filters:</span>
-                <div className="flex flex-wrap gap-2">
-                  <>
-                    {selectedAttributes.map((attribute) => (
-                      <div
-                        className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
-                        key={attribute}
-                      >
-                        <div className="flex gap-2">
-                          {attribute}{' '}
-                          <XMarkIcon
-                            className="h-4 w-4 cursor-pointer"
-                            onClick={() => onRemoveFilter(attribute)}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                    {selectedAttributes.length > 1 && (
-                      <Button
-                        background={ButtonBackground.Black}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                        size={ButtonSize.Tiny}
-                        onClick={onClearClick}
-                      >
-                        {t('common:clear')}
-                      </Button>
-                    )}
-                  </>
-                </div>
-              </div>
-            )}
             <div className="flex flex-col gap-2">
               {attributeGroupsQuery.loading ? (
                 <>
