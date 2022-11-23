@@ -18,13 +18,20 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import { Listbox, Switch } from '@headlessui/react';
+import { Disclosure } from '@headlessui/react';
 import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
 import config from '../../../app.config';
+import Button, {
+  ButtonBackground,
+  ButtonBorder,
+  ButtonColor,
+  ButtonSize,
+} from '../../../components/Button';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -72,12 +79,6 @@ interface CollectionAttributeGroupsVariables {
   id: string;
 }
 
-enum ListedStatus {
-  All = 'all',
-  Listed = 'listed',
-  Unlisted = 'unlisted',
-}
-
 interface CollectionNFTForm {
   attributes: { [key: string]: string[] };
   sortBySelect: SortType;
@@ -114,9 +115,21 @@ export default function CollectionNfts() {
     { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
   ];
 
-  const { watch, control } = useForm<CollectionNFTForm>({
-    defaultValues: { sortBySelect: sortOptions[0].value },
+  const { watch, control, setValue } = useForm<CollectionNFTForm>({
+    defaultValues: { sortBySelect: sortOptions[0].value, attributes: {} },
   });
+
+  const attributes = watch('attributes');
+
+  const onClearClick = () => {
+    setValue('attributes', {});
+  };
+
+  // does not work as a useMemo
+  const selectedAttributes: string[] = Object.entries(attributes)
+    .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
+    .filter((a) => a)
+    .flat();
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -128,6 +141,7 @@ export default function CollectionNfts() {
   });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       offset: 0,
       limit: 24,
@@ -187,56 +201,105 @@ export default function CollectionNfts() {
           )}
         />
       </Toolbar>
+      {selectedAttributes.length > 0 && (
+        <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
+          <div className="flex flex-col gap-2 ">
+            <span className="text-sm text-gray-200">Filters:</span>
+            <div className="flex flex-wrap gap-2">
+              <>
+                {selectedAttributes.map((groupAndattribute) => {
+                  const [group, attribute] = groupAndattribute.split(':', 2);
+
+                  return (
+                    <div
+                      className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
+                      key={groupAndattribute}
+                    >
+                      <div className="flex gap-2">
+                        {attribute}
+                        <XMarkIcon
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={() =>
+                            setValue('attributes', {
+                              ...attributes,
+                              [group]: attributes[group].filter((a) => a !== attribute),
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+                {selectedAttributes.length > 0 && (
+                  <Button
+                    background={ButtonBackground.Black}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                    size={ButtonSize.Tiny}
+                    onClick={onClearClick}
+                  >
+                    {t('common:clear')}
+                  </Button>
+                )}
+              </>
+            </div>
+          </div>
+        </div>
+      )}
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
-          <div className="mt-4 flex w-full flex-col gap-2">
-            {attributeGroupsQuery.loading ? (
-              <>
-                <Attribute.Skeleton />
-                <Attribute.Skeleton />
-                <Attribute.Skeleton />
-                <Attribute.Skeleton />
-                <Attribute.Skeleton />
-              </>
-            ) : (
-              <>
-                {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
-                  <div key={group.name} className=" w-full rounded-2xl bg-gray-800 p-4">
-                    <Controller
-                      key={group.name}
-                      control={control}
-                      name={`attributes.${group.name}`}
-                      render={({ field: { onChange, value } }) => (
-                        <Listbox
-                          multiple
-                          value={value || []}
-                          onChange={(e) => {
-                            onChange(e);
-                          }}
-                        >
-                          {({ open }) => (
-                            <>
-                              <Listbox.Button className=" flex w-full items-center justify-between">
-                                <Attribute.Header group={group} isOpen={open} />
-                              </Listbox.Button>
-                              <Listbox.Options className={'mt-6 space-y-4'}>
-                                {group.variants.map((variant) => (
-                                  <Listbox.Option key={variant.name} value={variant.name}>
-                                    {({ selected }) => (
-                                      <Attribute.Option variant={variant} selected={selected} />
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </>
-                          )}
-                        </Listbox>
-                      )}
-                    />
-                  </div>
-                ))}
-              </>
-            )}
+          <div className="mt-4 flex w-full flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              {attributeGroupsQuery.loading ? (
+                <>
+                  <Attribute.Skeleton />
+                  <Attribute.Skeleton />
+                  <Attribute.Skeleton />
+                  <Attribute.Skeleton />
+                  <Attribute.Skeleton />
+                </>
+              ) : (
+                <>
+                  {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
+                    <div key={group.name} className=" w-full rounded-2xl bg-gray-800 p-4">
+                      <Disclosure>
+                        {({ open }) => (
+                          <>
+                            {/* I tried to get the controller pattern to work, but the value was not updated when using setValue in the other control section */}
+                            {/* The listbox pattern also served big challenges with shared state */}
+                            <Disclosure.Button className="flex w-full items-center justify-between">
+                              <Attribute.Header group={group} isOpen={open} />
+                            </Disclosure.Button>
+                            <Disclosure.Panel className={'mt-6 space-y-4'}>
+                              {group.variants.map((variant) => (
+                                <Attribute.Option
+                                  key={variant.name}
+                                  variant={variant}
+                                  selected={attributes[group.name]?.includes(variant.name)}
+                                  onClick={() => {
+                                    console.log('click', {
+                                      groupN: group.name,
+                                      variantN: variant.name,
+                                      attributes,
+                                    });
+                                    setValue('attributes', {
+                                      ...attributes,
+                                      [group.name]: attributes[group.name]?.includes(variant.name)
+                                        ? attributes[group.name]?.filter((a) => a !== variant.name)
+                                        : [...(attributes[group.name] ?? []), variant.name],
+                                    });
+                                  }}
+                                />
+                              ))}
+                            </Disclosure.Panel>
+                          </>
+                        )}
+                      </Disclosure>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
