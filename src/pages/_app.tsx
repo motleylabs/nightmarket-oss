@@ -558,7 +558,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <ApolloProvider client={client}>
-        <ToastContainer />
+        <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider className="wallet-modal-theme">
