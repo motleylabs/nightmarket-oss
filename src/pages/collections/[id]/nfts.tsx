@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -18,7 +18,7 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import { Listbox } from '@headlessui/react';
+import { Disclosure, Listbox } from '@headlessui/react';
 import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -116,34 +116,20 @@ export default function CollectionNfts() {
   ];
 
   const { watch, control, resetField, setValue } = useForm<CollectionNFTForm>({
-    defaultValues: { sortBySelect: sortOptions[0].value },
+    defaultValues: { sortBySelect: sortOptions[0].value, attributes: {} },
   });
 
   const attributes = watch('attributes');
 
-  const selectedAttributes: string[] = [];
-  if (attributes) {
-    Object.entries(attributes).forEach(
-      ([key, value]) =>
-        value && value.forEach((attribute) => selectedAttributes.push(`${key}: ${attribute}`))
-    );
-  }
-
   const onClearClick = () => {
-    resetField('attributes');
+    setValue('attributes', {});
   };
 
-  const onRemoveFilter = (filterLabel: string) => {
-    const [group, attribute] = filterLabel.split(': ', 2);
-    const newAttributes: {
-      [key: string]: string[];
-    } = {};
-    Object.entries(attributes).forEach(
-      ([key, value]) =>
-        (newAttributes[key] = value ? value.filter((v) => v !== attribute && key === group) : [])
-    );
-    setValue('attributes', newAttributes);
-  };
+  // does not work as a useMemo :(
+  const selectedAttributes: string[] = Object.entries(attributes)
+    .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
+    .filter((a) => a)
+    .flat();
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -166,6 +152,10 @@ export default function CollectionNfts() {
     },
   });
 
+  console.log('attributes', {
+    attributes,
+    selectedAttributes,
+  });
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
       let variables: CollectionNFTsVariables = {
@@ -215,27 +205,36 @@ export default function CollectionNfts() {
           )}
         />
       </Toolbar>
-      <div className="mx-4 mb-10 mt-6 p-1 md:mx-10">
-        {selectedAttributes.length > 0 && (
-          <div className="flex flex-col gap-2 md:hidden">
+      {selectedAttributes.length > 0 && (
+        <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
+          <div className="flex flex-col gap-2 ">
             <span className="text-sm text-gray-200">Filters:</span>
             <div className="flex flex-wrap gap-2">
               <>
-                {selectedAttributes.map((attribute) => (
-                  <div
-                    className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
-                    key={attribute}
-                  >
-                    <div className="flex gap-2">
-                      {attribute}{' '}
-                      <XMarkIcon
-                        className="h-4 w-4 cursor-pointer"
-                        onClick={() => onRemoveFilter(attribute)}
-                      />
+                {selectedAttributes.map((groupAndattribute) => {
+                  const [group, attribute] = groupAndattribute.split(':', 2);
+
+                  return (
+                    <div
+                      className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
+                      key={groupAndattribute}
+                    >
+                      <div className="flex gap-2">
+                        {attribute}
+                        <XMarkIcon
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={() =>
+                            setValue('attributes', {
+                              ...attributes,
+                              [group]: attributes[group].filter((a) => a !== attribute),
+                            })
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {selectedAttributes.length > 1 && (
+                  );
+                })}
+                {selectedAttributes.length > 0 && (
                   <Button
                     background={ButtonBackground.Black}
                     border={ButtonBorder.Gradient}
@@ -249,11 +248,11 @@ export default function CollectionNfts() {
               </>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
-          <div className="mt-6 flex w-full flex-col gap-6">
+          <div className="mt-4 flex w-full flex-col gap-6">
             <div className="flex flex-col gap-2">
               {attributeGroupsQuery.loading ? (
                 <>
@@ -267,37 +266,39 @@ export default function CollectionNfts() {
                 <>
                   {attributeGroupsQuery.data?.collection?.attributeGroups.map((group, index) => (
                     <div key={group.name} className=" w-full rounded-2xl bg-gray-800 p-4">
-                      <Controller
-                        key={group.name}
-                        control={control}
-                        name={`attributes.${group.name}`}
-                        render={({ field: { onChange, value } }) => (
-                          <Listbox
-                            multiple
-                            value={value || []}
-                            onChange={(e) => {
-                              onChange(e);
-                            }}
-                          >
-                            {({ open }) => (
-                              <>
-                                <Listbox.Button className=" flex w-full items-center justify-between">
-                                  <Attribute.Header group={group} isOpen={open} />
-                                </Listbox.Button>
-                                <Listbox.Options className={'mt-6 space-y-4'}>
-                                  {group.variants.map((variant) => (
-                                    <Listbox.Option key={variant.name} value={variant.name}>
-                                      {({ selected }) => (
-                                        <Attribute.Option variant={variant} selected={selected} />
-                                      )}
-                                    </Listbox.Option>
-                                  ))}
-                                </Listbox.Options>
-                              </>
-                            )}
-                          </Listbox>
+                      <Disclosure>
+                        {({ open }) => (
+                          <>
+                            {/* I tried to get the controller pattern to work, but the value was not updated when using setValue in the other control section */}
+                            {/* The listbox pattern also served big challenges with shared state */}
+                            <Disclosure.Button className="flex w-full items-center justify-between">
+                              <Attribute.Header group={group} isOpen={open} />
+                            </Disclosure.Button>
+                            <Disclosure.Panel className={'mt-6 space-y-4'}>
+                              {group.variants.map((variant) => (
+                                <Attribute.Option
+                                  key={variant.name}
+                                  variant={variant}
+                                  selected={attributes[group.name]?.includes(variant.name)}
+                                  onClick={() => {
+                                    console.log('click', {
+                                      groupN: group.name,
+                                      variantN: variant.name,
+                                      attributes,
+                                    });
+                                    setValue('attributes', {
+                                      ...attributes,
+                                      [group.name]: attributes[group.name]?.includes(variant.name)
+                                        ? attributes[group.name]?.filter((a) => a !== variant.name)
+                                        : [...(attributes[group.name] ?? []), variant.name],
+                                    });
+                                  }}
+                                />
+                              ))}
+                            </Disclosure.Panel>
+                          </>
                         )}
-                      />
+                      </Disclosure>
                     </div>
                   ))}
                 </>

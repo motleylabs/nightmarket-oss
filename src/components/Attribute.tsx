@@ -8,12 +8,14 @@ export function Attribute() {
 function AttributeOption({
   variant,
   selected,
+  onClick,
 }: {
   variant: AttributeVariant;
   selected: boolean;
+  onClick: any;
 }): JSX.Element {
   return (
-    <div className="flex items-center justify-between">
+    <div onClick={onClick} className="flex cursor-pointer items-center justify-between">
       <span className="text-sm capitalize text-white">{variant.name}</span>
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-300">{variant.count}</span>
