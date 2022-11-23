@@ -42,7 +42,7 @@ export default function OfferUI({ offer, auctionHouse }: OfferProps): JSX.Elemen
                 {t('common:cancel')}
               </Button>
             )}
-            {(offer.nft?.owner?.address === viewerAddress && offer.buyer !== viewerAddress) && (
+            {offer.nft?.owner?.address === viewerAddress && offer.buyer !== viewerAddress && (
               <Button
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}

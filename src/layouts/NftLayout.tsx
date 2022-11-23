@@ -188,6 +188,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onUpdateOffer({ amount, nft, auctionHouse });
   };
 
+  console.log(data?.nft);
+
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
   const [expanded, setExpanded] = useState(false);
@@ -745,7 +747,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   )}
                 </div>
                 <div className="col-span-12 md:col-span-6">
-                  {(isOwner && !viewerOffer) &&
+                  {isOwner &&
+                    !viewerOffer &&
                     (highestOffer ? (
                       <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
                         {t('accept')}
@@ -766,7 +769,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {t('bid')}
                     </Button>
                   )}
-                  {(notOwner && viewerOffer) && (
+                  {notOwner && viewerOffer && (
                     <Button
                       onClick={onOpenUpdateOffer}
                       background={ButtonBackground.Slate}

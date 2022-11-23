@@ -21,7 +21,6 @@ import { toast } from 'react-toastify';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
 import { useApolloClient } from '@apollo/client';
-import config from '../app.config';
 import client from '../client';
 
 interface ListNftForm {
@@ -177,8 +176,6 @@ export function useListNft(): ListNftContext {
           },
           'confirmed'
         );
-
-        toast('Listing posted', { type: 'success' });
       }
 
       client.cache.updateQuery(
@@ -215,6 +212,8 @@ export function useListNft(): ListNftContext {
           };
         }
       );
+
+      toast('Listing posted', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {
@@ -296,8 +295,6 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const metadata = new PublicKey(nft.address);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
 
     const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
@@ -307,15 +304,6 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
       publicKey,
       metadata,
       rewardCenter
-    );
-
-    const [tradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      associatedTokenAccount,
-      treasuryMint,
-      tokenMint,
-      1
     );
 
     const accounts: UpdateListingInstructionAccounts = {
@@ -345,56 +333,31 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     try {
       const signedTx = await signTransaction(tx);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-
-        toast('Listing price updated', { type: 'success' });
+      if (!signature) {
+        return;
       }
-
-      // TODO: fix update UI
-      client.cache.updateQuery(
+      await connection.confirmTransaction(
         {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
+
+      client.cache.modify({
+        id: client.cache.identify({
+          __typename: 'AhListing',
+          id: listing?.id,
+        }),
+        fields: {
+          price() {
+            return buyerPrice.toString();
           },
         },
-        (data) => {
-          const listings = data.nft.listings.filter(
-            (listing: AhListing) => listing.tradeState !== tradeState.toBase58()
-          );
+      });
 
-          const listing = {
-            __typename: 'AhListing',
-            id: `temp-id-listing-${publicKey.toBase58()}`,
-            auctionHouse: {
-              __typename: 'AuctionHouse',
-              address: config.auctionHouse,
-            },
-            seller: publicKey.toBase58(),
-            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-            tradeState: tradeState.toBase58(),
-            tradeStateBump: tradeStateBump,
-            price: buyerPrice.toString(),
-          };
-
-          return {
-            nft: {
-              ...data.nft,
-              listings: [...listings, listing],
-            },
-          };
-        }
-      );
+      toast('Listing price updated', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {
@@ -510,18 +473,17 @@ export function useCloseListing({
     try {
       const signedTx = await signTransaction(tx);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-
-        toast('Listing canceled', { type: 'success' });
+      if (!signature) {
+        return;
       }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
 
       client.cache.updateQuery(
         {
@@ -533,9 +495,7 @@ export function useCloseListing({
           },
         },
         (data) => {
-          const listings = data.nft.listings.filter(
-            (listing: AhListing) => listing.tradeState !== sellerTradeState.toBase58()
-          );
+          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
 
           return {
             nft: {
@@ -545,6 +505,8 @@ export function useCloseListing({
           };
         }
       );
+
+      toast('Listing canceled', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
     } finally {

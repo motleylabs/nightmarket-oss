@@ -64,7 +64,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
     }
 
     return nft.owner;
-  }, [nftQuery.data, nft])
+  }, [nftQuery.data, nft]);
 
   return (
     <>
