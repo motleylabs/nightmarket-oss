@@ -1,7 +1,7 @@
 import { QueryResult } from '@apollo/client';
 import clsx from 'clsx';
 import { format, roundToNearestMinutes } from 'date-fns';
-import { ReactNode, useEffect, useMemo, useTransition } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { CollectionAnalyticsData, CollectionAnalyticsVariables } from '../app.types';
 import {
@@ -129,9 +129,18 @@ function TinyLineChart(props: {
 }) {
   const { t } = useTranslation('analytics');
 
+  const chartRef = useRef(null);
+  const [hideAxis, setHideAxis] = useState(true);
+
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data} margin={{ top: 0, right: 24, bottom: 0, left: 50 }}>
+      <LineChart
+        ref={chartRef}
+        data={props.data}
+        margin={{ top: 0, right: 24, bottom: 0, left: hideAxis ? 24 : 50 }}
+        onMouseEnter={() => setHideAxis(false)}
+        onMouseLeave={() => setHideAxis(true)}
+      >
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -144,6 +153,7 @@ function TinyLineChart(props: {
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
           width={10}
+          hide={hideAxis}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
         />
