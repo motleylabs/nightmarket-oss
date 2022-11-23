@@ -130,15 +130,16 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
         )}
         <li className="flex items-center justify-between">
           <div>{t('owner')}</div>
-          <Link href={`/profiles/${nft.owner?.address}/collected`}>
-            <a className="flex flex-row items-center gap-1">
-              <img
-                src={nft.owner?.previewImage as string}
-                className="h-6 w-6 rounded-full border border-gray-800 object-cover"
-                alt="nft owner avatar image"
-              />
-              <span>{nft.owner?.displayName}</span>
-            </a>
+          <Link
+            className="flex flex-row items-center gap-1"
+            href={`/profiles/${nft.owner?.address}/collected`}
+          >
+            <img
+              src={nft.owner?.previewImage as string}
+              className="h-6 w-6 rounded-full border border-gray-800 object-cover"
+              alt="nft owner avatar image"
+            />
+            <span>{nft.owner?.displayName}</span>
           </Link>
         </li>
         <li className="flex items-center justify-between">
@@ -153,7 +154,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
       {nft.moonrankCollection && (
         <>
           <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
-          <p className="text-gray-300">{nft?.collection?.description}</p>
+          <p className="text-gray-300">{nft?.moonrankCollection.description}</p>
         </>
       )}
     </>

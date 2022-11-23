@@ -17,9 +17,6 @@ import {
   Wallet,
   AhListing,
   CollectionTrend,
-  Maybe,
-  Offer,
-  Nft,
   Datapoint,
 } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
@@ -139,12 +136,12 @@ function asActivityPrimaryWallet(
   }
 }
 
-function nftMarketplace(item: {
-  marketplaceProgramAddress: string | null;
-  auctionHouse: AuctionHouse | null;
-}): NftMarketplace {
-  const marketplaceProgramAddress = item.marketplaceProgramAddress;
-  const auctionHouse = item.auctionHouse;
+function asNftMarketplace(
+  _: void,
+  { readField }: { readField: ReadFieldFunction }
+): NftMarketplace {
+  const marketplaceProgramAddress = readField('marketplaceProgramAddress');
+  const auctionHouseAddress = readField('address', readField('auctionHouse'));
 
   let result: NftMarketplace[] | NftMarketplace | undefined;
 
@@ -163,7 +160,7 @@ function nftMarketplace(item: {
     return result[0];
   }
 
-  result = result.find((marketplace) => marketplace.auctionHouseAddress === auctionHouse?.address);
+  result = result.find((marketplace) => marketplace.auctionHouseAddress === auctionHouseAddress);
 
   if (!result) {
     return unknownMarketplace;
@@ -206,7 +203,7 @@ const client = new ApolloClient({
       Wallet: {
         keyFields: ['address'],
         fields: {
-          activities: offsetLimitPagination(),
+          activities: offsetLimitPagination(['eventTypes']),
           offers: offsetLimitPagination(),
           nfts: offsetLimitPagination(),
           displayName: {
@@ -303,6 +300,9 @@ const client = new ApolloClient({
           },
           primaryWallet: {
             read: asActivityPrimaryWallet,
+          },
+          nftMarketplace: {
+            read: asNftMarketplace,
           },
         },
       },
@@ -420,7 +420,7 @@ const client = new ApolloClient({
       Collection: {
         keyFields: ['id'],
         fields: {
-          activities: offsetLimitPagination(),
+          activities: offsetLimitPagination(['eventTypes']),
           nfts: offsetLimitPagination(),
           holderCount: {
             read(value): string {
@@ -606,6 +606,9 @@ const client = new ApolloClient({
       AhListing: {
         keyFields: ['id'],
         fields: {
+          nftMartplace: {
+            read: asNftMarketplace,
+          },
           price: {
             read: asBN,
           },
@@ -625,6 +628,9 @@ const client = new ApolloClient({
           },
           timeSince: {
             read: asTimeSince,
+          },
+          nftMarketplace: {
+            read: asNftMarketplace,
           },
           primaryWallet: {
             read: asActivityPrimaryWallet,
@@ -648,6 +654,7 @@ const client = new ApolloClient({
         },
       },
       Timeseries: {
+        keyFields: [],
         fields: {
           floorPrice: {
             read(floorPrice: Datapoint[]): Datapoint[] {
@@ -697,6 +704,9 @@ const client = new ApolloClient({
           solPrice: {
             read: asSOL,
           },
+          nftMarketplace: {
+            read: asNftMarketplace,
+          },
         },
       },
       AuctionHouse: {
@@ -744,46 +754,6 @@ const client = new ApolloClient({
       },
     },
   }),
-  resolvers: {
-    AhListing: {
-      nftMarketplace,
-      solPrice(listing: AhListing) {
-        return toSol(parseInt(listing.price));
-      },
-    },
-    NftActivity: {
-      nftMarketplace,
-    },
-    WalletActivity: {
-      nftMarketplace,
-    },
-    Wallet: {
-      previewImage(wallet: Wallet) {
-        const { profile, address } = wallet;
-
-        if (profile) {
-          return profile.profileImageUrlHighres as string;
-        }
-
-        return addressAvatar(address);
-      },
-      displayName(wallet: Wallet) {
-        const { profile, address } = wallet;
-
-        if (profile) {
-          return `@${profile.handle}`;
-        }
-
-        return shortenAddress(address);
-      },
-    },
-    Offer: {
-      nftMarketplace,
-      solPrice(listing: AhListing) {
-        return toSol(parseInt(listing.price));
-      },
-    },
-  },
 });
 
 export default client;

@@ -5,9 +5,10 @@ import zod from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
+import { AuctionHouse, Maybe, Nft, Offer, TwitterProfile } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
+import { NftOffersQuery } from './../queries/offers.graphql';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
@@ -32,6 +33,8 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
+import useViewer from './viewer';
+import { useRouter } from 'next/router';
 
 interface OfferForm {
   amount: string;
@@ -66,6 +69,8 @@ export function useMakeOffer(): MakeOfferContext {
   const client = useApolloClient();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
+  const viewerData = useViewer();
+  const router = useRouter();
   const {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
@@ -182,84 +187,83 @@ export function useMakeOffer(): MakeOfferContext {
         );
       }
 
-      // update offer query aswell
-      // if (route.includes('offers')) {
-      //   client.cache.updateQuery(
-      //     {
-      //       query: NftOffersQuery,
-      //       broadcast: false,
-      //       overwrite: true,
-      //       variables: {
-      //         address: nft.mintAddress,
-      //       },
-      //     },
-      //     (data) => {
-      //       const offer = {
-      //         __typename: 'Offer',
-      //         id: `temp-id-offer-tab-${publicKey.toBase58()}`,
-      //         tradeState: buyerTradeState.toBase58(),
-      //         buyer: publicKey.toBase58(),
-      //         metadata: metadata.toBase58(),
-      //         marketplaceProgramAddress: auctionHouseAddress,
-      //         purchaseId: 'temp-purchaseId',
-      //         tradeStateBump: buyerTradeStateBump,
-      //         tokenAccount: associatedTokenAcc.toBase58(),
-      //         createdAt: new Date().toISOString(),
-      //         canceledAt: null,
-      //         auctionHouse: {
-      //           address: auctionHouse.address,
-      //           __typename: 'AuctionHouse',
-      //           treasuryMint: treasuryMint.toBase58(),
-      //           auctionHouseTreasury: auctionHouse.auctionHouseTreasury,
-      //           treasuryWithdrawalDestination: 'temp-withdrawal-address',
-      //           feeWithdrawalDestination: 'temp-withdrawal-destination',
-      //           authority: auctionHouse.authority,
-      //           creator: 'temp-creator',
-      //           auctionHouseFeeAccount: auctionHouse.auctionHouseFeeAccount,
-      //           bump: 'temp-bump',
-      //           treasuryBump: 'temp-treasury-bump',
-      //           feePayerBump: 'temp-fee-payer-bump',
-      //           sellerFeeBasisPoints: auctionHouse.sellerFeeBasisPoints,
-      //           requiresSignOff: false,
-      //           canChangeSalePrice: false,
-      //         },
-      //         price: offerPrice.toString(),
-      //         nft: {
-      //           __typename: 'Nft',
-      //           address: nft.address,
-      //           mintAddress: nft.mintAddress,
-      //           name: nft.name,
-      //           owner: {
-      //             address: nft.owner?.address,
-      //             associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-      //           },
-      //         },
-      //         buyerWallet: {
-      //           __typename: 'Wallet',
-      //           address: publicKey.toBase58(),
-      //           twitterHandle: viewerData?.wallet?.twitterHandle || publicKey.toBase58(),
-      //           profile: {
-      //             __typename: 'Profile',
-      //             walletAddress: publicKey.toBase58(),
-      //             handle: viewerData?.wallet.profile?.handle,
-      //             profileImageUrlLowres: viewerData?.wallet.profile?.profileImageUrlLowres,
-      //             profileImageUrlHighres: viewerData?.wallet.profile?.profileImageUrlHighres,
-      //             bannerImageUrl: viewerData?.wallet.profile?.bannerImageUrl,
-      //           },
-      //         },
-      //       };
+      const createdAt = new Date().toISOString();
 
-      //       const offers = [...data.nftOffers.offers, offer];
+      if (router.pathname === '/nfts/[address]/offers') {
+        client.cache.updateQuery(
+          {
+            query: NftOffersQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            const offer: Offer = {
+              __typename: 'Offer',
+              id: `temp-id-${buyerTradeState.toBase58()}`,
+              tradeState: buyerTradeState.toBase58(),
+              tradeStateBump: buyerTradeStateBump,
+              buyer: publicKey.toBase58(),
+              metadata: metadata.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tokenAccount: associatedTokenAcc.toBase58(),
+              // @ts-ignore
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+              createdAt,
+              // @ts-ignore
+              price: offerPrice.toString(),
+              // @ts-ignore
+              nft: {
+                __typename: 'Nft',
+                address: nft.address,
+                mintAddress: nft.mintAddress,
+                name: nft.name,
+                image: nft.image,
+                owner: {
+                  __typename: 'NftOwner',
+                  address: nft.owner?.address as string,
+                  associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
+                },
+              },
+              // @ts-ignore
+              buyerWallet: {
+                __typename: 'Wallet',
+                address: publicKey.toBase58(),
+                twitterHandle: viewerData?.data?.wallet?.twitterHandle || null,
+                profile: null,
+              },
+            };
 
-      //       return {
-      //         nftOffers: {
-      //           ...data.nftOffers,
-      //           offers,
-      //         },
-      //       };
-      //     }
-      //   );
-      // }
+            if (viewerData?.data?.wallet?.profile) {
+              const { profile } = viewerData?.data?.wallet;
+              offer.buyerWallet.profile = {
+                __typename: 'TwitterProfile',
+                walletAddress: publicKey.toBase58(),
+                handle: profile.handle,
+                description: profile.description,
+                profileImageUrl: profile.profileImageUrlHighres,
+                profileImageUrlLowres: profile.profileImageUrlLowres,
+                profileImageUrlHighres: profile.profileImageUrlHighres,
+                bannerImageUrl: profile.bannerImageUrl,
+              };
+            }
+
+            const offers = [...data.nftOffers.offers, offer];
+
+            return {
+              nftOffers: {
+                ...data.nftOffers,
+                offers,
+              },
+            };
+          }
+        );
+      }
 
       client.cache.updateQuery(
         {
@@ -341,6 +345,8 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
   const { connection } = useConnection();
   const login = useLogin();
   const [updateOffer, setUpdateOffer] = useState(false);
+  const viewerData = useViewer();
+  const router = useRouter();
   const client = useApolloClient();
   const {
     register: registerUpdateOffer,
@@ -373,7 +379,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-    const [buyerTradeState, _tradeStateBump] =
+    const [buyerTradeState, buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(
         publicKey,
         auctionHouseAddress,
@@ -492,13 +498,13 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
           },
         },
         (data) => {
-          const offers = [...data.nft.offers].filter(
-            (offer: Offer) => offer.buyer !== publicKey.toBase58()
+          const offers: Offer[] = data.nft.offers.filter(
+            (offer: Offer) => offer.tradeState !== buyerTradeState.toBase58()
           );
 
           const offer = {
             __typename: 'Offer',
-            id: `temp-id-update-offer-${publicKey.toBase58()}`,
+            id: `temp-id-${buyerTradeState.toBase58()}`,
             tradeState: buyerTradeState.toBase58(),
             buyer: publicKey.toBase58(),
             metadata: metadata.toBase58(),
@@ -517,6 +523,84 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
           };
         }
       );
+
+      if (router.pathname === '/nfts/[address]/offers') {
+        client.cache.updateQuery(
+          {
+            query: NftOffersQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            const offers: Offer[] = data.nft.offers.filter(
+              (offer: Offer) => offer.tradeState !== buyerTradeState.toBase58()
+            );
+
+            const offer: Offer = {
+              __typename: 'Offer',
+              id: `temp-id-${buyerTradeState.toBase58()}`,
+              tradeState: buyerTradeState.toBase58(),
+              tradeStateBump: buyerTradeStateBump,
+              buyer: publicKey.toBase58(),
+              metadata: metadata.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tokenAccount: associatedTokenAcc.toBase58(),
+              createdAt: new Date().toISOString(),
+              // @ts-ignore
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+              price: newOfferPrice.toString(),
+              // @ts-ignore
+              nft: {
+                __typename: 'Nft',
+                address: nft.address,
+                mintAddress: nft.mintAddress,
+                name: nft.name,
+                image: nft.image,
+                owner: {
+                  __typename: 'NftOwner',
+                  address: nft.owner?.address as string,
+                  associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
+                },
+              },
+              // @ts-ignore
+              buyerWallet: {
+                __typename: 'Wallet',
+                address: publicKey.toBase58(),
+                twitterHandle: viewerData?.data?.wallet?.twitterHandle || null,
+                profile: null,
+              },
+            };
+
+            if (viewerData?.data?.wallet?.profile) {
+              const { profile } = viewerData?.data?.wallet;
+              offer.buyerWallet.profile = {
+                __typename: 'TwitterProfile',
+                walletAddress: publicKey.toBase58(),
+                handle: profile.handle,
+                description: profile.description,
+                profileImageUrl: profile.profileImageUrlHighres,
+                profileImageUrlLowres: profile.profileImageUrlLowres,
+                profileImageUrlHighres: profile.profileImageUrlHighres,
+                bannerImageUrl: profile.bannerImageUrl,
+              };
+            }
+
+            return {
+              nftOffers: {
+                ...data.nftOffers,
+                offers: [...offers, offer],
+              },
+            };
+          }
+        );
+      }
+
       toast('Offer updated', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
@@ -560,6 +644,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
+  const router = useRouter();
   const [closingOffer, setClosingOffer] = useState(false);
 
   const onCloseOffer = async ({
@@ -668,9 +753,10 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
           },
         },
         (data) => {
-          const offers = [...data.nft.offers].filter(
-            (offer: Offer) => offer.buyer !== publicKey.toBase58()
+          const offers = data.nft.offers.filter(
+            (offer: Offer) => offer.tradeState !== buyerTradeState.toBase58()
           );
+
           return {
             nft: {
               ...data.nft,
@@ -679,6 +765,31 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
           };
         }
       );
+
+      if (router.pathname === '/nfts/[address]/offers') {
+        client.cache.updateQuery(
+          {
+            query: NftOffersQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            const offers = data.nft.offers.filter(
+              (offer: Offer) => offer.tradeState !== buyerTradeState.toBase58()
+            );
+
+            return {
+              nftOffers: {
+                ...data.nftOffers,
+                offers,
+              },
+            };
+          }
+        );
+      }
 
       toast('Offer canceled', { type: 'success' });
     } catch (err: any) {

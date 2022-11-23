@@ -68,6 +68,19 @@ const Button = ({
     }
   }, [size]);
 
+  const spinnerColor = useMemo(() => {
+    switch (color) {
+      case ButtonColor.Slate:
+        return '#17161C';
+      case ButtonColor.Gray:
+        return '#8B8B8E';
+      case ButtonColor.White:
+        return '#fff';
+      case ButtonColor.Gradient:
+        return '#ED9E09';
+    }
+  }, [color]);
+
   return (
     <button
       className={clsx(
@@ -111,7 +124,7 @@ const Button = ({
           <TailSpin
             height={spinnerSize}
             width={spinnerSize}
-            color="#ED9E09"
+            color={spinnerColor}
             wrapperClass="inline aspect-square mr-2"
           />
         )}

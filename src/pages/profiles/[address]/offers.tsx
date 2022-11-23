@@ -164,10 +164,11 @@ export default function ProfileOffers(): JSX.Element {
                   return (
                     <Activity
                       avatar={
-                        <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
-                          <a className="cursor-pointer transition hover:scale-[1.02]">
-                            <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                          </a>
+                        <Link
+                          className="cursor-pointer transition hover:scale-[1.02]"
+                          href={`/nfts/${offer.nft?.mintAddress}/details`}
+                        >
+                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
                         </Link>
                       }
                       type={ActivityType.Offer}
@@ -182,26 +183,30 @@ export default function ProfileOffers(): JSX.Element {
                       actionButton={
                         <>
                           {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
-                            <Button
-                              background={ButtonBackground.Slate}
-                              border={ButtonBorder.Gray}
-                              color={ButtonColor.Gray}
-                              size={ButtonSize.Small}
-                              onClick={() => {}}
-                            >
-                              {t('profile:update')}
-                            </Button>
+                            <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
+                              <Button
+                                background={ButtonBackground.Slate}
+                                border={ButtonBorder.Gray}
+                                color={ButtonColor.Gray}
+                                size={ButtonSize.Small}
+                                onClick={() => {}}
+                              >
+                                {t('profile:update')}
+                              </Button>
+                            </Link>
                           )}
                           {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
-                            <Button
-                              background={ButtonBackground.Slate}
-                              border={ButtonBorder.Gradient}
-                              color={ButtonColor.Gradient}
-                              size={ButtonSize.Small}
-                              onClick={() => {}}
-                            >
-                              {t('profile:accept')}
-                            </Button>
+                            <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
+                              <Button
+                                background={ButtonBackground.Slate}
+                                border={ButtonBorder.Gradient}
+                                color={ButtonColor.Gradient}
+                                size={ButtonSize.Small}
+                                onClick={() => {}}
+                              >
+                                {t('profile:accept')}
+                              </Button>
+                            </Link>
                           )}
                         </>
                       }

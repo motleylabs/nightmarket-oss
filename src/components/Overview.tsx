@@ -136,18 +136,16 @@ Overview.Tabs = Tabs;
 function Tab(props: { href: string; label: string; active: boolean }) {
   return (
     <Link href={props.href}>
-      <a>
-        <div
-          className={clsx(
-            'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
-            props.active
-              ? 'rounded-full bg-gray-800 text-white'
-              : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
-          )}
-        >
-          {props.label}
-        </div>
-      </a>
+      <div
+        className={clsx(
+          'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
+          props.active
+            ? 'rounded-full bg-gray-800 text-white'
+            : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+        )}
+      >
+        {props.label}
+      </div>
     </Link>
   );
 }

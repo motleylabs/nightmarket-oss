@@ -79,15 +79,19 @@ export default function LaunchpadPage() {
             <div className="flex flex-row items-center justify-between gap-4">
               <h4 className="text-3xl font-bold">Team Motley</h4>
               <div className="flex flex-row items-center gap-2 text-[#A8A8A8]">
-                <Link href={'https://twitter.com/holaplex'}>
-                  <a target="_blank" className="transform ease-in-out hover:scale-105">
-                    <Icon.Twitter />
-                  </a>
+                <Link
+                  target="_blank"
+                  className="transform ease-in-out hover:scale-105"
+                  href={'https://twitter.com/holaplex'}
+                >
+                  <Icon.Twitter />
                 </Link>
-                <Link href={'https://discord.gg/holaplex'}>
-                  <a target="_blank" className="transform ease-in-out hover:scale-105">
-                    <Icon.Discord />
-                  </a>
+                <Link
+                  target="_blank"
+                  className="transform ease-in-out hover:scale-105"
+                  href={'https://discord.gg/holaplex'}
+                >
+                  <Icon.Discord />
                 </Link>
               </div>
             </div>
