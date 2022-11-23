@@ -3,6 +3,25 @@
 #import "./fragments/listing.graphql"
 #import "./fragments/offer.graphql"
 
+query NftDetailsQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    image(width: 1400)
+    description
+    owner {
+      address
+      associatedTokenAccountAddress
+      previewImage @client
+      displayName @client
+      profile {
+        ...ProfileInfo
+      }
+    }
+  }
+}
+
 query NftQuery($address: String!, $auctionHouse: String!) {
   auctionHouse(address: $auctionHouse) {
     address
@@ -124,6 +143,10 @@ query NftMarketInfoQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
+    owner {
+      address
+      associatedTokenAccountAddress
+    }
     offers {
       id
       tradeState
