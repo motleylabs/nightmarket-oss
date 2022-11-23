@@ -656,6 +656,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     if (!connected || !publicKey || !signTransaction || !offer) {
       return;
     }
+    setAcceptingOffer(true);
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = parseInt(offer.price);

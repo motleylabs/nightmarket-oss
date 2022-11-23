@@ -160,7 +160,6 @@ export default function ProfileOffers(): JSX.Element {
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) =>
                 offersQuery.data?.wallet.offers.map((offer) => {
-                  console.log(offer);
                   return (
                     <Activity
                       avatar={

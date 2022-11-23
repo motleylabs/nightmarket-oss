@@ -188,8 +188,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onUpdateOffer({ amount, nft, auctionHouse });
   };
 
-  console.log(data?.nft);
-
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
   const [expanded, setExpanded] = useState(false);

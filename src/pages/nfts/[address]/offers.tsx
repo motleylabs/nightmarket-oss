@@ -97,7 +97,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
           <>
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((offer, i) => (
-              <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} />
+              <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} nft={nft} />
             ))}
           </>
         )}
@@ -105,7 +105,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
           <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
         )}
         {remainingOffers?.map((offer, i) => (
-          <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} />
+          <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} nft={nft} />
         ))}
       </div>
     </>
