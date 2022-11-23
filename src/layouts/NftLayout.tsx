@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect, useRef, useState, useMemo } from 'react';
+import { ReactNode, useRef, useState, useMemo } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft, Offer, AhListing } from '../graphql.types';
@@ -54,7 +54,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     },
   });
 
-  const isOwner = viewer?.address === nft.owner?.address;
+  const isOwner = viewer?.address === data?.nft.owner?.address;
   const notOwner = !isOwner;
   const listing: AhListing | null = useMemo(() => {
     const listing = data?.nft.listings?.find((listing: AhListing) => {

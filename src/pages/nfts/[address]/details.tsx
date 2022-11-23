@@ -2,13 +2,14 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import client from './../../../client';
-import { NftQuery } from './../../../queries/nft.graphql';
-import { Nft, AuctionHouse } from './../../../graphql.types';
-import { ReactNode } from 'react';
+import { NftQuery, NftDetailsQuery } from './../../../queries/nft.graphql';
+import { Nft, AuctionHouse, NftOwner, Maybe } from './../../../graphql.types';
+import { ReactNode, useMemo } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
 import config from './../../../app.config';
 import Icon from './../../../components/Icon';
+import { useQuery } from '@apollo/client';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
@@ -43,8 +44,27 @@ interface NftDetailPageProps {
   auctionHouse: AuctionHouse;
 }
 
+interface NftDetailsQueryData {
+  nft: Nft;
+}
+
+interface NftDetailsQueryVariables {
+  address: string;
+}
+
 export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
+  const nftQuery = useQuery<NftDetailsQueryData, NftDetailsQueryVariables>(NftDetailsQuery, {
+    variables: { address: nft.mintAddress },
+  });
+
+  const owner: Maybe<NftOwner> | undefined = useMemo(() => {
+    if (nftQuery.data) {
+      return nftQuery.data.nft.owner;
+    }
+
+    return nft.owner;
+  }, [nftQuery.data, nft])
 
   return (
     <>

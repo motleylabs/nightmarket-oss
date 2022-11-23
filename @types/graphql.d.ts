@@ -57,6 +57,7 @@ declare module '*/nft.graphql' {
   const defaultDocument: DocumentNode;
   export const NftInfo: DocumentNode;
 export const NftListingInfo: DocumentNode;
+export const NftDetailsQuery: DocumentNode;
 export const NftQuery: DocumentNode;
 export const NftActivitiesQuery: DocumentNode;
 export const NftMarketInfoQuery: DocumentNode;
