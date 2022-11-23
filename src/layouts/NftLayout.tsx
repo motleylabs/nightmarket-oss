@@ -704,7 +704,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   color={ButtonColor.Gray}
                   onClick={onCloseListing}
                 >
-                  {t('Cancel')}
+                  {t('cancelListing')}
                 </Button>
               )}
             </div>
@@ -745,7 +745,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   )}
                 </div>
                 <div className="col-span-12 md:col-span-6">
-                  {isOwner &&
+                  {(isOwner && !viewerOffer) &&
                     (highestOffer ? (
                       <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
                         {t('accept')}
@@ -766,7 +766,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {t('bid')}
                     </Button>
                   )}
-                  {viewerOffer && (
+                  {(notOwner && viewerOffer) && (
                     <Button
                       onClick={onOpenUpdateOffer}
                       background={ButtonBackground.Slate}
@@ -778,19 +778,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     </Button>
                   )}
                 </div>
-                {viewerOffer && (
-                  <div className="col-span-12">
-                    <Button
-                      block
-                      loading={closingOffer}
-                      border={ButtonBorder.Gray}
-                      color={ButtonColor.Gray}
-                      onClick={() => onCloseOffer({ nft, auctionHouse })}
-                    >
-                      {t('Cancel')}
-                    </Button>
-                  </div>
-                )}
                 {isOwner && !listing && highestOffer && (
                   <div className="col-span-12">
                     <Button
@@ -801,6 +788,19 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       onClick={onListNftClick}
                     >
                       {t('listNft')}
+                    </Button>
+                  </div>
+                )}
+                {viewerOffer && (
+                  <div className="col-span-12">
+                    <Button
+                      block
+                      loading={closingOffer}
+                      border={ButtonBorder.Gray}
+                      color={ButtonColor.Gray}
+                      onClick={() => onCloseOffer({ nft, auctionHouse })}
+                    >
+                      {t('cancelOffer')}
                     </Button>
                   </div>
                 )}

@@ -21,6 +21,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/sp
 import { RewardCenterProgram } from '../modules/reward-center';
 import { useApolloClient, gql, StoreObject, Reference } from '@apollo/client';
 import useViewer from './viewer';
+import { useRouter } from 'next/router';
 
 interface BuyForm {
   amount?: number;
@@ -48,6 +49,7 @@ export default function useBuyNow(): BuyContext {
   const viewer = useViewer();
   const [buy, setBuy] = useState(false);
   const [buying, setBuying] = useState(false);
+  const router = useRouter();
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
     if (
@@ -253,38 +255,52 @@ export default function useBuyNow(): BuyContext {
             (listing: AhListing) => listing.id !== ahListing.id
           );
 
-          return {
-            nft: {
-              ...data.nft,
-              listings,
+          const nft = {
+            ...data.nft,
+            listings,
+            owner: {
+              __typename: 'NftOwner',
+              address: publicKey.toBase58(),
+              associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
+              profile: null,
             },
+          };
+
+          if (router.pathname === '/nfts/[address]/details') {
+            delete nft.owner;
+          }
+
+          return {
+            nft,
           };
         }
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftDetailsQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          return {
-            nft: {
-              ...data.nft,
-              owner: {
-                __typename: 'NftOwner',
-                address: publicKey.toBase58(),
-                associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-                profile: null,
-              },
+      if (router.pathname === '/nfts/[address]/details') {
+        client.cache.updateQuery(
+          {
+            query: NftDetailsQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
             },
-          };
-        }
-      );
+          },
+          (data) => {
+            return {
+              nft: {
+                ...data.nft,
+                owner: {
+                  __typename: 'NftOwner',
+                  address: publicKey.toBase58(),
+                  associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
+                  profile: null,
+                },
+              },
+            };
+          }
+        );
+      }
 
       toast('Nft purchased', { type: 'success' });
     } catch (err: any) {
