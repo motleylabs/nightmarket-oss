@@ -12,7 +12,7 @@ function AttributeOption({
 }: {
   variant: AttributeVariant;
   selected: boolean;
-  onClick: any;
+  onClick: () => void;
 }): JSX.Element {
   return (
     <div onClick={onClick} className="flex cursor-pointer items-center justify-between">

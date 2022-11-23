@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -18,7 +18,7 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { NftCard } from '../../../components/NftCard';
 import { List, ListGridSize } from '../../../components/List';
-import { Disclosure, Listbox } from '@headlessui/react';
+import { Disclosure } from '@headlessui/react';
 import { Attribute } from '../../../components/Attribute';
 import { Offerable } from '../../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -115,7 +115,7 @@ export default function CollectionNfts() {
     { value: SortType.RecentlyListed, label: t('sort.recentlyListed') },
   ];
 
-  const { watch, control, resetField, setValue } = useForm<CollectionNFTForm>({
+  const { watch, control, setValue } = useForm<CollectionNFTForm>({
     defaultValues: { sortBySelect: sortOptions[0].value, attributes: {} },
   });
 
@@ -125,7 +125,7 @@ export default function CollectionNfts() {
     setValue('attributes', {});
   };
 
-  // does not work as a useMemo :(
+  // does not work as a useMemo
   const selectedAttributes: string[] = Object.entries(attributes)
     .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
     .filter((a) => a)
@@ -152,10 +152,6 @@ export default function CollectionNfts() {
     },
   });
 
-  console.log('attributes', {
-    attributes,
-    selectedAttributes,
-  });
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
       let variables: CollectionNFTsVariables = {
