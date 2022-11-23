@@ -551,9 +551,6 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   );
 
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
-  const notify = () => toast('Wow so easy!');
-  const notifySuccess = () => toast('success', { type: 'success' });
-  const notifyError = () => toast('error', { type: 'error' });
 
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
@@ -566,9 +563,6 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                 <CurrencyProvider>
                   <NavigationBar />
                   <PageLayout {...pageProps}>
-                    <Button onClick={notify}>Notify!</Button>
-                    <Button onClick={notifySuccess}>Sucess!</Button>
-                    <Button onClick={notifyError}>Error!</Button>
                     <Component {...pageProps} />
                   </PageLayout>
                 </CurrencyProvider>
