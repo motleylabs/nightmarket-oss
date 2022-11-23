@@ -157,15 +157,16 @@ export default function ProfileCollected({
                               selected={selected}
                               avatar={
                                 // TODO: Update to collection id once collection nft is updated
-                                <Link href={`/collections/${cc.collection?.id}/nfts`}>
-                                  <a className="group relative">
-                                    <Collection.Option.Avatar
-                                      src={cc.collection?.image as string}
-                                      figure={cc.nftsOwned.toString()}
-                                    />
-                                    <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
-                                    <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
-                                  </a>
+                                <Link
+                                  className="group relative"
+                                  href={`/collections/${cc.collection?.id}/nfts`}
+                                >
+                                  <Collection.Option.Avatar
+                                    src={cc.collection?.image as string}
+                                    figure={cc.nftsOwned.toString()}
+                                  />
+                                  <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
+                                  <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
                                 </Link>
                               }
                               header={
