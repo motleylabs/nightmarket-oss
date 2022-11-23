@@ -46,41 +46,39 @@ export function NftCard({
     <>
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
         <Link href={link}>
-          <a>
-            <div className="relative block overflow-hidden">
-              <img
-                src={nft.image}
-                alt={`Nft image for ${nft.mintAddress}`}
-                className={clsx(
-                  'aspect-square w-full  object-cover',
-                  'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
-                )}
-              />
-              {nft.moonrankRank && (
-                <span className="absolute left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
-                  <img
-                    src="/images/moonrank-logo.svg"
-                    className="h-2.5 w-auto object-cover"
-                    alt="moonrank logo"
-                  />
-                  {nft.moonrankRank}
-                </span>
+          <div className="relative block overflow-hidden">
+            <img
+              src={nft.image}
+              alt={`Nft image for ${nft.mintAddress}`}
+              className={clsx(
+                'aspect-square w-full  object-cover',
+                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
               )}
-            </div>
+            />
+            {nft.moonrankRank && (
+              <span className="absolute left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+                <img
+                  src="/images/moonrank-logo.svg"
+                  className="h-2.5 w-auto object-cover"
+                  alt="moonrank logo"
+                />
+                {nft.moonrankRank}
+              </span>
+            )}
+          </div>
 
-            <div className="z-20 p-4">
-              <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-                {nft.moonrankCollection?.image && showCollectionThumbnail && (
-                  <img
-                    src={nft.moonrankCollection?.image}
-                    alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
-                    className="aspect-square w-4 rounded-sm object-cover"
-                  />
-                )}
-                <span className="truncate">{nft.name}</span>
-              </div>
+          <div className="z-20 p-4">
+            <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
+              {nft.moonrankCollection?.image && showCollectionThumbnail && (
+                <img
+                  src={nft.moonrankCollection?.image}
+                  alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
+                  className="aspect-square w-4 rounded-sm object-cover"
+                />
+              )}
+              <span className="truncate">{nft.name}</span>
             </div>
-          </a>
+          </div>
         </Link>
 
         <div className="relative flex flex-row items-center justify-between px-4">
@@ -100,16 +98,14 @@ export function NftCard({
                     {listing?.solPrice} <Icon.Sol />
                   </span>
                   <Link href={link}>
-                    <a>
-                      <Button
-                        size={ButtonSize.Small}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                      >
-                        {t('buy')}
-                      </Button>
-                    </a>
+                    <Button
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('buy')}
+                    </Button>
                   </Link>
                 </>
               ) : (
@@ -126,15 +122,13 @@ export function NftCard({
                     <div className="block" />
                   )}
                   <Link href={link}>
-                    <a>
-                      <Button
-                        border={ButtonBorder.Gray}
-                        color={ButtonColor.Gray}
-                        size={ButtonSize.Small}
-                      >
-                        {t('offer')}
-                      </Button>
-                    </a>
+                    <Button
+                      border={ButtonBorder.Gray}
+                      color={ButtonColor.Gray}
+                      size={ButtonSize.Small}
+                    >
+                      {t('offer')}
+                    </Button>
                   </Link>
                 </div>
               )}
