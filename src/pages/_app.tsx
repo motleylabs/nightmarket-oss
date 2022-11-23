@@ -38,7 +38,7 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import localFont from '@next/font/local';
 
 const BriceFont = localFont({
@@ -551,11 +551,14 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   );
 
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
+  const notify = () => toast('Wow so easy!');
+  const notifySuccess = () => toast('success', { type: 'success' });
+  const notifyError = () => toast('error', { type: 'error' });
 
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <ApolloProvider client={client}>
-        <ToastContainer />
+        <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider className="wallet-modal-theme">
@@ -563,6 +566,9 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                 <CurrencyProvider>
                   <NavigationBar />
                   <PageLayout {...pageProps}>
+                    <Button onClick={notify}>Notify!</Button>
+                    <Button onClick={notifySuccess}>Sucess!</Button>
+                    <Button onClick={notifyError}>Error!</Button>
                     <Component {...pageProps} />
                   </PageLayout>
                 </CurrencyProvider>
