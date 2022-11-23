@@ -63,5 +63,6 @@
   "lastSale": "Last sale",
   "viewProfile": "View profile",
   "switchWallet": "Switch wallet",
-  "disconnectWallet": "Disconnect wallet"
+  "disconnectWallet": "Disconnect wallet",
+  "clear": "Clear"
 }
