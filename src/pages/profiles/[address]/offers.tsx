@@ -160,14 +160,14 @@ export default function ProfileOffers(): JSX.Element {
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) =>
                 offersQuery.data?.wallet.offers.map((offer) => {
-                  console.log(offer);
                   return (
                     <Activity
                       avatar={
-                        <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
-                          <a className="cursor-pointer transition hover:scale-[1.02]">
-                            <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                          </a>
+                        <Link
+                          className="cursor-pointer transition hover:scale-[1.02]"
+                          href={`/nfts/${offer.nft?.mintAddress}/details`}
+                        >
+                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
                         </Link>
                       }
                       type={ActivityType.Offer}

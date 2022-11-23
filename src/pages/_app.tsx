@@ -38,7 +38,7 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import localFont from '@next/font/local';
 
 const BriceFont = localFont({
@@ -555,7 +555,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <ApolloProvider client={client}>
-        <ToastContainer />
+        <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider className="wallet-modal-theme">

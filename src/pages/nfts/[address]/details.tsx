@@ -2,13 +2,14 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import client from './../../../client';
-import { NftQuery } from './../../../queries/nft.graphql';
-import { Nft, AuctionHouse } from './../../../graphql.types';
-import { ReactNode } from 'react';
+import { NftQuery, NftDetailsQuery } from './../../../queries/nft.graphql';
+import { Nft, AuctionHouse, NftOwner, Maybe } from './../../../graphql.types';
+import { ReactNode, useMemo } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
 import config from './../../../app.config';
 import Icon from './../../../components/Icon';
+import { useQuery } from '@apollo/client';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
@@ -43,8 +44,27 @@ interface NftDetailPageProps {
   auctionHouse: AuctionHouse;
 }
 
+interface NftDetailsQueryData {
+  nft: Nft;
+}
+
+interface NftDetailsQueryVariables {
+  address: string;
+}
+
 export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
+  const nftQuery = useQuery<NftDetailsQueryData, NftDetailsQueryVariables>(NftDetailsQuery, {
+    variables: { address: nft.mintAddress },
+  });
+
+  const owner: Maybe<NftOwner> | undefined = useMemo(() => {
+    if (nftQuery.data) {
+      return nftQuery.data.nft.owner;
+    }
+
+    return nft.owner;
+  }, [nftQuery.data, nft]);
 
   return (
     <>
@@ -130,15 +150,16 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
         )}
         <li className="flex items-center justify-between">
           <div>{t('owner')}</div>
-          <Link href={`/profiles/${nft.owner?.address}/collected`}>
-            <a className="flex flex-row items-center gap-1">
-              <img
-                src={nft.owner?.previewImage as string}
-                className="h-6 w-6 rounded-full border border-gray-800 object-cover"
-                alt="nft owner avatar image"
-              />
-              <span>{nft.owner?.displayName}</span>
-            </a>
+          <Link
+            className="flex flex-row items-center gap-1"
+            href={`/profiles/${nft.owner?.address}/collected`}
+          >
+            <img
+              src={nft.owner?.previewImage as string}
+              className="h-6 w-6 rounded-full border border-gray-800 object-cover"
+              alt="nft owner avatar image"
+            />
+            <span>{nft.owner?.displayName}</span>
           </Link>
         </li>
         <li className="flex items-center justify-between">

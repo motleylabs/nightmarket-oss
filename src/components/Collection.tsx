@@ -10,6 +10,7 @@ import { useQuery } from '@apollo/client';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import config from '../app.config';
+import { asCompactNumber } from '../modules/number';
 
 export function Collection() {
   return <div />;
@@ -378,7 +379,7 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
         'text-[#F04438]': value < 0,
       })}
     >
-      {Math.abs(value)}%
+      {asCompactNumber(Math.abs(value))}%
       <ArrowUpIcon
         className={clsx(clsx, 'h-2 w-2 md:h-3 md:w-3', {
           'rotate-180 transform': value < 0,
