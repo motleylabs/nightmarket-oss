@@ -31,6 +31,7 @@ import Button, {
   ButtonColor,
   ButtonSize,
 } from '../../../components/Button';
+import FilterLabel from '../../../components/FilterLabel';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -149,25 +150,20 @@ export default function ProfileCollected({
               <>
                 {selectedCollections.map((collectionId) => {
                   return (
-                    <div
-                      className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
-                      key={collectionId}
-                    >
-                      <div className="flex gap-2">
-                        {walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                    <FilterLabel
+                      key={collectionId!}
+                      label={
+                        walletProfileClientQuery.data?.wallet?.collectedCollections.find(
                           (c) => c.collection?.id === collectionId
-                        )?.collection?.name || collectionId}
-                        <XMarkIcon
-                          className="h-4 w-4 cursor-pointer"
-                          onClick={() =>
-                            setValue(
-                              'collections',
-                              selectedCollections.filter((c) => c !== collectionId)
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
+                        )?.collection?.name || collectionId!
+                      }
+                      onRemoveClick={() =>
+                        setValue(
+                          'collections',
+                          selectedCollections.filter((c) => c !== collectionId)
+                        )
+                      }
+                    />
                   );
                 })}
                 {selectedCollections.length > 0 && (

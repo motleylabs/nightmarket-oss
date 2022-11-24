@@ -32,6 +32,7 @@ import Button, {
   ButtonSize,
 } from '../../../components/Button';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import FilterLabel from '../../../components/FilterLabel';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -211,23 +212,16 @@ export default function CollectionNfts() {
                   const [group, attribute] = groupAndattribute.split(':', 2);
 
                   return (
-                    <div
-                      className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
+                    <FilterLabel
                       key={groupAndattribute}
-                    >
-                      <div className="flex gap-2">
-                        {attribute}
-                        <XMarkIcon
-                          className="h-4 w-4 cursor-pointer"
-                          onClick={() =>
-                            setValue('attributes', {
-                              ...attributes,
-                              [group]: attributes[group].filter((a) => a !== attribute),
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
+                      label={attribute}
+                      onRemoveClick={() =>
+                        setValue('attributes', {
+                          ...attributes,
+                          [group]: attributes[group].filter((a) => a !== attribute),
+                        })
+                      }
+                    />
                   );
                 })}
                 {selectedAttributes.length > 0 && (
