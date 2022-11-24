@@ -38,7 +38,7 @@ function asSOL(_: any, { readField }: { readField: ReadFieldFunction }): number 
     return 0;
   }
 
-  return toSol(price.toNumber());
+  return toSol(price.toNumber(), 5);
 }
 
 function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }): string {
