@@ -100,6 +100,30 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
 
 Sidebar.Panel = SidebarPanel;
 
+interface SidebarPillProps {
+  key: string;
+  label: string;
+  onRemoveClick: () => void;
+  className?: string;
+}
+
+function SidebarPill({ key, label, onRemoveClick, className }: SidebarPillProps) {
+  return (
+    <div
+      className={clsx(
+        'rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500',
+        className
+      )}
+      key={key}
+    >
+      <div className="flex gap-2">
+        {label}
+        <XMarkIcon className="h-4 w-4 cursor-pointer" onClick={onRemoveClick} />
+      </div>
+    </div>
+  );
+}
+Sidebar.Pill = SidebarPill;
 interface SidebarContentProps {
   children: ReactNode;
   open?: boolean;
