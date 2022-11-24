@@ -888,6 +888,10 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
           const nft = {
             ...data.nft,
             offers,
+            lastSale: {
+              __typename: 'LastSale',
+              price: buyerPrice.toString(),
+            },
             owner: {
               __typename: 'NftOwner',
               address: buyerAddress.toBase58(),

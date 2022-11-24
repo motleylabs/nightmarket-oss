@@ -13,9 +13,7 @@ import {
   WalletNftCount,
   TwitterProfile,
   NftMarketplace,
-  AuctionHouse,
   Wallet,
-  AhListing,
   CollectionTrend,
   Datapoint,
 } from './graphql.types';
@@ -38,7 +36,7 @@ function asSOL(_: any, { readField }: { readField: ReadFieldFunction }): number 
     return 0;
   }
 
-  return toSol(price.toNumber(), 5);
+  return toSol(price.toNumber());
 }
 
 function asDisplayName(_: any, { readField }: { readField: ReadFieldFunction }): string {

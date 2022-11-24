@@ -83,10 +83,6 @@ query NftQuery($address: String!, $auctionHouse: String!) {
         ...ProfileInfo
       }
     }
-    lastSale {
-      price
-      solPrice @client
-    }
   }
 }
 
@@ -146,6 +142,10 @@ query NftMarketInfoQuery($address: String!) {
     owner {
       address
       associatedTokenAccountAddress
+    }
+    lastSale {
+      price
+      solPrice @client
     }
     offers {
       id
