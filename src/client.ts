@@ -641,6 +641,7 @@ const client = new ApolloClient({
             read(dateString: string) {
               // this could potentially be moved to the backend
               // it needs to be in unix for ReCharts to process it more efficently
+
               return new Date(dateString).getTime();
             },
           },
@@ -678,7 +679,7 @@ const client = new ApolloClient({
               return datapoints || [];
             },
           },
-          holderCount: {
+          ownersCount: {
             read(holderCount: Datapoint[]): Datapoint[] {
               const datapoints = holderCount?.map((point: Datapoint) => ({
                 ...point,
