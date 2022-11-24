@@ -23,8 +23,14 @@ import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
+import Button, {
+  ButtonBackground,
+  ButtonBorder,
+  ButtonColor,
+  ButtonSize,
+} from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -78,7 +84,7 @@ export default function ProfileCollected({
 }) {
   const { t } = useTranslation(['common', 'collection']);
 
-  const { watch, control } = useForm<CollectionNFTForm>({
+  const { watch, control, setValue } = useForm<CollectionNFTForm>({
     defaultValues: {
       collections: [],
     },
@@ -96,6 +102,12 @@ export default function ProfileCollected({
       auctionHouse: config.auctionHouse,
     },
   });
+
+  const selectedCollections = watch('collections') || [];
+
+  const onClearClick = () => {
+    setValue('collections', []);
+  };
 
   useEffect(() => {
     const subscription = watch(({ collections }) => {
@@ -129,6 +141,51 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         />
       </Toolbar>
+      {selectedCollections.length > 0 && (
+        <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
+          <div className="flex flex-col gap-2 ">
+            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+            <div className="flex flex-wrap gap-2">
+              <>
+                {selectedCollections.map((collectionId) => {
+                  return (
+                    <div
+                      className="rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500"
+                      key={collectionId}
+                    >
+                      <div className="flex gap-2">
+                        {walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                          (c) => c.collection?.id === collectionId
+                        )?.collection?.name || collectionId}
+                        <XMarkIcon
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={() =>
+                            setValue(
+                              'collections',
+                              selectedCollections.filter((c) => c !== collectionId)
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+                {selectedCollections.length > 0 && (
+                  <Button
+                    background={ButtonBackground.Black}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                    size={ButtonSize.Tiny}
+                    onClick={onClearClick}
+                  >
+                    {t('common:clear')}
+                  </Button>
+                )}
+              </>
+            </div>
+          </div>
+        </div>
+      )}
       <Sidebar.Page open={open}>
         <Sidebar.Panel
           onChange={toggleSidebar}
@@ -156,7 +213,6 @@ export default function ProfileCollected({
                             <Collection.Option
                               selected={selected}
                               avatar={
-                                // TODO: Update to collection id once collection nft is updated
                                 <Link
                                   className="group relative"
                                   href={`/collections/${cc.collection?.id}/nfts`}

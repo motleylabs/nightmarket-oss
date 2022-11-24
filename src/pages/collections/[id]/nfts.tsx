@@ -204,7 +204,7 @@ export default function CollectionNfts() {
       {selectedAttributes.length > 0 && (
         <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
           <div className="flex flex-col gap-2 ">
-            <span className="text-sm text-gray-200">Filters:</span>
+            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
             <div className="flex flex-wrap gap-2">
               <>
                 {selectedAttributes.map((groupAndattribute) => {
