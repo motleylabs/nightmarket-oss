@@ -124,14 +124,14 @@ const Home: NextPage = () => {
 
   const timeFrame = watch('filter');
 
-  // const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
-  //   variables: {
-  //     address: config.auctionHouse as string,
-  //     limit: 3,
-  //     offset: 0,
-  //   },
-  //   pollInterval: 10_000,
-  // });
+  const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
+    variables: {
+      address: config.auctionHouse as string,
+      limit: 3,
+      offset: 0,
+    },
+    pollInterval: 10_000,
+  });
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(
     TrendingCollectionQuery,
@@ -220,8 +220,8 @@ const Home: NextPage = () => {
           </Hero.Main>
           <Hero.Aside
             payouts={
-              // payoutsQuery.data?.auctionHouse.rewardCenter?.payouts
-              []
+              payoutsQuery.data?.auctionHouse.rewardCenter?.payouts
+              // []
             }
           />
         </Hero>
