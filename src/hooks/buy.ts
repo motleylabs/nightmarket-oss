@@ -241,41 +241,6 @@ export default function useBuyNow(): BuyContext {
         'confirmed'
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const listings = data.nft.listings.filter(
-            (listing: AhListing) => listing.id !== ahListing.id
-          );
-
-          const nft = {
-            ...data.nft,
-            listings,
-            owner: {
-              __typename: 'NftOwner',
-              address: publicKey.toBase58(),
-              associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-              profile: null,
-            },
-          };
-
-          if (router.pathname === '/nfts/[address]/details') {
-            delete nft.owner;
-          }
-
-          return {
-            nft,
-          };
-        }
-      );
-
       if (router.pathname === '/nfts/[address]/details') {
         client.cache.updateQuery(
           {
@@ -301,6 +266,38 @@ export default function useBuyNow(): BuyContext {
           }
         );
       }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const listings = data.nft.listings.filter(
+            (listing: AhListing) => listing.id !== ahListing.id
+          );
+
+          const nft = {
+            ...data.nft,
+            listings,
+            owner: {
+              __typename: 'NftOwner',
+              address: publicKey.toBase58(),
+              associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
+              profile: null,
+            },
+          };
+
+          return {
+            nft,
+          };
+        }
+      );
+
 
       toast('Nft purchased', { type: 'success' });
     } catch (err: any) {
