@@ -23,7 +23,7 @@ import { Offerable } from '../../../components/Offerable';
 import { Buyable } from '../../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
-import { ArrowTopRightOnSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
 import Button, {
   ButtonBackground,
@@ -31,7 +31,6 @@ import Button, {
   ButtonColor,
   ButtonSize,
 } from '../../../components/Button';
-import FilterLabel from '../../../components/FilterLabel';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
@@ -142,46 +141,6 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         />
       </Toolbar>
-      {selectedCollections.length > 0 && (
-        <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
-          <div className="flex flex-col gap-2 ">
-            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-            <div className="flex flex-wrap gap-2">
-              <>
-                {selectedCollections.map((collectionId) => {
-                  return (
-                    <FilterLabel
-                      key={collectionId!}
-                      label={
-                        walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-                          (c) => c.collection?.id === collectionId
-                        )?.collection?.name || collectionId!
-                      }
-                      onRemoveClick={() =>
-                        setValue(
-                          'collections',
-                          selectedCollections.filter((c) => c !== collectionId)
-                        )
-                      }
-                    />
-                  );
-                })}
-                {selectedCollections.length > 0 && (
-                  <Button
-                    background={ButtonBackground.Black}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                    size={ButtonSize.Tiny}
-                    onClick={onClearClick}
-                  >
-                    {t('common:clear')}
-                  </Button>
-                )}
-              </>
-            </div>
-          </div>
-        </div>
-      )}
       <Sidebar.Page open={open}>
         <Sidebar.Panel
           onChange={toggleSidebar}
@@ -241,55 +200,98 @@ export default function ProfileCollected({
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
-          <Offerable connected={Boolean(publicKey)}>
-            {({ makeOffer }) => (
-              <Buyable connected={Boolean(publicKey)}>
-                {({ buyNow }) => (
-                  <List
-                    expanded={open}
-                    data={nftsQuery.data?.wallet.nfts}
-                    loading={nftsQuery.loading}
-                    gap={6}
-                    hasMore={hasMore}
-                    grid={{
-                      [ListGridSize.Default]: [2, 2],
-                      [ListGridSize.Small]: [2, 2],
-                      [ListGridSize.Medium]: [2, 3],
-                      [ListGridSize.Large]: [3, 4],
-                      [ListGridSize.ExtraLarge]: [4, 6],
-                      [ListGridSize.Jumbo]: [6, 8],
-                    }}
-                    skeleton={NftCard.Skeleton}
-                    onLoadMore={async (inView: boolean) => {
-                      if (!inView) {
-                        return;
-                      }
-
-                      const {
-                        data: { wallet },
-                      } = await nftsQuery.fetchMore({
-                        variables: {
-                          ...nftsQuery.variables,
-                          offset: nftsQuery.data?.wallet.nfts.length,
-                        },
-                      });
-
-                      setHasMore(wallet.nfts.length > 0);
-                    }}
-                    render={(nft, i) => (
-                      <NftCard
-                        key={`${nft.mintAddress}-${i}`}
-                        link={`/nfts/${nft.mintAddress}/details`}
-                        onMakeOffer={() => makeOffer(nft.mintAddress)}
-                        onBuy={() => buyNow(nft.mintAddress)}
-                        nft={nft}
-                      />
-                    )}
-                  />
-                )}
-              </Buyable>
+          <>
+            {selectedCollections.length > 0 && (
+              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
+                <div className="flex flex-col gap-2 ">
+                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+                  <div className="flex flex-wrap gap-2">
+                    <>
+                      {selectedCollections.map((collectionId) => {
+                        return (
+                          <Sidebar.Pill
+                            key={collectionId!}
+                            label={
+                              walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                                (c) => c.collection?.id === collectionId
+                              )?.collection?.name || collectionId!
+                            }
+                            onRemoveClick={() =>
+                              setValue(
+                                'collections',
+                                selectedCollections.filter((c) => c !== collectionId)
+                              )
+                            }
+                          />
+                        );
+                      })}
+                      {selectedCollections.length > 0 && (
+                        <Button
+                          background={ButtonBackground.Black}
+                          border={ButtonBorder.Gradient}
+                          color={ButtonColor.Gradient}
+                          size={ButtonSize.Tiny}
+                          onClick={onClearClick}
+                        >
+                          {t('common:clear')}
+                        </Button>
+                      )}
+                    </>
+                  </div>
+                </div>
+              </div>
             )}
-          </Offerable>
+
+            <Offerable connected={Boolean(publicKey)}>
+              {({ makeOffer }) => (
+                <Buyable connected={Boolean(publicKey)}>
+                  {({ buyNow }) => (
+                    <List
+                      expanded={open}
+                      data={nftsQuery.data?.wallet.nfts}
+                      loading={nftsQuery.loading}
+                      gap={6}
+                      hasMore={hasMore}
+                      grid={{
+                        [ListGridSize.Default]: [2, 2],
+                        [ListGridSize.Small]: [2, 2],
+                        [ListGridSize.Medium]: [2, 3],
+                        [ListGridSize.Large]: [3, 4],
+                        [ListGridSize.ExtraLarge]: [4, 6],
+                        [ListGridSize.Jumbo]: [6, 8],
+                      }}
+                      skeleton={NftCard.Skeleton}
+                      onLoadMore={async (inView: boolean) => {
+                        if (!inView) {
+                          return;
+                        }
+
+                        const {
+                          data: { wallet },
+                        } = await nftsQuery.fetchMore({
+                          variables: {
+                            ...nftsQuery.variables,
+                            offset: nftsQuery.data?.wallet.nfts.length,
+                          },
+                        });
+
+                        setHasMore(wallet.nfts.length > 0);
+                      }}
+                      render={(nft, i) => (
+                        <NftCard
+                          key={`${nft.mintAddress}-${i}`}
+                          link={`/nfts/${nft.mintAddress}/details`}
+                          onMakeOffer={() => makeOffer(nft.mintAddress)}
+                          onBuy={() => buyNow(nft.mintAddress)}
+                          nft={nft}
+                        />
+                      )}
+                    />
+                  )}
+                </Buyable>
+              )}
+            </Offerable>
+          </>
         </Sidebar.Content>
       </Sidebar.Page>
     </>

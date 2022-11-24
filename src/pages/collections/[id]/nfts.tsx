@@ -31,8 +31,6 @@ import Button, {
   ButtonColor,
   ButtonSize,
 } from '../../../components/Button';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import FilterLabel from '../../../components/FilterLabel';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
@@ -202,44 +200,6 @@ export default function CollectionNfts() {
           )}
         />
       </Toolbar>
-      {selectedAttributes.length > 0 && (
-        <div className="mx-4 mb-10 mt-6 p-1 md:mx-10 md:hidden">
-          <div className="flex flex-col gap-2 ">
-            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-            <div className="flex flex-wrap gap-2">
-              <>
-                {selectedAttributes.map((groupAndattribute) => {
-                  const [group, attribute] = groupAndattribute.split(':', 2);
-
-                  return (
-                    <FilterLabel
-                      key={groupAndattribute}
-                      label={attribute}
-                      onRemoveClick={() =>
-                        setValue('attributes', {
-                          ...attributes,
-                          [group]: attributes[group].filter((a) => a !== attribute),
-                        })
-                      }
-                    />
-                  );
-                })}
-                {selectedAttributes.length > 0 && (
-                  <Button
-                    background={ButtonBackground.Black}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                    size={ButtonSize.Tiny}
-                    onClick={onClearClick}
-                  >
-                    {t('common:clear')}
-                  </Button>
-                )}
-              </>
-            </div>
-          </div>
-        </div>
-      )}
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
@@ -297,55 +257,96 @@ export default function CollectionNfts() {
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
-          <Offerable connected={Boolean(publicKey)}>
-            {({ makeOffer }) => (
-              <Buyable connected={Boolean(publicKey)}>
-                {({ buyNow }) => (
-                  <List
-                    expanded={open}
-                    data={nftsQuery.data?.collection.nfts}
-                    loading={nftsQuery.loading}
-                    hasMore={hasMore}
-                    gap={6}
-                    grid={{
-                      [ListGridSize.Default]: [2, 2],
-                      [ListGridSize.Small]: [2, 2],
-                      [ListGridSize.Medium]: [2, 3],
-                      [ListGridSize.Large]: [3, 4],
-                      [ListGridSize.ExtraLarge]: [4, 6],
-                      [ListGridSize.Jumbo]: [6, 8],
-                    }}
-                    skeleton={NftCard.Skeleton}
-                    onLoadMore={async (inView: boolean) => {
-                      if (!inView) {
-                        return;
-                      }
+          <>
+            {selectedAttributes.length > 0 && (
+              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
+                <div className="flex flex-col gap-2 ">
+                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+                  <div className="flex flex-wrap gap-2">
+                    <>
+                      {selectedAttributes.map((groupAndattribute) => {
+                        const [group, attribute] = groupAndattribute.split(':', 2);
 
-                      const {
-                        data: { collection },
-                      } = await nftsQuery.fetchMore({
-                        variables: {
-                          offset: nftsQuery.data?.collection.nfts.length,
-                        },
-                      });
-
-                      setHasMore(collection.nfts.length > 0);
-                    }}
-                    render={(nft, i) => (
-                      <NftCard
-                        key={`${nft.mintAddress}-${i}`}
-                        link={`/nfts/${nft.mintAddress}/details`}
-                        onMakeOffer={() => makeOffer(nft.mintAddress)}
-                        onBuy={() => buyNow(nft.mintAddress)}
-                        nft={nft}
-                        showCollectionThumbnail={false}
-                      />
-                    )}
-                  />
-                )}
-              </Buyable>
+                        return (
+                          <Sidebar.Pill
+                            key={groupAndattribute}
+                            label={attribute}
+                            onRemoveClick={() =>
+                              setValue('attributes', {
+                                ...attributes,
+                                [group]: attributes[group].filter((a) => a !== attribute),
+                              })
+                            }
+                          />
+                        );
+                      })}
+                      {selectedAttributes.length > 0 && (
+                        <Button
+                          background={ButtonBackground.Black}
+                          border={ButtonBorder.Gradient}
+                          color={ButtonColor.Gradient}
+                          size={ButtonSize.Tiny}
+                          onClick={onClearClick}
+                        >
+                          {t('common:clear')}
+                        </Button>
+                      )}
+                    </>
+                  </div>
+                </div>
+              </div>
             )}
-          </Offerable>
+
+            <Offerable connected={Boolean(publicKey)}>
+              {({ makeOffer }) => (
+                <Buyable connected={Boolean(publicKey)}>
+                  {({ buyNow }) => (
+                    <List
+                      expanded={open}
+                      data={nftsQuery.data?.collection.nfts}
+                      loading={nftsQuery.loading}
+                      hasMore={hasMore}
+                      gap={6}
+                      grid={{
+                        [ListGridSize.Default]: [2, 2],
+                        [ListGridSize.Small]: [2, 2],
+                        [ListGridSize.Medium]: [2, 3],
+                        [ListGridSize.Large]: [3, 4],
+                        [ListGridSize.ExtraLarge]: [4, 6],
+                        [ListGridSize.Jumbo]: [6, 8],
+                      }}
+                      skeleton={NftCard.Skeleton}
+                      onLoadMore={async (inView: boolean) => {
+                        if (!inView) {
+                          return;
+                        }
+
+                        const {
+                          data: { collection },
+                        } = await nftsQuery.fetchMore({
+                          variables: {
+                            offset: nftsQuery.data?.collection.nfts.length,
+                          },
+                        });
+
+                        setHasMore(collection.nfts.length > 0);
+                      }}
+                      render={(nft, i) => (
+                        <NftCard
+                          key={`${nft.mintAddress}-${i}`}
+                          link={`/nfts/${nft.mintAddress}/details`}
+                          onMakeOffer={() => makeOffer(nft.mintAddress)}
+                          onBuy={() => buyNow(nft.mintAddress)}
+                          nft={nft}
+                          showCollectionThumbnail={false}
+                        />
+                      )}
+                    />
+                  )}
+                </Buyable>
+              )}
+            </Offerable>
+          </>
         </Sidebar.Content>
       </Sidebar.Page>
     </>
