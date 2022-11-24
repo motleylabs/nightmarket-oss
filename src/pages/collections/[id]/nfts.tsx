@@ -140,7 +140,6 @@ export default function CollectionNfts() {
   });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
-    notifyOnNetworkStatusChange: true,
     variables: {
       offset: 0,
       limit: 24,
