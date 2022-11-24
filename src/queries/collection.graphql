@@ -141,7 +141,7 @@ query CollectionNftPreviewsQuery($id: String!, $auctionHouse: String) @cached(tt
     nfts(limit: 7, offset: 0, sortBy: LISTED_AT, order: DESC, auctionHouse: $auctionHouse) {
       name
       mintAddress
-      image(width: 400)
+      image(width: 100)
       listings {
         id
         createdAt
