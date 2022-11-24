@@ -152,14 +152,14 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           <div>{t('owner')}</div>
           <Link
             className="flex flex-row items-center gap-1"
-            href={`/profiles/${nft.owner?.address}/collected`}
+            href={`/profiles/${owner?.address}/collected`}
           >
             <img
-              src={nft.owner?.previewImage as string}
+              src={owner?.previewImage as string}
               className="h-6 w-6 rounded-full border border-gray-800 object-cover"
               alt="nft owner avatar image"
             />
-            <span>{nft.owner?.displayName}</span>
+            <span>{owner?.displayName}</span>
           </Link>
         </li>
         <li className="flex items-center justify-between">

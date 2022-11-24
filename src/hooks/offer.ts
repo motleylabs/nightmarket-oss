@@ -847,39 +847,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         'confirmed'
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const offers = data.nft.offers.filter((o: Offer) => o.id !== offer.id);
-
-          const nft = {
-            ...data.nft,
-            offers,
-            owner: {
-              __typename: 'NftOwner',
-              address: buyerAddress.toBase58(),
-              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-              profile: null,
-            },
-          };
-
-          if (router.pathname === '/nfts/[address]/details') {
-            delete nft.owner;
-          }
-
-          return {
-            nft,
-          };
-        }
-      );
-
       if (router.pathname === '/nfts/[address]/details') {
         client.cache.updateQuery(
           {
@@ -905,6 +872,36 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
           }
         );
       }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offers = data.nft.offers.filter((o: Offer) => o.id !== offer.id);
+
+          const nft = {
+            ...data.nft,
+            offers,
+            owner: {
+              __typename: 'NftOwner',
+              address: buyerAddress.toBase58(),
+              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+              profile: null,
+            },
+          };
+
+
+          return {
+            nft,
+          };
+        }
+      );
 
       toast('Offer accepted', { type: 'success' });
     } catch (err: any) {
