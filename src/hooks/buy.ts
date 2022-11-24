@@ -284,6 +284,10 @@ export default function useBuyNow(): BuyContext {
           const nft = {
             ...data.nft,
             listings,
+            lastSale: {
+              __typename: 'LastSale',
+              price: listedPrice.toString(),
+            },
             owner: {
               __typename: 'NftOwner',
               address: publicKey.toBase58(),
@@ -297,7 +301,6 @@ export default function useBuyNow(): BuyContext {
           };
         }
       );
-
 
       toast('Nft purchased', { type: 'success' });
     } catch (err: any) {

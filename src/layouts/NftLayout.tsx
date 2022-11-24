@@ -732,12 +732,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         </div>
                       )}
                     </>
-                  ) : nft.lastSale?.price ? (
+                  ) : data?.nft.lastSale?.price ? (
                     <div>
                       {t('lastSale')}
                       <span className="flex flex-row items-center justify-start">
                         <Icon.Sol />
-                        {nft.lastSale?.solPrice}
+                        {data?.nft.lastSale?.solPrice}
                       </span>
                     </div>
                   ) : (
