@@ -130,8 +130,9 @@ const Home: NextPage = () => {
       limit: 3,
       offset: 0,
     },
-    pollInterval: 10_000,
   });
+
+  payoutsQuery.startPolling(10_000);
 
   const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(
     TrendingCollectionQuery,
@@ -218,12 +219,7 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside
-            payouts={
-              payoutsQuery.data?.auctionHouse.rewardCenter?.payouts
-              // []
-            }
-          />
+          <Hero.Aside payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts} />
         </Hero>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
