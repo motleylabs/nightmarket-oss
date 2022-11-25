@@ -96,8 +96,6 @@ export default function ProfileActivity(): JSX.Element {
     }
   );
 
-  console.log('activitiesQuery', activitiesQuery.data?.wallet.activities);
-
   useEffect(() => {
     const subscription = watch(({ type }) => {
       let variables: ProfileActivitiesVariables = {
