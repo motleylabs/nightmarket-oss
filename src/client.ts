@@ -22,8 +22,8 @@ import marketplaces from './marketplaces.json';
 import { asCompactNumber } from './modules/number';
 import { ActivityType } from './components/Activity';
 
-function asBN(value: string | number | null): BN {
-  if (value === null) {
+function asBN(value: string | number | null | undefined): BN {
+  if (!value) {
     return new BN(0);
   }
   return new BN(value);
@@ -728,12 +728,12 @@ const client = new ApolloClient({
         keyFields: ['traitType', 'value'],
       },
       RewardPayout: {
-        keyFields: ['purchaseTicket'],
+        keyFields: ['purchaseId'],
         fields: {
           totalRewards: {
             read(_, { readField }) {
-              const buyerReward: BN | undefined = readField('buyerReward');
-              const sellerReward: BN | undefined = readField('sellerReward');
+              const buyerReward: BN | undefined = asBN(readField('buyerReward'));
+              const sellerReward: BN | undefined = asBN(readField('sellerReward'));
 
               if (!buyerReward && !sellerReward) {
                 return asCompactNumber(0);
@@ -744,9 +744,10 @@ const client = new ApolloClient({
               if (sellerReward) totalRewards += sellerReward.toNumber();
 
               var unitDecimals = Math.pow(10, 9);
-              totalRewards = Math.round(totalRewards / unitDecimals);
+              const multiplier = 1000;
+              totalRewards = Math.round((totalRewards / unitDecimals) * multiplier) / multiplier;
 
-              return asCompactNumber(totalRewards);
+              return totalRewards;
             },
           },
         },
