@@ -19,7 +19,7 @@ import {
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
-import { useApolloClient, gql, StoreObject, Reference } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import useViewer from './viewer';
 import { useRouter } from 'next/router';
 
@@ -56,7 +56,8 @@ export default function useBuyNow(): BuyContext {
       !connected ||
       !publicKey ||
       !signTransaction ||
-      !nft.owner?.address ||
+      !nft ||
+      !nft.owner ||
       !auctionHouse.rewardCenter ||
       !viewer
     ) {
@@ -75,7 +76,7 @@ export default function useBuyNow(): BuyContext {
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [buyerTradeState, buyerTradeStateBump] =
@@ -207,7 +208,7 @@ export default function useBuyNow(): BuyContext {
 
     const keys = buyListingIx.keys.concat(remainingAccounts);
 
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 350000 });
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
     tx.add(ix);
 
     if (!buyerAtAInfo) {
