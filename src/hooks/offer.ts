@@ -5,10 +5,9 @@ import zod from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { AuctionHouse, Maybe, Nft, Offer, TwitterProfile } from '../graphql.types';
+import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { NftOffersQuery } from './../queries/offers.graphql';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
@@ -81,7 +80,7 @@ export function useMakeOffer(): MakeOfferContext {
   });
 
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
-    if (!connected || !publicKey || !signTransaction) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       return;
     }
 
@@ -92,7 +91,7 @@ export function useMakeOffer(): MakeOfferContext {
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
@@ -324,7 +323,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
   }, [offer?.solPrice, reset]);
 
   const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
-    if (!connected || !publicKey || !signTransaction || !offer) {
+    if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -334,7 +333,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
@@ -899,7 +898,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
               profile: null,
             },
           };
-
 
           return {
             nft,

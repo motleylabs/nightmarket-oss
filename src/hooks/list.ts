@@ -57,7 +57,7 @@ export function useListNft(): ListNftContext {
   } = useForm<ListNftForm>();
 
   const onSubmitListNft = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
-    if (!connected || !publicKey || !signTransaction) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -68,8 +68,7 @@ export function useListNft(): ListNftContext {
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
-
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [sellerTradeState, tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
@@ -289,14 +288,14 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
   }, [listing?.solPrice, reset]);
 
   const onSubmitUpdateListing = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
-    if (!connected || !publicKey || !signTransaction) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const metadata = new PublicKey(nft.address);
 
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
@@ -410,7 +409,7 @@ export function useCloseListing({
   const [closingListing, setClosing] = useState(false);
 
   const onCloseListing = async () => {
-    if (!publicKey || !signTransaction || !listing || !auctionHouse) {
+    if (!publicKey || !signTransaction || !listing || !auctionHouse || !nft || !nft.owner) {
       return;
     }
     setClosing(true);
@@ -422,7 +421,7 @@ export function useCloseListing({
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
 
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [sellerTradeState, _tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
