@@ -279,7 +279,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
+                  <p className="text-primary-700">+SAUCE</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
@@ -663,12 +663,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <span className="flex flex-row gap-1">
                   <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  {listing && isOwner && (
-                    <p className="text-primary-700">{rewards.sellerRewards} SAUCE</p>
-                  )}
-                  {listing && !isOwner && (
-                    <p className="text-primary-700">{rewards.buyerRewards} SAUCE</p>
-                  )}
+                  {listing && isOwner && <p className="text-primary-700">+SAUCE</p>}
+                  {listing && !isOwner && <p className="text-primary-700">+SAUCE</p>}
                 </span>
               </div>
             )}
