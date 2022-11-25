@@ -728,7 +728,7 @@ const client = new ApolloClient({
         keyFields: ['traitType', 'value'],
       },
       RewardPayout: {
-        keyFields: ['purchaseTicket'],
+        keyFields: ['purchaseId'],
         fields: {
           totalRewards: {
             read(_, { readField }) {

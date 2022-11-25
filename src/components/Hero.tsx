@@ -58,7 +58,7 @@ interface HeroAsideProps {
 function HeroAside({ payouts }: HeroAsideProps): JSX.Element {
   return (
     <aside
-      key={payouts && payouts[0] ? payouts[0].purchaseTicket : ''}
+      key={payouts && payouts[0] ? payouts[0].purchaseId : ''}
       className="hidden w-1/2 md:flex md:justify-center"
     >
       {payouts && payouts?.length >= 3 && (
