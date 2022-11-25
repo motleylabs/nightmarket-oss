@@ -52,10 +52,12 @@ function CollectionOption({
         <div className="flex w-full flex-col justify-between overflow-hidden px-3">
           {header}
           <div className="flex items-end justify-between">
-            <div className="-mb-1 flex flex-col">
-              <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
-              <Price price={floorPrice} />
-            </div>
+            {floorPrice && (
+              <div className="-mb-1 flex flex-col">
+                <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
+                <Price price={floorPrice} />
+              </div>
+            )}
             {children}
           </div>
         </div>
@@ -128,10 +130,16 @@ function CollectionOptionEstimatedValue({
   const { t } = useTranslation('collection');
 
   return (
-    <div className="-mb-1 flex flex-col">
-      <span className="text-[10px] text-gray-400">{t('estimatedValue', { ns: 'collection' })}</span>
-      <Price price={amount} />
-    </div>
+    <>
+      {amount && amount != 0 && (
+        <div className="-mb-1 flex flex-col">
+          <span className="text-[10px] text-gray-400">
+            {t('estimatedValue', { ns: 'collection' })}
+          </span>
+          <Price price={amount} />
+        </div>
+      )}
+    </>
   );
 }
 
