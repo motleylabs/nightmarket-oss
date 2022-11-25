@@ -62,6 +62,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       },
     }
   );
+
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
       (total, current) => total + Number.parseFloat(current.estimatedValue),
