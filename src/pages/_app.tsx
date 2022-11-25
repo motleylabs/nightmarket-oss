@@ -558,7 +558,9 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
         <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider className="wallet-modal-theme">
+            <WalletModalProvider
+              className={`${BriceFont.variable} ${HauoraFont.variable} wallet-modal-theme font-sans`}
+            >
               <ViewerProvider>
                 <CurrencyProvider>
                   <NavigationBar />
