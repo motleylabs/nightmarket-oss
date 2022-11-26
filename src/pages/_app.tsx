@@ -40,7 +40,6 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../componen
 import Icon from '../components/Icon';
 import { ToastContainer, toast } from 'react-toastify';
 import localFont from '@next/font/local';
-import { SolanaLogo } from '../components/SolanaLogo';
 import { viewerVar } from '../cache';
 
 const BriceFont = localFont({
@@ -330,7 +329,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
               <section className="flex flex-col p-4">
                 <div className="flex">
                   <div className="block rounded-full bg-gray-800 p-4">
-                    <SolanaLogo />
+                    <Icon.Sol className="h-3.5" gradient />
                   </div>
                   <div className="ml-4 flex flex-1 items-center font-mono">
                     {viewerVar()?.solBalance}&nbsp;SOL
