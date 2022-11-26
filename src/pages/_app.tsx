@@ -1,4 +1,4 @@
-import { useMemo, ReactElement } from 'react';
+import React, { useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -40,6 +40,9 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../componen
 import Icon from '../components/Icon';
 import { ToastContainer, toast } from 'react-toastify';
 import localFont from '@next/font/local';
+import { start } from '../modules/bugsnag';
+
+start();
 
 const BriceFont = localFont({
   src: './Brice-Bold.woff2',

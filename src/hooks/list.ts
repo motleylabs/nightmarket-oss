@@ -22,6 +22,7 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
+import Bugsnag from '@bugsnag/js';
 
 interface ListNftForm {
   amount: string;
@@ -214,6 +215,12 @@ export function useListNft(): ListNftContext {
 
       toast('Listing posted', { type: 'success' });
     } catch (err: any) {
+      const logs = err.logs;
+      Bugsnag.notify(err, function (event) {
+        event.context = 'List NFT';
+        event.setUser(publicKey.toBase58());
+        event.addMetadata('list NFT', { logs, nft });
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setListNft(false);

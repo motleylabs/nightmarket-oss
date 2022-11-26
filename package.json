@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
+    "@bugsnag/js": "^7.18.0",
+    "@bugsnag/plugin-react": "^7.18.0",
     "@cardinal/mpl-candy-machine-utils": "^4.3.2",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^2.0.10",
