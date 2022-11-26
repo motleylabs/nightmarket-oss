@@ -64,6 +64,7 @@ export default function useBuyNow(): BuyContext {
       login();
       return;
     }
+
     setBuying(true);
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const listedPrice = parseInt(ahListing.price);

@@ -357,7 +357,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       close();
                       setVisible(true);
                     }}
-                    background={ButtonBackground.Slate}
+                    background={ButtonBackground.Black}
                     border={ButtonBorder.Gradient}
                     color={ButtonColor.Gradient}
                     className="w-full"

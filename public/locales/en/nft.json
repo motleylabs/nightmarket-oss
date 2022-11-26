@@ -13,7 +13,7 @@
   "buy": "Buy now",
   "cancel": "Cancel",
   "update": "Update",
-  "updateListing": "Update your listing",
+  "updateListing": "Update listing",
   "updateBid": "Update your offer",
   "attributes": "Attributes",
   "viewerOffer": "Your offer",
@@ -33,13 +33,17 @@
   "currentFloor": "Current floor price",
   "lastSold": "Last sold for",
   "price": "Price",
+  "acceptOffer": "Accept offer",
+  "updateOffer": "Update offer",
   "walletBalance": "Current wallet balance",
   "amount": "Amount",
   "submitOffer": "Submit offer",
   "lastSale": "Last sale price",
   "listNft": "List for sale",
-  "highestOffer": "Best offer",
+  "highestOffer": "Highest offer",
   "accept": "Accept",
   "twitterShareText": "Check out this NFT",
-  "connectToBuy": "Connect a wallet"
+  "connectToBuy": "Connect a wallet",
+  "noOffers": "No offers yet",
+  "noSales": "No sales history"
 }
