@@ -2,6 +2,9 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { Nft, Purchase, RewardPayout } from '../graphql.types';
 import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
+import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
+import Icon from './Icon';
+import Link from 'next/link';
 
 interface HeroProps {
   children: React.ReactNode;
@@ -51,38 +54,81 @@ function HeroActions({ children }: HeroActionsProps): JSX.Element {
 
 Hero.Actions = HeroActions;
 
-interface HeroAsideProps {
-  payouts: RewardPayout[] | undefined;
+function HeroPreviewSkeleton(props: {
+  className: string;
+  hPosition: 'left' | 'right';
+  vPosition: 'top' | 'bottom';
+}) {
+  return (
+    <>
+      <div className={clsx('animate-pulse', props.className)}>
+        <div className="h-32 w-32 rounded-2xl bg-gray-800 lg:h-48 lg:w-48"></div>
+        <div
+          className={clsx(
+            'absolute flex h-14 w-28 animate-pulse flex-col rounded-2xl bg-gray-700 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
+            {
+              '-ml-16': props.hPosition === 'left',
+              'right-0 -mr-20': props.hPosition === 'right',
+              'top-16': props.vPosition === 'top',
+              'bottom-4': props.vPosition === 'bottom',
+            }
+          )}
+        ></div>
+      </div>
+    </>
+  );
 }
 
-function HeroAside({ payouts }: HeroAsideProps): JSX.Element {
+interface HeroAsideProps {
+  payouts: RewardPayout[] | undefined;
+  loading: boolean;
+}
+
+function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
   return (
-    <aside
-      key={payouts && payouts[0] ? payouts[0].purchaseId : ''}
-      className="hidden w-1/2 md:flex md:justify-center"
-    >
-      {payouts && payouts?.length >= 3 && (
-        <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px] ">
-          <Hero.Preview
-            payout={payouts[0]}
-            className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
-            hPosition="left"
-            vPosition="bottom"
-          />
-          <Hero.Preview
-            payout={payouts[1]}
-            className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
-            hPosition="left"
-            vPosition="top"
-          />
-          <Hero.Preview
-            payout={payouts[2]}
-            className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
-            hPosition="right"
-            vPosition="bottom"
-          />
-        </div>
-      )}
+    <aside className="md:flex md:w-1/2 md:justify-center">
+      <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px] ">
+        {payouts && payouts?.length >= 3 && !loading ? (
+          <>
+            <Hero.Preview
+              payout={payouts[0]}
+              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
+              hPosition="left"
+              vPosition="bottom"
+            />
+            <Hero.Preview
+              payout={payouts[1]}
+              className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
+              hPosition="left"
+              vPosition="top"
+            />
+            <Hero.Preview
+              payout={payouts[2]}
+              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
+              hPosition="right"
+              vPosition="bottom"
+            />
+          </>
+        ) : (
+          <>
+            <HeroPreviewSkeleton
+              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
+              hPosition="left"
+              vPosition="bottom"
+            />
+            <HeroPreviewSkeleton
+              className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
+              hPosition="left"
+              vPosition="top"
+            />
+            <HeroPreviewSkeleton
+              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
+              hPosition="right"
+              vPosition="bottom"
+            />
+          </>
+        )}
+      </div>
     </aside>
   );
 }
@@ -115,26 +161,30 @@ const HeroPreview = ({
       leaveTo="transform opacity-0 scale-95"
     >
       <div className={clsx('realtive', className)}>
-        <img
-          className="h-32 w-32 rounded-2xl object-contain lg:h-48 lg:w-48"
-          alt="nft name"
-          src={payout?.nft?.image}
-        />
-        <div
-          className={clsx(
-            'absolute flex h-14 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
-            {
-              '-ml-16': hPosition === 'left',
-              'right-0 -mr-20': hPosition === 'right',
-              'top-16': vPosition === 'top',
-              'bottom-4': vPosition === 'bottom',
-            }
-          )}
-        >
-          <span className="truncate text-sm text-gray-500">Sold 1min ago</span>
-          <span className="text-sm text-orange-600">+{payout?.totalRewards} SAUCE</span>
-          <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
-        </div>
+        <Link href={`/nfts/${payout?.nft?.mintAddress}`}>
+          <img
+            className="aspect-square h-32 w-32 rounded-2xl object-cover lg:h-48 lg:w-48"
+            alt="nft name"
+            src={payout?.nft?.image}
+          />
+          <div
+            className={clsx(
+              'absolute flex h-14 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
+              {
+                '-ml-16': hPosition === 'left',
+                'right-0 -mr-20': hPosition === 'right',
+                'top-16': vPosition === 'top',
+                'bottom-4': vPosition === 'bottom',
+              }
+            )}
+          >
+            <span className="truncate text-sm text-gray-500">
+              Sold {formatDistanceToNowStrict(payout?.createdAt)} ago
+            </span>
+            <span className="text-sm text-orange-600">+{payout?.totalRewards} SAUCE</span>
+            <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
+          </div>
+        </Link>
       </div>
     </Transition>
   );

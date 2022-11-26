@@ -219,7 +219,10 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts} />
+          <Hero.Aside
+            loading={payoutsQuery.loading}
+            payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts}
+          />
         </Hero>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
