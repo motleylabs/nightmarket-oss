@@ -4,6 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { Activity, ActivityType } from './Activity';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useCloseOffer, useAcceptOffer } from './../hooks/offer';
+import config from '../app.config';
 
 interface OfferProps {
   offer: Offer;
@@ -38,9 +39,10 @@ export default function OfferUI({ offer, auctionHouse, nft }: OfferProps): JSX.E
         />
       }
       actionButton={
-        publicKey && (
+        publicKey &&
+        offer.auctionHouse?.address === config.auctionHouse && (
           <>
-            {offer.buyer == viewerAddress && (
+            {offer.buyer === viewerAddress ? (
               <Button
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gray}
@@ -52,18 +54,19 @@ export default function OfferUI({ offer, auctionHouse, nft }: OfferProps): JSX.E
               >
                 {t('common:cancel')}
               </Button>
-            )}
-            {offer.nft?.owner?.address === viewerAddress && offer.buyer !== viewerAddress && (
-              <Button
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
-                size={ButtonSize.Small}
-                onClick={handleAcceptOffer}
-                loading={acceptingOffer}
-              >
-                {t('accept')}
-              </Button>
+            ) : (
+              offer.nft?.owner?.address === viewerAddress && (
+                <Button
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                  size={ButtonSize.Small}
+                  onClick={handleAcceptOffer}
+                  loading={acceptingOffer}
+                >
+                  {t('accept')}
+                </Button>
+              )
             )}
           </>
         )

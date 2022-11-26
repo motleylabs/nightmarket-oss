@@ -10,6 +10,18 @@ query NftDetailsQuery($address: String!) {
     name
     image(width: 1400)
     description
+    moonrankCollection {
+      name
+      verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
+      }
+    }
     owner {
       address
       associatedTokenAccountAddress
@@ -62,18 +74,6 @@ query NftQuery($address: String!, $auctionHouse: String!) {
     attributes {
       traitType
       value
-    }
-    moonrankCollection {
-      name
-      verifiedCollectionAddress
-      shortVerifiedCollectionAddress @client
-      id
-      description
-      image(width: 100)
-      trends {
-        floor1d
-        compactFloor1d @client
-      }
     }
     creators {
       verified
@@ -146,6 +146,18 @@ query NftMarketInfoQuery($address: String!) {
     lastSale {
       price
       solPrice @client
+    }
+    moonrankCollection {
+      name
+      verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
+      }
     }
     offers {
       id
