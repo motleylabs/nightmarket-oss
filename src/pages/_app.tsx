@@ -40,6 +40,7 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../componen
 import Icon from '../components/Icon';
 import { ToastContainer, toast } from 'react-toastify';
 import localFont from '@next/font/local';
+import { viewerVar } from '../cache';
 
 const BriceFont = localFont({
   src: './Brice-Bold.woff2',
@@ -325,6 +326,16 @@ function ProfilePopover(props: { wallet: Wallet }) {
                   )}
                 </button>
               </div>
+              <section className="flex flex-col p-4">
+                <div className="flex">
+                  <div className="block rounded-full bg-gray-800 p-4">
+                    <Icon.Sol className="h-3.5" gradient />
+                  </div>
+                  <div className="ml-4 flex flex-1 items-center font-mono">
+                    {viewerVar()?.solBalance}&nbsp;SOL
+                  </div>
+                </div>
+              </section>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
