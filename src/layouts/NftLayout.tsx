@@ -247,15 +247,15 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           </div>
         </div>
       </div>
-      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
-        <div className="mb-4 flex flex-row items-center justify-between gap-2">
-          {loading ? (
-            <div className="flex animate-pulse flex-row items-center gap-2 transition">
-              <div className="aspect-square w-10 rounded-md bg-gray-800" />
-              <div className="h-6 w-40 rounded-md bg-gray-800" />
-            </div>
-          ) : (
-            data?.nft.moonrankCollection && (
+      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-10 lg:pl-10">
+        {loading ? (
+          <div className="flex animate-pulse flex-row items-center gap-2 transition mb-4">
+            <div className="aspect-square w-10 rounded-md bg-gray-800" />
+            <div className="h-6 w-40 rounded-md bg-gray-800" />
+          </div>
+        ) : (
+          data?.nft.moonrankCollection && (
+            <div className="mb-4 flex flex-row items-center justify-between gap-2">
               <Link
                 className="flex flex-row items-center gap-2 transition hover:scale-[1.02]"
                 href={`/collections/${data?.nft.moonrankCollection.id}/nfts`}
@@ -267,9 +267,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <h2 className="text-2xl">{data?.nft.moonrankCollection.name}</h2>
               </Link>
-            )
-          )}
-        </div>
+            </div>
+          )
+        )}
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
           <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
