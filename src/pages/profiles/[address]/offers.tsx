@@ -147,7 +147,7 @@ export default function ProfileOffers(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <div className="mt-4 flex flex-col px-4 md:px-8">
+      <div className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8">
         {offersQuery.loading ? (
           <>
             <Activity.Skeleton />

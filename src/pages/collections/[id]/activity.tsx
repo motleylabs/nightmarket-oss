@@ -140,7 +140,7 @@ export default function CollectionActivity(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <div className="flex flex-col px-4 md:px-8">
+      <div className="flex flex-col gap-4 px-4 pt-4 md:px-8">
         {activitiesQuery.loading ? (
           <>
             <Activity.Skeleton />

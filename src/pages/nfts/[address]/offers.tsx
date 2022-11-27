@@ -86,7 +86,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
   }
 
   return (
-    <>
+    <div className="flex flex-col">
       {called && data?.nftOffers?.offers?.length === 0 && (
         <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
           <h3 className="text-gray-300">{t('noOffers')}</h3>
@@ -102,13 +102,15 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
           </>
         )}
         {remainingOffers && remainingOffers.length > 0 && (
-          <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+          <>
+            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+            {remainingOffers?.map((offer, i) => (
+              <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} nft={nft} />
+            ))}
+          </>
         )}
-        {remainingOffers?.map((offer, i) => (
-          <Offer offer={offer} key={offer.id} auctionHouse={auctionHouse} nft={nft} />
-        ))}
       </div>
-    </>
+    </div>
   );
 }
 
