@@ -33,13 +33,18 @@ interface BuyListedForm extends BuyForm {
   ahListing: AhListing;
 }
 
+interface BuyListingResponse {
+  buyerReceiptTokenAccount: PublicKey,
+}
+
 interface BuyContext {
   buy: boolean;
   buying: boolean;
-  onBuyNow: ({ amount, nft, auctionHouse }: BuyListedForm) => Promise<void>;
+  onBuyNow: ({ amount, nft, auctionHouse }: BuyListedForm) => Promise<BuyListingResponse>;
   onOpenBuy: () => void;
   onCloseBuy: () => void;
 }
+
 
 export default function useBuyNow(): BuyContext {
   const { connected, publicKey, signTransaction } = useWallet();
@@ -61,8 +66,7 @@ export default function useBuyNow(): BuyContext {
       !auctionHouse.rewardCenter ||
       !viewer
     ) {
-      login();
-      return;
+      throw new Error('not all paramaters available');
     }
 
     setBuying(true);
@@ -243,70 +247,13 @@ export default function useBuyNow(): BuyContext {
         'confirmed'
       );
 
-      if (router.pathname === '/nfts/[address]/details') {
-        client.cache.updateQuery(
-          {
-            query: NftDetailsQuery,
-            broadcast: false,
-            overwrite: true,
-            variables: {
-              address: nft.mintAddress,
-            },
-          },
-          (data) => {
-            return {
-              nft: {
-                ...data.nft,
-                owner: {
-                  __typename: 'NftOwner',
-                  address: publicKey.toBase58(),
-                  associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-                  profile: null,
-                },
-              },
-            };
-          }
-        );
-      }
-
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const listings = data.nft.listings.filter(
-            (listing: AhListing) => listing.id !== ahListing.id
-          );
-
-          const nft = {
-            ...data.nft,
-            listings,
-            lastSale: {
-              __typename: 'LastSale',
-              price: listedPrice.toString(),
-            },
-            owner: {
-              __typename: 'NftOwner',
-              address: publicKey.toBase58(),
-              associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-              profile: null,
-            },
-          };
-
-          return {
-            nft,
-          };
-        }
-      );
-
       toast('Nft purchased', { type: 'success' });
+      
+      return { buyerReceiptTokenAccount };
     } catch (err: any) {
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setBuying(false);
       setBuy(false);

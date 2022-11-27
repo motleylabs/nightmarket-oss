@@ -98,7 +98,7 @@ function LaunchpadActive({
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.startingPrice') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>
@@ -164,7 +164,7 @@ function LaunchpadFinished({
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.finishedPrice') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>
@@ -241,7 +241,7 @@ function LaunchpadUpcoming({
             <span className="text-xs font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.dynamic') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>

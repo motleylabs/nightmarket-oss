@@ -1,6 +1,5 @@
 #import "./fragments/listing.graphql"
 #import "./fragments/profile.graphql"
-# TODO: add in listing rewards when indexed
 
 query BuyableQuery($address: String!, $auctionHouse: String!) {
   auctionHouse(address: $auctionHouse) {
@@ -40,6 +39,10 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
         floor1d
         compactFloor1d @client
       }
+    }
+    lastSale {
+      price
+      solPrice @client
     }
     listings {
       ...ListingInfo

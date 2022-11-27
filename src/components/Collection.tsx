@@ -178,14 +178,14 @@ export default function CollectionCard({
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
-          <div className="flex items-center justify-center">
-            <Icon.Sol /> {nftCount}
+          <div className="flex items-center justify-center gap-1">
+            <Icon.Sol />{nftCount}
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.floor')}</span>
-          <div className="flex items-center justify-center">
-            <Icon.Sol /> {floorPrice}
+          <div className="flex items-center justify-center gap-1 flex-row">
+            <Icon.Sol />{floorPrice}
           </div>
         </div>
       </div>
@@ -360,7 +360,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
       <div className="flex flex-col justify-start gap-2 sm:w-28 sm:flex-row sm:items-center">
-        <p className="flex items-center text-sm font-semibold md:text-base">
+        <p className="flex items-center text-sm gap-1 font-semibold md:text-base">
           {icon}
           {value}
         </p>

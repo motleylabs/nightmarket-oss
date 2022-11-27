@@ -8,7 +8,7 @@ interface PriceProps {
 }
 
 const Price = ({ price, className }: PriceProps) => (
-  <div className={clsx('flex items-center', className)}>
+  <div className={clsx('flex items-center flex-row gap-1', className)}>
     <Icon.Sol />
     <span className="text-white">{price}</span>
   </div>

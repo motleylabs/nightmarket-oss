@@ -33,7 +33,7 @@ import Button, {
 } from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'collection', 'nft']);
 
   const {
     data: { wallet, auctionHouse },

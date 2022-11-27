@@ -43,7 +43,7 @@ export default function Drop({
         <ul className="mt-2 flex flex-row flex-wrap items-center gap-6  sm:flex-nowrap md:mt-6 md:justify-start md:gap-8">
           <li className="flex    flex-col items-start ">
             <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
-            <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
+            <p className="flex flex-row items-center text-sm gap-1 font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>

@@ -75,7 +75,6 @@ export function NftCard({
               </span>
             )}
           </div>
-
           <div className="z-20 p-4">
             <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
               {nft.moonrankCollection?.image && showCollectionThumbnail && (
@@ -93,10 +92,20 @@ export function NftCard({
         <div className="relative flex flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              {listing && (
+              {listing ? (
                 <span className="flex items-center justify-center gap-1 text-lg">
-                  {listing?.solPrice} <Icon.Sol />
+                  <Icon.Sol /> {listing?.solPrice}
                 </span>
+              ) : nft.lastSale?.price ? (
+                <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                  {t('youPaid')}
+                  <div className="flex gap-1 flex-row items-center">
+                    <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                    {nft.lastSale?.solPrice}
+                  </div>
+                </span>
+              ) : (
+                <div />
               )}
             </>
           ) : (
@@ -104,7 +113,7 @@ export function NftCard({
               {listing ? (
                 <>
                   <span className="flex items-center justify-start gap-1 text-lg">
-                    {listing?.solPrice} <Icon.Sol />
+                    <Icon.Sol /> {listing?.solPrice}
                   </span>
                   <Buyable connected={Boolean(viewer)}>
                     {({ buyNow }) => (
@@ -122,19 +131,11 @@ export function NftCard({
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
-                  {nft.lastSale?.price ? (
+                  {myOffer ? (
                     <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('lastSale')}
-                      <div className="flex gap-1">
-                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                        {nft.lastSale?.solPrice}
-                      </div>
-                    </span>
-                  ) : myOffer ? (
-                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('offerable.yourOffer')}
-                      <div className="flex gap-1">
-                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                      {t('offerable:yourOffer')}
+                      <div className="flex flex-row items-center gap-1">
+                        <Icon.Sol />
                         {myOffer.solPrice}
                       </div>
                     </span>

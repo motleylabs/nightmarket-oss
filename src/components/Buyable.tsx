@@ -1,12 +1,13 @@
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
-import { AuctionHouse, Nft } from '../graphql.types';
+import { AhListing, AuctionHouse, Nft } from '../graphql.types';
 import useLogin from '../hooks/login';
 import Modal from './Modal';
 import BuyableQuery from './../queries/buyable.graphql';
 import { useApolloClient, useLazyQuery, useReactiveVar } from '@apollo/client';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import useBuyNow from '../hooks/buy';
+import Icon from './Icon';
 import { viewerVar } from '../cache';
 import config from './../app.config';
 
@@ -26,7 +27,7 @@ interface BuyableProps {
 }
 
 export function Buyable({ children, connected = false }: BuyableProps) {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'nft']);
   const [open, setOpen] = useState(false);
   const client = useApolloClient();
   const openBuyNow = (mintAddress: string) => {
@@ -47,31 +48,51 @@ export function Buyable({ children, connected = false }: BuyableProps) {
 
   const { onBuyNow, buying, onCloseBuy } = useBuyNow();
   const handleBuy = async () => {
-    if (data?.nft && data.auctionHouse && data.nft.listings && listing) {
-      await onBuyNow({ auctionHouse: data.auctionHouse, nft: data.nft, ahListing: listing });
+    if (!data?.nft || !data.auctionHouse || !data.nft.listings || !listing) {
+      return;
+    }
+
+    try {
+      const { buyerReceiptTokenAccount } = await onBuyNow({
+        auctionHouse: data.auctionHouse,
+        nft: data.nft,
+        ahListing: listing,
+      });
+      
       client.cache.updateQuery(
         {
           query: BuyableQuery,
           broadcast: false,
-          overwrite: true,
+          overwrite: false,
           variables: {
             address: data.nft.mintAddress,
             auctionHouse: data.auctionHouse.address,
           },
         },
-        (oldData) => {
+        (previous) => {
+          const { nft }: { nft: Nft } = previous;
+          const listings: AhListing[] = nft.listings.filter((l: AhListing) => l.id !== listing.id);
+  
           return {
-            ...oldData,
+            ...previous,
             nft: {
-              ...oldData.nft,
+              ...nft,
+              listings,
+              lastSale: {
+                __typename: 'LastSale',
+                price: listing.price.toString(),
+              },
               owner: {
-                ...oldData.nft.owner,
+                __typename: 'NftOwner',
+                associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
                 address: viewer?.address,
               },
             },
           };
         }
       );
+    } catch (e: any) {
+
     }
   };
 
@@ -85,7 +106,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
         <div className="mt-6 flex flex-col gap-6">
           {loading ? (
             <>
-              <section id={'loading-preview-card'} className="flex flex-row gap-4">
+              <section className="flex flex-row gap-4">
                 <div className="h-12 w-12 animate-pulse rounded-md bg-gray-800" />
                 <div className="flex flex-col justify-between gap-2">
                   <p className="h-5 w-40 animate-pulse rounded-md bg-gray-800" />
@@ -93,7 +114,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'loading-rewards'}>
-                <div className="h-10 rounded-md bg-primary-500 bg-opacity-50" />
+                <div className="h-10 rounded-md bg-primary-600 bg-opacity-50" />
               </section>
               <section id={'loading-prices'} className="flex flex-col gap-2">
                 <div className="flex flex-row justify-between gap-2">
@@ -138,15 +159,15 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   </p>
                 </div>
               </section>
-              <section id={'rewards'}>
-                <div className="flex flex-row items-center justify-between rounded-md bg-primary-500 p-4">
+              <section>
+                <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
                   <p>
-                    {t('buyable.earnSauce')} <span className="text-primary-700">{400} SAUCE</span>
+                    {t('buyEarn', { ns: 'nft' })} <span className="text-primary-700">+SAUCE</span>
                   </p>
                 </div>
               </section>
@@ -154,8 +175,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 {data?.nft.moonrankCollection?.trends && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice')}</p>
-                    <p className="text-base font-medium text-gray-300">
-                      {data?.nft.moonrankCollection?.trends?.compactFloor1d} SOL
+                    <p className="flex flex-row items-center text-base font-medium text-gray-300">
+                      <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
                     </p>
                   </div>
                 )}
@@ -163,8 +184,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">{t('buyable.listPrice')}</p>
                     {/* TODO: sort for lowest listing thats not expired */}
-                    <p className="text-base font-medium text-gray-300">
-                      {data?.nft.listings[0].solPrice} SOL
+                    <p className="flex flex-row items-center text-base font-medium text-gray-300">
+                      <Icon.Sol /> {data?.nft.listings[0].solPrice}
                     </p>
                   </div>
                 )}
@@ -178,15 +199,15 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.currentBalance')}
                   </p>
-                  <p className="text-base font-medium text-gray-300">
-                    {viewer?.solBalance || '-'} SOL
+                  <p className="flex flex-row items-center text-base font-medium text-gray-300">
+                    <Icon.Sol /> {viewer?.solBalance || '-'}
                   </p>
                 </div>
               </section>
-              <section id={'buy-buttons'} className="flex flex-col gap-4">
+              <section className="flex flex-col gap-4">
                 {connected ? (
                   <>
-                    <Button className="font-semibold" block loading={buying} onClick={handleBuy}>
+                    <Button className="font-semibold" block loading={buying} disabled={buying} onClick={handleBuy}>
                       {t('buyable.buyNowButton')}
                     </Button>
                     <Button
@@ -196,7 +217,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                         onCloseBuy();
                         setOpen(false);
                       }}
-                      background={ButtonBackground.Slate}
+                      disabled={buying}
+                      background={ButtonBackground.Cell}
                       border={ButtonBorder.Gradient}
                       color={ButtonColor.Gradient}
                     >
