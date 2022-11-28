@@ -731,7 +731,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   />
                 </div>
                 {updateOfferFormState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                  <p className="whitespace-nowrap text-left text-sm text-red-500">
                     {updateOfferFormState.errors.amount?.message}
                   </p>
                 )}
@@ -801,7 +801,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   />
                 </div>
                 {listNftState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                  <p className="whitespace-nowrap text-left text-sm text-red-500">
                     {listNftState.errors.amount?.message}
                   </p>
                 )}
@@ -866,7 +866,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   />
                 </div>
                 {updateListingState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                  <p className="whitespace-nowrap text-left text-sm text-red-500">
                     {updateListingState.errors.amount?.message}
                   </p>
                 )}

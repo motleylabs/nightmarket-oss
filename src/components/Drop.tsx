@@ -39,24 +39,24 @@ export default function Drop({
       </div>
       <div className="flex flex-col">
         <h6 className="hidden text-xl font-semibold md:inline-block">{title}</h6>
-        <p className="mt-2 text-xs text-gray-300 md:text-base">{description}</p>
+        <p className="mt-2 text-sm text-gray-300 md:text-base">{description}</p>
         <ul className="mt-2 flex flex-row flex-wrap items-center gap-6  sm:flex-nowrap md:mt-6 md:justify-start md:gap-8">
           <li className="flex    flex-col items-start ">
-            <p className="text-xs font-light text-gray-300">{t('drops.price')}</p>
+            <p className="text-sm font-light text-gray-300">{t('drops.price')}</p>
             <p className="flex flex-row items-center gap-1 text-sm font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>
           </li>
           <li className="flex    flex-col items-start ">
-            <p className="text-xs font-light text-gray-300">{t('drops.supply')}</p>
+            <p className="text-sm font-light text-gray-300">{t('drops.supply')}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               {asCompactNumber(supply)}
             </p>
           </li>
           {/* Will be added in later */}
           {/* <li className="flex min-w-[92px] flex-col items-start whitespace-nowrap">
-            <p className="text-xs font-light text-gray-300">{t('drops.drops')}</p>
+            <p className="text-sm font-light text-gray-300">{t('drops.drops')}</p>
             <p className="text-sm  font-semibold md:text-base">
               {days}d {hours}h {minutes}m {seconds}s
             </p>

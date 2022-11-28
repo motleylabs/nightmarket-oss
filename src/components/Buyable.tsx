@@ -154,11 +154,11 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 <img
                   src={data?.nft.image}
                   alt={data?.nft.name}
-                  className="h-12 w-12 rounded-md object-cover text-xs"
+                  className="h-12 w-12 rounded-md object-cover text-sm"
                 />
                 <div className="flex flex-col justify-between gap-2">
                   <p className="text-base font-medium text-white">{data?.nft.name}</p>
-                  <p className="text-xs font-semibold text-gray-300">
+                  <p className="text-sm font-semibold text-gray-300">
                     {data?.nft.moonrankCollection?.name}
                   </p>
                 </div>

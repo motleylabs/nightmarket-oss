@@ -82,7 +82,7 @@ function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Ele
         alt="collection avatar"
       />
       {figure && (
-        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-xs text-white">
+        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-sm text-white">
           {figure}
         </span>
       )}
@@ -184,7 +184,7 @@ export default function CollectionCard({
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <span className="text-xs text-gray-300">{t('card.floor')}</span>
+          <span className="text-sm text-gray-300">{t('card.floor')}</span>
           <div className="flex flex-row items-center justify-center gap-1">
             <Icon.Sol />
             {floorPrice}

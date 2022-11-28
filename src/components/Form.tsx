@@ -48,7 +48,7 @@ function FormInput({ className, icon, error, ...props }: FormInputProps): JSX.El
     >
       {icon && cloneElement(icon, {})}
       <input {...props} className={clsx('w-full bg-transparent', { 'pl-2': icon })} />
-      {error && <p className="text-left text-xs text-red-500">{error}</p>}
+      {error && <p className="text-left text-sm text-red-500">{error}</p>}
     </div>
   );
 }
