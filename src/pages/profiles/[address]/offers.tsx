@@ -229,7 +229,6 @@ export default function ProfileOffers(): JSX.Element {
                       data: { wallet },
                     } = await offersQuery.fetchMore({
                       variables: {
-                        ...offersQuery.variables,
                         offset: offersQuery.data?.wallet.offers.length,
                       },
                     });
