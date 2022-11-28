@@ -24,6 +24,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,

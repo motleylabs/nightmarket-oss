@@ -45,6 +45,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
@@ -101,6 +102,7 @@ export default function ProfileCollected({
   const [hasMore, setHasMore] = useState(true);
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectedNFTsQuery, {
+    nextFetchPolicy: 'cache-and-network',
     variables: {
       offset: 0,
       limit: 24,

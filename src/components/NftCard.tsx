@@ -60,8 +60,8 @@ export function NftCard({
               src={nft.image}
               alt={`Nft image for ${nft.mintAddress}`}
               className={clsx(
-                'aspect-square w-full  object-cover',
-                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in' // this does not work quite as it should yet, the point is to get the image to scale up wihtout affecting the rest of the card. Like OS.
+                'aspect-square w-full object-cover',
+                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
               )}
             />
             {nft.moonrankRank && (

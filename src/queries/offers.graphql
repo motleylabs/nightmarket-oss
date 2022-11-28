@@ -1,12 +1,56 @@
-#import "./fragments/offer.graphql"
+#import "./fragments/listing.graphql"
+#import "./fragments/profile.graphql"
 
 query NftOffersQuery($address: String!) {
   nftOffers: nftByMintAddress(address: $address) {
     address
     mintAddress
     name
+    owner {
+      address
+      associatedTokenAccountAddress
+    }
+    creators {
+      address
+    }
+    listings {
+      ...ListingInfo
+    }
+    moonrankCollection {
+      id
+      trends {
+        floor1d
+      }
+    }
     offers {
-      ...OfferInfo
+      id
+      tradeState
+      buyer
+      buyerWallet {
+        address
+        twitterHandle
+        previewImage @client
+        displayName @client
+        profile {
+          ...ProfileInfo
+        }
+      }
+      metadata
+      auctionHouse {
+        address
+      }
+      price
+      marketplaceProgramAddress
+      timeSince @client
+      solPrice @client
+      nftMarketplace @client {
+        name
+        logo
+        link
+      }
+      tradeStateBump
+      tokenAccount
+      createdAt
     }
   }
 }
