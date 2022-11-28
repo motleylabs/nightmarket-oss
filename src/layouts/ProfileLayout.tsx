@@ -142,7 +142,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           />
           <ProfileFigure
             label="SAUCE earned"
-            loading={false}
+            loading={walletProfileClientQuery.loading}
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />

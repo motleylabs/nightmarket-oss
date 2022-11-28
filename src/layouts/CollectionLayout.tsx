@@ -31,7 +31,7 @@ function CollectionFigure({
       {loading ? (
         <div className="h-6 w-full animate-pulse rounded-md bg-gray-700 transition" />
       ) : (
-        <div className="flex items-center justify-center font-semibold">{children}</div>
+        <div className="flex items-center justify-center gap-1 font-semibold">{children}</div>
       )}
     </div>
   );

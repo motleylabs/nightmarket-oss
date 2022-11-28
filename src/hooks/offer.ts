@@ -32,7 +32,6 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
-import useViewer from './viewer';
 import { useRouter } from 'next/router';
 
 interface OfferForm {
@@ -51,11 +50,23 @@ const schema = zod.object({
     .regex(/^[0-9.]*$/, { message: `Must be a number` }),
 });
 
+interface MakeOfferResponse {
+  buyerTradeState: PublicKey;
+  metadata: PublicKey;
+  buyerTradeStateBump: number;
+  associatedTokenAccount: PublicKey;
+  buyerPrice: number;
+}
+
 interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
+  onMakeOffer: ({
+    amount,
+    nft,
+    auctionHouse,
+  }: MakeOfferForm) => Promise<MakeOfferResponse | undefined>;
   onOpenOffer: () => void;
   onCancelMakeOffer: () => void;
   offerFormState: FormState<OfferForm>;
@@ -65,15 +76,11 @@ export function useMakeOffer(): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
 
   const { connection } = useConnection();
-  const client = useApolloClient();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
-  const viewerData = useViewer();
-  const router = useRouter();
   const {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
-    reset,
     formState: offerFormState,
   } = useForm<OfferForm>({
     resolver: zodResolver(schema),
@@ -81,17 +88,17 @@ export function useMakeOffer(): MakeOfferContext {
 
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
-      return;
+      throw Error('not all params provided');
     }
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const offerPrice = toLamports(Number(amount));
+    const buyerPrice = toLamports(Number(amount));
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
@@ -103,7 +110,7 @@ export function useMakeOffer(): MakeOfferContext {
         auctionHouseAddress,
         treasuryMint,
         tokenMint,
-        offerPrice,
+        buyerPrice,
         1
       );
 
@@ -120,7 +127,7 @@ export function useMakeOffer(): MakeOfferContext {
       paymentAccount: publicKey,
       transferAuthority: publicKey,
       treasuryMint,
-      tokenAccount: associatedTokenAcc,
+      tokenAccount: associatedTokenAccount,
       metadata,
       escrowPaymentAccount: escrowPaymentAcc,
       authority,
@@ -136,7 +143,7 @@ export function useMakeOffer(): MakeOfferContext {
       createOfferParams: {
         tradeStateBump: buyerTradeStateBump,
         escrowPaymentBump,
-        buyerPrice: offerPrice,
+        buyerPrice,
         tokenSize: 1,
       },
     };
@@ -186,83 +193,13 @@ export function useMakeOffer(): MakeOfferContext {
         );
       }
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const offer: Offer = {
-            __typename: 'Offer',
-            id: `temp-id-${buyerTradeState.toBase58()}`,
-            tradeState: buyerTradeState.toBase58(),
-            tradeStateBump: buyerTradeStateBump,
-            buyer: publicKey.toBase58(),
-            metadata: metadata.toBase58(),
-            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-            tokenAccount: associatedTokenAcc.toBase58(),
-            // @ts-ignore
-            auctionHouse: {
-              address: auctionHouse.address,
-              __typename: 'AuctionHouse',
-            },
-            createdAt: new Date().toISOString(),
-            // @ts-ignore
-            price: offerPrice.toString(),
-            // @ts-ignore
-            nft: {
-              __typename: 'Nft',
-              address: nft.address,
-              mintAddress: nft.mintAddress,
-              name: nft.name,
-              image: nft.image,
-              owner: {
-                __typename: 'NftOwner',
-                address: nft.owner?.address as string,
-                associatedTokenAccountAddress: associatedTokenAcc.toBase58(),
-              },
-            },
-            // @ts-ignore
-            buyerWallet: {
-              __typename: 'Wallet',
-              address: publicKey.toBase58(),
-              twitterHandle: viewerData?.data?.wallet?.twitterHandle || null,
-              profile: null,
-            },
-          };
-
-          if (viewerData?.data?.wallet?.profile) {
-            const { profile } = viewerData?.data?.wallet;
-            offer.buyerWallet.profile = {
-              __typename: 'TwitterProfile',
-              walletAddress: publicKey.toBase58(),
-              handle: profile.handle,
-              description: profile.description,
-              profileImageUrl: profile.profileImageUrlHighres,
-              profileImageUrlLowres: profile.profileImageUrlLowres,
-              profileImageUrlHighres: profile.profileImageUrlHighres,
-              bannerImageUrl: profile.bannerImageUrl,
-            };
-          }
-
-          const offers = [...data.nft.offers, offer];
-
-          return {
-            nft: {
-              ...data.nft,
-              offers,
-            },
-          };
-        }
-      );
-
       toast('Your offer is in', { type: 'success' });
+
+      return { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice };
     } catch (err: any) {
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setMakeOffer(false);
     }
@@ -641,10 +578,16 @@ interface AcceptOfferParams {
   nft: Nft;
 }
 
+interface AcceptOfferResponse {
+  buyerTradeState: PublicKey;
+  metadata: PublicKey;
+}
+
 interface AcceptOfferContext {
   acceptingOffer: boolean;
-  onAcceptOffer: (args: AcceptOfferParams) => Promise<void>;
+  onAcceptOffer: (args: AcceptOfferParams) => Promise<AcceptOfferResponse | undefined>;
 }
+
 export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferContext {
   const [acceptingOffer, setAcceptingOffer] = useState(false);
   const { connected, publicKey, signTransaction } = useWallet();
@@ -653,8 +596,9 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
   const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
     if (!connected || !publicKey || !signTransaction || !offer) {
-      return;
+      throw Error('not all params provided');
     }
+
     setAcceptingOffer(true);
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -906,8 +850,12 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       );
 
       toast('Offer accepted', { type: 'success' });
+
+      return { buyerTradeState, metadata };
     } catch (err: any) {
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setAcceptingOffer(false);
     }

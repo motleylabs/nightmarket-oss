@@ -14,6 +14,7 @@
   "allActivity": "All activity",
   "offers": "Offers",
   "sales": "Sales",
+  "youPaid": "You paid",
   "search": {
     "collection": "Collection",
     "profiles": "Profiles",
@@ -33,6 +34,7 @@
     "discover": "Discover"
   },
   "offerable": {
+    "yourOffer": "Your offer",
     "makeOffer": "Make an offer",
     "floorPrice": "Current floor price",
     "listPrice": "Current listed price",

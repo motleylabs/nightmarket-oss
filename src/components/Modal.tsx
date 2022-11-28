@@ -2,11 +2,11 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import React, { Dispatch, Fragment, ReactNode, SetStateAction } from 'react';
+import { BriceFont, HauoraFont } from '../fonts';
 
 type ModalProps = {
   children: ReactNode;
   open: boolean;
-  priority?: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
   short?: boolean;
   title?: string;
@@ -16,7 +16,11 @@ type ModalProps = {
 export default function Modal(props: ModalProps) {
   return (
     <Transition appear show={props.open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={() => props.setOpen(!!props.priority)}>
+      <Dialog
+        as="div"
+        className={`${BriceFont.variable} ${HauoraFont.variable} font-sans`}
+        onClose={() => props.setOpen(false)}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -28,7 +32,7 @@ export default function Modal(props: ModalProps) {
         >
           <div
             className={clsx(
-              'fixed inset-0 ', // bg-black bg-opacity-25
+              'fixed inset-0 z-10', // bg-black bg-opacity-25
               'bg-gray-800 bg-opacity-40 backdrop-blur-lg ',
               'transition-opacity duration-500 ease-in-out',
               'flex flex-col items-center justify-center',
@@ -42,12 +46,7 @@ export default function Modal(props: ModalProps) {
           />
         </Transition.Child>
 
-        <div
-          className={clsx('fixed inset-0 overflow-y-auto', {
-            'z-50': props.priority,
-            'z-20': !props.priority,
-          })}
-        >
+        <div className={clsx('fixed inset-0 z-20 overflow-y-auto')}>
           <div
             className={clsx(
               'flex min-h-full items-center justify-center  text-center',
@@ -65,7 +64,7 @@ export default function Modal(props: ModalProps) {
             >
               <Dialog.Panel
                 className={clsx(
-                  'w-full max-w-md transform !overflow-visible rounded-2xl bg-gray-900  text-left align-middle transition-all',
+                  'z-40 w-full max-w-md transform !overflow-visible rounded-2xl bg-gray-900  text-left align-middle transition-all',
                   'scrollbar-thumb-rounded-full relative flex h-full max-h-screen w-full flex-col overflow-y-auto rounded-xl bg-gray-900  text-white shadow-md scrollbar-thin scrollbar-track-gray-900  sm:h-auto  sm:max-w-lg',
                   props.short ? 'sm:max-h-[30rem]' : 'sm:max-h-[50rem]',
                   props.scroll ? 'pt-6' : 'p-6'

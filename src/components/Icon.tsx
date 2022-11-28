@@ -171,7 +171,7 @@ function SolScanIcon({ className, width = 12, height = 12 }: IconProps) {
 Icon.SolScan = SolScanIcon;
 
 function SolIcon({
-  className = 'w-4 h-4 mr-2 flex flex-shrink-0',
+  className = 'w-4 h-4 lex flex-shrink-0',
   gradient = false,
 }: {
   className?: string;

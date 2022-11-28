@@ -37,6 +37,17 @@ fragment NftInfo on Nft {
     buyer
     seller
   }
+  offers {
+    id
+    tradeState
+    buyer
+    metadata
+    price
+    solPrice @client
+    auctionHouse {
+      address
+    }
+  }
   listings {
     ...ListingInfo
   }

@@ -106,7 +106,7 @@ Activity.Tag = ActivityTag;
 
 function ActivityPrice({ amount }: { amount: Maybe<number> | undefined }): JSX.Element {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       <Icon.Sol /> {amount}
     </div>
   );
