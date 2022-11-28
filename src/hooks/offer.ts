@@ -7,7 +7,6 @@ import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
 import {
   createCreateOfferInstruction,
   CreateOfferInstructionAccounts,
@@ -31,7 +30,6 @@ import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
-import client from '../client';
 import { useRouter } from 'next/router';
 
 interface OfferForm {
@@ -275,7 +273,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-    const [buyerTradeState, buyerTradeStateBump] =
+    const [buyerTradeState, _buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(
         publicKey,
         auctionHouseAddress,
@@ -538,30 +536,11 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
         'confirmed'
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const offers = data.nft.offers.filter((o: Offer) => o.id !== offer.id);
-
-          return {
-            nft: {
-              ...data.nft,
-              offers,
-            },
-          };
-        }
-      );
-
       toast('Offer canceled', { type: 'success' });
     } catch (err: any) {
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setClosingOffer(false);
     }
@@ -578,9 +557,10 @@ interface AcceptOfferParams {
   nft: Nft;
 }
 
-interface AcceptOfferResponse {
+export interface AcceptOfferResponse {
   buyerTradeState: PublicKey;
   metadata: PublicKey;
+  buyerReceiptTokenAccount: PublicKey;
 }
 
 interface AcceptOfferContext {
@@ -792,68 +772,9 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         'confirmed'
       );
 
-      if (router.pathname === '/nfts/[address]/details') {
-        client.cache.updateQuery(
-          {
-            query: NftDetailsQuery,
-            broadcast: false,
-            overwrite: true,
-            variables: {
-              address: nft.mintAddress,
-            },
-          },
-          (data) => {
-            return {
-              nft: {
-                ...data.nft,
-                owner: {
-                  __typename: 'NftOwner',
-                  address: buyerAddress.toBase58(),
-                  associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-                  profile: null,
-                },
-              },
-            };
-          }
-        );
-      }
-
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const offers = data.nft.offers.filter((o: Offer) => o.id !== offer.id);
-
-          const nft = {
-            ...data.nft,
-            offers,
-            lastSale: {
-              __typename: 'LastSale',
-              price: buyerPrice.toString(),
-            },
-            owner: {
-              __typename: 'NftOwner',
-              address: buyerAddress.toBase58(),
-              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-              profile: null,
-            },
-          };
-
-          return {
-            nft,
-          };
-        }
-      );
-
       toast('Offer accepted', { type: 'success' });
 
-      return { buyerTradeState, metadata };
+      return { buyerTradeState, metadata, buyerReceiptTokenAccount };
     } catch (err: any) {
       toast(err.message, { type: 'error' });
 

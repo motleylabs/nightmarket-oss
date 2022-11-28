@@ -91,7 +91,7 @@ export default function useBuyNow(): BuyContext {
         listedPrice,
         1
       );
-    
+
     const [escrowPaymentAccount, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 

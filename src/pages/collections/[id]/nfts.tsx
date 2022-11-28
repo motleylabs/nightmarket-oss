@@ -41,6 +41,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   ]);
   const { data } = await client.query({
     query: CollectionQuery,
+    fetchPolicy: 'network-only',
     variables: {
       id: params?.id,
     },
@@ -145,6 +146,7 @@ export default function CollectionNfts() {
   });
 
   const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectionNFTsQuery, {
+    nextFetchPolicy: 'cache-and-network',
     variables: {
       offset: 0,
       limit: 24,

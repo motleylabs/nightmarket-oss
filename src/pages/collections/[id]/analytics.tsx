@@ -26,6 +26,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   const { data } = await client.query({
     query: CollectionQuery,
+    fetchPolicy: 'network-only',
     variables: {
       id: params?.id,
     },

@@ -3,7 +3,13 @@ import { ReactElement, useEffect, useState } from 'react';
 import { WalletProfileQuery, ProfileOffersQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AuctionHouse, OfferType, Wallet } from '../../../graphql.types';
+import {
+  AuctionHouse,
+  CollectedCollection,
+  CollectionTrend,
+  OfferType,
+  Wallet,
+} from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
@@ -16,13 +22,7 @@ import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { useWallet } from '@solana/wallet-adapter-react';
-import Button, {
-  ButtonSize,
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-} from '../../../components/Button';
-import { Offerable } from '../../../components/Offerable';
+import Offer from './../../../components/Offer';
 import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -32,6 +32,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
@@ -74,7 +75,11 @@ interface ProfileOffersForm {
   type: string;
 }
 
-export default function ProfileOffers(): JSX.Element {
+interface ProfileOfferPageProps {
+  auctionHouse: AuctionHouse;
+}
+
+export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
   const { publicKey } = useWallet();
 
@@ -157,66 +162,97 @@ export default function ProfileOffers(): JSX.Element {
           </>
         ) : (
           <>
-            <Offerable connected={Boolean(publicKey)}>
-              {({ makeOffer }) =>
-                offersQuery.data?.wallet.offers.map((offer) => {
-                  return (
-                    <Activity
-                      avatar={
-                        <Link
-                          className="cursor-pointer transition hover:scale-[1.02]"
-                          href={`/nfts/${offer.nft?.mintAddress}/details`}
-                        >
-                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                        </Link>
-                      }
-                      type={ActivityType.Offer}
-                      key={offer.id}
-                      meta={
-                        <Activity.Meta
-                          title={<Activity.Tag />}
-                          marketplace={offer.nftMarketplace}
-                          source={<Activity.Wallet wallet={offer.buyerWallet} />}
-                        />
-                      }
-                      actionButton={
-                        <>
-                          {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
-                            <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
-                              <Button
-                                background={ButtonBackground.Slate}
-                                border={ButtonBorder.Gray}
-                                color={ButtonColor.Gray}
-                                size={ButtonSize.Small}
-                                onClick={() => {}}
-                              >
-                                {t('profile:update')}
-                              </Button>
-                            </Link>
-                          )}
-                          {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
-                            <Link href={`/nfts/${offer.nft?.mintAddress}/details`}>
-                              <Button
-                                background={ButtonBackground.Slate}
-                                border={ButtonBorder.Gradient}
-                                color={ButtonColor.Gradient}
-                                size={ButtonSize.Small}
-                                onClick={() => {}}
-                              >
-                                {t('profile:accept')}
-                              </Button>
-                            </Link>
-                          )}
-                        </>
-                      }
+            {offersQuery.data?.wallet.offers.map((offer) => {
+              const onEvictOffer = () => {
+                client.cache.evict({
+                  id: client.cache.identify(offer),
+                });
+              };
+
+              return (
+                <Offer
+                  nft={offer.nft}
+                  avatar={
+                    <Link
+                      className="cursor-pointer transition hover:scale-[1.02]"
+                      href={`/nfts/${offer.nft?.mintAddress}/details`}
                     >
-                      <Activity.Price amount={offer.solPrice} />
-                      <Activity.Timestamp timeSince={offer.timeSince} />
-                    </Activity>
-                  );
-                })
-              }
-            </Offerable>
+                      <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
+                    </Link>
+                  }
+                  offer={offer}
+                  auctionHouse={auctionHouse}
+                  key={offer.id}
+                  onAccept={() => {
+                    client.cache.evict({
+                      id: client.cache.identify(offer),
+                    });
+
+                    client.cache.modify({
+                      id: client.cache.identify({
+                        __typename: 'Wallet',
+                        address: router.query.address as string,
+                      }),
+                      fields: {
+                        collectedCollections(collectedCollections, { readField }) {
+                          return collectedCollections.reduce((memo: any[], cc: any) => {
+                            const id = readField('id', cc.collection);
+                            if (id === offer.nft?.moonrankCollection?.id) {
+                              const trends: Readonly<CollectionTrend> | undefined = readField(
+                                'trends',
+                                cc.collection
+                              );
+
+                              const estimatedValue = (
+                                parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                              ).toString();
+
+                              const update = {
+                                ...cc,
+                                estimatedValue,
+                                nftsOwned: cc.nftsOwned - 1,
+                              };
+
+                              if (update.nftsOwned === 0) {
+                                return memo;
+                              }
+
+                              return [...memo, update];
+                            }
+
+                            return [...memo, cc];
+                          }, []);
+                        },
+                        nftCounts(counts, { readField }) {
+                          let owned: number | undefined = readField('owned', counts);
+
+                          if (!owned) {
+                            return counts;
+                          }
+
+                          return {
+                            ...counts,
+                            owned: owned - 1,
+                          };
+                        },
+                      },
+                    });
+                  }}
+                  onCancel={() => {
+                    client.cache.evict({
+                      id: client.cache.identify(offer),
+                    });
+                  }}
+                  meta={
+                    <Activity.Meta
+                      title={<Activity.Tag />}
+                      marketplace={offer.nftMarketplace}
+                      source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                    />
+                  }
+                />
+              );
+            })}
             {hasMore && (
               <>
                 <InView

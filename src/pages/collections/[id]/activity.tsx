@@ -23,6 +23,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { collection },
   } = await client.query({
     query: CollectionQuery,
+    fetchPolicy: 'network-only',
     variables: {
       id: params?.id,
     },
