@@ -53,12 +53,18 @@ export function Buyable({ children, connected = false }: BuyableProps) {
     }
 
     try {
-      const { buyerReceiptTokenAccount } = await onBuyNow({
+      const response = await onBuyNow({
         auctionHouse: data.auctionHouse,
         nft: data.nft,
         ahListing: listing,
       });
-      
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
+
       client.cache.updateQuery(
         {
           query: BuyableQuery,
@@ -72,7 +78,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
         (previous) => {
           const { nft }: { nft: Nft } = previous;
           const listings: AhListing[] = nft.listings.filter((l: AhListing) => l.id !== listing.id);
-  
+
           return {
             ...previous,
             nft: {
@@ -91,9 +97,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
           };
         }
       );
-    } catch (e: any) {
-
-    }
+    } catch (e: any) {}
   };
 
   return (
@@ -207,7 +211,13 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               <section className="flex flex-col gap-4">
                 {connected ? (
                   <>
-                    <Button className="font-semibold" block loading={buying} disabled={buying} onClick={handleBuy}>
+                    <Button
+                      className="font-semibold"
+                      block
+                      loading={buying}
+                      disabled={buying}
+                      onClick={handleBuy}
+                    >
                       {t('buyable.buyNowButton')}
                     </Button>
                     <Button

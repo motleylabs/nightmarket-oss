@@ -35,7 +35,7 @@ export function NftCard({
   onMakeOffer,
   link,
 }: NftCardProps): JSX.Element {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'offerable']);
 
   const { data } = useViewer();
 
@@ -89,7 +89,7 @@ export function NftCard({
           </div>
         </Link>
 
-        <div className="relative flex flex-row items-center justify-between px-4">
+        <div className="relative flex h-[28px] flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
               {listing ? (
@@ -99,7 +99,7 @@ export function NftCard({
               ) : nft.lastSale?.price ? (
                 <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
                   {t('youPaid')}
-                  <div className="flex gap-1 flex-row items-center">
+                  <div className="flex flex-row items-center gap-1">
                     <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                     {nft.lastSale?.solPrice}
                   </div>
@@ -133,27 +133,37 @@ export function NftCard({
                 <div className="flex w-full items-center justify-between gap-1">
                   {myOffer ? (
                     <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('offerable:yourOffer')}
+                      {t('offerable.yourOffer')}
                       <div className="flex flex-row items-center gap-1">
                         <Icon.Sol />
                         {myOffer.solPrice}
                       </div>
                     </span>
+                  ) : nft.lastSale?.price ? (
+                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                      {t('lastSale')}
+                      <div className="flex flex-row items-center gap-1">
+                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                        {nft.lastSale?.solPrice}
+                      </div>
+                    </span>
                   ) : (
-                    <div className="block" />
+                    <div />
                   )}
-                  <Offerable connected={Boolean(viewer)}>
-                    {({ makeOffer }) => (
-                      <Button
-                        onClick={() => makeOffer(nft.mintAddress)}
-                        border={ButtonBorder.Gray}
-                        color={ButtonColor.Gray}
-                        size={ButtonSize.Small}
-                      >
-                        {t('offer')}
-                      </Button>
-                    )}
-                  </Offerable>
+                  {!myOffer && (
+                    <Offerable connected={Boolean(viewer)}>
+                      {({ makeOffer }) => (
+                        <Button
+                          onClick={() => makeOffer(nft.mintAddress)}
+                          border={ButtonBorder.Gray}
+                          color={ButtonColor.Gray}
+                          size={ButtonSize.Small}
+                        >
+                          {t('offer')}
+                        </Button>
+                      )}
+                    </Offerable>
+                  )}
                 </div>
               )}
             </>

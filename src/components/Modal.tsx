@@ -16,7 +16,11 @@ type ModalProps = {
 export default function Modal(props: ModalProps) {
   return (
     <Transition appear show={props.open} as={Fragment}>
-      <Dialog as="div" className={`${BriceFont.variable} ${HauoraFont.variable} font-sans`} onClose={() => props.setOpen(false)}>
+      <Dialog
+        as="div"
+        className={`${BriceFont.variable} ${HauoraFont.variable} font-sans`}
+        onClose={() => props.setOpen(false)}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -42,9 +46,7 @@ export default function Modal(props: ModalProps) {
           />
         </Transition.Child>
 
-        <div
-          className={clsx('fixed inset-0 overflow-y-auto z-20')}
-        >
+        <div className={clsx('fixed inset-0 z-20 overflow-y-auto')}>
           <div
             className={clsx(
               'flex min-h-full items-center justify-center  text-center',
@@ -62,7 +64,7 @@ export default function Modal(props: ModalProps) {
             >
               <Dialog.Panel
                 className={clsx(
-                  'w-full z-40 max-w-md transform !overflow-visible rounded-2xl bg-gray-900  text-left align-middle transition-all',
+                  'z-40 w-full max-w-md transform !overflow-visible rounded-2xl bg-gray-900  text-left align-middle transition-all',
                   'scrollbar-thumb-rounded-full relative flex h-full max-h-screen w-full flex-col overflow-y-auto rounded-xl bg-gray-900  text-white shadow-md scrollbar-thin scrollbar-track-gray-900  sm:h-auto  sm:max-w-lg',
                   props.short ? 'sm:max-h-[30rem]' : 'sm:max-h-[50rem]',
                   props.scroll ? 'pt-6' : 'p-6'

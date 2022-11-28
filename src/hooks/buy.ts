@@ -19,9 +19,7 @@ import {
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
-import { useApolloClient } from '@apollo/client';
 import useViewer from './viewer';
-import { useRouter } from 'next/router';
 
 interface BuyForm {
   amount?: number;
@@ -34,27 +32,27 @@ interface BuyListedForm extends BuyForm {
 }
 
 interface BuyListingResponse {
-  buyerReceiptTokenAccount: PublicKey,
+  buyerReceiptTokenAccount: PublicKey;
 }
 
 interface BuyContext {
   buy: boolean;
   buying: boolean;
-  onBuyNow: ({ amount, nft, auctionHouse }: BuyListedForm) => Promise<BuyListingResponse>;
+  onBuyNow: ({
+    amount,
+    nft,
+    auctionHouse,
+  }: BuyListedForm) => Promise<BuyListingResponse | undefined>;
   onOpenBuy: () => void;
   onCloseBuy: () => void;
 }
 
-
 export default function useBuyNow(): BuyContext {
   const { connected, publicKey, signTransaction } = useWallet();
-  const client = useApolloClient();
   const { connection } = useConnection();
-  const login = useLogin();
   const viewer = useViewer();
   const [buy, setBuy] = useState(false);
   const [buying, setBuying] = useState(false);
-  const router = useRouter();
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
     if (
@@ -66,7 +64,7 @@ export default function useBuyNow(): BuyContext {
       !auctionHouse.rewardCenter ||
       !viewer
     ) {
-      throw new Error('not all paramaters available');
+      throw new Error('not all params provided');
     }
 
     setBuying(true);
@@ -248,7 +246,7 @@ export default function useBuyNow(): BuyContext {
       );
 
       toast('Nft purchased', { type: 'success' });
-      
+
       return { buyerReceiptTokenAccount };
     } catch (err: any) {
       toast(err.message, { type: 'error' });

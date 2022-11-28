@@ -225,7 +225,9 @@ const client = new ApolloClient({
               }
               var multiplier = Math.pow(10, 5);
               var units = Math.pow(10, 9);
-              const rewards = Math.round(((unitRewards.toNumber() / units) * multiplier) / multiplier);
+              const rewards = Math.round(
+                ((unitRewards.toNumber() / units) * multiplier) / multiplier
+              );
 
               return asCompactNumber(rewards);
             },

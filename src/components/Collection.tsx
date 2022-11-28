@@ -179,13 +179,15 @@ export default function CollectionCard({
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
           <div className="flex items-center justify-center gap-1">
-            <Icon.Sol />{nftCount}
+            <Icon.Sol />
+            {nftCount}
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.floor')}</span>
-          <div className="flex items-center justify-center gap-1 flex-row">
-            <Icon.Sol />{floorPrice}
+          <div className="flex flex-row items-center justify-center gap-1">
+            <Icon.Sol />
+            {floorPrice}
           </div>
         </div>
       </div>
@@ -220,7 +222,7 @@ Collection.List = CollectionList;
 
 function CollectionListLoading() {
   return (
-    <div className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
+    <div className="mb-4 flex animate-pulse items-center gap-4 rounded-2xl bg-gray-800 p-4 transition md:px-6 lg:gap-7">
       {/* Collection Image */}
       <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
@@ -360,7 +362,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
       <div className="flex flex-col justify-start gap-2 sm:w-28 sm:flex-row sm:items-center">
-        <p className="flex items-center text-sm gap-1 font-semibold md:text-base">
+        <p className="flex items-center gap-1 text-sm font-semibold md:text-base">
           {icon}
           {value}
         </p>

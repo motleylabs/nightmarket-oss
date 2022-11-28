@@ -18,8 +18,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import config from '../app.config';
+import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
-import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -97,7 +97,77 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     if (!amount || !nft || !auctionHouse) {
       return;
     }
-    await onMakeOffer({ amount, nft, auctionHouse });
+
+    try {
+      const response = await onMakeOffer({ amount, nft, auctionHouse });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice } =
+        response;
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offer: Offer = {
+            __typename: 'Offer',
+            id: `temp-id-${buyerTradeState.toBase58()}`,
+            tradeState: buyerTradeState.toBase58(),
+            tradeStateBump: buyerTradeStateBump,
+            buyer: publicKey?.toBase58(),
+            metadata: metadata.toBase58(),
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+            tokenAccount: associatedTokenAccount.toBase58(),
+            // @ts-ignore
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            createdAt: new Date().toISOString(),
+            // @ts-ignore
+            price: buyerPrice.toString(),
+            // @ts-ignore
+            nft: {
+              __typename: 'Nft',
+              address: nft.address,
+              mintAddress: nft.mintAddress,
+              name: nft.name,
+              image: nft.image,
+              owner: {
+                __typename: 'NftOwner',
+                address: nft.owner?.address as string,
+                associatedTokenAccountAddress: associatedTokenAccount.toBase58(),
+              },
+            },
+            // @ts-ignore
+            buyerWallet: {
+              __typename: 'Wallet',
+              address: publicKey?.toBase58(),
+              twitterHandle: null,
+              profile: null,
+            },
+          };
+
+          const offers = [...data.nft.offers, offer];
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
+    } catch (e: any) {}
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
@@ -108,11 +178,17 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     }
 
     try {
-      const { buyerReceiptTokenAccount } = await onBuyNow({
+      const response = await onBuyNow({
         nft,
         auctionHouse,
         ahListing: listing,
       });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
 
       if (router.pathname === '/nfts/[address]/details') {
         client.cache.updateQuery(
@@ -379,7 +455,13 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               <div className="flex flex-col gap-4">
                 {connected ? (
                   <>
-                    <Button block htmlType="submit" loading={buying} disabled={buying} onClick={handleBuy}>
+                    <Button
+                      block
+                      htmlType="submit"
+                      loading={buying}
+                      disabled={buying}
+                      onClick={handleBuy}
+                    >
                       {t('buy')}
                     </Button>
                     <Button
