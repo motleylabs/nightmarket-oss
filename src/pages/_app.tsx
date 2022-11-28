@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { CollectionDocument, MetadataJson, Nft, Wallet } from '../graphql.types';
+import { CollectionDocument, Nft, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -38,23 +38,9 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import { ToastContainer, toast } from 'react-toastify';
-import localFont from '@next/font/local';
+import { ToastContainer } from 'react-toastify';
+import { BriceFont, HauoraFont } from '../fonts';
 import { viewerVar } from '../cache';
-
-const BriceFont = localFont({
-  src: './Brice-Bold.woff2',
-  weight: '700',
-  style: 'normal',
-  variable: '--font-brice',
-});
-const HauoraFont = localFont({
-  src: [
-    { path: './Hauora-Regular.woff2', weight: '400', style: 'normal' },
-    { path: './Hauora-Bold.woff2', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-hauora',
-});
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -93,13 +79,12 @@ function NavigationBar() {
   return (
     <header
       className={clsx(
-        'sticky top-0 z-50 w-full px-6 py-2 backdrop-blur-sm md:px-8 md:py-4',
+        'sticky top-0 z-10 w-full px-6 py-2 backdrop-blur-sm md:px-8 md:py-4',
         'grid grid-cols-4',
         'h-14 md:h-20',
         'bg-black bg-opacity-90'
       )}
     >
-      {/* Night Market logo */}
       <div
         className={clsx('flex items-center justify-start ', {
           hidden: searchExpanded,
@@ -368,7 +353,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                       close();
                       setVisible(true);
                     }}
-                    background={ButtonBackground.Black}
+                    background={ButtonBackground.Cell}
                     border={ButtonBorder.Gradient}
                     color={ButtonColor.Gradient}
                     className="w-full"
@@ -384,6 +369,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     }}
                     border={ButtonBorder.Gray}
                     color={ButtonColor.Gray}
+                    background={ButtonBackground.Cell}
                     className="w-full"
                   >
                     {t('disconnectWallet')}

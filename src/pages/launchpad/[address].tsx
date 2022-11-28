@@ -82,14 +82,14 @@ export default function LaunchpadPage() {
                 <Link
                   target="_blank"
                   className="transform ease-in-out hover:scale-105"
-                  href={'https://twitter.com/holaplex'}
+                  href="https://twitter.com/holaplex"
                 >
                   <Icon.Twitter />
                 </Link>
                 <Link
                   target="_blank"
                   className="transform ease-in-out hover:scale-105"
-                  href={'https://discord.gg/holaplex'}
+                  href="https://discord.gg/holaplex"
                 >
                   <Icon.Discord />
                 </Link>

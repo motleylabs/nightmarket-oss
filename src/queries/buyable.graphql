@@ -1,5 +1,5 @@
 #import "./fragments/listing.graphql"
-# TODO: add in listing rewards when indexed
+#import "./fragments/profile.graphql"
 
 query BuyableQuery($address: String!, $auctionHouse: String!) {
   auctionHouse(address: $auctionHouse) {
@@ -13,6 +13,9 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     rewardCenter {
       address
       tokenMint
+      sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
     }
   }
 
@@ -21,6 +24,14 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     mintAddress
     name
     image(width: 100)
+    creators {
+      verified
+      address
+      share
+      profile {
+        ...ProfileInfo
+      }
+    }
     moonrankCollection {
       name
       id
@@ -28,6 +39,10 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
         floor1d
         compactFloor1d @client
       }
+    }
+    lastSale {
+      price
+      solPrice @client
     }
     listings {
       ...ListingInfo
