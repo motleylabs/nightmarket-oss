@@ -31,22 +31,27 @@ export function start() {
 // }
 
 // Could potentially export this function to standardise bugsnag notifications and explain different fields
-export function notifyError(
-  err: any,
+export function notifyInstructionError(
+  err: Error | { name: string; message: string }, // probably an Error
   context: {
     errorName: string;
     userPubkey: string;
     metadata: {
+      programLogs: string;
+      nft: any;
       [key: string]: any;
     };
   }
 ) {
   return Bugsnag.notify(err, function (event) {
     event.context = context.errorName; // Sets the name of the error
-    event.setUser(context.userPubkey);
+    event.setUser(context.userPubkey); // this could be set and removed globally, but easier to attatch here for now
     event.addMetadata(
-      'list NFT', // creates a tab in the bugsnag error with this title in all caps
-      context.metadata
+      'INSTRUCTION METADATA', // creates a tab in the bugsnag error with this title in all caps
+      {
+        userPubkey: context.userPubkey, // so it can be viewed in the same metadata tab
+        ...context.metadata,
+      }
     );
   });
 }

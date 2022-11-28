@@ -685,7 +685,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <input
                     {...registerListNft('amount', { required: true })}
                     autoFocus
-                    className="w-full bg-transparent"
+                    className="w-full bg-transparent pl-2"
                   />
                 </div>
                 {listNftState.errors.amount?.message && (

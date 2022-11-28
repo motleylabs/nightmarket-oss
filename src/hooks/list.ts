@@ -217,9 +217,9 @@ export function useListNft(): ListNftContext {
     } catch (err: any) {
       const logs = err.logs;
       Bugsnag.notify(err, function (event) {
-        event.context = 'List NFT';
+        event.context = 'List';
         event.setUser(publicKey.toBase58());
-        event.addMetadata('list NFT', { logs, nft });
+        event.addMetadata('NFT action', { logs, nft });
       });
       toast(err.message, { type: 'error' });
     } finally {
