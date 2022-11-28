@@ -6,6 +6,7 @@ export enum ButtonBackground {
   Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',
   Black = 'bg-black',
   Slate = 'bg-gray-800',
+  Cell = 'bg-gray-900',
 }
 
 export enum ButtonColor {

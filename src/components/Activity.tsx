@@ -28,7 +28,7 @@ export function Activity({
   actionButton,
 }: ActivityProps): JSX.Element {
   return (
-    <div className="mb-4 flex items-center justify-between rounded-2xl bg-gray-800 p-4 text-white">
+    <div className="flex items-center justify-between rounded-2xl bg-gray-800 p-4 text-white">
       <div className="flex flex-row justify-start gap-2">
         {avatar && avatar}
         {cloneElement(meta, { type })}
@@ -106,7 +106,7 @@ Activity.Tag = ActivityTag;
 
 function ActivityPrice({ amount }: { amount: Maybe<number> | undefined }): JSX.Element {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       <Icon.Sol /> {amount}
     </div>
   );
@@ -147,7 +147,7 @@ function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
 Activity.Wallet = ActivityWallet;
 
 function ActivitySkeleton(): JSX.Element {
-  return <div className="mb-4 h-20 rounded-2xl bg-gray-800" />;
+  return <div className="h-20 animate-pulse rounded-2xl bg-gray-800" />;
 }
 
 Activity.Skeleton = ActivitySkeleton;

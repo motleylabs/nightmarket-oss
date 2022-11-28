@@ -9,9 +9,17 @@ query PayoutsQuery($address: String!, $limit: Int!, $offset: Int!) @cached(ttl: 
         sellerReward
         totalRewards @client
         createdAt
+        sinceCreated @client
         nft {
           mintAddress
           image
+        }
+        purchase {
+          id
+          solPrice @client
+          price
+          buyer
+          seller
         }
       }
     }

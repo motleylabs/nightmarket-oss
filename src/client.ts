@@ -217,14 +217,17 @@ const client = new ApolloClient({
             read: asShortAddress,
           },
           totalRewards: {
-            read(value) {
+            read(value: string): string {
               const unitRewards = asBN(value);
 
               if (!unitRewards) {
                 return asCompactNumber(0);
               }
-              var unitDecimals = Math.pow(10, 9);
-              const rewards = Math.round(unitRewards.toNumber() / unitDecimals);
+              var multiplier = Math.pow(10, 5);
+              var units = Math.pow(10, 9);
+              const rewards = Math.round(
+                ((unitRewards.toNumber() / units) * multiplier) / multiplier
+              );
 
               return asCompactNumber(rewards);
             },
@@ -748,6 +751,17 @@ const client = new ApolloClient({
               totalRewards = Math.round((totalRewards / unitDecimals) * multiplier) / multiplier;
 
               return totalRewards;
+            },
+          },
+          sinceCreated: {
+            read(_, { readField }) {
+              const createdAt: string | undefined = readField('createdAt');
+
+              if (!createdAt) {
+                return null;
+              }
+
+              return formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
             },
           },
         },

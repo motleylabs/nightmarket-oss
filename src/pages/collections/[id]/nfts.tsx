@@ -33,7 +33,12 @@ import Button, {
 } from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'collection',
+    'nft',
+    'buyable',
+  ]);
   const { data } = await client.query({
     query: CollectionQuery,
     variables: {
@@ -230,11 +235,6 @@ export default function CollectionNfts() {
                                   variant={variant}
                                   selected={attributes[group.name]?.includes(variant.name)}
                                   onClick={() => {
-                                    console.log('click', {
-                                      groupN: group.name,
-                                      variantN: variant.name,
-                                      attributes,
-                                    });
                                     setValue('attributes', {
                                       ...attributes,
                                       [group.name]: attributes[group.name]?.includes(variant.name)

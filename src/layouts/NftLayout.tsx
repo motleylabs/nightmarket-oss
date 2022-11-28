@@ -1,9 +1,9 @@
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { NftMarketInfoQuery } from './../queries/nft.graphql';
+import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
 import { ReactNode, useRef, useState, useMemo } from 'react';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft, Offer, AhListing } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
@@ -18,8 +18,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import config from '../app.config';
+import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
-import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -46,6 +46,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const router = useRouter();
   const onLogin = useLogin();
   const { publicKey, connected } = useWallet();
+  const client = useApolloClient();
   const viewer = useReactiveVar(viewerVar);
 
   const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
@@ -81,19 +82,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
     return offer || null;
   }, [data?.nft.offers, publicKey]);
-  const rewardCenter = auctionHouse?.rewardCenter;
-  const rewards = useMemo(
-    () =>
-      listing && rewardCenter
-        ? buyerSellerRewards(
-            listing.price,
-            rewardCenter.mathematicalOperand,
-            rewardCenter.payoutNumeral,
-            rewardCenter.sellerRewardPayoutBasisPoints
-          )
-        : { buyerRewards: 0, sellerRewards: 0 },
-    [listing, rewardCenter]
-  );
 
   const {
     makeOffer,
@@ -109,7 +97,77 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     if (!amount || !nft || !auctionHouse) {
       return;
     }
-    await onMakeOffer({ amount, nft, auctionHouse });
+
+    try {
+      const response = await onMakeOffer({ amount, nft, auctionHouse });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice } =
+        response;
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offer: Offer = {
+            __typename: 'Offer',
+            id: `temp-id-${buyerTradeState.toBase58()}`,
+            tradeState: buyerTradeState.toBase58(),
+            tradeStateBump: buyerTradeStateBump,
+            buyer: publicKey?.toBase58(),
+            metadata: metadata.toBase58(),
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+            tokenAccount: associatedTokenAccount.toBase58(),
+            // @ts-ignore
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            createdAt: new Date().toISOString(),
+            // @ts-ignore
+            price: buyerPrice.toString(),
+            // @ts-ignore
+            nft: {
+              __typename: 'Nft',
+              address: nft.address,
+              mintAddress: nft.mintAddress,
+              name: nft.name,
+              image: nft.image,
+              owner: {
+                __typename: 'NftOwner',
+                address: nft.owner?.address as string,
+                associatedTokenAccountAddress: associatedTokenAccount.toBase58(),
+              },
+            },
+            // @ts-ignore
+            buyerWallet: {
+              __typename: 'Wallet',
+              address: publicKey?.toBase58(),
+              twitterHandle: null,
+              profile: null,
+            },
+          };
+
+          const offers = [...data.nft.offers, offer];
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
+    } catch (e: any) {}
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
@@ -119,7 +177,78 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       return;
     }
 
-    await onBuyNow({ nft, auctionHouse, ahListing: listing });
+    try {
+      const response = await onBuyNow({
+        nft,
+        auctionHouse,
+        ahListing: listing,
+      });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
+
+      if (router.pathname === '/nfts/[address]/details') {
+        client.cache.updateQuery(
+          {
+            query: NftDetailsQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            return {
+              nft: {
+                ...data.nft,
+                owner: {
+                  __typename: 'NftOwner',
+                  address: publicKey?.toBase58(),
+                  associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+                  profile: null,
+                },
+              },
+            };
+          }
+        );
+      }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
+
+          const nft = {
+            ...data.nft,
+            listings,
+            lastSale: {
+              __typename: 'LastSale',
+              price: listing.price.toString(),
+            },
+            owner: {
+              __typename: 'NftOwner',
+              address: publicKey?.toBase58(),
+              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+              profile: null,
+            },
+          };
+
+          return {
+            nft,
+          };
+        }
+      );
+    } catch (e: any) {}
   };
 
   const {
@@ -247,15 +376,15 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           </div>
         </div>
       </div>
-      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
-        <div className="mb-4 flex flex-row items-center justify-between gap-2">
-          {loading ? (
-            <div className="flex animate-pulse flex-row items-center gap-2 transition">
-              <div className="aspect-square w-10 rounded-md bg-gray-800" />
-              <div className="h-6 w-40 rounded-md bg-gray-800" />
-            </div>
-          ) : (
-            data?.nft.moonrankCollection && (
+      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-10 lg:pl-10">
+        {loading ? (
+          <div className="mb-4 flex animate-pulse flex-row items-center gap-2 transition">
+            <div className="aspect-square w-10 rounded-md bg-gray-800" />
+            <div className="h-6 w-40 rounded-md bg-gray-800" />
+          </div>
+        ) : (
+          data?.nft.moonrankCollection && (
+            <div className="mb-4 flex flex-row items-center justify-between gap-2">
               <Link
                 className="flex flex-row items-center gap-2 transition hover:scale-[1.02]"
                 href={`/collections/${data?.nft.moonrankCollection.id}/nfts`}
@@ -267,9 +396,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 />
                 <h2 className="text-2xl">{data?.nft.moonrankCollection.name}</h2>
               </Link>
-            )
-          )}
-        </div>
+            </div>
+          )
+        )}
         <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
         {buy && (
           <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
@@ -293,7 +422,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.floorPrice', { ns: 'common' })}
                     </p>
-                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
+                    <p className="flex flex-row items-center justify-center gap-1 text-base font-medium text-gray-300">
                       <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
                     </p>
                   </div>
@@ -303,7 +432,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.listPrice', { ns: 'common' })}
                     </p>
-                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
+                    <p className="flex flex-row items-center justify-center gap-1 text-base font-medium text-gray-300">
                       <Icon.Sol /> {listing.solPrice}
                     </p>
                   </div>
@@ -318,7 +447,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <p className="text-base font-medium text-gray-300">
                     {t('buyable.currentBalance', { ns: 'common' })}
                   </p>
-                  <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
+                  <p className="flex flex-row items-center justify-center gap-1 text-base font-medium text-gray-300">
                     <Icon.Sol /> {viewer?.solBalance}
                   </p>
                 </div>
@@ -326,7 +455,13 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               <div className="flex flex-col gap-4">
                 {connected ? (
                   <>
-                    <Button block htmlType="submit" loading={buying} onClick={handleBuy}>
+                    <Button
+                      block
+                      htmlType="submit"
+                      loading={buying}
+                      disabled={buying}
+                      onClick={handleBuy}
+                    >
                       {t('buy')}
                     </Button>
                     <Button
@@ -337,6 +472,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
+                      disabled={buying}
                     >
                       {t('cancel', { ns: 'common' })}
                     </Button>
@@ -374,7 +510,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {data?.nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
+                    <span className="flex flex-row items-center justify-center gap-1">
                       <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -382,7 +518,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {viewer && (
                   <li className="flex justify-between">
                     <span>{t('walletBalance')}</span>
-                    <span className="flex flex-row items-center justify-center">
+                    <span className="flex flex-row items-center justify-center gap-1">
                       <Icon.Sol />
                       {viewer.solBalance}
                     </span>
@@ -453,7 +589,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {data?.nft.moonrankCollection && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
+                    <span className="flex flex-row items-center justify-center gap-1">
                       <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -461,7 +597,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {viewer && (
                   <li className="flex justify-between">
                     <span>{t('walletBalance')}</span>
-                    <span className="flex flex-row items-center justify-center">
+                    <span className="flex flex-row items-center justify-center gap-1">
                       <Icon.Sol />
                       {viewer.solBalance}
                     </span>
@@ -532,7 +668,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 {data?.nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
+                    <span className="flex flex-row items-center justify-center gap-1">
                       <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                     </span>
                   </li>
@@ -703,7 +839,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {listing && (
                         <div>
                           {t('listed')}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
                             <Icon.Sol className="h-5 w-5" />
                             <span className="text-2xl text-white">{listing?.solPrice}</span>
                           </div>
@@ -712,7 +848,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {data?.nft.lastSale?.price ? (
                         <div className="flex flex-col gap-2 md:flex-row">
                           {t('lastSale')}
-                          <span className="flex flex-row items-center justify-start">
+                          <span className="flex flex-row items-center justify-start gap-1">
                             <Icon.Sol />
                             {data?.nft.lastSale?.solPrice}
                           </span>
@@ -767,8 +903,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {highestOffer && (
                         <div>
                           <span>{t('highestOffer')}</span>
-                          <span className="flex flex-row items-center justify-start text-2xl">
-                            <Icon.Sol />
+                          <span className="flex flex-row items-center justify-start gap-1 text-2xl">
+                            <Icon.Sol className="h-5 w-5" />
                             <span className="text-white">{highestOffer.solPrice}</span>
                           </span>
                         </div>
@@ -776,7 +912,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {viewerOffer && (
                         <div>
                           <span>{t('viewerOffer')}</span>
-                          <span className="flex flex-row items-center justify-start">
+                          <span className="flex flex-row items-center justify-start gap-1">
                             <Icon.Sol />
                             <span className="text-white">{viewerOffer.solPrice}</span>
                           </span>
