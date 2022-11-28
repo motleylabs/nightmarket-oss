@@ -636,7 +636,9 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       true
     );
 
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
+    const buyerReceiptTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
       tokenMint,
       buyerAddress
     );

@@ -85,7 +85,6 @@ interface HeroAsideProps {
 }
 
 function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
-  console.log('payouts', payouts);
   return (
     <aside className="hidden md:w-1/2 md:justify-center lg:flex">
       <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px] ">
