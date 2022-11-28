@@ -750,6 +750,17 @@ const client = new ApolloClient({
               return totalRewards;
             },
           },
+          sinceCreated: {
+            read(_, { readField }) {
+              const createdAt: string | undefined = readField('createdAt');
+
+              if (!createdAt) {
+                return null;
+              }
+
+              return formatDistanceToNow(parseISO(createdAt), { addSuffix: true });
+            },
+          },
         },
       },
     },

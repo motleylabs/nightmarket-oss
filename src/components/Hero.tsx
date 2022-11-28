@@ -85,6 +85,7 @@ interface HeroAsideProps {
 }
 
 function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
+  console.log('payouts', payouts);
   return (
     <aside className="md:flex md:w-1/2 md:justify-center">
       <div className="relative h-72 w-72 lg:h-[300px] lg:w-[450px] ">
@@ -169,7 +170,7 @@ const HeroPreview = ({
           />
           <div
             className={clsx(
-              'absolute flex h-14 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-16 lg:w-36 lg:py-2 lg:px-4',
+              'absolute flex h-20 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-20 lg:w-48 lg:py-2 lg:px-4',
               {
                 '-ml-16': hPosition === 'left',
                 'right-0 -mr-20': hPosition === 'right',
@@ -178,11 +179,26 @@ const HeroPreview = ({
               }
             )}
           >
-            <span className="truncate text-sm text-gray-500">
-              Sold {formatDistanceToNowStrict(payout?.createdAt)} ago
+            <span className="flex items-center  text-white">
+              Sold for <Icon.Sol className="mx-1 h-4 w-4" /> {payout?.purchase?.solPrice}
             </span>
-            <span className="text-sm text-orange-600">+{payout?.totalRewards} SAUCE</span>
-            <span className=" truncate text-xs text-gray-500">to buyer and seller</span>
+            <span className=" truncate text-gray-500">
+              <span className="text-sm text-orange-600"> +SAUCE</span>
+              to buyer and seller
+            </span>
+            <span className="flex items-center text-sm text-gray-500">
+              {formatDistanceToNowStrict(new Date(payout?.createdAt))} ago
+            </span>
+            {/* <span className="truncate text-sm text-gray-500">
+              Sold {formatDistanceToNowStrict(new Date(payout?.createdAt))} ago
+            </span>
+            <span className="flex items-center text-white">
+              for <Icon.Sol /> {payout?.purchase?.solPrice}
+            </span>
+            <span className=" truncate text-sm text-gray-500">
+              <span className="text-sm text-orange-600"> +SAUCE</span>
+              to buyer and seller
+            </span> */}
           </div>
         </Link>
       </div>

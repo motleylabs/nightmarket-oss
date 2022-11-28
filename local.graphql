@@ -120,6 +120,7 @@ extend type MetadataJson {
 
 extend type RewardPayout {
   totalRewards: Int
+  sinceCreated: String
 }
 
 extend type QueryRoot {
