@@ -61,10 +61,10 @@ interface ReportHeaderVariables {
 function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <span className="text-sm text-white">$SAUCE earned</span>
         <span className="font-semibold text-white">{'57,291'}</span>
-      </div>
+      </div> */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">24h volume</span>
         <div className="flex items-center">
