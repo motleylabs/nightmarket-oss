@@ -1,7 +1,6 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
-#import "./fragments/offer.graphql"
 
 query NftDetailsQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {

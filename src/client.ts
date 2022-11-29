@@ -577,7 +577,7 @@ const client = new ApolloClient({
         keyFields: ['address'],
       },
       NftOwner: {
-        keyFields: ['address'],
+        keyFields: ['address', 'associatedTokenAccountAddress'],
         fields: {
           displayName: {
             read: asDisplayName,

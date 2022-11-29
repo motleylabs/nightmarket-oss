@@ -5,7 +5,7 @@ import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
 import { ReactNode, useRef, useState, useMemo } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { AuctionHouse, Nft, Offer, AhListing } from '../graphql.types';
+import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
@@ -20,6 +20,7 @@ import useLogin from '../hooks/login';
 import config from '../app.config';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-toastify';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -289,14 +290,124 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
   const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
 
-  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
-
-  const handleAcceptOffer = async () => {
-    if (!auctionHouse || !nft) {
+  const handleCloseOffer = async () => {
+    if (!viewerOffer) {
       return;
     }
 
-    await onAcceptOffer({ auctionHouse, nft });
+    try {
+      await onCloseOffer({ nft, auctionHouse });
+
+      client.cache.evict({
+        id: client.cache.identify(viewerOffer),
+      });
+    } catch (e: any) {}
+  };
+
+  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
+
+  const handleAcceptOffer = async () => {
+    if (!auctionHouse || !nft || !highestOffer) {
+      return;
+    }
+
+    if (listing) {
+      toast('Please cancel your listing before accepting the offer', { type: 'info' });
+      return;
+    }
+
+    try {
+      const response = await onAcceptOffer({ auctionHouse, nft });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
+
+      client.cache.modify({
+        id: client.cache.identify({
+          __typename: 'Wallet',
+          address: data?.nft?.owner?.address as string,
+        }),
+        fields: {
+          collectedCollections(collectedCollections, { readField }) {
+            return collectedCollections.reduce((memo: any[], cc: any) => {
+              const id = readField('id', cc.collection);
+              if (id === data?.nft?.moonrankCollection?.id) {
+                const trends: Readonly<CollectionTrend> | undefined = readField(
+                  'trends',
+                  cc.collection
+                );
+
+                const estimatedValue = (
+                  parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                ).toString();
+
+                const update = {
+                  ...cc,
+                  estimatedValue,
+                  nftsOwned: cc.nftsOwned - 1,
+                };
+
+                if (update.nftsOwned === 0) {
+                  return memo;
+                }
+
+                return [...memo, update];
+              }
+
+              return [...memo, cc];
+            }, []);
+          },
+          nftCounts(counts, { readField }) {
+            let owned: number | undefined = readField('owned', counts);
+
+            if (!owned) {
+              return counts;
+            }
+
+            return {
+              ...counts,
+              owned: owned - 1,
+            };
+          },
+        },
+      });
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offers = data.nft.offers.filter((o: Offer) => o.id !== highestOffer.id);
+
+          const nft = {
+            ...data.nft,
+            offers,
+            lastSale: {
+              __typename: 'LastSale',
+              price: highestOffer.price.toString(),
+            },
+            owner: {
+              __typename: 'NftOwner',
+              address: highestOffer.buyer,
+              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+              profile: null,
+            },
+          };
+
+          return {
+            nft,
+          };
+        }
+      );
+    } catch (er: any) {}
   };
 
   const {
@@ -507,7 +618,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 </div>
               </div>
               <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {data?.nft.moonrankCollection && (
+                {data?.nft.moonrankCollection?.trends && (
                   <li className="flex justify-between">
                     <span>{t('currentFloor')}</span>
                     <span className="flex flex-row items-center justify-center gap-1">
@@ -677,7 +788,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start gap-2 rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -952,7 +1063,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         loading={closingOffer}
                         border={ButtonBorder.Gray}
                         color={ButtonColor.Gray}
-                        onClick={() => onCloseOffer({ nft, auctionHouse })}
+                        onClick={handleCloseOffer}
                       >
                         {t('cancelOffer')}
                       </Button>

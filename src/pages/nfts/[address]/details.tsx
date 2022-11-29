@@ -18,6 +18,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
