@@ -19,7 +19,7 @@ import {
 } from './graphql.types';
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
-import { asCompactNumber } from './modules/number';
+import { asBasicNumber, asCompactNumber } from './modules/number';
 import { ActivityType } from './components/Activity';
 
 function asBN(value: string | number | null | undefined): BN {
@@ -195,6 +195,13 @@ const client = new ApolloClient({
             read() {
               return viewerVar();
             },
+          },
+        },
+      },
+      SolanaNetwork: {
+        fields: {
+          tps: {
+            read: asBasicNumber,
           },
         },
       },

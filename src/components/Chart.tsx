@@ -19,14 +19,8 @@ import { Datapoint } from '../graphql.types';
 import { ButtonGroup } from './ButtonGroup';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { getDateTimeRange } from '../modules/time';
+import { DateRangeOption, getDateTimeRange } from '../modules/time';
 import { TailSpin } from 'react-loader-spinner';
-
-export enum DateRangeOption {
-  DAY = '1',
-  WEEK = '7',
-  MONTH = '30',
-}
 
 export function Chart() {
   return <div />;

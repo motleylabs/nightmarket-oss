@@ -44,6 +44,7 @@ import { BriceFont, HauoraFont } from '../fonts';
 import { start } from '../modules/bugsnag';
 import ReportQuery from './../queries/report.graphql';
 import { useCurrencies } from '../hooks/currencies';
+import { DateRangeOption, getDateTimeRange } from '../modules/time';
 
 start();
 
@@ -61,45 +62,50 @@ interface ReportHeaderVariables {
 
 function ReportHeader({ reportQuery }: ReportHeaderVariables) {
   const { initialized, solPrice } = useCurrencies();
-  const loading = !initialized && reportQuery.loading;
+  const loading = !initialized || reportQuery.loading;
+
   const EmptyBox = () => <div className="text-white">---</div>;
+
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
-      {/* <div className="flex items-center gap-2">
-        <span className="text-sm text-white">$SAUCE earned</span>
-        <span className="font-semibold text-white">{'57,291'}</span>
-      </div> */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-white">24h volume</span>
-        <div className="flex items-center gap-2">
-          {loading ? (
+      {loading ? (
+        <>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">24h volume</span>
             <EmptyBox />
-          ) : (
-            <>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">SOL price</span>
+
+            <EmptyBox />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">SOL TPS</span>
+
+            <EmptyBox />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">24h volume</span>
+            <div className="flex items-center gap-2">
               <Icon.Sol defaultColor="#FFFFFF" />
               <span className="font-semibold text-white">
                 {reportQuery.data?.auctionHouse.volume}
               </span>
-            </>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-white">SOL price</span>
-        {loading ? (
-          <EmptyBox />
-        ) : (
-          <span className="font-semibold text-white">{`$${solPrice()}`}</span>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-white">SOL TPS</span>
-        {loading ? (
-          <EmptyBox />
-        ) : (
-          <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
-        )}
-      </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">SOL price</span>
+            <span className="font-semibold text-white">{`$${solPrice()}`}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">SOL TPS</span>
+            <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -110,6 +116,8 @@ interface ReportQueryData {
 
 interface ReportQueryVariables {
   address: string;
+  startDate: string;
+  endDate: string;
 }
 
 function NavigationBar() {
@@ -135,10 +143,13 @@ function NavigationBar() {
 
   const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
     useGlobalSearch();
+  const oneDayRange = getDateTimeRange(DateRangeOption.DAY);
 
   const reportQuery = useQuery<ReportQueryData, ReportQueryVariables>(ReportQuery, {
     variables: {
       address: config.auctionHouse,
+      startDate: oneDayRange.startTime,
+      endDate: oneDayRange.endTime,
     },
   });
 

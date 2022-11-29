@@ -1,11 +1,16 @@
 import { format, formatDistanceToNow, subDays, startOfDay, endOfDay } from 'date-fns';
-import { DateRangeOption } from '../components/Chart';
 
 export function formatTimeAgo(date: Date) {
   const pastDate = new Date(date);
 
   const result = formatDistanceToNow(pastDate);
   return result;
+}
+
+export enum DateRangeOption {
+  DAY = '1',
+  WEEK = '7',
+  MONTH = '30',
 }
 
 export function getDateTimeRange(dateRangeOption: DateRangeOption): {
