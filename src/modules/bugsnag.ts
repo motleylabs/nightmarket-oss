@@ -43,13 +43,16 @@ export function notifyInstructionError(
     };
   }
 ) {
-  return Bugsnag.notify(err, function (event) {
-    event.context = context.operation; // Sets the context of the error
-    // Bugsnag already tracks userIp, so it's better to include the userPubkey with metadata
-    // event.setUser(context.userPubkey); // this could be set and removed globally, but easier to attatch here for now
-    event.addMetadata(
-      'INSTRUCTION METADATA', // creates a tab in the bugsnag error with this title in all caps
-      context.metadata
-    );
-  });
+  return (
+    NEXT_PUBLIC_BUGSNAG_API_KEY &&
+    Bugsnag.notify(err, function (event) {
+      event.context = context.operation; // Sets the context of the error
+      // Bugsnag already tracks userIp, so it's better to include the userPubkey with metadata
+      // event.setUser(context.userPubkey); // this could be set and removed globally, but easier to attatch here for now
+      event.addMetadata(
+        'INSTRUCTION METADATA', // creates a tab in the bugsnag error with this title in all caps
+        context.metadata
+      );
+    })
+  );
 }

@@ -13,6 +13,12 @@ query PayoutsQuery($address: String!, $limit: Int!, $offset: Int!) @cached(ttl: 
         nft {
           mintAddress
           image
+          name
+          moonrankCollection {
+            name
+            id
+            image(width: 100)
+          }
         }
         purchase {
           id

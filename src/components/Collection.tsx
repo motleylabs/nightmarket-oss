@@ -300,8 +300,8 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
       <div className="hidden justify-end gap-2 md:flex lg:gap-4">
         {nftPreviewQuery.loading ? (
           <>
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
@@ -312,9 +312,9 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
       <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
         {nftPreviewQuery.loading ? (
           <>
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
@@ -325,8 +325,8 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
       <div className="hidden justify-end gap-2 lg:gap-4 2xl:flex">
         {nftPreviewQuery.loading ? (
           <>
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
-            <div className="m-0.5 flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
           nftPreviewQuery.data?.collection.nfts
