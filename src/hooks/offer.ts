@@ -575,14 +575,14 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
   const router = useRouter();
 
   const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
-    if (!connected || !publicKey || !signTransaction || !offer) {
+    if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       throw Error('not all params provided');
     }
 
     setAcceptingOffer(true);
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const buyerPrice = parseInt(offer.price);
+    const buyerPrice = offer.price.toNumber();
     const authority = new PublicKey(auctionHouse.authority);
     const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
@@ -591,7 +591,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const metadata = new PublicKey(nft.address);
     const buyerAddress = new PublicKey(offer.buyer);
     const token = new PublicKey(auctionHouse.rewardCenter?.tokenMint);
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [buyerTradeState, buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(

@@ -162,13 +162,7 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
           </>
         ) : (
           <>
-            {offersQuery.data?.wallet.offers.map((offer) => {
-              const onEvictOffer = () => {
-                client.cache.evict({
-                  id: client.cache.identify(offer),
-                });
-              };
-
+            {offersQuery.data?.wallet.offers.map((offer, i) => {
               return (
                 <Offer
                   nft={offer.nft}
@@ -182,7 +176,7 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
                   }
                   offer={offer}
                   auctionHouse={auctionHouse}
-                  key={offer.id}
+                  key={`${offer.id}-${i}`}
                   onAccept={() => {
                     client.cache.evict({
                       id: client.cache.identify(offer),
