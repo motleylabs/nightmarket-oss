@@ -7,7 +7,7 @@ export function start() {
   // So use NEXT_PHASE to avoid Bugsnag.start being executed during the build phase
   // See https://nextjs.org/docs/api-reference/next.config.js/introduction and https://github.com/vercel/next.js/blob/canary/packages/next/shared/lib/constants.ts#L1-L5 for
   // more details on NEXT_PHASE
-  if (process.env.NEXT_PHASE !== 'phase-production-build') {
+  if (process.env.NEXT_PHASE !== 'phase-production-build' && NEXT_PUBLIC_BUGSNAG_API_KEY) {
     if (process.env.NEXT_IS_SERVER) {
       // Bugsnag.start({
       //   apiKey: NEXT_PUBLIC_BUGSNAG_API_KEY,

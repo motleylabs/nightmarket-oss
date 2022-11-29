@@ -265,36 +265,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     listNftState,
   } = useListNft();
 
-  const [ataFlaw, setAtaFlaw] = useState(false);
-
-  useEffect(() => {
-    async function testAta() {
-      if (nft && nft.owner && publicKey) {
-        const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
-        const tokenMint = new PublicKey(nft.mintAddress);
-
-        const ata = await Token.getAssociatedTokenAddress(
-          ASSOCIATED_TOKEN_PROGRAM_ID,
-          TOKEN_PROGRAM_ID,
-          tokenMint,
-          listNft ? publicKey : new PublicKey(nft.owner.address)
-        );
-
-        if (ata.toBase58() !== associatedTokenAccount.toBase58()) {
-          Bugsnag.notify(new Error('Ata flaw detected on list nft'));
-          setAtaFlaw(true);
-        } else {
-          setAtaFlaw(false);
-        }
-      }
-    }
-    if (listNft) {
-      testAta();
-    } else {
-      setAtaFlaw(false);
-    }
-  }, [nft, listNft, publicKey]);
-
   const handleList = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
       return;
@@ -630,16 +600,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </div>
           </div>
         )}
-        {ataFlaw && (
-          <div className="mb-8 rounded-md bg-gray-800 p-6 text-white">
-            <h3>Warning</h3>
-            <div className="text-sm text-white">
-              This NFT has an associated token account with an old format. It&apos;s not dangerous
-              and we are working on a workaround, but for now you will probably be unable to list or
-              make an offer.
-            </div>
-          </div>
-        )}
+
         {makeOffer && (
           <Form
             onSubmit={handleSubmitOffer(handleOffer)}
