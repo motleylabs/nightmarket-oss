@@ -98,7 +98,7 @@ export function NftCard({
                 </span>
               ) : nft.lastSale?.price ? (
                 <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                  {t('youPaid')}
+                  {t('lastSale')}
                   <div className="flex flex-row items-center gap-1">
                     <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                     {nft.lastSale?.solPrice}

@@ -47,13 +47,8 @@ export default function OfferUI({
       return;
     }
 
-    if (listing) {
-      toast('Please cancel your listing before accepting the offer', { type: 'info' });
-      return;
-    }
-
     try {
-      const response = await onAcceptOffer({ auctionHouse, nft });
+      const response = await onAcceptOffer({ auctionHouse, nft, listing });
 
       if (!response) {
         return;
