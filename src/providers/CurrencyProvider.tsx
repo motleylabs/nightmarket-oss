@@ -14,6 +14,11 @@ interface ICurrencyContext {
   initialized: boolean;
 
   /**
+   * Sol Price
+   */
+  solPrice(): number;
+
+  /**
    * @param sol SOL amount to convert to USD
    * @returns USD equivalent value of given SOL
    * @throws if the SOL/USD exchange rate could not be loaded
@@ -54,6 +59,14 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
       .finally(() => setInitialized(true));
   }, [setSolPrice, setInitialized]);
 
+  const getSolPrice: ICurrencyContext['solPrice'] = useCallback(() => {
+    if (solPrice == null) {
+      return NaN;
+      throw new Error('SOL price not available.');
+    }
+    return solPrice * 1;
+  }, [solPrice]);
+
   const solToUsd: ICurrencyContext['solToUsd'] = useCallback(
     (sol) => {
       if (solPrice == null) {
@@ -71,7 +84,9 @@ export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Elem
   );
 
   return (
-    <CurrencyContext.Provider value={{ initialized, solToUsd, solToUsdString }}>
+    <CurrencyContext.Provider
+      value={{ initialized, solPrice: getSolPrice, solToUsd, solToUsdString }}
+    >
       {props.children}
     </CurrencyContext.Provider>
   );

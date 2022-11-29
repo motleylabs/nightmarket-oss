@@ -43,6 +43,7 @@ import { viewerVar } from '../cache';
 import { BriceFont, HauoraFont } from '../fonts';
 import { start } from '../modules/bugsnag';
 import ReportQuery from './../queries/report.graphql';
+import { useCurrencies } from '../hooks/currencies';
 
 start();
 
@@ -59,6 +60,8 @@ interface ReportHeaderVariables {
 }
 
 function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
+  const { initialized, solPrice } = useCurrencies();
+
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       {/* <div className="flex items-center gap-2">
@@ -74,7 +77,7 @@ function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL price</span>
-        <span className="font-semibold text-white">{'$34.21'}</span>
+        <span className="font-semibold text-white">{`$${solPrice()}`}</span>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL TPS</span>
