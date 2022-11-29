@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
+    "@bugsnag/js": "^7.18.0",
+    "@bugsnag/plugin-react": "^7.18.0",
     "@cardinal/mpl-candy-machine-utils": "^4.3.2",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^2.0.10",
@@ -25,6 +27,7 @@
     "@metaplex-foundation/mpl-token-metadata": "^1.2.5",
     "@next/font": "^13.0.4",
     "@react-hook/window-size": "^3.0.7",
+    "@sentry/nextjs": "^7.21.1",
     "@solana/wallet-adapter-base": "^0.9.19",
     "@solana/wallet-adapter-react": "^0.15.25",
     "@solana/wallet-adapter-react-ui": "^0.9.23",

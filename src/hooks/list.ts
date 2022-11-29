@@ -22,6 +22,8 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
+import Bugsnag from '@bugsnag/js';
+import { notifyInstructionError } from '../modules/bugsnag';
 
 interface ListNftForm {
   amount: string;
@@ -214,6 +216,14 @@ export function useListNft(): ListNftContext {
 
       toast('Listing posted', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing created',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setListNft(false);
@@ -358,6 +368,14 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
 
       toast('Listing price updated', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing updated',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setUpdateListing(false);
@@ -507,6 +525,14 @@ export function useCloseListing({
 
       toast('Listing canceled', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing cancelled',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setClosing(false);

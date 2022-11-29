@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { ReactNode, useRef, useState, useMemo } from 'react';
+import { ReactNode, useRef, useState, useMemo, useEffect } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
@@ -21,6 +21,9 @@ import config from '../app.config';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import { PublicKey } from '@solana/web3.js';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import Bugsnag from '@bugsnag/js';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -597,6 +600,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </div>
           </div>
         )}
+
         {makeOffer && (
           <Form
             onSubmit={handleSubmitOffer(handleOffer)}
@@ -796,7 +800,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <input
                     {...registerListNft('amount', { required: true })}
                     autoFocus
-                    className="w-full bg-transparent"
+                    className="w-full bg-transparent pl-2"
                   />
                 </div>
                 {listNftState.errors.amount?.message && (

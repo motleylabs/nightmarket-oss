@@ -31,6 +31,7 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
+import { notifyInstructionError } from '../modules/bugsnag';
 
 interface OfferForm {
   amount: string;
@@ -195,6 +196,14 @@ export function useMakeOffer(): MakeOfferContext {
 
       return { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice };
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer created',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
 
       throw err;
@@ -396,6 +405,15 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
 
       toast('Offer updated', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer updated',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
     } finally {
       setUpdateOffer(false);
@@ -538,6 +556,15 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
 
       toast('Offer canceled', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer cancelled',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
 
       throw err;
@@ -776,6 +803,15 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       return { buyerTradeState, metadata, buyerReceiptTokenAccount };
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer accepted',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
 
       throw err;

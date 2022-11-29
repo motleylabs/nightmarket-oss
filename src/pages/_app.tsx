@@ -1,4 +1,4 @@
-import { useMemo, ReactElement } from 'react';
+import React, { useMemo, ReactElement } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -38,9 +38,12 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import { ToastContainer } from 'react-toastify';
-import { BriceFont, HauoraFont } from '../fonts';
+import { ToastContainer, toast } from 'react-toastify';
 import { viewerVar } from '../cache';
+import { start } from '../modules/bugsnag';
+import { BriceFont, HauoraFont } from '../fonts';
+
+start();
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
