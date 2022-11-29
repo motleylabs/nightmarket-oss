@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { ReactNode, useRef, useState, useMemo } from 'react';
+import { ReactNode, useRef, useState, useMemo, useEffect } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
@@ -21,6 +21,9 @@ import config from '../app.config';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import { PublicKey } from '@solana/web3.js';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import Bugsnag from '@bugsnag/js';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -261,6 +264,36 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     onCancelListNftClick,
     listNftState,
   } = useListNft();
+
+  const [ataFlaw, setAtaFlaw] = useState(false);
+
+  useEffect(() => {
+    async function testAta() {
+      if (nft && nft.owner && publicKey) {
+        const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
+        const tokenMint = new PublicKey(nft.mintAddress);
+
+        const ata = await Token.getAssociatedTokenAddress(
+          ASSOCIATED_TOKEN_PROGRAM_ID,
+          TOKEN_PROGRAM_ID,
+          tokenMint,
+          listNft ? publicKey : new PublicKey(nft.owner.address)
+        );
+
+        if (ata.toBase58() !== associatedTokenAccount.toBase58()) {
+          Bugsnag.notify(new Error('Ata flaw detected on list nft'));
+          setAtaFlaw(true);
+        } else {
+          setAtaFlaw(false);
+        }
+      }
+    }
+    if (listNft) {
+      testAta();
+    } else {
+      setAtaFlaw(false);
+    }
+  }, [nft, listNft, publicKey]);
 
   const handleList = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
@@ -594,6 +627,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   </Button>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+        {ataFlaw && (
+          <div className="mb-8 rounded-md bg-gray-800 p-6 text-white">
+            <h3>Warning</h3>
+            <div className="text-sm text-white">
+              This NFT has an associated token account with an old format. It&apos;s not dangerous
+              and we are working on a workaround, but for now you will probably be unable to list or
+              make an offer.
             </div>
           </div>
         )}

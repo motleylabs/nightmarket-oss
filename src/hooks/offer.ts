@@ -31,7 +31,6 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
-import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
 
 interface OfferForm {
@@ -100,19 +99,6 @@ export function useMakeOffer(): MakeOfferContext {
     const metadata = new PublicKey(nft.address);
     const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
-
-    // all offers
-    const ata = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      tokenMint,
-      new PublicKey(nft.owner.address)
-    );
-
-    console.log('make offer', {
-      associatedTokenAccount: associatedTokenAccount.toBase58(),
-      ata: ata.toBase58(),
-    });
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
@@ -211,14 +197,13 @@ export function useMakeOffer(): MakeOfferContext {
       return { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice };
     } catch (err: any) {
       notifyInstructionError(err, {
-        errorName: 'Offer created',
-        // userPubkey: publicKey.toBase58(),
+        operation: 'Offer created',
         metadata: {
+          userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
         },
       });
-
       toast(err.message, { type: 'error' });
 
       throw err;
@@ -421,9 +406,9 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
       toast('Offer updated', { type: 'success' });
     } catch (err: any) {
       notifyInstructionError(err, {
-        errorName: 'Offer updated',
-        // userPubkey: publicKey.toBase58(),
+        operation: 'Offer updated',
         metadata: {
+          userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
         },
@@ -572,9 +557,9 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
       toast('Offer canceled', { type: 'success' });
     } catch (err: any) {
       notifyInstructionError(err, {
-        errorName: 'Offer canceled',
-        // userPubkey: publicKey.toBase58(),
+        operation: 'Offer cancelled',
         metadata: {
+          userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
         },
@@ -818,22 +803,14 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       return { buyerTradeState, metadata, buyerReceiptTokenAccount };
     } catch (err: any) {
-      Bugsnag.notify(err, function (event) {
-        event.context = 'Offer accepted';
-        event.addMetadata('INSTRUCTION METADATA', {
+      notifyInstructionError(err, {
+        operation: 'Offer accepted',
+        metadata: {
           userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
-        });
+        },
       });
-      // notifyInstructionError(err, {
-      //   errorName: 'Offer accepted',
-      //   // userPubkey: publicKey.toBase58(),
-      //   metadata: {
-      //     programLogs: err.logs,
-      //     nft,
-      //   },
-      // });
 
       toast(err.message, { type: 'error' });
 

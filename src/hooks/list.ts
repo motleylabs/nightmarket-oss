@@ -72,14 +72,6 @@ export function useListNft(): ListNftContext {
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
-    // all listings
-    const ata = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      tokenMint,
-      publicKey
-    );
-
     const [sellerTradeState, tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
         publicKey,
@@ -224,21 +216,13 @@ export function useListNft(): ListNftContext {
 
       toast('Listing posted', { type: 'success' });
     } catch (err: any) {
-      // notifyInstructionError(err, {
-      //   errorName: 'Listing created',
-      //   metadata: {
-      //     userPubkey: publicKey.toBase58(),
-      //     programLogs: err.logs,
-      //     nft,
-      //   },
-      // });
-      Bugsnag.notify(err, function (event) {
-        event.context = 'Listing created';
-        event.addMetadata('INSTRUCTION METADATA', {
+      notifyInstructionError(err, {
+        operation: 'Listing created',
+        metadata: {
           userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
-        });
+        },
       });
       toast(err.message, { type: 'error' });
     } finally {
@@ -384,6 +368,14 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
 
       toast('Listing price updated', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing updated',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setUpdateListing(false);
@@ -533,6 +525,14 @@ export function useCloseListing({
 
       toast('Listing canceled', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing cancelled',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setClosing(false);

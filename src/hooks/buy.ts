@@ -20,6 +20,7 @@ import {
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
 import useViewer from './viewer';
+import { notifyInstructionError } from '../modules/bugsnag';
 
 interface BuyForm {
   amount?: number;
@@ -247,10 +248,18 @@ export default function useBuyNow(): BuyContext {
         'confirmed'
       );
 
-      toast('Nft purchased', { type: 'success' });
+      toast('NFT purchased', { type: 'success' });
 
       return { buyerReceiptTokenAccount };
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'NFT purchased',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
 
       throw err;
