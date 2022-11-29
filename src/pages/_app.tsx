@@ -14,7 +14,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider, useQuery } from '@apollo/client';
 import ViewerProvider from '../providers/ViewerProvider';
 import client from './../client';
 import './../../styles/globals.css';
@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { CollectionDocument, Nft, Wallet } from '../graphql.types';
+import { AuctionHouse, CollectionDocument, Nft, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -42,6 +42,7 @@ import { ToastContainer } from 'react-toastify';
 import { viewerVar } from '../cache';
 import { BriceFont, HauoraFont } from '../fonts';
 import { start } from '../modules/bugsnag';
+import ReportQuery from './../queries/report.graphql';
 
 start();
 
@@ -53,7 +54,11 @@ function clusterApiUrl(network: WalletAdapterNetwork) {
   throw new Error(`The ${network} is not supported`);
 }
 
-function ReportHeader() {
+interface ReportHeaderVariables {
+  _24hVolume: string;
+}
+
+function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       <div className="flex items-center gap-2">
@@ -64,7 +69,7 @@ function ReportHeader() {
         <span className="text-sm text-white">24h volume</span>
         <div className="flex items-center">
           <Icon.Sol defaultColor="#FFFFFF" />
-          <span className="font-semibold text-white">{'57,291'}</span>
+          <span className="font-semibold text-white">{_24hVolume}</span>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -77,6 +82,14 @@ function ReportHeader() {
       </div>
     </div>
   );
+}
+
+interface ReportQueryData {
+  auctionHouse: AuctionHouse;
+}
+
+interface ReportQueryVariables {
+  address: string;
 }
 
 function NavigationBar() {
@@ -103,11 +116,19 @@ function NavigationBar() {
   const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
     useGlobalSearch();
 
+  const reportsQuery = useQuery<ReportQueryData, ReportQueryVariables>(ReportQuery, {
+    variables: {
+      address: config.auctionHouse,
+    },
+  });
+
   const loading = viewerQueryResult.loading || connecting;
 
   return (
     <>
-      <ReportHeader />
+      {reportsQuery.data?.auctionHouse && (
+        <ReportHeader _24hVolume={reportsQuery.data.auctionHouse.volume} />
+      )}
       <header
         className={clsx(
           'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',

@@ -725,6 +725,15 @@ const client = new ApolloClient({
               return sellerFeeBasisPoints / 100;
             },
           },
+          volume: {
+            read(value) {
+              if (!value) {
+                return '0';
+              }
+
+              return asCompactNumber(toSol(parseInt(value)));
+            },
+          },
         },
       },
       NftAttribute: {
