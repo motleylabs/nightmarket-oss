@@ -14,7 +14,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { ApolloProvider, useQuery } from '@apollo/client';
+import { ApolloProvider, QueryResult, useQuery } from '@apollo/client';
 import ViewerProvider from '../providers/ViewerProvider';
 import client from './../client';
 import './../../styles/globals.css';
@@ -56,12 +56,13 @@ function clusterApiUrl(network: WalletAdapterNetwork) {
 }
 
 interface ReportHeaderVariables {
-  _24hVolume: string;
+  reportQuery: QueryResult<ReportQueryData, ReportQueryVariables>;
 }
 
-function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
+function ReportHeader({ reportQuery }: ReportHeaderVariables) {
   const { initialized, solPrice } = useCurrencies();
-
+  const loading = !initialized && reportQuery.loading;
+  const EmptyBox = () => <div className="text-white">---</div>;
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       {/* <div className="flex items-center gap-2">
@@ -70,18 +71,34 @@ function ReportHeader({ _24hVolume }: ReportHeaderVariables) {
       </div> */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">24h volume</span>
-        <div className="flex items-center">
-          <Icon.Sol defaultColor="#FFFFFF" />
-          <span className="font-semibold text-white">{_24hVolume}</span>
+        <div className="flex items-center gap-2">
+          {loading ? (
+            <EmptyBox />
+          ) : (
+            <>
+              <Icon.Sol defaultColor="#FFFFFF" />
+              <span className="font-semibold text-white">
+                {reportQuery.data?.auctionHouse.volume}
+              </span>
+            </>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL price</span>
-        <span className="font-semibold text-white">{`$${solPrice()}`}</span>
+        {loading ? (
+          <EmptyBox />
+        ) : (
+          <span className="font-semibold text-white">{`$${solPrice()}`}</span>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL TPS</span>
-        <span className="font-semibold text-white">{'7,291'}</span>
+        {loading ? (
+          <EmptyBox />
+        ) : (
+          <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
+        )}
       </div>
     </div>
   );
@@ -119,7 +136,7 @@ function NavigationBar() {
   const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
     useGlobalSearch();
 
-  const reportsQuery = useQuery<ReportQueryData, ReportQueryVariables>(ReportQuery, {
+  const reportQuery = useQuery<ReportQueryData, ReportQueryVariables>(ReportQuery, {
     variables: {
       address: config.auctionHouse,
     },
@@ -129,9 +146,7 @@ function NavigationBar() {
 
   return (
     <>
-      {reportsQuery.data?.auctionHouse && (
-        <ReportHeader _24hVolume={reportsQuery.data.auctionHouse.volume} />
-      )}
+      <ReportHeader reportQuery={reportQuery} />
       <header
         className={clsx(
           'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',

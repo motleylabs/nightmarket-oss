@@ -4,4 +4,7 @@ query ReportQuery($address: String!, $startDate: DateTimeUtc, $endDate: DateTime
     address
     volume(startDate: $startDate, endDate: $endDate)
   }
+  solanaNetwork {
+    tps
+  }
 }
