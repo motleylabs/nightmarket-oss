@@ -314,13 +314,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       return;
     }
 
-    if (listing) {
-      toast('Please cancel your listing before accepting the offer', { type: 'info' });
-      return;
-    }
-
     try {
-      const response = await onAcceptOffer({ auctionHouse, nft });
+      const response = await onAcceptOffer({ auctionHouse, nft, listing });
 
       if (!response) {
         return;
@@ -792,7 +787,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               <Form.Label name={t('amount')}>
                 <div
                   className={clsx(
-                    'flex w-full flex-row items-center justify-start gap-2 rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
                     'input'
                   )}
                 >
@@ -865,7 +860,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <input
                     {...registerUpdateListing('amount', { required: true })}
                     autoFocus
-                    className="w-full bg-transparent"
+                    className="w-full bg-transparent pl-2"
                   />
                 </div>
                 {updateListingState.errors.amount?.message && (

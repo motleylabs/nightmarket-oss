@@ -5,7 +5,7 @@ import zod from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
+import { AhListing, AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import {
   createCreateOfferInstruction,
@@ -17,6 +17,8 @@ import {
   createAcceptOfferInstruction,
   AcceptOfferInstructionAccounts,
   AcceptOfferInstructionArgs,
+  CloseListingInstructionAccounts,
+  createCloseListingInstruction,
 } from '@holaplex/hpl-reward-center';
 import {
   PublicKey,
@@ -582,6 +584,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
 interface AcceptOfferParams {
   auctionHouse: AuctionHouse;
   nft: Nft;
+  listing?: AhListing | null;
 }
 
 export interface AcceptOfferResponse {
@@ -601,7 +604,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
   const { connection } = useConnection();
   const router = useRouter();
 
-  const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
+  const onAcceptOffer = async ({ auctionHouse, nft, listing }: AcceptOfferParams) => {
     if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       throw Error('not all params provided');
     }
@@ -751,7 +754,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     let remainingAccounts: AccountMeta[] = [];
 
-    for (let creator of nft.creators) {
+    for (let creator of nft.creators.slice(0, 2)) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
         isSigner: false,
@@ -764,9 +767,47 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 350000 });
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
 
     tx.add(ix);
+
+    if (listing) {
+      if (nft.creators.length > 3) {
+        toast(
+          'Since this NFT has more than 3 creators the outstanding listing can not be canceled along with accepting the offer in a single transaction. Please cancel your listing before accepting the offer.',
+          { type: 'info', autoClose: 15 * 1000 }
+        );
+
+        setAcceptingOffer(false);
+
+        throw new Error('too many creators to close listing along with accepting the offer');
+      }
+
+      const [listingAddress] = await RewardCenterProgram.findListingAddress(
+        publicKey,
+        metadata,
+        rewardCenter
+      );
+
+      const accounts: CloseListingInstructionAccounts = {
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+        listing: listingAddress,
+        rewardCenter: rewardCenter,
+        wallet: publicKey,
+        tokenAccount: associatedTokenAccount,
+        metadata: metadata,
+        authority: authority,
+        auctionHouse: auctionHouseAddress,
+        auctionHouseFeeAccount: auctionHouseFeeAccount,
+        tokenMint,
+        tradeState: sellerTradeState,
+        ahAuctioneerPda: auctioneer,
+      };
+
+      const closeListingIx = createCloseListingInstruction(accounts);
+
+      tx.add(closeListingIx);
+    }
 
     if (!sellerAtAInfo) {
       tx.add(sellerATAInstruction);
