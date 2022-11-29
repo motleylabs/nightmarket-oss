@@ -91,12 +91,6 @@ function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
         {payouts && payouts?.length >= 3 && !loading ? (
           <>
             <Hero.Preview
-              payout={payouts[0]}
-              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
-              hPosition="left"
-              vPosition="bottom"
-            />
-            <Hero.Preview
               payout={payouts[1]}
               className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
               hPosition="left"
@@ -108,14 +102,15 @@ function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
               hPosition="right"
               vPosition="bottom"
             />
-          </>
-        ) : (
-          <>
-            <HeroPreviewSkeleton
-              className="absolute bottom-0 right-1/2 z-10 -mr-16 lg:-mr-24"
+            <Hero.Preview
+              payout={payouts[0]}
+              className="absolute bottom-0 right-1/2 -mr-16 lg:-mr-24"
               hPosition="left"
               vPosition="bottom"
             />
+          </>
+        ) : (
+          <>
             <HeroPreviewSkeleton
               className="absolute bottom-1/2 left-0 -mb-14 lg:-mb-4"
               hPosition="left"
@@ -124,6 +119,11 @@ function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
             <HeroPreviewSkeleton
               className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
               hPosition="right"
+              vPosition="bottom"
+            />
+            <HeroPreviewSkeleton
+              className="absolute bottom-0 right-1/2 -mr-16 lg:-mr-24"
+              hPosition="left"
               vPosition="bottom"
             />
           </>
