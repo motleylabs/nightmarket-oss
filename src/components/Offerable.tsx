@@ -57,7 +57,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   });
 
   const { registerOffer, onMakeOffer, handleSubmitOffer, onCancelMakeOffer, offerFormState } =
-    useMakeOffer();
+    useMakeOffer(data?.nft);
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (!data?.nft || !data?.auctionHouse) {

@@ -7,6 +7,10 @@ interface AppConfig {
     discord?: string;
     medium?: string;
   };
+  offerControls: {
+    percentageFloor: number;
+    percentageListing: number;
+  };
   website: string;
   auctionHouse: string;
 }
@@ -22,6 +26,11 @@ const config: AppConfig = {
   },
   website: 'https://motleylabs.com',
   auctionHouse: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
+  offerControls: {
+    // can be ENV if necessary
+    percentageFloor: 0.8,
+    percentageListing: 0.8,
+  },
 };
 
 export default config;

@@ -95,7 +95,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     onOpenOffer,
     offerFormState,
     onCancelMakeOffer,
-  } = useMakeOffer();
+  } = useMakeOffer(data?.nft);
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
@@ -416,7 +416,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     updateOfferFormState,
     handleSubmitUpdateOffer,
     updateOffer,
-  } = useUpdateOffer(viewerOffer);
+  } = useUpdateOffer(viewerOffer, data?.nft);
 
   const handleUpdateOffer = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
