@@ -135,7 +135,7 @@ Overview.Tabs = Tabs;
 
 function Tab(props: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={props.href}>
+    <Link href={props.href} scroll={false}>
       <div
         className={clsx(
           'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
