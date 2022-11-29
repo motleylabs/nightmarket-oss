@@ -84,15 +84,31 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
   }, [nft?.listings]);
 
   const minOfferSchema = zod.object({
-    amount: zod.preprocess((input) => {
-      const processed = zod
-        .string()
-        .min(1, `Must enter an amount`)
-        .regex(/^[0-9.]*$/, { message: `Must be a number` })
-        .transform(Number)
-        .safeParse(input);
-      return processed.success ? processed.data : input;
-    }, zod.number().min(listing?.solPrice ? listing?.solPrice * config.offerControls.percentageListing : Number(nft?.moonrankCollection?.trends?.compactFloor1d) * config.offerControls.percentageFloor, `Your offer must be at least ${config.offerControls.percentageFloor * 100}% of the floor/listing`)),
+    amount: zod.preprocess(
+      (input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      },
+      zod
+        .number()
+        // calculations and fallbacks
+        .min(
+          listing?.solPrice
+            ? listing?.solPrice * config.offerControls.percentageListing
+            : nft?.moonrankCollection?.trends?.compactFloor1d
+            ? Number(nft?.moonrankCollection?.trends?.compactFloor1d) *
+              config.offerControls.percentageFloor
+            : 0.01,
+          `Your offer must be at least ${
+            config.offerControls.percentageFloor * 100
+          }% of the floor/listing`
+        )
+    ),
   });
 
   const {
@@ -280,15 +296,31 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
   }, [nft?.listings]);
 
   const updateMinOfferSchema = zod.object({
-    amount: zod.preprocess((input) => {
-      const processed = zod
-        .string()
-        .min(1, `Must enter an amount`)
-        .regex(/^[0-9.]*$/, { message: `Must be a number` })
-        .transform(Number)
-        .safeParse(input);
-      return processed.success ? processed.data : input;
-    }, zod.number().min(listing?.solPrice ? listing?.solPrice * config.offerControls.percentageListing : Number(nft?.moonrankCollection?.trends?.compactFloor1d) * config.offerControls.percentageFloor, `Your offer must be at least ${config.offerControls.percentageFloor * 100}% of the floor/listing`)),
+    amount: zod.preprocess(
+      (input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      },
+      zod
+        .number()
+        // calculations and fallbacks
+        .min(
+          listing?.solPrice
+            ? listing?.solPrice * config.offerControls.percentageListing
+            : nft?.moonrankCollection?.trends?.compactFloor1d
+            ? Number(nft?.moonrankCollection?.trends?.compactFloor1d) *
+              config.offerControls.percentageFloor
+            : 0.01,
+          `Your offer must be at least ${
+            config.offerControls.percentageFloor * 100
+          }% of the floor/listing`
+        )
+    ),
   });
 
   const {
