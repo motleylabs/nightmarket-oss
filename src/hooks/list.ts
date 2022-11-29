@@ -23,6 +23,7 @@ import { toLamports } from '../modules/sol';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
 import Bugsnag from '@bugsnag/js';
+import { notifyInstructionError } from '../modules/bugsnag';
 
 interface ListNftForm {
   amount: string;
@@ -70,6 +71,14 @@ export function useListNft(): ListNftContext {
     const metadata = new PublicKey(nft.address);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
     const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
+
+    // all listings
+    const ata = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      tokenMint,
+      publicKey
+    );
 
     const [sellerTradeState, tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
@@ -215,11 +224,21 @@ export function useListNft(): ListNftContext {
 
       toast('Listing posted', { type: 'success' });
     } catch (err: any) {
-      const logs = err.logs;
+      // notifyInstructionError(err, {
+      //   errorName: 'Listing created',
+      //   metadata: {
+      //     userPubkey: publicKey.toBase58(),
+      //     programLogs: err.logs,
+      //     nft,
+      //   },
+      // });
       Bugsnag.notify(err, function (event) {
-        event.context = 'List';
-        event.setUser(publicKey.toBase58());
-        event.addMetadata('NFT action', { logs, nft });
+        event.context = 'Listing created';
+        event.addMetadata('INSTRUCTION METADATA', {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        });
       });
       toast(err.message, { type: 'error' });
     } finally {

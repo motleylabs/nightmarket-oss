@@ -35,7 +35,7 @@ export function notifyInstructionError(
   err: Error | { name: string; message: string }, // probably an Error
   context: {
     errorName: string;
-    userPubkey: string;
+    // userPubkey: string;
     metadata: {
       programLogs: string;
       nft: any;
@@ -45,13 +45,11 @@ export function notifyInstructionError(
 ) {
   return Bugsnag.notify(err, function (event) {
     event.context = context.errorName; // Sets the name of the error
-    event.setUser(context.userPubkey); // this could be set and removed globally, but easier to attatch here for now
+    // Bugsnag already tracks userIp, so it's better to include the userPubkey with metadata maybe?
+    // event.setUser(context.userPubkey); // this could be set and removed globally, but easier to attatch here for now
     event.addMetadata(
       'INSTRUCTION METADATA', // creates a tab in the bugsnag error with this title in all caps
-      {
-        userPubkey: context.userPubkey, // so it can be viewed in the same metadata tab
-        ...context.metadata,
-      }
+      context.metadata
     );
   });
 }

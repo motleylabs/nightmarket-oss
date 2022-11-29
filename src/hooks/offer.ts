@@ -103,11 +103,12 @@ export function useMakeOffer(): MakeOfferContext {
     const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
+    // all offers
     const ata = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       tokenMint,
-      publicKey
+      new PublicKey(nft.owner.address)
     );
 
     console.log('make offer', {
@@ -213,7 +214,7 @@ export function useMakeOffer(): MakeOfferContext {
     } catch (err: any) {
       notifyInstructionError(err, {
         errorName: 'Offer created',
-        userPubkey: publicKey.toBase58(),
+        // userPubkey: publicKey.toBase58(),
         metadata: {
           programLogs: err.logs,
           nft,
@@ -423,7 +424,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     } catch (err: any) {
       notifyInstructionError(err, {
         errorName: 'Offer updated',
-        userPubkey: publicKey.toBase58(),
+        // userPubkey: publicKey.toBase58(),
         metadata: {
           programLogs: err.logs,
           nft,
@@ -595,7 +596,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
     } catch (err: any) {
       notifyInstructionError(err, {
         errorName: 'Offer canceled',
-        userPubkey: publicKey.toBase58(),
+        // userPubkey: publicKey.toBase58(),
         metadata: {
           programLogs: err.logs,
           nft,
@@ -894,14 +895,22 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       return { buyerTradeState, metadata };
     } catch (err: any) {
-      notifyInstructionError(err, {
-        errorName: 'Offer accepted',
-        userPubkey: publicKey.toBase58(),
-        metadata: {
+      Bugsnag.notify(err, function (event) {
+        event.context = 'Offer accepted';
+        event.addMetadata('INSTRUCTION METADATA', {
+          userPubkey: publicKey.toBase58(),
           programLogs: err.logs,
           nft,
-        },
+        });
       });
+      // notifyInstructionError(err, {
+      //   errorName: 'Offer accepted',
+      //   // userPubkey: publicKey.toBase58(),
+      //   metadata: {
+      //     programLogs: err.logs,
+      //     nft,
+      //   },
+      // });
 
       toast(err.message, { type: 'error' });
 
