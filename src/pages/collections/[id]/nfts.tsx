@@ -38,6 +38,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     'collection',
     'nft',
     'buyable',
+    'analytics',
   ]);
   const { data } = await client.query({
     query: CollectionQuery,

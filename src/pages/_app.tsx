@@ -38,10 +38,10 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { viewerVar } from '../cache';
-import { start } from '../modules/bugsnag';
 import { BriceFont, HauoraFont } from '../fonts';
+import { start } from '../modules/bugsnag';
 
 start();
 
@@ -292,7 +292,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
         leaveFrom="transform scale-100 opacity-100"
         leaveTo="transform scale-95 opacity-0"
       >
-        <Popover.Panel className={'absolute z-40 translate-y-2 sm:-translate-x-[calc(384px-40px)]'}>
+        <Popover.Panel className={'absolute z-50 translate-y-2 sm:-translate-x-[calc(384px-40px)]'}>
           {({ close }) => (
             <div className=" hidden overflow-hidden rounded-md bg-gray-900 pb-4 text-white shadow-lg shadow-black sm:w-96 md:inline-block">
               <div className="flex items-center p-4 ">

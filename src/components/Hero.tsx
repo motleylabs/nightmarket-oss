@@ -98,7 +98,7 @@ function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
             />
             <Hero.Preview
               payout={payouts[2]}
-              className="absolute bottom-1/2 right-0 -mb-20 lg:-mb-14"
+              className="absolute bottom-1/2 right-0 -mb-20 hidden lg:-mb-14 xl:flex"
               hPosition="right"
               vPosition="bottom"
             />
@@ -136,7 +136,7 @@ function HeroAside({ payouts, loading }: HeroAsideProps): JSX.Element {
 Hero.Aside = HeroAside;
 
 interface HeroPreviewProps {
-  payout?: RewardPayout;
+  payout: RewardPayout;
   className?: string;
   hPosition: 'left' | 'right';
   vPosition: 'top' | 'bottom';
@@ -169,10 +169,10 @@ const HeroPreview = ({
           />
           <div
             className={clsx(
-              'absolute flex h-20 w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3 lg:h-20 lg:w-56 lg:py-2 lg:px-4',
+              'absolute flex w-28 flex-col rounded-2xl bg-gray-800 py-1.5 px-3  lg:w-56 lg:py-2 lg:px-4',
               {
                 '-ml-16': hPosition === 'left',
-                'right-0 -mr-20': hPosition === 'right',
+                '-right-5 -mr-20': hPosition === 'right',
                 'top-16': vPosition === 'top',
                 'bottom-4': vPosition === 'bottom',
               }
@@ -185,9 +185,20 @@ const HeroPreview = ({
               <span className="text-sm text-orange-600">+SAUCE </span>
               to buyer and seller
             </span>
-            <span className="flex items-center text-sm text-gray-500">
-              {formatDistanceToNowStrict(new Date(payout?.createdAt))} ago
-            </span>
+            <div className="flex items-center justify-start gap-2 text-sm text-white">
+              {payout?.nft?.moonrankCollection?.image && (
+                <img
+                  src={payout.nft.moonrankCollection?.image}
+                  alt={`Collection NFT image ${payout.nft.moonrankCollection?.id}`}
+                  className="aspect-square w-4 rounded-sm object-cover"
+                />
+              )}
+              <span className="truncate">{payout?.nft?.name}</span>
+            </div>
+            {/* <span className="flex items-center text-sm text-gray-500">
+              {payout.sinceCreated}
+            </span> */}
+            {/* Saving this for when we want to return to the OG design */}
             {/* <span className="truncate text-sm text-gray-500">
               Sold {formatDistanceToNowStrict(new Date(payout?.createdAt))} ago
             </span>

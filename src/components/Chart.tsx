@@ -137,7 +137,7 @@ function TinyLineChart(props: {
       <LineChart
         ref={chartRef}
         data={props.data}
-        margin={{ top: 0, right: 24, bottom: 0, left: hideAxis ? 24 : 50 }}
+        margin={{ top: 2, right: 24, bottom: 0, left: hideAxis ? 24 : 50 }}
         onMouseEnter={() => setHideAxis(false)}
         onMouseLeave={() => setHideAxis(true)}
       >

@@ -106,49 +106,62 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           {/* [Charts], Data */}
           <div className="flex w-full flex-col-reverse items-center justify-center gap-4 md:w-min md:flex-row md:items-start md:justify-start">
             <div className="flex w-full gap-4 md:w-min">
-              <Chart.Preview
-                className="h-40 w-full md:w-36 xl:w-40"
-                title={t('floorPrice')}
-                dateRange={t('timeInterval.day')}
-                chart={
-                  <Chart.TinyLineChart
-                    data={collectionQueryClient.data?.collection.timeseries.floorPrice || []}
-                    loading={collectionQueryClient.loading}
-                  />
-                }
-              />
-              <Chart.Preview
-                className="h-40 w-full md:w-36 xl:w-40"
-                title={t('listings')}
-                dateRange={t('timeInterval.day')}
-                chart={
-                  <Chart.TinyLineChart
-                    data={collectionQueryClient.data?.collection.timeseries.listedCount || []}
-                    loading={collectionQueryClient.loading}
-                  />
-                }
-              />
+              {collectionQueryClient.data?.collection.timeseries.floorPrice && (
+                <Chart.Preview
+                  className="h-40 w-full md:w-36 xl:w-40"
+                  title={t('floorPrice')}
+                  dateRange={t('timeInterval.day')}
+                  chart={
+                    <Chart.TinyLineChart
+                      data={collectionQueryClient.data?.collection.timeseries.floorPrice || []}
+                      loading={collectionQueryClient.loading}
+                    />
+                  }
+                />
+              )}
+              {collectionQueryClient.data?.collection.timeseries.listedCount && (
+                <Chart.Preview
+                  className="h-40 w-full md:w-36 xl:w-40"
+                  title={t('listings')}
+                  dateRange={t('timeInterval.day')}
+                  chart={
+                    <Chart.TinyLineChart
+                      data={collectionQueryClient.data?.collection.timeseries.listedCount || []}
+                      loading={collectionQueryClient.loading}
+                    />
+                  }
+                />
+              )}
             </div>
-            <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
-              <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
-              </CollectionFigure>
-              <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
-              </CollectionFigure>
-              <CollectionFigure label="Est. Marketcap" loading={collectionQueryClient.loading}>
-                <Icon.Sol /> {collectionQueryClient.data?.collection.marketCap}
-              </CollectionFigure>
-              <CollectionFigure label="Listings" loading={collectionQueryClient.loading}>
-                {collectionQueryClient.data?.collection.trends?.compactListed1d}
-              </CollectionFigure>
-              <CollectionFigure label="Holders" loading={collectionQueryClient.loading}>
-                {collectionQueryClient.data?.collection.holderCount}
-              </CollectionFigure>
-              <CollectionFigure label="Supply" loading={collectionQueryClient.loading}>
-                {collection?.compactPieces}
-              </CollectionFigure>
-            </div>
+            {[
+              collectionQueryClient.data?.collection.trends?.compactFloor1d,
+              collectionQueryClient.data?.collection.trends?.compactVolume30d,
+              collectionQueryClient.data?.collection.marketCap,
+              collectionQueryClient.data?.collection.trends?.compactListed1d,
+              collectionQueryClient.data?.collection.holderCount,
+              collection?.compactPieces,
+            ].every(Boolean) && (
+              <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
+                <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
+                  <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
+                </CollectionFigure>
+                <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
+                  <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
+                </CollectionFigure>
+                <CollectionFigure label="Est. Marketcap" loading={collectionQueryClient.loading}>
+                  <Icon.Sol /> {collectionQueryClient.data?.collection.marketCap}
+                </CollectionFigure>
+                <CollectionFigure label="Listings" loading={collectionQueryClient.loading}>
+                  {collectionQueryClient.data?.collection.trends?.compactListed1d}
+                </CollectionFigure>
+                <CollectionFigure label="Holders" loading={collectionQueryClient.loading}>
+                  {collectionQueryClient.data?.collection.holderCount}
+                </CollectionFigure>
+                <CollectionFigure label="Supply" loading={collectionQueryClient.loading}>
+                  {collection?.compactPieces}
+                </CollectionFigure>
+              </div>
+            )}
           </div>
         </div>
         <Overview.Tabs>

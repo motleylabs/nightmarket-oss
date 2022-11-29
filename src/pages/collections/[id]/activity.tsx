@@ -17,7 +17,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { InView } from 'react-intersection-observer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'collection',
+    'analytics',
+  ]);
 
   const {
     data: { collection },
