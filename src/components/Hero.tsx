@@ -182,7 +182,7 @@ const HeroPreview = ({
               Sold for <Icon.Sol className="mx-1 h-4 w-4" /> {payout?.purchase?.solPrice}
             </span>
             <span className=" truncate text-gray-500">
-              <span className="text-sm text-orange-600">+SAUCE </span>
+              <span className="text-sm text-orange-600">SAUCE </span>
               to buyer and seller
             </span>
             <span className="flex items-center text-sm text-gray-500">
@@ -195,7 +195,7 @@ const HeroPreview = ({
               for <Icon.Sol /> {payout?.purchase?.solPrice}
             </span>
             <span className=" truncate text-sm text-gray-500">
-              <span className="text-sm text-orange-600"> +SAUCE</span>
+              <span className="text-sm text-orange-600"> SAUCE</span>
               to buyer and seller
             </span> */}
           </div>
