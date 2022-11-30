@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import zod, { ZodObject } from 'zod';
+import zod, { z, ZodObject } from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -295,33 +295,42 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
     return listing || null;
   }, [nft?.listings]);
 
-  const updateMinOfferSchema = zod.object({
-    amount: zod.preprocess(
-      (input) => {
-        const processed = zod
-          .string()
-          .min(1, `Must enter an amount`)
-          .regex(/^[0-9.]*$/, { message: `Must be a number` })
-          .transform(Number)
-          .safeParse(input);
-        return processed.success ? processed.data : input;
-      },
-      zod
+  const offerSchema = zod.object({
+    amount: zod.preprocess((input) => {
+      const processed = zod
+        .string()
+        .min(1, `Must enter an amount`)
+        .regex(/^[0-9.]*$/, { message: `Must be a number` })
+        .transform(Number)
+        .safeParse(input);
+      return processed.success ? processed.data : input;
+    }, z.number()),
+  });
+
+  if (listing?.solPrice) {
+    offerSchema.extend({
+      amount: zod
         .number()
-        // calculations and fallbacks
         .min(
-          listing?.solPrice
-            ? listing?.solPrice * config.offerControls.percentageListing
-            : nft?.moonrankCollection?.trends?.compactFloor1d
-            ? Number(nft?.moonrankCollection?.trends?.compactFloor1d) *
-              config.offerControls.percentageFloor
-            : 0.01,
+          listing.solPrice * config.offerControls.percentageListing,
+          `Your offer must be at least ${
+            config.offerControls.percentageListing * 100
+          }% of the listing`
+        ),
+    });
+  } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+    offerSchema.extend({
+      amount: zod
+        .number()
+        .min(
+          parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+            config.offerControls.percentageFloor,
           `Your offer must be at least ${
             config.offerControls.percentageFloor * 100
-          }% of the floor/listing`
-        )
-    ),
-  });
+          }% of the collection floor`
+        ),
+    });
+  }
 
   const {
     register: registerUpdateOffer,
@@ -329,7 +338,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
     reset,
     formState: updateOfferFormState,
   } = useForm<OfferForm>({
-    resolver: zodResolver(updateMinOfferSchema),
+    resolver: zodResolver(offerSchema),
   });
 
   useEffect(() => {
