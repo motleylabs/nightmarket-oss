@@ -110,6 +110,10 @@ const Home: NextPage = () => {
         value: CollectionSort.Floor,
         label: t('collection:trendingCollectionsSort.byFloorPrice'),
       },
+      {
+        value: CollectionSort.NumberListed,
+        label: t('collection:trendingCollectionsSort.byListingsCount'),
+      },
     ],
     [t]
   );
