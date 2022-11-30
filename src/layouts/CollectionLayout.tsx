@@ -106,7 +106,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           {/* [Charts], Data */}
           <div className="flex w-full flex-col-reverse items-center justify-center gap-4 md:w-min md:flex-row md:items-start md:justify-start">
             <div className="flex w-full gap-4 md:w-min">
-              {collectionQueryClient.data?.collection.timeseries.floorPrice && (
+              {(collectionQueryClient.loading ||
+                collectionQueryClient.data?.collection.timeseries.floorPrice) && (
                 <Chart.Preview
                   className="h-40 w-full md:w-36 xl:w-40"
                   title={t('floorPrice')}
@@ -119,7 +120,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                   }
                 />
               )}
-              {collectionQueryClient.data?.collection.timeseries.listedCount && (
+              {(collectionQueryClient.loading ||
+                collectionQueryClient.data?.collection.timeseries.listedCount) && (
                 <Chart.Preview
                   className="h-40 w-full md:w-36 xl:w-40"
                   title={t('listings')}
@@ -133,14 +135,15 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 />
               )}
             </div>
-            {[
-              collectionQueryClient.data?.collection.trends?.compactFloor1d,
-              collectionQueryClient.data?.collection.trends?.compactVolume30d,
-              collectionQueryClient.data?.collection.marketCap,
-              collectionQueryClient.data?.collection.trends?.compactListed1d,
-              collectionQueryClient.data?.collection.holderCount,
-              collection?.compactPieces,
-            ].every(Boolean) && (
+            {(collectionQueryClient.loading ||
+              [
+                collectionQueryClient.data?.collection.trends?.compactFloor1d,
+                collectionQueryClient.data?.collection.trends?.compactVolume30d,
+                collectionQueryClient.data?.collection.marketCap,
+                collectionQueryClient.data?.collection.trends?.compactListed1d,
+                collectionQueryClient.data?.collection.holderCount,
+                collection?.compactPieces,
+              ].every(Boolean)) && (
               <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
                 <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
                   <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
