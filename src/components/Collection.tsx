@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
 import { CollectionNftPreviewsQuery } from './../queries/collection.graphql';
@@ -410,11 +410,25 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
     return listing.auctionHouse?.address === config.auctionHouse;
   });
 
+  const [showImage, setShowImage] = useState(false);
+
   return (
     <Link href={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
-        <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
-          <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />
+        <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
+          <div
+            className={clsx(
+              'absolute inset-0   rounded-lg bg-gray-700 ',
+              // 'animate-pulse', // activating this eliminates the desired effect of showing the whole iamge at once
+              showImage && 'hidden'
+            )}
+          ></div>
+          <img
+            src={nft.image}
+            alt={''}
+            onLoad={() => setShowImage(true)}
+            className="h-16 w-16 rounded-lg object-cover"
+          />
         </div>
         {listing?.price && (
           <div className="group ">

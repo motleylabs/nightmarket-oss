@@ -2,6 +2,7 @@ import { useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { useState } from 'react';
 import config from '../app.config';
 import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
@@ -50,15 +51,20 @@ export function NftCard({
   const viewer = useReactiveVar(viewerVar);
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
+  const [showImage, setShowImage] = useState(false);
 
   return (
     <>
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
         <Link href={link}>
           <div className="relative block overflow-hidden">
+            <div
+              className={clsx('absolute inset-0 h-full w-full  bg-gray-700', showImage && 'hidden')}
+            ></div>
             <img
               src={nft.image}
-              alt={`Nft image for ${nft.mintAddress}`}
+              alt={''}
+              onLoad={() => setShowImage(true)}
               className={clsx(
                 'aspect-square w-full object-cover',
                 'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
