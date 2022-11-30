@@ -9,30 +9,18 @@ import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 import { Buyable } from './Buyable';
 import Icon from './Icon';
+import Img from './Image';
 import { Offerable } from './Offerable';
 
 interface NftCardProps {
   nft: Nft;
   link: string;
   showCollectionThumbnail?: boolean;
-  onBuy?: () => void;
-  onMakeOffer?: () => void;
 }
 
-enum NFTStates {
-  LISTED,
-  UNLISTED,
-  LISTED_ON_ME,
-  OWNER,
-  // OWNED AND LISTED?
-}
-
-// TODO: listing & update listing when instructions done
 export function NftCard({
   nft,
-  onBuy,
   showCollectionThumbnail = true,
-  onMakeOffer,
   link,
 }: NftCardProps): JSX.Element {
   const { t } = useTranslation(['common', 'offerable']);
@@ -56,16 +44,16 @@ export function NftCard({
       <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
         <Link href={link}>
           <div className="relative block overflow-hidden">
-            <img
+            <Img
               src={nft.image}
-              alt={`Nft image for ${nft.mintAddress}`}
+              alt={`${nft.name} detail image`}
               className={clsx(
                 'aspect-square w-full object-cover',
-                'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
+                'duration-100 transition ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in',
               )}
             />
             {nft.moonrankRank && (
-              <span className="absolute left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+              <span className="absolute z-10 left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
                 <img
                   src="/images/moonrank-logo.svg"
                   className="h-2.5 w-auto object-cover"
@@ -183,7 +171,7 @@ function NftCardSkeleton({ className }: NftCardSkeletonProps) {
   return (
     <div
       className={clsx(
-        'animate-pulse overflow-clip rounded-md text-white shadow-lg transition',
+        'animate-pulse overflow-clip rounded-2xl text-white shadow-lg transition',
         className
       )}
     >

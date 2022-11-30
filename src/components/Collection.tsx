@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
 import { CollectionNftPreviewsQuery } from './../queries/collection.graphql';
@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import Image from './../components/Image';
 import config from '../app.config';
 import { asCompactNumber } from '../modules/number';
 
@@ -413,8 +414,12 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   return (
     <Link href={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
-        <div className="rounded-lg p-0.5 hover:bg-gradient-primary">
-          <img src={nft.image} alt={nft.name} className="h-16 w-16 rounded-lg object-cover" />
+        <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
+          <Image
+            src={nft.image}
+            alt={`${nft.name} preview`}
+            className="h-16 w-16 rounded-lg object-cover"
+          />
         </div>
         {listing?.price && (
           <div className="group ">
