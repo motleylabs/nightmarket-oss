@@ -471,7 +471,6 @@ function MobileNavMenu({
 
   const { t } = useTranslation('common');
   const loading = viewerQueryResult.loading || connecting;
-  const viewer = useViewer(0);
 
   const [copied, setCopied] = useState(false);
   const copyWallet = useCallback(async () => {
