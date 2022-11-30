@@ -11,11 +11,11 @@ import {
 import { CollectionAnalyticsData, CollectionAnalyticsVariables } from './../../../app.types';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
-import { Chart, DateRangeOption } from '../../../components/Chart';
+import { Chart } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { getDateTimeRange } from '../../../modules/time';
+import { DateRangeOption, getDateTimeRange } from '../../../modules/time';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [

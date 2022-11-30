@@ -83,7 +83,7 @@ query CollectionNFTsQuery(
 
 query CollectionActivitiesQuery(
   $id: String!
-  $eventTypes: [String!]
+  $eventTypes: [ActivityType!]
   $limit: Int = 25
   $offset: Int = 0
 ) @cached(ttl: 180) {

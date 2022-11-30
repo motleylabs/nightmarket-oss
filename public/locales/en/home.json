@@ -30,5 +30,10 @@
   },
   "followWallets": {
     "title": "Who to follow"
+  },
+  "report": {
+    "sauceDistributedToUsers": "$SAUCE distributed to Night Market users.",
+    "solDistributedToSauceHolders": "SOL distributed to $SAUCE holders. That's ${{sol}}!",
+    "learnMore": "Learn more"
   }
 }

@@ -19,6 +19,7 @@ export enum ButtonColor {
 export enum ButtonBorder {
   Gradient = 'gradient',
   Gray = 'gray',
+  White = 'white',
 }
 
 export enum ButtonSize {
@@ -92,10 +93,9 @@ const Button = ({
         {
           [background]: !border,
           [color]: color !== ButtonColor.Gradient,
-          'bg-gradient-secondary p-0.5 hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-secondary':
-            border === ButtonBorder.Gradient,
-          'border-2 border-gray-300 bg-none  hover:border-white active:text-white disabled:border-gray-300 ':
-            border === ButtonBorder.Gray,
+          'bg-gradient-secondary p-[2px]': border === ButtonBorder.Gradient,
+          'border border-gray-300 bg-none': border === ButtonBorder.Gray,
+          'border border-white bg-none': border === ButtonBorder.White,
           'w-full': block,
           'py-1 px-4 text-sm':
             (size === ButtonSize.Tiny || size === ButtonSize.Small) &&
