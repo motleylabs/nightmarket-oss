@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { AuctionHouse, CollectionDocument, Nft, Wallet } from '../graphql.types';
+import { AuctionHouse, CollectionDocument, Nft, SolanaNetwork, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
@@ -60,11 +60,11 @@ interface ReportHeaderVariables {
   reportQuery: QueryResult<ReportQueryData, ReportQueryVariables>;
 }
 
+const EmptyBox = () => <div className="h-6 w-14 animate-pulse rounded-md bg-white transition" />;
+
 function ReportHeader({ reportQuery }: ReportHeaderVariables) {
   const { initialized, solPrice } = useCurrencies();
   const loading = !initialized || reportQuery.loading;
-
-  const EmptyBox = () => <div className="h-6 w-14 animate-pulse rounded-md bg-white transition" />;
 
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
@@ -103,6 +103,7 @@ function ReportHeader({ reportQuery }: ReportHeaderVariables) {
 
 interface ReportQueryData {
   auctionHouse: AuctionHouse;
+  solanaNetwork: SolanaNetwork;
 }
 
 interface ReportQueryVariables {
