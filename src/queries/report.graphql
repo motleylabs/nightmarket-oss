@@ -1,5 +1,5 @@
 query ReportQuery($address: String!, $startDate: DateTimeUtc, $endDate: DateTimeUtc)
-@cached(ttl: 30) {
+@cached(ttl: 120) {
   auctionHouse(address: $address) {
     address
     volume(startDate: $startDate, endDate: $endDate)
