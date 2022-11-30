@@ -14,7 +14,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { ApolloProvider, QueryResult, useQuery } from '@apollo/client';
+import { useReactiveVar, ApolloProvider, QueryResult, useQuery } from '@apollo/client';
 import ViewerProvider from '../providers/ViewerProvider';
 import client from './../client';
 import './../../styles/globals.css';
@@ -333,7 +333,7 @@ function NavigationBar() {
 
 function ProfilePopover(props: { wallet: Wallet }) {
   const { disconnect, publicKey } = useWallet();
-
+  const viewer = useReactiveVar(viewerVar);
   const { t } = useTranslation('common');
 
   const [copied, setCopied] = useState(false);
@@ -392,7 +392,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
               </div>
               <div className="flex flex-row items-center gap-2 p-4">
                 <Icon.Sol className="h-4 w-4" />
-                {viewerVar()?.solBalance}
+                {viewer?.solBalance}
               </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link
@@ -466,6 +466,7 @@ function MobileNavMenu({
 }) {
   const { connecting, disconnect, publicKey } = useWallet();
   const viewerQueryResult = useViewer();
+  const viewer = useReactiveVar(viewerVar);
   const { setVisible } = useWalletModal();
   const onLogin = useLogin();
 
@@ -533,7 +534,7 @@ function MobileNavMenu({
                 </div>
                 <div className="flex flex-row items-center gap-2 py-4">
                   <Icon.Sol className="h-4 w-4" />
-                  {viewerVar()?.solBalance}
+                  {viewer?.solBalance}
                 </div>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
