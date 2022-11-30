@@ -89,7 +89,7 @@ interface OverviewFigureProps {
 
 function Figure({ figure, label }: OverviewFigureProps): JSX.Element {
   return (
-    <li className="flex gap-2 text-xs text-white sm:text-sm md:text-base">
+    <li className="flex gap-2 text-sm text-white sm:text-sm md:text-base">
       {figure}
       <span className="text-gray-300">{label}</span>
     </li>
@@ -106,7 +106,7 @@ Overview.Actions = Actions;
 
 function Aside({ children }: OverviewProps): JSX.Element {
   return (
-    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gradient-radial from-gray-900 to-gray-800 p-4 text-white md:text-xs lg:mt-0 xl:text-base">
+    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gradient-radial from-gray-900 to-gray-800 p-4 text-white md:text-sm lg:mt-0 xl:text-base">
       {children}
     </aside>
   );

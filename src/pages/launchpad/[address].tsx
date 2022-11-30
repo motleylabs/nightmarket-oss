@@ -100,11 +100,11 @@ export default function LaunchpadPage() {
             </p>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-xs text-gray-300">{t('supply')}</p>
+                <p className="text-sm text-gray-300">{t('supply')}</p>
                 <h6 className="text-lg font-bold text-white">10,000</h6>
               </div>
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-xs text-gray-300">{t('mintDate')}</p>
+                <p className="text-sm text-gray-300">{t('mintDate')}</p>
                 <h6 className="text-lg font-bold text-white">10/24/2022</h6>
               </div>
             </div>

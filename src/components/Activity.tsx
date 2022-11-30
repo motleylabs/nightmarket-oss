@@ -119,7 +119,7 @@ function ActivityTimestamp({ timeSince }: { timeSince: Maybe<string> | undefined
     return <></>;
   }
 
-  return <div className="text-right text-xs text-gray-400">{timeSince}</div>;
+  return <div className="text-right text-sm text-gray-400">{timeSince}</div>;
 }
 
 Activity.Timestamp = ActivityTimestamp;
