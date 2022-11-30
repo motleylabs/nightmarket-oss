@@ -61,6 +61,8 @@
   "purchase": "Sold",
   "listing": "Listed",
   "offer": "Offer",
+  "cancelledOffer": "Cancelled Offer",
+  "cancelledListing": "Cancelled Listing",
   "update": "Update",
   "list": "List",
   "lastSale": "Last sale",

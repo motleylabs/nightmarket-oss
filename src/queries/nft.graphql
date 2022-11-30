@@ -93,12 +93,13 @@ query NftActivitiesQuery($address: String!) {
       id
       metadata
       price
+      solPrice @client
       createdAt
       timeSince @client
       marketplaceProgramAddress
-      solPrice @client
       nftMarketplace @client {
         name
+        link
         logo
       }
       primaryWallet @client {

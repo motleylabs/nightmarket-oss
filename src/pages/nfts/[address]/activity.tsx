@@ -57,7 +57,7 @@ export default function NftActivity() {
       address: router.query.address as string,
     },
   });
-
+  console.log('activities', activitiesQuery.data?.nft.activities);
   if (activitiesQuery.loading) {
     return (
       <div className="flex flex-col gap-4">
@@ -85,11 +85,11 @@ export default function NftActivity() {
                 avatar={
                   <Link
                     className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/profiles/${activity.primaryWallet.address}/collected`}
+                    href={`/profiles/${activity.primaryWallet?.address}/collected`}
                   >
                     <Avatar
                       circle
-                      src={activity.primaryWallet.previewImage as string}
+                      src={activity.primaryWallet?.previewImage as string}
                       size={AvatarSize.Standard}
                     />
                   </Link>

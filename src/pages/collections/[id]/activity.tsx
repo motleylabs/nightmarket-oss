@@ -94,7 +94,7 @@ export default function CollectionActivity(): JSX.Element {
       },
     }
   );
-  console.log('activities', activitiesQuery.data?.collection.activities);
+
   useEffect(() => {
     const subscription = watch(({ type }) => {
       let variables: CollectionActivitiesVariables = {
