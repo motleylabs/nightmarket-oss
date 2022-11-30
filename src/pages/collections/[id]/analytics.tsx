@@ -135,7 +135,7 @@ const HolderCountChart = () => {
 
 export default function CollectionAnalyticsPage(props: { collection: Collection }) {
   return (
-    <div className="mt-10 px-10 pb-20 pt-4 md:mt-[90px]">
+    <div className="mt-10 px-10 pt-4 md:mt-[90px]">
       <FloorPriceChart />
       <div className="flex flex-col gap-8 py-8 sm:grid sm:grid-cols-2">
         <ListedCountChart />
