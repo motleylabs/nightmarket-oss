@@ -93,6 +93,7 @@ query CollectionActivitiesQuery(
       id
       metadata
       price
+      solPrice @client
       createdAt
       timeSince @client
       marketplaceProgramAddress
@@ -101,7 +102,6 @@ query CollectionActivitiesQuery(
         link
         logo
       }
-      solPrice @client
       primaryWallet @client {
         address
         twitterHandle

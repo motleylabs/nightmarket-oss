@@ -116,22 +116,20 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
 function asActivityPrimaryWallet(
   _: void,
   { readField }: { readField: ReadFieldFunction }
-): Wallet | undefined {
-  const type: string | undefined = readField('activityType');
+): Wallet | null {
   const wallets: readonly [Wallet, Wallet] | undefined = readField('wallets');
 
-  if (!type || !wallets) {
-    return undefined;
+  if (!wallets) {
+    return null;
   }
 
-  switch (type) {
-    case ActivityType.Purchase || ActivityType.Sell:
-      return wallets[1];
-    case ActivityType.Listing:
-      return wallets[0];
-    case ActivityType.Offer:
-      return wallets[0];
+  const last = wallets[1];
+
+  if (last) {
+    return last;
   }
+
+  return wallets[0];
 }
 
 function asNftMarketplace(

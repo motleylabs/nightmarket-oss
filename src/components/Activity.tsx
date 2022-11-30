@@ -1,15 +1,22 @@
 import { useTranslation } from 'next-i18next';
 import { SVGProps, useMemo, cloneElement, Children, ReactNode } from 'react';
 import { Wallet, Maybe, NftMarketplace } from './../graphql.types';
-import { CurrencyDollarIcon, HandRaisedIcon, TagIcon } from '@heroicons/react/24/outline';
+import {
+  CurrencyDollarIcon,
+  HandRaisedIcon,
+  TagIcon,
+  NoSymbolIcon,
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Icon from './Icon';
 
 export enum ActivityType {
-  Purchase = 'purchase',
-  Sell = 'sell',
-  Listing = 'listing',
-  Offer = 'offer',
+  ListingCreated = 'ListingCreated',
+  OfferCreated = 'OfferCreated',
+  ListingCanceled = 'ListingCanceled',
+  OfferCanceled = 'OfferCanceled',
+  Purchase = 'Purchase',
+  Sales = 'Sales',
 }
 
 interface ActivityProps {
@@ -83,12 +90,16 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
   >(() => {
     switch (type) {
       case ActivityType.Purchase:
-      case ActivityType.Sell:
+      case ActivityType.Sales:
         return [t('purchase'), CurrencyDollarIcon];
-      case ActivityType.Listing:
+      case ActivityType.ListingCreated:
         return [t('listing'), TagIcon];
-      case ActivityType.Offer:
+      case ActivityType.OfferCreated:
         return [t('offer'), HandRaisedIcon];
+      case ActivityType.ListingCanceled:
+        return [t('cancelledListing'), NoSymbolIcon];
+      case ActivityType.OfferCanceled:
+        return [t('cancelledOffer'), NoSymbolIcon];
       default:
         return [];
     }

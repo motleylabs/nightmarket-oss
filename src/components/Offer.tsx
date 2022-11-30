@@ -67,7 +67,7 @@ export default function OfferUI({
 
   return (
     <Activity
-      type={ActivityType.Offer}
+      type={ActivityType.OfferCreated}
       key={offer.id}
       avatar={avatar}
       meta={meta}

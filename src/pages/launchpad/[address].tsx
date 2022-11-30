@@ -22,7 +22,7 @@ export default function LaunchpadPage() {
 
   return (
     <>
-      <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
+      <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 md:mt-12 md:px-8">
         <Head>
           <title>{'Launchpad test'}</title>
           <meta name="description" content="Launchpad test description"></meta>

@@ -242,7 +242,7 @@ function NavigationBar() {
                           key={`search-collection-${collection.id}-${i}`}
                           image={collection.image || '/images/placeholder.png'}
                           name={collection.name}
-                          address={collection.id}
+                          slug={collection.id}
                         />
                       ));
                     }}
@@ -256,7 +256,7 @@ function NavigationBar() {
                           key={`search-profile-${wallet.address}-${i}`}
                           image={wallet.previewImage || '/images/placeholder.png'}
                           name={wallet.displayName}
-                          address={wallet.address}
+                          slug={wallet.address}
                         />
                       ));
                     }}
@@ -274,7 +274,7 @@ function NavigationBar() {
                           key={`search-wallet-${result?.address}`}
                           image={result.previewImage || '/images/placeholder.png'}
                           name={result.displayName}
-                          address={result.address}
+                          slug={result.address}
                         />
                       );
                     }}
@@ -287,7 +287,7 @@ function NavigationBar() {
                           nft={nft}
                           key={`search-mintAddress-${nft.address}-${i}`}
                           image={nft.image}
-                          address={nft.mintAddress}
+                          slug={nft.mintAddress}
                           name={nft.name}
                           creator={nft.creators[0]}
                         />
@@ -390,16 +390,10 @@ function ProfilePopover(props: { wallet: Wallet }) {
                   )}
                 </button>
               </div>
-              <section className="flex flex-col p-4">
-                <div className="flex">
-                  <div className="block rounded-full bg-gray-800 p-4">
-                    <Icon.Sol className="h-3.5" gradient />
-                  </div>
-                  <div className="ml-4 flex flex-1 items-center font-mono">
-                    {viewerVar()?.solBalance}&nbsp;SOL
-                  </div>
-                </div>
-              </section>
+              <div className="flex flex-row items-center gap-2 p-4">
+                <Icon.Sol className="h-4 w-4" />
+                {viewerVar()?.solBalance}
+              </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
@@ -477,6 +471,7 @@ function MobileNavMenu({
 
   const { t } = useTranslation('common');
   const loading = viewerQueryResult.loading || connecting;
+  const viewer = useViewer(0);
 
   const [copied, setCopied] = useState(false);
   const copyWallet = useCallback(async () => {
@@ -503,7 +498,7 @@ function MobileNavMenu({
           />
         </Link>
         <button
-          className="rounded-full bg-transparent bg-white p-3 transition hover:bg-gray-100"
+          className="rounded-full bg-white p-3 transition hover:bg-gray-100"
           onClick={useCallback(() => {
             setShowNav(false);
           }, [setShowNav])}
@@ -536,6 +531,10 @@ function MobileNavMenu({
                       <Icon.Copy className="h-4 w-4" />
                     )}
                   </button>
+                </div>
+                <div className="flex flex-row items-center gap-2 py-4">
+                  <Icon.Sol className="h-4 w-4" />
+                  {viewerVar()?.solBalance}
                 </div>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
@@ -643,7 +642,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                   <PageLayout {...pageProps}>
                     <Component {...pageProps} />
                   </PageLayout>
-                  <footer className=" bg-gray-900 py-20 px-6">
+                  <footer className="mt-16 md:mt-28 bg-gray-900 py-20 px-6">
                     <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
                       <div>
                         {/* Logos */}

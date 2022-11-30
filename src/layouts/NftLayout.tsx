@@ -430,7 +430,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const expandedRef = useRef<HTMLDivElement>(null!);
 
   return (
-    <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
+    <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 md:mt-12 md:px-8">
       <Head>
         <title>{nft.name}</title>
         <meta name="description" content={nft.description} />
@@ -661,8 +661,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 block
                 className="mb-4"
                 htmlType="submit"
+                disabled={offerFormState.isSubmitting}
                 loading={offerFormState.isSubmitting}
-                disabled={offerFormState.isSubmitting || !offerFormState.isValid}
               >
                 {t('submitOffer')}
               </Button>

@@ -87,17 +87,22 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
     let validation: zod.ZodNumber = zod.number();
 
     if (listing?.solPrice) {
+      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+
       validation = validation.min(
-        listing?.solPrice * config.offerMinimums.percentageListing,
-        `Your offer must be at least ${
+        minOffer,
+        `Your offer must be at least ${minOffer} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-      validation = validation.min(
+      const minOffer =
         parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
-          config.offerMinimums.percentageFloor,
-        `Your offer must be at least ${
+        config.offerMinimums.percentageFloor;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${minOffer} which is ${
           config.offerMinimums.percentageFloor * 100
         }% of the floor price`
       );

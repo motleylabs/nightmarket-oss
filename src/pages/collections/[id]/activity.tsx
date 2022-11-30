@@ -4,7 +4,7 @@ import { CollectionQuery, CollectionActivitiesQuery } from './../../../queries/c
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection } from '../../../graphql.types';
+import { Collection, ActivityType as EventTypes } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import Select from '../../../components/Select';
 import { Activity, ActivityType } from '../../../components/Activity';
@@ -55,14 +55,14 @@ interface CollectionActivitiesVariables {
   offset: number;
   limit: number;
   id: string;
-  eventTypes: string[] | null;
+  eventTypes: EventTypes[] | null;
 }
 
 enum ActivityFilter {
   All = 'ALL',
-  Listings = 'LISTINGS',
-  Offers = 'OFFERS',
-  Sales = 'PURCHASES',
+  Listings = 'LISTING_CREATED',
+  Offers = 'OFFER_CREATED',
+  Sales = 'SALES',
 }
 
 interface CollectionActivityForm {
@@ -108,13 +108,13 @@ export default function CollectionActivity(): JSX.Element {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
-          variables.eventTypes = [ActivityFilter.Listings];
+          variables.eventTypes = [EventTypes.ListingCreated];
           break;
         case ActivityFilter.Offers:
-          variables.eventTypes = [ActivityFilter.Offers];
+          variables.eventTypes = [EventTypes.OfferCreated];
           break;
         case ActivityFilter.Sales:
-          variables.eventTypes = [ActivityFilter.Sales];
+          variables.eventTypes = [EventTypes.Sales];
           break;
       }
 
@@ -191,7 +191,6 @@ export default function CollectionActivity(): JSX.Element {
                       data: { collection },
                     } = await activitiesQuery.fetchMore({
                       variables: {
-                        ...activitiesQuery.variables,
                         offset: activitiesQuery.data?.collection.activities.length,
                       },
                     });

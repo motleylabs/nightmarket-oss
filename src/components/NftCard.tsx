@@ -7,21 +7,23 @@ import { viewerVar } from '../cache';
 import { Nft } from '../graphql.types';
 import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
-import { Buyable } from './Buyable';
 import Icon from './Icon';
 import Img from './Image';
-import { Offerable } from './Offerable';
 
 interface NftCardProps {
   nft: Nft;
   link: string;
   showCollectionThumbnail?: boolean;
+  onMakeOffer: () => void;
+  onBuy: () => void;
 }
 
 export function NftCard({
   nft,
   showCollectionThumbnail = true,
   link,
+  onMakeOffer,
+  onBuy,
 }: NftCardProps): JSX.Element {
   const { t } = useTranslation(['common', 'offerable']);
 
@@ -49,11 +51,11 @@ export function NftCard({
               alt={`${nft.name} detail image`}
               className={clsx(
                 'aspect-square w-full object-cover',
-                'duration-100 transition ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in',
+                'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
               )}
             />
             {nft.moonrankRank && (
-              <span className="absolute z-10 left-0 top-0 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+              <span className="absolute left-0 top-0 z-10 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
                 <img
                   src="/images/moonrank-logo.svg"
                   className="h-2.5 w-auto object-cover"
@@ -103,19 +105,15 @@ export function NftCard({
                   <span className="flex items-center justify-start gap-1 text-lg">
                     <Icon.Sol /> {listing?.solPrice}
                   </span>
-                  <Buyable connected={Boolean(viewer)}>
-                    {({ buyNow }) => (
-                      <Button
-                        onClick={() => buyNow(nft.mintAddress)}
-                        size={ButtonSize.Small}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                      >
-                        {t('buy')}
-                      </Button>
-                    )}
-                  </Buyable>
+                  <Button
+                    onClick={onBuy}
+                    size={ButtonSize.Small}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                  >
+                    {t('buy')}
+                  </Button>
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
@@ -139,18 +137,14 @@ export function NftCard({
                     <div />
                   )}
                   {!myOffer && (
-                    <Offerable connected={Boolean(viewer)}>
-                      {({ makeOffer }) => (
-                        <Button
-                          onClick={() => makeOffer(nft.mintAddress)}
-                          border={ButtonBorder.Gray}
-                          color={ButtonColor.Gray}
-                          size={ButtonSize.Small}
-                        >
-                          {t('offer')}
-                        </Button>
-                      )}
-                    </Offerable>
+                    <Button
+                      onClick={onMakeOffer}
+                      border={ButtonBorder.Gray}
+                      color={ButtonColor.Gray}
+                      size={ButtonSize.Small}
+                    >
+                      {t('offer')}
+                    </Button>
                   )}
                 </div>
               )}
