@@ -64,48 +64,39 @@ function ReportHeader({ reportQuery }: ReportHeaderVariables) {
   const { initialized, solPrice } = useCurrencies();
   const loading = !initialized || reportQuery.loading;
 
-  const EmptyBox = () => <div className="text-white">---</div>;
+  const EmptyBox = () => <div className="h-6 w-14 animate-pulse rounded-md bg-white transition" />;
 
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
-      {loading ? (
-        <>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">24h volume</span>
+        {loading ? (
+          <EmptyBox />
+        ) : (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-white">24h volume</span>
-            <EmptyBox />
+            <Icon.Sol defaultColor="#FFFFFF" />
+            <span className="font-semibold text-white">
+              {reportQuery.data?.auctionHouse.volume}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">SOL price</span>
-
-            <EmptyBox />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">SOL TPS</span>
-
-            <EmptyBox />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">24h volume</span>
-            <div className="flex items-center gap-2">
-              <Icon.Sol defaultColor="#FFFFFF" />
-              <span className="font-semibold text-white">
-                {reportQuery.data?.auctionHouse.volume}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">SOL price</span>
-            <span className="font-semibold text-white">{`$${solPrice()}`}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">SOL TPS</span>
-            <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
-          </div>
-        </>
-      )}
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">SOL price</span>
+        {loading ? (
+          <EmptyBox />
+        ) : (
+          <span className="font-semibold text-white">{`$${solPrice()}`}</span>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">SOL TPS</span>
+        {loading ? (
+          <EmptyBox />
+        ) : (
+          <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
+        )}
+      </div>
     </div>
   );
 }
