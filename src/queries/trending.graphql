@@ -29,6 +29,9 @@ query TrendingCollectionsQuery(
     changeVolume1d
     changeVolume7d
     changeVolume30d
+    changeListed1d
+    changeListed7d
+    changeListed30d
     listed1d
     compactListed1d @client
     listed7d

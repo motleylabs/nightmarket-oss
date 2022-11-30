@@ -495,7 +495,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           data?.nft.moonrankCollection && (
             <div className="mb-4 flex flex-row items-center justify-between gap-2">
               <Link
-                className="flex flex-row items-center gap-2 transition hover:scale-[1.02]"
+                className="flex flex-row items-center gap-2 rounded-md pr-2 transition hover:bg-gray-800"
                 href={`/collections/${data?.nft.moonrankCollection.id}/nfts`}
               >
                 <img
