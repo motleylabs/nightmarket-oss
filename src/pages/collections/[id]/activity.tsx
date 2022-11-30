@@ -114,7 +114,7 @@ export default function CollectionActivity(): JSX.Element {
           variables.eventTypes = [EventTypes.OfferCreated];
           break;
         case ActivityFilter.Sales:
-          variables.eventTypes = [EventTypes.Sales];
+          variables.eventTypes = [EventTypes.Purchase];
           break;
       }
 

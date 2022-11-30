@@ -117,7 +117,7 @@ export default function ProfileActivity(): JSX.Element {
           variables.eventTypes = [EventTypes.OfferCreated];
           break;
         case ActivityFilter.Sales:
-          variables.eventTypes = [EventTypes.Sales];
+          variables.eventTypes = [EventTypes.Purchase];
           break;
       }
 

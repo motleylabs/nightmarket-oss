@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
+import Image from './Image';
 
 export enum AvatarSize {
   Tiny,
@@ -29,7 +30,7 @@ export function Avatar({ src, circle, size }: AvatarProps) {
         'rounded-lg': !circle && [AvatarSize.Jumbo, AvatarSize.Gigantic].includes(size),
       })}
     >
-      <img
+      <Image
         src={src}
         alt="avatar"
         className={clsx(
