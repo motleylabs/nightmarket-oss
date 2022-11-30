@@ -226,8 +226,6 @@ export default function CollectionNfts() {
                       <Disclosure>
                         {({ open }) => (
                           <>
-                            {/* I tried to get the controller pattern to work, but the value was not updated when using setValue in the other control section */}
-                            {/* The listbox pattern also served big challenges with shared state */}
                             <Disclosure.Button className="flex w-full items-center justify-between">
                               <Attribute.Header group={group} isOpen={open} />
                             </Disclosure.Button>

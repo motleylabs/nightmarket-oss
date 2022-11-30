@@ -108,6 +108,7 @@ export default function ProfileActivity(): JSX.Element {
 
       switch (type) {
         case ActivityFilter.All:
+          variables.eventTypes = null;
           break;
         case ActivityFilter.Listings:
           variables.eventTypes = [EventTypes.ListingCreated];

@@ -260,7 +260,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       htmlType="submit"
-                      disabled={offerFormState.isSubmitting || !offerFormState.isValid}
+                      disabled={offerFormState.isSubmitting}
                       loading={offerFormState.isSubmitting}
                     >
                       {t('offer')}
