@@ -59,9 +59,9 @@ interface ProfileActivitiesVariables {
 
 enum ActivityFilter {
   All = 'ALL',
-  Listings = 'LISTINGS',
-  Offers = 'OFFERS',
-  Sales = 'PURCHASES',
+  Listings = 'LISTING_CREATED',
+  Offers = 'OFFER_CREATED',
+  Sales = 'SALES',
 }
 
 interface ProfileActivityForm {

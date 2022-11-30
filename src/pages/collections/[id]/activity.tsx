@@ -60,9 +60,9 @@ interface CollectionActivitiesVariables {
 
 enum ActivityFilter {
   All = 'ALL',
-  Listings = 'LISTINGS',
-  Offers = 'OFFERS',
-  Sales = 'PURCHASES',
+  Listings = 'LISTING_CREATED',
+  Offers = 'OFFER_CREATED',
+  Sales = 'SALES',
 }
 
 interface CollectionActivityForm {
@@ -94,7 +94,7 @@ export default function CollectionActivity(): JSX.Element {
       },
     }
   );
-
+  console.log('activities', activitiesQuery.data?.collection.activities);
   useEffect(() => {
     const subscription = watch(({ type }) => {
       let variables: CollectionActivitiesVariables = {

@@ -6,10 +6,12 @@ import Link from 'next/link';
 import Icon from './Icon';
 
 export enum ActivityType {
-  Purchase = 'purchase',
-  Sell = 'sell',
-  Listing = 'listing',
-  Offer = 'offer',
+  ListingCreated = 'ListingCreated',
+  OfferCreated = 'OfferCreated',
+  ListingCanceled = 'ListingCanceled',
+  OfferCanceled = 'OfferCanceled',
+  Purchase = 'Purchase',
+  Sales = 'Sales',
 }
 
 interface ActivityProps {
@@ -83,11 +85,11 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
   >(() => {
     switch (type) {
       case ActivityType.Purchase:
-      case ActivityType.Sell:
+      case ActivityType.Sales:
         return [t('purchase'), CurrencyDollarIcon];
-      case ActivityType.Listing:
+      case ActivityType.ListingCreated:
         return [t('listing'), TagIcon];
-      case ActivityType.Offer:
+      case ActivityType.OfferCreated:
         return [t('offer'), HandRaisedIcon];
       default:
         return [];

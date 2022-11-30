@@ -125,11 +125,11 @@ function asActivityPrimaryWallet(
   }
 
   switch (type) {
-    case ActivityType.Purchase || ActivityType.Sell:
+    case ActivityType.Purchase || ActivityType.Sales:
       return wallets[1];
-    case ActivityType.Listing:
+    case ActivityType.ListingCreated:
       return wallets[0];
-    case ActivityType.Offer:
+    case ActivityType.OfferCreated:
       return wallets[0];
   }
 }
