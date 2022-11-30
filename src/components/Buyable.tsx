@@ -199,14 +199,16 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                   </p>
                   <p className="text-base font-medium text-gray-300">{data?.auctionHouse.fee}%</p>
                 </div>
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">
-                    {t('buyable.currentBalance')}
-                  </p>
-                  <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                    <Icon.Sol /> {viewer?.solBalance || '-'}
-                  </p>
-                </div>
+                {viewer && (
+                  <div className="flex flex-row justify-between">
+                    <p className="text-base font-medium text-gray-300">
+                      {t('buyable.currentBalance')}
+                    </p>
+                    <p className="flex flex-row items-center text-base font-medium text-gray-300">
+                      <Icon.Sol /> {viewer?.solBalance}
+                    </p>
+                  </div>
+                )}
               </section>
               <section className="flex flex-col gap-4">
                 {connected ? (

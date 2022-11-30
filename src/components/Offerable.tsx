@@ -249,7 +249,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                         />
                       </div>
                       {offerFormState.errors.amount?.message && (
-                        <p className="whitespace-nowrap text-left text-xs text-red-500">
+                        <p className="whitespace-nowrap text-left text-sm text-red-500">
                           {offerFormState.errors.amount?.message}
                         </p>
                       )}
@@ -260,6 +260,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       className="font-semibold"
                       block
                       htmlType="submit"
+                      disabled={offerFormState.isSubmitting || !offerFormState.isValid}
                       loading={offerFormState.isSubmitting}
                     >
                       {t('offer')}
@@ -271,6 +272,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                         onCancelMakeOffer();
                         setOpen(false);
                       }}
+                      disabled={offerFormState.isSubmitting}
                       background={ButtonBackground.Cell}
                       border={ButtonBorder.Gradient}
                       color={ButtonColor.Gradient}

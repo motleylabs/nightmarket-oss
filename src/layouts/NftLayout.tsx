@@ -650,7 +650,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   />
                 </div>
                 {offerFormState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
+                  <p className="whitespace-nowrap text-left text-sm text-red-500">
                     {offerFormState.errors.amount?.message}
                   </p>
                 )}
@@ -660,6 +660,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 className="mb-4"
                 htmlType="submit"
                 loading={offerFormState.isSubmitting}
+                disabled={offerFormState.isSubmitting || !offerFormState.isValid}
               >
                 {t('submitOffer')}
               </Button>
@@ -668,6 +669,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 border={ButtonBorder.Gray}
                 color={ButtonColor.Gray}
                 block
+                disabled={offerFormState.isSubmitting}
                 onClick={onCancelMakeOffer}
               >
                 {t('cancel', { ns: 'common' })}
