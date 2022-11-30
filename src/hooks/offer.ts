@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import zod from 'zod';
+import zod, { z, ZodObject } from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -34,6 +34,7 @@ import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { notifyInstructionError } from '../modules/bugsnag';
+import config from '../app.config';
 
 interface OfferForm {
   amount: string;
@@ -43,13 +44,6 @@ interface MakeOfferForm extends OfferForm {
   nft: Nft;
   auctionHouse: AuctionHouse;
 }
-
-const schema = zod.object({
-  amount: zod
-    .string()
-    .min(1, `Must enter an amount`)
-    .regex(/^[0-9.]*$/, { message: `Must be a number` }),
-});
 
 interface MakeOfferResponse {
   buyerTradeState: PublicKey;
@@ -73,18 +67,63 @@ interface MakeOfferContext {
   offerFormState: FormState<OfferForm>;
 }
 
-export function useMakeOffer(): MakeOfferContext {
+export function useMakeOffer(nft?: Nft): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
 
   const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
+
+  // minimum offer amount
+  const listing: AhListing | null = useMemo(() => {
+    const listing = nft?.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [nft?.listings]);
+
+  const offerSchema = useMemo(() => {
+    let validation: zod.ZodNumber = zod.number();
+
+    if (listing?.solPrice) {
+      validation = validation.min(
+        listing?.solPrice * config.offerMinimums.percentageListing,
+        `Your offer must be at least ${
+          config.offerMinimums.percentageListing * 100
+        }% of the listing price`
+      );
+    } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+      validation = validation.min(
+        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+          config.offerMinimums.percentageFloor,
+        `Your offer must be at least ${
+          config.offerMinimums.percentageFloor * 100
+        }% of the floor price`
+      );
+    }
+
+    const offerSchema = zod.object({
+      amount: zod.preprocess((input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      }, validation),
+    });
+
+    return offerSchema;
+  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+
   const {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
     formState: offerFormState,
   } = useForm<OfferForm>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(offerSchema),
   });
 
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
@@ -247,19 +286,66 @@ interface UpdateOfferContext {
   updateOfferFormState: FormState<OfferForm>;
 }
 
-export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferContext {
+export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): UpdateOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
   const [updateOffer, setUpdateOffer] = useState(false);
   const client = useApolloClient();
+
+  // minimum offer amount
+  const listing: AhListing | null = useMemo(() => {
+    const listing = nft?.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [nft?.listings]);
+
+  const offerSchema = zod.object({
+    amount: zod.preprocess((input) => {
+      const processed = zod
+        .string()
+        .min(1, `Must enter an amount`)
+        .regex(/^[0-9.]*$/, { message: `Must be a number` })
+        .transform(Number)
+        .safeParse(input);
+      return processed.success ? processed.data : input;
+    }, z.number()),
+  });
+
+  if (listing?.solPrice) {
+    offerSchema.extend({
+      amount: zod
+        .number()
+        .min(
+          listing.solPrice * config.offerMinimums.percentageListing,
+          `Your offer must be at least ${
+            config.offerMinimums.percentageListing * 100
+          }% of the listing`
+        ),
+    });
+  } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+    offerSchema.extend({
+      amount: zod
+        .number()
+        .min(
+          parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+            config.offerMinimums.percentageFloor,
+          `Your offer must be at least ${
+            config.offerMinimums.percentageFloor * 100
+          }% of the collection floor`
+        ),
+    });
+  }
+
   const {
     register: registerUpdateOffer,
     handleSubmit: handleSubmitUpdateOffer,
     reset,
     formState: updateOfferFormState,
   } = useForm<OfferForm>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(offerSchema),
   });
 
   useEffect(() => {
