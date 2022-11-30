@@ -152,7 +152,7 @@ function NavigationBar() {
       <ReportHeader reportQuery={reportQuery} />
       <header
         className={clsx(
-          'sticky top-0 z-10 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+          'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
           'grid grid-cols-4',
           'h-14 md:h-20',
           'bg-black bg-opacity-90'

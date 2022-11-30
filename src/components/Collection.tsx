@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useQuery } from '@apollo/client';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import Image from './../components/Image';
 import config from '../app.config';
 import { asCompactNumber } from '../modules/number';
 
@@ -410,23 +411,13 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
     return listing.auctionHouse?.address === config.auctionHouse;
   });
 
-  const [showImage, setShowImage] = useState(false);
-
   return (
     <Link href={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
         <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
-          <div
-            className={clsx(
-              'absolute inset-0   rounded-lg bg-gray-700 ',
-              // 'animate-pulse', // activating this eliminates the desired effect of showing the whole iamge at once
-              showImage && 'hidden'
-            )}
-          ></div>
-          <img
+          <Image
             src={nft.image}
-            alt={''}
-            onLoad={() => setShowImage(true)}
+            alt={`${nft.name} preview`}
             className="h-16 w-16 rounded-lg object-cover"
           />
         </div>

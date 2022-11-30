@@ -18,12 +18,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
 import config from '../app.config';
+import Image, { ImgBackdrop } from './../components/Image';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
-import { toast } from 'react-toastify';
-import { PublicKey } from '@solana/web3.js';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import Bugsnag from '@bugsnag/js';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -441,7 +438,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       </Head>
       <div className="align-self-start relative mb-10 lg:w-1/2 lg:pr-10 ">
         <div className="relative">
-          <img src={nft.image} alt="nft image" className="w-full rounded-lg object-cover" />
+          <Image
+            src={nft.image}
+            alt="nft image"
+            className="w-full rounded-lg object-cover"
+            backdrop={ImgBackdrop.Cell}
+          />
           <button
             onClick={() => setExpanded(true)}
             className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110 md:bottom-6 md:right-6"
@@ -475,11 +477,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           )}
         >
           <div>
-            <div className={`relative`}>
+            <div className="relative">
               <img
                 src={nft.image}
-                className={`aspect-auto h-full w-full rounded-lg`}
-                alt={nft.name + ' image'}
+                className="aspect-auto h-full w-full rounded-lg"
+                alt={`${nft.name} image`}
               />
             </div>
           </div>
@@ -687,7 +689,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
               <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
+                <Image
                   src={nft.image}
                   alt="nft image"
                   className="h-12 w-12 rounded-md object-cover"
@@ -766,7 +768,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
               <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
+                <Image
                   src={nft.image}
                   alt="nft image"
                   className="h-12 w-12 rounded-md object-cover"
@@ -831,7 +833,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </h2>
             <div className="px-6 pt-8 pb-6 md:pt-0">
               <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
+                <Image
                   src={nft.image}
                   alt="nft image"
                   className="h-12 w-12 rounded-md object-cover"

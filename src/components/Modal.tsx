@@ -32,7 +32,7 @@ export default function Modal(props: ModalProps) {
         >
           <div
             className={clsx(
-              'fixed inset-0 z-10', // bg-black bg-opacity-25
+              'fixed inset-0 z-40', // bg-black bg-opacity-25
               'bg-gray-800 bg-opacity-40 backdrop-blur-lg ',
               'transition-opacity duration-500 ease-in-out',
               'flex flex-col items-center justify-center',
@@ -46,7 +46,7 @@ export default function Modal(props: ModalProps) {
           />
         </Transition.Child>
 
-        <div className={clsx('fixed inset-0 z-20 overflow-y-auto')}>
+        <div className={clsx('fixed inset-0 z-40 overflow-y-auto')}>
           <div
             className={clsx(
               'flex min-h-full items-center justify-center  text-center',
