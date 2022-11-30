@@ -57,7 +57,7 @@ export default function NftActivity() {
       address: router.query.address as string,
     },
   });
-  console.log('activities', activitiesQuery.data?.nft.activities);
+
   if (activitiesQuery.loading) {
     return (
       <div className="flex flex-col gap-4">

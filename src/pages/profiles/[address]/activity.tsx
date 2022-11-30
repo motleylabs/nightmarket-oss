@@ -3,7 +3,7 @@ import { ReactElement, useEffect, useState } from 'react';
 import { WalletProfileQuery, ProfileActivitiesQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AuctionHouse, Wallet } from '../../../graphql.types';
+import { ActivityType as EventTypes, AuctionHouse, Wallet } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
@@ -54,7 +54,7 @@ interface ProfileActivitiesVariables {
   offset: number;
   limit: number;
   address: string;
-  eventTypes: string[] | null;
+  eventTypes: EventTypes[] | null;
 }
 
 enum ActivityFilter {
@@ -110,13 +110,13 @@ export default function ProfileActivity(): JSX.Element {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
-          variables.eventTypes = [ActivityFilter.Listings];
+          variables.eventTypes = [EventTypes.ListingCreated];
           break;
         case ActivityFilter.Offers:
-          variables.eventTypes = [ActivityFilter.Offers];
+          variables.eventTypes = [EventTypes.OfferCreated];
           break;
         case ActivityFilter.Sales:
-          variables.eventTypes = [ActivityFilter.Sales];
+          variables.eventTypes = [EventTypes.Sales];
           break;
       }
 
@@ -124,7 +124,6 @@ export default function ProfileActivity(): JSX.Element {
         setHasMore(wallet.activities.length > 0);
       });
     });
-
     return subscription.unsubscribe;
   }, [watch, router.query.address, activitiesQuery]);
 
@@ -189,7 +188,6 @@ export default function ProfileActivity(): JSX.Element {
                       data: { wallet },
                     } = await activitiesQuery.fetchMore({
                       variables: {
-                        ...activitiesQuery.variables,
                         offset: activitiesQuery.data?.wallet.activities.length,
                       },
                     });
