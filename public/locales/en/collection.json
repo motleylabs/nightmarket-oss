@@ -26,7 +26,8 @@
   },
   "trendingCollectionsSort": {
     "byVolumeTraded": "By volume traded",
-    "byFloorPrice": "By floor price"
+    "byFloorPrice": "By floor price",
+    "byListingsCount": "By listings count"
   },
   "showMoreCollections": "Show more collections",
   "floorPrice": "Floor price",
