@@ -365,7 +365,7 @@ const Home: NextPage = () => {
                         <div className="w-full line-clamp-2 md:w-24 xl:w-36">
                           {trend.collection?.name}
                         </div>
-                        <div className="flex gap-1  lg:justify-start lg:gap-8">
+                        <div className="flex gap-1  lg:justify-start lg:gap-4">
                           <Collection.List.DataPoint
                             value={selectedTrend.floorPrice}
                             icon={<Icon.Sol />}
@@ -398,7 +398,7 @@ const Home: NextPage = () => {
                         </div>
                       </Collection.List.Col>
                     </Link>
-                    <Collection.List.Col className="hidden gap-4 md:flex">
+                    <Collection.List.Col className="flex w-full gap-2 md:w-auto lg:gap-4">
                       <Collection.List.NftPreview collection={trend.collection?.id} />
                     </Collection.List.Col>
                   </Collection.List.Row>

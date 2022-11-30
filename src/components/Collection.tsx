@@ -264,7 +264,7 @@ interface CollectionListRowProps {
 }
 function CollectionListRow({ children }: CollectionListRowProps) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 xl:gap-7">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:flex-nowrap md:px-6 xl:gap-7">
       {children}
     </div>
   );
@@ -298,6 +298,20 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
 
   return (
     <>
+      <div className="flex w-full justify-between md:hidden">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(0, 4)
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
+        )}
+      </div>
       <div className="hidden justify-end gap-2 md:flex lg:gap-4">
         {nftPreviewQuery.loading ? (
           <>
