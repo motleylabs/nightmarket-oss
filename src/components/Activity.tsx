@@ -53,7 +53,7 @@ function ActivityMeta({ title, marketplace, source, type }: ActivityMetaProps): 
   return (
     <div className="flex flex-col justify-between">
       {cloneElement(title, { type })}
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row items-center gap-2">
         <img
           src={marketplace?.logo as string}
           alt={`nft marketplace logo ${marketplace?.name}`}
