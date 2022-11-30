@@ -1,5 +1,6 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
+import { RetryLink } from '@apollo/client/link/retry';
 import { offsetLimitPagination } from '@apollo/client/utilities';
 import BN from 'bn.js';
 import { viewerVar } from './cache';
@@ -20,7 +21,6 @@ import {
 import { ReadFieldFunction } from '@apollo/client/cache/core/types/common';
 import marketplaces from './marketplaces.json';
 import { asBasicNumber, asCompactNumber } from './modules/number';
-import { ActivityType } from './components/Activity';
 
 function asBN(value: string | number | null | undefined): BN {
   if (!value) {
@@ -166,11 +166,15 @@ function asNftMarketplace(
 }
 
 const client = new ApolloClient({
-  link: new BatchHttpLink({
-    uri: config.graphqlUrl,
-    batchMax: 5,
-    batchInterval: 20,
-  }),
+  link: new RetryLink().split(
+    (operation) => operation.operationName === 'CollectionNftPreviewsQuery',
+    new BatchHttpLink({
+      uri: config.graphqlUrl,
+      batchMax: 5,
+      batchInterval: 20,
+    }),
+    new HttpLink({ uri: config.graphqlUrl })
+  ),
   typeDefs,
   cache: new InMemoryCache({
     typePolicies: {
