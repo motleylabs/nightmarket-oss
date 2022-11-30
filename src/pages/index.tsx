@@ -236,7 +236,7 @@ const Home: NextPage = () => {
             <Drop
               launchDate={addDays(new Date(), 3)}
               title="Motley Friends"
-              description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi"
+              description={t('drops.motley')}
               price={128}
               supply={10000}
               image={'/images/launchpad/motley-launchpad-nft.png'}
