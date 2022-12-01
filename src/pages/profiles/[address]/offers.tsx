@@ -259,7 +259,6 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
                       data: { wallet },
                     } = await offersQuery.fetchMore({
                       variables: {
-                        ...offersQuery.variables,
                         offset: offersQuery.data?.wallet.offers.length,
                       },
                     });
