@@ -31,6 +31,7 @@ import Button, {
   ButtonColor,
   ButtonSize,
 } from '../../../components/Button';
+import clsx from 'clsx';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -158,6 +159,49 @@ export default function CollectionNfts() {
     },
   });
 
+  const FilterPills = ({ className }: { className?: string }) => {
+    return (
+      <div className={className}>
+        <div className="mb-6 mt-6 md:mt-0 md:mb-0">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+            <div className="flex flex-wrap gap-2">
+              <>
+                {selectedAttributes.map((groupAndattribute) => {
+                  const [group, attribute] = groupAndattribute.split(':', 2);
+
+                  return (
+                    <Sidebar.Pill
+                      key={groupAndattribute}
+                      label={attribute}
+                      onRemoveClick={() =>
+                        setValue('attributes', {
+                          ...attributes,
+                          [group]: attributes[group].filter((a) => a !== attribute),
+                        })
+                      }
+                    />
+                  );
+                })}
+                {selectedAttributes.length > 0 && (
+                  <Button
+                    background={ButtonBackground.Black}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                    size={ButtonSize.Tiny}
+                    onClick={onClearClick}
+                  >
+                    {t('common:clear')}
+                  </Button>
+                )}
+              </>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
       let variables: CollectionNFTsVariables = {
@@ -210,6 +254,7 @@ export default function CollectionNfts() {
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
+            {selectedAttributes.length > 0 && <FilterPills className="hidden md:flex" />}
             <div className="flex flex-col gap-2">
               {attributeGroupsQuery.loading ? (
                 <>
@@ -258,45 +303,7 @@ export default function CollectionNfts() {
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedAttributes.length > 0 && (
-              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
-                <div className="flex flex-col gap-2 ">
-                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-                  <div className="flex flex-wrap gap-2">
-                    <>
-                      {selectedAttributes.map((groupAndattribute) => {
-                        const [group, attribute] = groupAndattribute.split(':', 2);
-
-                        return (
-                          <Sidebar.Pill
-                            key={groupAndattribute}
-                            label={attribute}
-                            onRemoveClick={() =>
-                              setValue('attributes', {
-                                ...attributes,
-                                [group]: attributes[group].filter((a) => a !== attribute),
-                              })
-                            }
-                          />
-                        );
-                      })}
-                      {selectedAttributes.length > 0 && (
-                        <Button
-                          background={ButtonBackground.Black}
-                          border={ButtonBorder.Gradient}
-                          color={ButtonColor.Gradient}
-                          size={ButtonSize.Tiny}
-                          onClick={onClearClick}
-                        >
-                          {t('common:clear')}
-                        </Button>
-                      )}
-                    </>
-                  </div>
-                </div>
-              </div>
-            )}
-
+            {selectedAttributes.length > 0 && <FilterPills className="md:hidden" />}
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>

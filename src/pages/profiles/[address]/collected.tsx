@@ -117,6 +117,51 @@ export default function ProfileCollected({
     setValue('collections', []);
   };
 
+  const FilterPills = ({ className }: { className?: string }) => {
+    return (
+      <div className={className}>
+        <div className="mb-6 mt-6 md:mt-0 md:mb-4">
+          <div className="flex flex-col gap-2 ">
+            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+            <div className="flex flex-wrap gap-2">
+              <>
+                {selectedCollections.map((collectionId) => {
+                  return (
+                    <Sidebar.Pill
+                      key={collectionId!}
+                      label={
+                        walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                          (c) => c.collection?.id === collectionId
+                        )?.collection?.name || collectionId!
+                      }
+                      onRemoveClick={() =>
+                        setValue(
+                          'collections',
+                          selectedCollections.filter((c) => c !== collectionId)
+                        )
+                      }
+                    />
+                  );
+                })}
+                {selectedCollections.length > 0 && (
+                  <Button
+                    background={ButtonBackground.Black}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                    size={ButtonSize.Tiny}
+                    onClick={onClearClick}
+                  >
+                    {t('common:clear')}
+                  </Button>
+                )}
+              </>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const subscription = watch(({ collections }) => {
       let variables: CollectionNFTsVariables = {
@@ -155,6 +200,7 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
           <div className="mt-4 flex w-full flex-col gap-2">
+            {selectedCollections.length > 0 && <FilterPills className="hidden md:flex" />}
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />
@@ -209,46 +255,7 @@ export default function ProfileCollected({
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedCollections.length > 0 && (
-              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
-                <div className="flex flex-col gap-2 ">
-                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-                  <div className="flex flex-wrap gap-2">
-                    <>
-                      {selectedCollections.map((collectionId) => {
-                        return (
-                          <Sidebar.Pill
-                            key={collectionId!}
-                            label={
-                              walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-                                (c) => c.collection?.id === collectionId
-                              )?.collection?.name || collectionId!
-                            }
-                            onRemoveClick={() =>
-                              setValue(
-                                'collections',
-                                selectedCollections.filter((c) => c !== collectionId)
-                              )
-                            }
-                          />
-                        );
-                      })}
-                      {selectedCollections.length > 0 && (
-                        <Button
-                          background={ButtonBackground.Black}
-                          border={ButtonBorder.Gradient}
-                          color={ButtonColor.Gradient}
-                          size={ButtonSize.Tiny}
-                          onClick={onClearClick}
-                        >
-                          {t('common:clear')}
-                        </Button>
-                      )}
-                    </>
-                  </div>
-                </div>
-              </div>
-            )}
+            {selectedCollections.length > 0 && <FilterPills className="md:hidden" />}
 
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
