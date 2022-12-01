@@ -10,6 +10,8 @@ import Icon from '../components/Icon';
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
 import { subDays, format, startOfDay, endOfDay } from 'date-fns';
+import Link from 'next/link';
+import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 interface CollectionLayoutProps {
   children: ReactElement;
@@ -54,6 +56,7 @@ enum CollectionPath {
 }
 
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
+  console.log('test', collection);
   const { t } = useTranslation(['collection', 'common']);
   const router = useRouter();
   const startTime = format(
@@ -92,6 +95,44 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             </div>
             <div className="space-y-4 md:mt-2">
               <Overview.Title>{collection.name}</Overview.Title>
+              {[collection.twitterUrl, collection.websiteUrl, collection.discordUrl].some(
+                Boolean
+              ) && (
+                <div className="flex gap-4 text-gray-300">
+                  {collection.twitterUrl && (
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="hover:text-white"
+                      href={collection.twitterUrl}
+                    >
+                      <Icon.Twitter className="h-5 w-auto" />
+                    </Link>
+                  )}
+                  {collection.websiteUrl && (
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="hover:text-white"
+                      href={collection.websiteUrl}
+                    >
+                      {/* <GlobeAltIcon className="h-5 w-auto" /> */}
+                      <Icon.Web className="h-5 w-auto" />
+                    </Link>
+                  )}
+                  {collection.discordUrl && (
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="hover:text-white"
+                      href={collection.discordUrl}
+                    >
+                      <Icon.Discord className="h-5 w-auto" />
+                    </Link>
+                  )}
+                </div>
+              )}
+
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',
