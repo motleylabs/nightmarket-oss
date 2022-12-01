@@ -11,8 +11,6 @@ import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
 import { subDays, format, startOfDay, endOfDay } from 'date-fns';
 import Link from 'next/link';
-import { GlobeAltIcon } from '@heroicons/react/24/outline';
-
 interface CollectionLayoutProps {
   children: ReactElement;
   collection: Collection;
@@ -56,7 +54,6 @@ enum CollectionPath {
 }
 
 function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.Element {
-  console.log('test', collection);
   const { t } = useTranslation(['collection', 'common']);
   const router = useRouter();
   const startTime = format(
