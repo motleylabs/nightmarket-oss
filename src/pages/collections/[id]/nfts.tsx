@@ -25,13 +25,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
 import config from '../../../app.config';
-import Button, {
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-  ButtonSize,
-} from '../../../components/Button';
-import clsx from 'clsx';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -128,10 +121,6 @@ export default function CollectionNfts() {
 
   const attributes = watch('attributes');
 
-  const onClearClick = () => {
-    setValue('attributes', {});
-  };
-
   // does not work as a useMemo
   const selectedAttributes: string[] = Object.entries(attributes)
     .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
@@ -159,47 +148,18 @@ export default function CollectionNfts() {
     },
   });
 
-  const FilterPills = ({ className }: { className?: string }) => {
-    return (
-      <div className={className}>
-        <div className="mb-6 mt-6 md:mt-0 md:mb-0">
-          <div className="flex flex-col gap-2">
-            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-            <div className="flex flex-wrap gap-2">
-              <>
-                {selectedAttributes.map((groupAndattribute) => {
-                  const [group, attribute] = groupAndattribute.split(':', 2);
+  const getPillLabel = (item: string) => item.split(':', 2)[1];
 
-                  return (
-                    <Sidebar.Pill
-                      key={groupAndattribute}
-                      label={attribute}
-                      onRemoveClick={() =>
-                        setValue('attributes', {
-                          ...attributes,
-                          [group]: attributes[group].filter((a) => a !== attribute),
-                        })
-                      }
-                    />
-                  );
-                })}
-                {selectedAttributes.length > 0 && (
-                  <Button
-                    background={ButtonBackground.Black}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                    size={ButtonSize.Tiny}
-                    onClick={onClearClick}
-                  >
-                    {t('common:clear')}
-                  </Button>
-                )}
-              </>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const onClearPillsClick = () => {
+    setValue('attributes', {});
+  };
+
+  const onRemovePillClick = (item: string) => {
+    const [group, attribute] = item.split(':', 2);
+    setValue('attributes', {
+      ...attributes,
+      [group]: attributes[group].filter((a) => a !== attribute),
+    });
   };
 
   useEffect(() => {
@@ -254,7 +214,15 @@ export default function CollectionNfts() {
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
-            {selectedAttributes.length > 0 && <FilterPills className="hidden md:flex" />}
+            {selectedAttributes.length > 0 && (
+              <Sidebar.FilterPills
+                className="hidden md:mb-1 md:flex"
+                getLabel={getPillLabel}
+                selectedItems={selectedAttributes}
+                removeClick={onRemovePillClick}
+                clearClick={onClearPillsClick}
+              />
+            )}
             <div className="flex flex-col gap-2">
               {attributeGroupsQuery.loading ? (
                 <>
@@ -303,7 +271,15 @@ export default function CollectionNfts() {
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedAttributes.length > 0 && <FilterPills className="md:hidden" />}
+            {selectedAttributes.length > 0 && (
+              <Sidebar.FilterPills
+                className="md:hidden"
+                getLabel={getPillLabel}
+                selectedItems={selectedAttributes}
+                removeClick={onRemovePillClick}
+                clearClick={onClearPillsClick}
+              />
+            )}
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>

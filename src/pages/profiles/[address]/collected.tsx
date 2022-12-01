@@ -25,12 +25,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
-import Button, {
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-  ButtonSize,
-} from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -111,56 +105,23 @@ export default function ProfileCollected({
     },
   });
 
-  const selectedCollections = watch('collections') || [];
+  const selectedCollections: string[] =
+    (watch('collections')?.filter((item) => !!item) as string[]) || ([] as string[]);
 
-  const onClearClick = () => {
+  const getPillLabel = (item: string) =>
+    walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+      (c) => c.collection?.id === item
+    )?.collection?.name || item!;
+
+  const onClearPillsClick = () => {
     setValue('collections', []);
   };
 
-  const FilterPills = ({ className }: { className?: string }) => {
-    return (
-      <div className={className}>
-        <div className="mb-6 mt-6 md:mt-0 md:mb-4">
-          <div className="flex flex-col gap-2 ">
-            <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-            <div className="flex flex-wrap gap-2">
-              <>
-                {selectedCollections.map((collectionId) => {
-                  return (
-                    <Sidebar.Pill
-                      key={collectionId!}
-                      label={
-                        walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-                          (c) => c.collection?.id === collectionId
-                        )?.collection?.name || collectionId!
-                      }
-                      onRemoveClick={() =>
-                        setValue(
-                          'collections',
-                          selectedCollections.filter((c) => c !== collectionId)
-                        )
-                      }
-                    />
-                  );
-                })}
-                {selectedCollections.length > 0 && (
-                  <Button
-                    background={ButtonBackground.Black}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                    size={ButtonSize.Tiny}
-                    onClick={onClearClick}
-                  >
-                    {t('common:clear')}
-                  </Button>
-                )}
-              </>
-            </div>
-          </div>
-        </div>
-      </div>
+  const onRemovePillClick = (item: string) =>
+    setValue(
+      'collections',
+      selectedCollections.filter((c) => c !== item)
     );
-  };
 
   useEffect(() => {
     const subscription = watch(({ collections }) => {
@@ -200,7 +161,15 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
           <div className="mt-4 flex w-full flex-col gap-2">
-            {selectedCollections.length > 0 && <FilterPills className="hidden md:flex" />}
+            {selectedCollections.length > 0 && (
+              <Sidebar.FilterPills
+                className="hidden md:flex"
+                getLabel={getPillLabel}
+                selectedItems={selectedCollections}
+                removeClick={onRemovePillClick}
+                clearClick={onClearPillsClick}
+              />
+            )}
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />
@@ -255,7 +224,15 @@ export default function ProfileCollected({
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedCollections.length > 0 && <FilterPills className="md:hidden" />}
+            {selectedCollections.length > 0 && (
+              <Sidebar.FilterPills
+                className="md:hidden"
+                getLabel={getPillLabel}
+                selectedItems={selectedCollections}
+                removeClick={onRemovePillClick}
+                clearClick={onClearPillsClick}
+              />
+            )}
 
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (

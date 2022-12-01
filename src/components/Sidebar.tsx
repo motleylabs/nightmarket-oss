@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
-import Button from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 
 export function Sidebar(): JSX.Element {
   return <div></div>;
@@ -100,6 +100,54 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
 
 Sidebar.Panel = SidebarPanel;
 
+interface SidebarPillsContainerProps {
+  selectedItems: string[];
+  removeClick: (item: string) => void;
+  getLabel: (item: string) => string;
+  clearClick?: () => void;
+  className?: string;
+}
+
+function SidebarFilterPills({
+  selectedItems,
+  removeClick,
+  getLabel,
+  clearClick,
+  className,
+}: SidebarPillsContainerProps) {
+  const { t } = useTranslation(['common']);
+  return (
+    <div className={clsx('mb-6 mt-6 flex flex-col gap-2 md:mt-0 md:mb-4', className)}>
+      <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
+      <div className="flex flex-wrap gap-2">
+        <>
+          {selectedItems.map((item) => {
+            return (
+              <Sidebar.Pill
+                key={item}
+                label={getLabel(item)}
+                onRemoveClick={() => removeClick(item)}
+              />
+            );
+          })}
+          {selectedItems && selectedItems.length > 0 && (
+            <Button
+              background={ButtonBackground.Black}
+              border={ButtonBorder.Gradient}
+              color={ButtonColor.Gradient}
+              size={ButtonSize.Tiny}
+              onClick={clearClick}
+            >
+              {t('common:clear')}
+            </Button>
+          )}
+        </>
+      </div>
+    </div>
+  );
+}
+Sidebar.FilterPills = SidebarFilterPills;
+
 interface SidebarPillProps {
   key: string;
   label: string;
@@ -124,6 +172,7 @@ function SidebarPill({ key, label, onRemoveClick, className }: SidebarPillProps)
   );
 }
 Sidebar.Pill = SidebarPill;
+
 interface SidebarContentProps {
   children: ReactNode;
   open?: boolean;
