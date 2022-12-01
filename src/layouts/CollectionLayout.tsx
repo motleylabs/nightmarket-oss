@@ -113,7 +113,6 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                       className="hover:text-white"
                       href={collection.websiteUrl}
                     >
-                      {/* <GlobeAltIcon className="h-5 w-auto" /> */}
                       <Icon.Web className="h-5 w-auto" />
                     </Link>
                   )}
