@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ReactNode, Children, cloneElement } from 'react';
 import { useTranslation } from 'next-i18next';
-import Button from './Button';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 
 export function Sidebar(): JSX.Element {
   return <div></div>;
@@ -99,6 +99,75 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
 }
 
 Sidebar.Panel = SidebarPanel;
+
+export interface PillItem {
+  key: string;
+  label: string;
+}
+interface SidebarPillsProps {
+  selectedItems: PillItem[];
+  removeClick: (item: PillItem) => void;
+  clearClick?: () => void;
+  className?: string;
+}
+
+function SidebarPills({ selectedItems, removeClick, clearClick, className }: SidebarPillsProps) {
+  const { t } = useTranslation(['common']);
+  return (
+    <div className={clsx('mb-4 mt-4 flex flex-col gap-2 md:mb-2', className)}>
+      {/*<span className="text-sm text-gray-200">{`${t('filters')}:`}</span> */}
+      <div className="flex flex-wrap gap-2">
+        <>
+          {selectedItems.map((item) => {
+            return (
+              <Sidebar.Pill
+                key={item.key}
+                pillItem={item}
+                onRemoveClick={() => removeClick(item)}
+              />
+            );
+          })}
+          {selectedItems && selectedItems.length > 0 && (
+            <Button
+              background={ButtonBackground.Black}
+              border={ButtonBorder.Gradient}
+              color={ButtonColor.Gradient}
+              size={ButtonSize.Tiny}
+              onClick={clearClick}
+            >
+              {t('common:clear')}
+            </Button>
+          )}
+        </>
+      </div>
+    </div>
+  );
+}
+Sidebar.Pills = SidebarPills;
+
+interface SidebarPillProps {
+  pillItem: PillItem;
+  onRemoveClick: () => void;
+  className?: string;
+}
+
+function SidebarPill({ pillItem, onRemoveClick, className }: SidebarPillProps) {
+  return (
+    <div
+      className={clsx(
+        'rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500',
+        className
+      )}
+      key={pillItem.key}
+    >
+      <div className="flex gap-2">
+        {pillItem.label}
+        <XMarkIcon className="h-4 w-4 cursor-pointer" onClick={onRemoveClick} />
+      </div>
+    </div>
+  );
+}
+Sidebar.Pill = SidebarPill;
 
 interface SidebarContentProps {
   children: ReactNode;

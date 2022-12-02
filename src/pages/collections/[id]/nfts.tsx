@@ -10,8 +10,8 @@ import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../../graphql.types';
-import { PillItem, Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { Toolbar } from '../../../components/Toolbar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
@@ -25,7 +25,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
 import config from '../../../app.config';
-import { string } from 'zod';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -198,17 +197,7 @@ export default function CollectionNfts() {
 
   return (
     <>
-      <Toolbar
-        pills={
-          selectedAttributes.length > 0 && (
-            <Toolbar.Pills
-              items={selectedAttributes}
-              removeClick={onRemovePillClick}
-              clearClick={onClearPillsClick}
-            />
-          )
-        }
-      >
+      <Toolbar>
         <Sidebar.Control label={t('filters')} open={open} onChange={toggleSidebar} />
         <Controller
           control={control}
@@ -226,14 +215,6 @@ export default function CollectionNfts() {
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
-            {/* {selectedAttributes.length > 0 && (
-              <Toolbar.Pills
-                className="hidden md:mb-1 md:flex"
-                items={selectedAttributes}
-                removeClick={onRemovePillClick}
-                clearClick={onClearPillsClick}
-              />
-            )} */}
             <div className="flex flex-col gap-2">
               {attributeGroupsQuery.loading ? (
                 <>
@@ -282,14 +263,13 @@ export default function CollectionNfts() {
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {/* {selectedAttributes.length > 0 && (
-              <Toolbar.Pills
-                className="md:hidden"
-                items={selectedAttributes}
+            {selectedAttributes.length > 0 && (
+              <Sidebar.Pills
+                selectedItems={selectedAttributes}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}
               />
-            )} */}
+            )}
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>

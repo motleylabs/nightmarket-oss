@@ -9,8 +9,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AuctionHouse, Wallet } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { PillItem, Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { Toolbar } from '../../../components/Toolbar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
@@ -152,17 +152,7 @@ export default function ProfileCollected({
 
   return (
     <>
-      <Toolbar
-        pills={
-          pillItems.length > 0 && (
-            <Toolbar.Pills
-              items={pillItems}
-              removeClick={onRemovePillClick}
-              clearClick={onClearPillsClick}
-            />
-          )
-        }
-      >
+      <Toolbar>
         <Sidebar.Control
           label={t('filters')}
           open={open}
@@ -176,14 +166,6 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
           <div className="mt-4 flex w-full flex-col gap-2">
-            {/* {pillItems.length > 0 && (
-              <Toolbar.Pills
-                className="hidden md:flex"
-                items={pillItems}
-                removeClick={onRemovePillClick}
-                clearClick={onClearPillsClick}
-              />
-            )} */}
             {walletProfileClientQuery.loading ? (
               <>
                 <Collection.Option.Skeleton />
@@ -238,14 +220,13 @@ export default function ProfileCollected({
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {/* {pillItems.length > 0 && (
-              <Toolbar.Pills
-                className="md:hidden"
-                items={pillItems}
+            {pillItems.length > 0 && (
+              <Sidebar.Pills
+                selectedItems={pillItems}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}
               />
-            )} */}
+            )}
 
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
