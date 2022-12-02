@@ -101,9 +101,8 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
 Sidebar.Panel = SidebarPanel;
 
 interface SidebarPillsContainerProps {
-  selectedItems: string[];
-  removeClick: (item: string) => void;
-  getLabel: (item: string) => string;
+  selectedItems: PillItem[];
+  removeClick: (item: PillItem) => void;
   clearClick?: () => void;
   className?: string;
 }
@@ -111,7 +110,6 @@ interface SidebarPillsContainerProps {
 function SidebarFilterPills({
   selectedItems,
   removeClick,
-  getLabel,
   clearClick,
   className,
 }: SidebarPillsContainerProps) {
@@ -124,8 +122,8 @@ function SidebarFilterPills({
           {selectedItems.map((item) => {
             return (
               <Sidebar.Pill
-                key={item}
-                label={getLabel(item)}
+                key={item.key}
+                label={item.label}
                 onRemoveClick={() => removeClick(item)}
               />
             );
@@ -147,6 +145,11 @@ function SidebarFilterPills({
   );
 }
 Sidebar.FilterPills = SidebarFilterPills;
+
+export interface PillItem {
+  key: string;
+  label: string;
+}
 
 interface SidebarPillProps {
   key: string;

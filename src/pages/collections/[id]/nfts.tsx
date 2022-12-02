@@ -11,7 +11,7 @@ import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
@@ -25,6 +25,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
 import config from '../../../app.config';
+import { string } from 'zod';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -122,9 +123,12 @@ export default function CollectionNfts() {
   const attributes = watch('attributes');
 
   // does not work as a useMemo
-  const selectedAttributes: string[] = Object.entries(attributes)
-    .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
-    .filter((a) => a)
+  const selectedAttributes: PillItem[] = Object.entries(attributes)
+    .map(([group, attributes]) =>
+      attributes?.map((a) => {
+        return { key: `${group}:${a}`, label: a };
+      })
+    )
     .flat();
 
   const attributeGroupsQuery = useQuery<
@@ -148,14 +152,12 @@ export default function CollectionNfts() {
     },
   });
 
-  const getPillLabel = (item: string) => item.split(':', 2)[1];
-
   const onClearPillsClick = () => {
     setValue('attributes', {});
   };
 
-  const onRemovePillClick = (item: string) => {
-    const [group, attribute] = item.split(':', 2);
+  const onRemovePillClick = (item: PillItem) => {
+    const [group, attribute] = item.key.split(':', 2);
     setValue('attributes', {
       ...attributes,
       [group]: attributes[group].filter((a) => a !== attribute),
@@ -217,7 +219,6 @@ export default function CollectionNfts() {
             {selectedAttributes.length > 0 && (
               <Sidebar.FilterPills
                 className="hidden md:mb-1 md:flex"
-                getLabel={getPillLabel}
                 selectedItems={selectedAttributes}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}
@@ -274,7 +275,6 @@ export default function CollectionNfts() {
             {selectedAttributes.length > 0 && (
               <Sidebar.FilterPills
                 className="md:hidden"
-                getLabel={getPillLabel}
                 selectedItems={selectedAttributes}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}

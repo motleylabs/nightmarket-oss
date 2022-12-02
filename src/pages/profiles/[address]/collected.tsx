@@ -10,7 +10,7 @@ import { AuctionHouse, Wallet } from '../../../graphql.types';
 import { ReactElement, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
@@ -105,22 +105,27 @@ export default function ProfileCollected({
     },
   });
 
-  const selectedCollections: string[] =
-    (watch('collections')?.filter((item) => !!item) as string[]) || ([] as string[]);
-
-  const getPillLabel = (item: string) =>
-    walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-      (c) => c.collection?.id === item
-    )?.collection?.name || item!;
+  const pillItems: PillItem[] =
+    watch('collections')
+      ?.filter((id) => !!id)
+      .map((id) => {
+        return {
+          key: id!,
+          label:
+            walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+              (c) => c.collection?.id === id
+            )?.collection?.name || id!,
+        };
+      }) || [];
 
   const onClearPillsClick = () => {
     setValue('collections', []);
   };
 
-  const onRemovePillClick = (item: string) =>
+  const onRemovePillClick = (item: PillItem) =>
     setValue(
       'collections',
-      selectedCollections.filter((c) => c !== item)
+      pillItems.filter((c) => c.key !== item.key).map((c) => c.key)
     );
 
   useEffect(() => {
@@ -161,11 +166,10 @@ export default function ProfileCollected({
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
         >
           <div className="mt-4 flex w-full flex-col gap-2">
-            {selectedCollections.length > 0 && (
+            {pillItems.length > 0 && (
               <Sidebar.FilterPills
                 className="hidden md:flex"
-                getLabel={getPillLabel}
-                selectedItems={selectedCollections}
+                selectedItems={pillItems}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}
               />
@@ -224,11 +228,10 @@ export default function ProfileCollected({
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedCollections.length > 0 && (
+            {pillItems.length > 0 && (
               <Sidebar.FilterPills
                 className="md:hidden"
-                getLabel={getPillLabel}
-                selectedItems={selectedCollections}
+                selectedItems={pillItems}
                 removeClick={onRemovePillClick}
                 clearClick={onClearPillsClick}
               />
