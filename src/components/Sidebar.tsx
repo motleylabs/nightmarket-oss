@@ -114,28 +114,23 @@ interface SidebarPillsProps {
 function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps) {
   const { t } = useTranslation(['common']);
   return (
-    <div className={clsx('mb-4 mt-4 flex flex-col gap-2 md:mb-2', className)}>
-      {/*<span className="text-sm text-gray-200">{`${t('filters')}:`}</span> */}
-      <div className="flex flex-wrap gap-2">
-        <>
-          {items.map((item) => {
-            return (
-              <Sidebar.Pill key={item.key} pillItem={item} onRemoveClick={() => onRemove(item)} />
-            );
-          })}
-          {items.length > 0 && (
-            <Button
-              background={ButtonBackground.Black}
-              border={ButtonBorder.Gradient}
-              color={ButtonColor.Gradient}
-              size={ButtonSize.Tiny}
-              onClick={onClear}
-            >
-              {t('clear')}
-            </Button>
-          )}
-        </>
-      </div>
+    <div className={clsx('mb-4 mt-4 flex flex-wrap gap-2 md:mb-2', className)}>
+      <>
+        {items.map((item) => {
+          return <Sidebar.Pill key={item.key} pillItem={item} onRemove={() => onRemove(item)} />;
+        })}
+        {items.length > 0 && (
+          <Button
+            background={ButtonBackground.Black}
+            border={ButtonBorder.Gradient}
+            color={ButtonColor.Gradient}
+            size={ButtonSize.Tiny}
+            onClick={onClear}
+          >
+            {t('clear')}
+          </Button>
+        )}
+      </>
     </div>
   );
 }
@@ -143,11 +138,11 @@ Sidebar.Pills = SidebarPills;
 
 interface SidebarPillProps {
   pillItem: PillItem;
-  onRemoveClick: () => void;
+  onRemove: () => void;
   className?: string;
 }
 
-function SidebarPill({ pillItem, onRemoveClick, className }: SidebarPillProps) {
+function SidebarPill({ pillItem, onRemove, className }: SidebarPillProps) {
   return (
     <div
       className={clsx(
@@ -158,7 +153,7 @@ function SidebarPill({ pillItem, onRemoveClick, className }: SidebarPillProps) {
     >
       <div className="flex gap-2">
         {pillItem.label}
-        <XMarkIcon className="h-4 w-4 cursor-pointer" onClick={onRemoveClick} />
+        <XMarkIcon className="h-4 w-4 cursor-pointer" onClick={onRemove} />
       </div>
     </div>
   );
