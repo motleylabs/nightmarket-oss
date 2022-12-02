@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -121,14 +121,17 @@ export default function CollectionNfts() {
 
   const attributes = watch('attributes');
 
-  // does not work as a useMemo
-  const selectedAttributes: PillItem[] = Object.entries(attributes)
-    .map(([group, attributes]) =>
-      attributes?.map((a) => {
-        return { key: `${group}:${a}`, label: a };
-      })
-    )
-    .flat();
+  const selectedAttributes: PillItem[] = useMemo(
+    () =>
+      Object.entries(attributes)
+        .map(([group, attributes]) =>
+          attributes?.map((a) => {
+            return { key: `${group}:${a}`, label: a };
+          })
+        )
+        .flat(),
+    [attributes]
+  );
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -151,17 +154,20 @@ export default function CollectionNfts() {
     },
   });
 
-  const onClearPillsClick = () => {
+  const onClearPills = useCallback(() => {
     setValue('attributes', {});
-  };
+  }, [setValue]);
 
-  const onRemovePillClick = (item: PillItem) => {
-    const [group, attribute] = item.key.split(':', 2);
-    setValue('attributes', {
-      ...attributes,
-      [group]: attributes[group].filter((a) => a !== attribute),
-    });
-  };
+  const onRemovePill = useCallback(
+    (item: PillItem) => {
+      const [group, attribute] = item.key.split(':', 2);
+      setValue('attributes', {
+        ...attributes,
+        [group]: attributes[group].filter((a) => a !== attribute),
+      });
+    },
+    [attributes, setValue]
+  );
 
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
@@ -265,9 +271,9 @@ export default function CollectionNfts() {
           <>
             {selectedAttributes.length > 0 && (
               <Sidebar.Pills
-                selectedItems={selectedAttributes}
-                removeClick={onRemovePillClick}
-                clearClick={onClearPillsClick}
+                items={selectedAttributes}
+                onRemove={onRemovePill}
+                onClear={onClearPills}
               />
             )}
             <Offerable connected={Boolean(publicKey)}>

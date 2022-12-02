@@ -105,37 +105,33 @@ export interface PillItem {
   label: string;
 }
 interface SidebarPillsProps {
-  selectedItems: PillItem[];
-  removeClick: (item: PillItem) => void;
-  clearClick?: () => void;
+  items: PillItem[];
+  onRemove: (item: PillItem) => void;
+  onClear?: () => void;
   className?: string;
 }
 
-function SidebarPills({ selectedItems, removeClick, clearClick, className }: SidebarPillsProps) {
+function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps) {
   const { t } = useTranslation(['common']);
   return (
     <div className={clsx('mb-4 mt-4 flex flex-col gap-2 md:mb-2', className)}>
       {/*<span className="text-sm text-gray-200">{`${t('filters')}:`}</span> */}
       <div className="flex flex-wrap gap-2">
         <>
-          {selectedItems.map((item) => {
+          {items.map((item) => {
             return (
-              <Sidebar.Pill
-                key={item.key}
-                pillItem={item}
-                onRemoveClick={() => removeClick(item)}
-              />
+              <Sidebar.Pill key={item.key} pillItem={item} onRemoveClick={() => onRemove(item)} />
             );
           })}
-          {selectedItems && selectedItems.length > 0 && (
+          {items.length > 0 && (
             <Button
               background={ButtonBackground.Black}
               border={ButtonBorder.Gradient}
               color={ButtonColor.Gradient}
               size={ButtonSize.Tiny}
-              onClick={clearClick}
+              onClick={onClear}
             >
-              {t('common:clear')}
+              {t('clear')}
             </Button>
           )}
         </>

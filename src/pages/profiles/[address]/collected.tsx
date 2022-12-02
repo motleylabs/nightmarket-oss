@@ -7,7 +7,7 @@ import ProfileLayout, {
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AuctionHouse, Wallet } from '../../../graphql.types';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
 import { PillItem, Sidebar } from '../../../components/Sidebar';
@@ -105,28 +105,41 @@ export default function ProfileCollected({
     },
   });
 
-  const pillItems: PillItem[] =
-    watch('collections')
-      ?.filter((id) => !!id)
-      .map((id) => {
-        return {
-          key: id!,
-          label:
-            walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-              (c) => c.collection?.id === id
-            )?.collection?.name || id!,
-        };
-      }) || [];
+  const collections = watch('collections');
 
-  const onClearPillsClick = () => {
+  const pillItems: PillItem[] = useMemo(
+    () =>
+      collections?.reduce(
+        (arr, id) =>
+          id
+            ? [
+                ...arr,
+                {
+                  key: id,
+                  label:
+                    walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                      (c) => c.collection?.id === id
+                    )?.collection?.name || id,
+                },
+              ]
+            : [...arr],
+        [] as PillItem[]
+      ) || [],
+    [walletProfileClientQuery.data?.wallet?.collectedCollections, collections]
+  );
+
+  const onClearPills = useCallback(() => {
     setValue('collections', []);
-  };
+  }, [setValue]);
 
-  const onRemovePillClick = (item: PillItem) =>
-    setValue(
-      'collections',
-      pillItems.filter((c) => c.key !== item.key).map((c) => c.key)
-    );
+  const onRemovePill = useCallback(
+    (item: PillItem) =>
+      setValue(
+        'collections',
+        pillItems.filter((c) => c.key !== item.key).map((c) => c.key)
+      ),
+    [pillItems, setValue]
+  );
 
   useEffect(() => {
     const subscription = watch(({ collections }) => {
@@ -221,11 +234,7 @@ export default function ProfileCollected({
         <Sidebar.Content>
           <>
             {pillItems.length > 0 && (
-              <Sidebar.Pills
-                selectedItems={pillItems}
-                removeClick={onRemovePillClick}
-                clearClick={onClearPillsClick}
-              />
+              <Sidebar.Pills items={pillItems} onRemove={onRemovePill} onClear={onClearPills} />
             )}
 
             <Offerable connected={Boolean(publicKey)}>
