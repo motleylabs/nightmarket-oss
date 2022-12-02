@@ -1,5 +1,5 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CollectionQuery,
   CollectionNFTsQuery,
@@ -11,7 +11,7 @@ import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
@@ -25,12 +25,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Buyable } from '../../../components/Buyable';
 import Select from '../../../components/Select';
 import config from '../../../app.config';
-import Button, {
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-  ButtonSize,
-} from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -127,15 +121,17 @@ export default function CollectionNfts() {
 
   const attributes = watch('attributes');
 
-  const onClearClick = () => {
-    setValue('attributes', {});
-  };
-
-  // does not work as a useMemo
-  const selectedAttributes: string[] = Object.entries(attributes)
-    .map(([group, attributes]) => attributes?.map((a) => `${group}:${a}`))
-    .filter((a) => a)
-    .flat();
+  const selectedAttributes: PillItem[] = useMemo(
+    () =>
+      Object.entries(attributes)
+        .map(([group, attributes]) =>
+          attributes?.map((a) => {
+            return { key: `${group}:${a}`, label: a };
+          })
+        )
+        .flat(),
+    [attributes]
+  );
 
   const attributeGroupsQuery = useQuery<
     CollectionAttributeGroupsData,
@@ -157,6 +153,21 @@ export default function CollectionNfts() {
       auctionHouse: config.auctionHouse,
     },
   });
+
+  const onClearPills = useCallback(() => {
+    setValue('attributes', {});
+  }, [setValue]);
+
+  const onRemovePill = useCallback(
+    (item: PillItem) => {
+      const [group, attribute] = item.key.split(':', 2);
+      setValue('attributes', {
+        ...attributes,
+        [group]: attributes[group].filter((a) => a !== attribute),
+      });
+    },
+    [attributes, setValue]
+  );
 
   useEffect(() => {
     const subscription = watch(({ attributes, sortBySelect }) => {
@@ -259,44 +270,12 @@ export default function CollectionNfts() {
         <Sidebar.Content>
           <>
             {selectedAttributes.length > 0 && (
-              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
-                <div className="flex flex-col gap-2 ">
-                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-                  <div className="flex flex-wrap gap-2">
-                    <>
-                      {selectedAttributes.map((groupAndattribute) => {
-                        const [group, attribute] = groupAndattribute.split(':', 2);
-
-                        return (
-                          <Sidebar.Pill
-                            key={groupAndattribute}
-                            label={attribute}
-                            onRemoveClick={() =>
-                              setValue('attributes', {
-                                ...attributes,
-                                [group]: attributes[group].filter((a) => a !== attribute),
-                              })
-                            }
-                          />
-                        );
-                      })}
-                      {selectedAttributes.length > 0 && (
-                        <Button
-                          background={ButtonBackground.Black}
-                          border={ButtonBorder.Gradient}
-                          color={ButtonColor.Gradient}
-                          size={ButtonSize.Tiny}
-                          onClick={onClearClick}
-                        >
-                          {t('common:clear')}
-                        </Button>
-                      )}
-                    </>
-                  </div>
-                </div>
-              </div>
+              <Sidebar.Pills
+                items={selectedAttributes}
+                onRemove={onRemovePill}
+                onClear={onClearPills}
+              />
             )}
-
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>

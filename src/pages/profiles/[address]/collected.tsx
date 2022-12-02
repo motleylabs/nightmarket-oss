@@ -7,10 +7,10 @@ import ProfileLayout, {
 import client from './../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { AuctionHouse, Wallet } from '../../../graphql.types';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Toolbar } from '../../../components/Toolbar';
-import { Sidebar } from '../../../components/Sidebar';
+import { PillItem, Sidebar } from '../../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
@@ -25,12 +25,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
-import Button, {
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-  ButtonSize,
-} from '../../../components/Button';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -111,11 +105,41 @@ export default function ProfileCollected({
     },
   });
 
-  const selectedCollections = watch('collections') || [];
+  const collections = watch('collections');
 
-  const onClearClick = () => {
+  const pillItems: PillItem[] = useMemo(
+    () =>
+      collections?.reduce(
+        (arr, id) =>
+          id
+            ? [
+                ...arr,
+                {
+                  key: id,
+                  label:
+                    walletProfileClientQuery.data?.wallet?.collectedCollections.find(
+                      (c) => c.collection?.id === id
+                    )?.collection?.name || id,
+                },
+              ]
+            : [...arr],
+        [] as PillItem[]
+      ) || [],
+    [walletProfileClientQuery.data?.wallet?.collectedCollections, collections]
+  );
+
+  const onClearPills = useCallback(() => {
     setValue('collections', []);
-  };
+  }, [setValue]);
+
+  const onRemovePill = useCallback(
+    (item: PillItem) =>
+      setValue(
+        'collections',
+        pillItems.filter((c) => c.key !== item.key).map((c) => c.key)
+      ),
+    [pillItems, setValue]
+  );
 
   useEffect(() => {
     const subscription = watch(({ collections }) => {
@@ -209,45 +233,8 @@ export default function ProfileCollected({
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedCollections.length > 0 && (
-              <div className="mb-6 mt-6 p-1 md:mx-10 md:hidden">
-                <div className="flex flex-col gap-2 ">
-                  <span className="text-sm text-gray-200">{`${t('filters')}:`}</span>
-                  <div className="flex flex-wrap gap-2">
-                    <>
-                      {selectedCollections.map((collectionId) => {
-                        return (
-                          <Sidebar.Pill
-                            key={collectionId!}
-                            label={
-                              walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-                                (c) => c.collection?.id === collectionId
-                              )?.collection?.name || collectionId!
-                            }
-                            onRemoveClick={() =>
-                              setValue(
-                                'collections',
-                                selectedCollections.filter((c) => c !== collectionId)
-                              )
-                            }
-                          />
-                        );
-                      })}
-                      {selectedCollections.length > 0 && (
-                        <Button
-                          background={ButtonBackground.Black}
-                          border={ButtonBorder.Gradient}
-                          color={ButtonColor.Gradient}
-                          size={ButtonSize.Tiny}
-                          onClick={onClearClick}
-                        >
-                          {t('common:clear')}
-                        </Button>
-                      )}
-                    </>
-                  </div>
-                </div>
-              </div>
+            {pillItems.length > 0 && (
+              <Sidebar.Pills items={pillItems} onRemove={onRemovePill} onClear={onClearPills} />
             )}
 
             <Offerable connected={Boolean(publicKey)}>
