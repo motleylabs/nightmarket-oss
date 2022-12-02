@@ -123,7 +123,7 @@ function SidebarFilterPills({
             return (
               <Sidebar.Pill
                 key={item.key}
-                label={item.label}
+                pillItem={item}
                 onRemoveClick={() => removeClick(item)}
               />
             );
@@ -152,23 +152,22 @@ export interface PillItem {
 }
 
 interface SidebarPillProps {
-  key: string;
-  label: string;
+  pillItem: PillItem;
   onRemoveClick: () => void;
   className?: string;
 }
 
-function SidebarPill({ key, label, onRemoveClick, className }: SidebarPillProps) {
+function SidebarPill({ pillItem, onRemoveClick, className }: SidebarPillProps) {
   return (
     <div
       className={clsx(
         'rounded-full bg-primary-900 bg-opacity-10 py-2 px-4 text-sm text-primary-500',
         className
       )}
-      key={key}
+      key={pillItem.key}
     >
       <div className="flex gap-2">
-        {label}
+        {pillItem.label}
         <XMarkIcon className="h-4 w-4 cursor-pointer" onClick={onRemoveClick} />
       </div>
     </div>
