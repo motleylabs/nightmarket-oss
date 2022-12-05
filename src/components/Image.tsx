@@ -4,11 +4,12 @@ import { Transition } from '@headlessui/react';
 
 export enum ImgBackdrop {
   Gray = 'bg-gray-700',
-  Cell = 'bg-gray-800'
+  Cell = 'bg-gray-800',
 }
 
-interface ImgProps extends  DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> {
-  backdrop?: ImgBackdrop,
+interface ImgProps
+  extends DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> {
+  backdrop?: ImgBackdrop;
 }
 
 function Img({
@@ -37,7 +38,7 @@ function Img({
   if (hasImageError || hideImage) {
     return (
       <div
-        className={clsx(className, backdrop, 'block aspect-square w-ful', {
+        className={clsx(className, backdrop, 'w-ful block aspect-square', {
           'animate-pulse': !hasImageError,
         })}
       />

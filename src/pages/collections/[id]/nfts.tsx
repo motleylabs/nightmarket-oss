@@ -16,7 +16,7 @@ import { useTranslation } from 'next-i18next';
 import useSidebar from '../../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { NftCard } from '../../../components/NftCard';
+import { Preview } from '../../../components/Nft';
 import { List, ListGridSize } from '../../../components/List';
 import { Disclosure } from '@headlessui/react';
 import { Attribute } from '../../../components/Attribute';
@@ -294,7 +294,7 @@ export default function CollectionNfts() {
                         [ListGridSize.ExtraLarge]: [4, 6],
                         [ListGridSize.Jumbo]: [6, 8],
                       }}
-                      skeleton={NftCard.Skeleton}
+                      skeleton={Preview.Skeleton}
                       onLoadMore={async (inView: boolean) => {
                         if (!inView) {
                           return;
@@ -311,7 +311,7 @@ export default function CollectionNfts() {
                         setHasMore(collection.nfts.length > 0);
                       }}
                       render={(nft, i) => (
-                        <NftCard
+                        <Preview
                           key={`${nft.mintAddress}-${i}`}
                           link={`/nfts/${nft.mintAddress}/details`}
                           onMakeOffer={() => makeOffer(nft.mintAddress)}

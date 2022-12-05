@@ -642,7 +642,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                   <PageLayout {...pageProps}>
                     <Component {...pageProps} />
                   </PageLayout>
-                  <footer className="mt-16 md:mt-28 bg-gray-900 py-20 px-6">
+                  <footer className="mt-16 bg-gray-900 py-20 px-6 md:mt-28">
                     <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
                       <div>
                         {/* Logos */}
