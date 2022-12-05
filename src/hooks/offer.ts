@@ -74,7 +74,6 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
 
-  // minimum offer amount
   const listing: AhListing | null = useMemo(() => {
     const listing = nft?.listings?.find((listing: AhListing) => {
       return listing.auctionHouse?.address === config.auctionHouse;
@@ -91,7 +90,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
 
       validation = validation.min(
         minOffer,
-        `Your offer must be at least ${minOffer} which is ${
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
@@ -102,7 +101,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
 
       validation = validation.min(
         minOffer,
-        `Your offer must be at least ${minOffer} which is ${
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
           config.offerMinimums.percentageFloor * 100
         }% of the floor price`
       );
@@ -298,7 +297,6 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
   const [updateOffer, setUpdateOffer] = useState(false);
   const client = useApolloClient();
 
-  // minimum offer amount
   const listing: AhListing | null = useMemo(() => {
     const listing = nft?.listings?.find((listing: AhListing) => {
       return listing.auctionHouse?.address === config.auctionHouse;
@@ -307,42 +305,45 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
     return listing || null;
   }, [nft?.listings]);
 
-  const offerSchema = zod.object({
-    amount: zod.preprocess((input) => {
-      const processed = zod
-        .string()
-        .min(1, `Must enter an amount`)
-        .regex(/^[0-9.]*$/, { message: `Must be a number` })
-        .transform(Number)
-        .safeParse(input);
-      return processed.success ? processed.data : input;
-    }, z.number()),
-  });
+  const offerSchema = useMemo(() => {
+    let validation: zod.ZodNumber = zod.number();
 
-  if (listing?.solPrice) {
-    offerSchema.extend({
-      amount: zod
-        .number()
-        .min(
-          listing.solPrice * config.offerMinimums.percentageListing,
-          `Your offer must be at least ${
-            config.offerMinimums.percentageListing * 100
-          }% of the listing`
-        ),
+    if (listing?.solPrice) {
+      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+          config.offerMinimums.percentageListing * 100
+        }% of the listing price`
+      );
+    } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+      const minOffer =
+        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        config.offerMinimums.percentageFloor;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${Math.round(
+          config.offerMinimums.percentageFloor * 100
+        )}% of the floor price`
+      );
+    }
+
+    const offerSchema = zod.object({
+      amount: zod.preprocess((input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      }, validation),
     });
-  } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-    offerSchema.extend({
-      amount: zod
-        .number()
-        .min(
-          parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
-            config.offerMinimums.percentageFloor,
-          `Your offer must be at least ${
-            config.offerMinimums.percentageFloor * 100
-          }% of the collection floor`
-        ),
-    });
-  }
+
+    return offerSchema;
+  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
 
   const {
     register: registerUpdateOffer,

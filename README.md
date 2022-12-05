@@ -6,7 +6,7 @@ A Solana NFT marketplace built by the people for the people using opensource sof
 
 - `@types/*` - Auto-generated graphql typescript declarations.
 - `public/*` - Static assets including fonts, images and locales.
-- `src/components/*` - The different reusable components used throughout the app including Button, Icon, Avatar, Form, List, NftCard etc.
+- `src/components/*` - The different reusable components used throughout the app including Button, Icon, Avatar, Form, List, etc.
 - `src/hooks/*` - Useful hooks used throught the app.
 - `src/layouts/*` - The different layouts used by pages.
 - `src/modules/*` - Various helper methods and utilities worthy of converting to a helper library.
