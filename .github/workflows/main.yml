@@ -1,4 +1,4 @@
-name: Kubernetes deployment
+name: Build, push and Deploy
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Building and Pushing Image
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push Frontend to Amazon ECR
-        id: build-frontend-image
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ github.event.repository.name }}
@@ -36,20 +36,22 @@ jobs:
           app=frontend
           git_branch=${GITHUB_REF##*/}
           solana_endpoint="https://holaplex-main-9e4a.mainnet.rpcpool.com"
-
-          #if [ $git_branch == 'main' ];then
-          #  graphql_endpoint="https://graph.holaplex.com/v1"
-          # else
-            graphql_endpoint="https://graph.dev.holaplex.tools/v1/graphql"
-          #fi
+          node_env=production
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
+
+          if [ $git_branch == 'main' ];then
+            graphql_endpoint="https://graph.holaplex.com/v1"
+          else
+            graphql_endpoint="https://graph-test.holaplex.tools/v1"
+          fi
           #build
           docker build -t $image_tag  \
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
           --build-arg SOLANA_ENDPOINT=${solana_endpoint} \
-          --build-arg NODE_ENV=production \
           --build-arg AUCTION_HOUSE_ADDRESS=8JfAyq7iGvEEsJ1SRzFHpxSAcjt9nGD7VgjeB56vGPuK \
           --build-arg BUGSNAG_API_KEY=${BUGSNAG_API_KEY} \
+          --build-arg NODE_ENV=$node_env \
+          --build-arg MARKETPLACE_SUBDOMAIN=haus \
           .
           echo "Pushing image to ECR..."
           docker push $image_tag
@@ -64,14 +66,13 @@ jobs:
           github-token: ${{ secrets.ACTIONS_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
-              owner: 'holaplex',
+              owner: 'motleylabs',
               repo: 'kubes',
-              workflow_id: 'nm.yaml',
+              workflow_id: 'nightmarket.yaml',
               ref: process.env.BRANCH
             });
 
       - name: Triggering deployment manifest update in kubes repository (prod)
-        if: github.ref == 'refs/heads/main'
         uses: actions/github-script@v6
         env:
           BRANCH: ${{ github.ref_name }}
@@ -79,8 +80,8 @@ jobs:
           github-token: ${{ secrets.ACTIONS_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
-              owner: 'holaplex',
+              owner: 'motleylabs',
               repo: 'kubes',
-              workflow_id: 'nm.yaml',
+              workflow_id: 'nightmarket.yaml',
               ref: process.env.BRANCH
             })
