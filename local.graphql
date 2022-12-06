@@ -29,13 +29,14 @@ extend type Purchase {
   solPrice: String
 }
 
+extend type Datapoint {
+  amount: Int
+}
+
 extend type Nft {
   shortAddress: String
   shortMintAddress: String
   royalties: Int
-  listing: AhListing
-  highestOffer: Offer
-  viewerOffer(address: String): Offer
 }
 
 extend type Offer {
@@ -117,6 +118,15 @@ extend type MetadataJson {
   creatorDisplayName: String
 }
 
+extend type RewardPayout {
+  totalRewards: Int
+  sinceCreated: String
+}
+
 extend type QueryRoot {
   viewer: Viewer
+}
+
+extend type LastSale {
+  solPrice: Int
 }

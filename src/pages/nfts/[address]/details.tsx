@@ -2,13 +2,14 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import client from './../../../client';
-import { NftQuery } from './../../../queries/nft.graphql';
-import { Nft, AuctionHouse } from './../../../graphql.types';
-import { ReactNode } from 'react';
+import { NftQuery, NftDetailsQuery } from './../../../queries/nft.graphql';
+import { Nft, AuctionHouse, NftOwner, Maybe } from './../../../graphql.types';
+import { ReactNode, useMemo } from 'react';
 import NftLayout from '../../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
 import config from './../../../app.config';
 import Icon from './../../../components/Icon';
+import { useQuery } from '@apollo/client';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
@@ -17,6 +18,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
@@ -43,8 +45,27 @@ interface NftDetailPageProps {
   auctionHouse: AuctionHouse;
 }
 
+interface NftDetailsQueryData {
+  nft: Nft;
+}
+
+interface NftDetailsQueryVariables {
+  address: string;
+}
+
 export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
   const { t } = useTranslation('nft');
+  const nftQuery = useQuery<NftDetailsQueryData, NftDetailsQueryVariables>(NftDetailsQuery, {
+    variables: { address: nft.mintAddress },
+  });
+
+  const owner: Maybe<NftOwner> | undefined = useMemo(() => {
+    if (nftQuery.data) {
+      return nftQuery.data.nft.owner;
+    }
+
+    return nft.owner;
+  }, [nftQuery.data, nft]);
 
   return (
     <>
@@ -106,39 +127,40 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
             {nft.shortAddress}
           </div>
         </li>
-        {nft.moonrankCollection?.verifiedCollectionAddress && (
+        {nftQuery.data?.nft.moonrankCollection?.verifiedCollectionAddress && (
           <li className="flex items-center justify-between">
             <div>{t('collectionAddress')}</div>
             <div className="flex flex-row items-center gap-1">
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://explorer.solana.com/address/${nft.moonrankCollection?.verifiedCollectionAddress}`}
+                href={`https://explorer.solana.com/address/${nftQuery.data?.nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.Sol className="h-3.5 w-3.5" />
               </a>
               <a
                 target="_blank"
                 rel="nofollow noreferrer"
-                href={`https://solscan.io/token/${nft.moonrankCollection?.verifiedCollectionAddress}`}
+                href={`https://solscan.io/token/${nftQuery.data?.nft.moonrankCollection?.verifiedCollectionAddress}`}
               >
                 <Icon.SolScan width={12} height={12} className="cursor-pointer fill-white" />
               </a>
-              {nft.moonrankCollection?.shortVerifiedCollectionAddress}
+              {nftQuery.data?.nft.moonrankCollection?.shortVerifiedCollectionAddress}
             </div>
           </li>
         )}
         <li className="flex items-center justify-between">
           <div>{t('owner')}</div>
-          <Link href={`/profiles/${nft.owner?.address}/collected`} passHref>
-            <a className="flex flex-row items-center gap-1">
-              <img
-                src={nft.owner?.previewImage as string}
-                className="h-6 w-6 rounded-full border border-gray-800 object-cover"
-                alt="nft owner avatar image"
-              />
-              <span>{nft.owner?.displayName}</span>
-            </a>
+          <Link
+            className="flex flex-row items-center gap-1"
+            href={`/profiles/${owner?.address}/collected`}
+          >
+            <img
+              src={owner?.previewImage as string}
+              className="h-6 w-6 rounded-full border border-gray-800 object-cover"
+              alt="nft owner avatar image"
+            />
+            <span>{owner?.displayName}</span>
           </Link>
         </li>
         <li className="flex items-center justify-between">
@@ -150,10 +172,10 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           <div>{`${auctionHouse?.fee}%`}</div>
         </li>
       </ul>
-      {nft.moonrankCollection && (
+      {nftQuery.data?.nft.moonrankCollection && (
         <>
           <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
-          <p className="text-gray-300">{nft?.collection?.description}</p>
+          <p className="text-gray-300">{nftQuery.data?.nft?.moonrankCollection.description}</p>
         </>
       )}
     </>

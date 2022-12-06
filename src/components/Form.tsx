@@ -1,13 +1,13 @@
 import clsx from 'clsx';
 import {
   DetailedHTMLProps,
-  InputHTMLAttributes,
   FormHTMLAttributes,
   LabelHTMLAttributes,
-  cloneElement,
   forwardRef,
+  LegacyRef,
+  InputHTMLAttributes,
 } from 'react';
-import { FormState } from 'react-hook-form';
+import { FieldError } from 'react-hook-form';
 
 export function Form({
   children,
@@ -30,28 +30,49 @@ function FormLabel({ name, className, children, ...props }: FormLabelProps): JSX
   );
 }
 
+interface FormErrorProps {
+  message?: string;
+}
+
+function FormError({ message }: FormErrorProps): JSX.Element | null {
+  if (message) {
+    return <p className="whitespace-nowrap text-left text-sm text-red-500">{message}</p>;
+  }
+
+  return null;
+}
+
+Form.Error = FormError;
+
 Form.Label = FormLabel;
 
 interface FormInputProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
+  className?: string;
   icon?: JSX.Element;
-  error?: string;
+  error?: FieldError;
 }
 
-function FormInput({ className, icon, error, ...props }: FormInputProps): JSX.Element {
+const FormInput = forwardRef(function FormInput(
+  { className, icon, error, ...props }: FormInputProps,
+  ref
+) {
   return (
     <div
       className={clsx(
-        'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-900 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+        'input flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+        { 'focus-within:border-red-500': error },
         className
       )}
     >
-      {icon && cloneElement(icon, {})}
-      <input {...props} className={clsx('w-full bg-transparent', { 'pl-2': icon })} />
-      {error && <p className="text-left text-xs text-red-500">{error}</p>}
+      {icon && icon}
+      <input
+        {...props}
+        ref={ref as LegacyRef<HTMLInputElement> | undefined}
+        className={clsx('w-full bg-transparent', { 'pl-2': icon })}
+      />
     </div>
   );
-}
+});
 
-// TODO: figure out how to properly forward refs for this input component
-Form.Input = forwardRef(FormInput);
+Form.Input = FormInput;

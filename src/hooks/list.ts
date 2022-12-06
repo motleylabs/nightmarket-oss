@@ -12,12 +12,18 @@ import {
   UpdateListingInstructionAccounts,
   UpdateListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
+import { NftMarketInfoQuery } from './../queries/nft.graphql';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toast } from 'react-toastify';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
+import { useApolloClient } from '@apollo/client';
+import client from '../client';
+import Bugsnag from '@bugsnag/js';
+import { notifyInstructionError } from '../modules/bugsnag';
 
 interface ListNftForm {
   amount: string;
@@ -42,6 +48,7 @@ export function useListNft(): ListNftContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
+  const client = useApolloClient();
 
   const [listNft, setListNft] = useState(false);
   const {
@@ -52,7 +59,7 @@ export function useListNft(): ListNftContext {
   } = useForm<ListNftForm>();
 
   const onSubmitListNft = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
-    if (!connected || !publicKey || !signTransaction) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -62,8 +69,8 @@ export function useListNft(): ListNftContext {
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [sellerTradeState, tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
@@ -129,7 +136,30 @@ export function useListNft(): ListNftContext {
 
     const instruction = createCreateListingInstruction(accounts, args);
 
+    const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      sellerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
     const tx = new Transaction();
+
+    if (!sellerAtAInfo) {
+      tx.add(sellerATAInstruction);
+    }
+
     tx.add(instruction);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -147,10 +177,53 @@ export function useListNft(): ListNftContext {
           },
           'confirmed'
         );
-
-        toast('Listing posted', { type: 'success' });
       }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const listing = {
+            __typename: 'AhListing',
+            id: `temp-id-listing-${listingAddress.toBase58()}`,
+            seller: publicKey.toBase58(),
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+            tradeState: sellerTradeState.toBase58(),
+            tradeStateBump: tradeStateBump,
+            price: buyerPrice.toString(),
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+          };
+
+          const listings = [...data.nft.listings, listing];
+
+          return {
+            nft: {
+              ...data.nft,
+              listings,
+            },
+          };
+        }
+      );
+
+      toast('Listing posted', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing created',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setListNft(false);
@@ -225,14 +298,14 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
   }, [listing?.solPrice, reset]);
 
   const onSubmitUpdateListing = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
-    if (!connected || !publicKey || !signTransaction) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const metadata = new PublicKey(nft.address);
 
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
@@ -269,19 +342,40 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     try {
       const signedTx = await signTransaction(tx);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-
-        toast('Listing posted', { type: 'success' });
+      if (!signature) {
+        return;
       }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
+
+      client.cache.modify({
+        id: client.cache.identify({
+          __typename: 'AhListing',
+          id: listing?.id,
+        }),
+        fields: {
+          price() {
+            return buyerPrice.toString();
+          },
+        },
+      });
+
+      toast('Listing price updated', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing updated',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setUpdateListing(false);
@@ -315,6 +409,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
 interface CloseListingArgs {
   listing: Maybe<AhListing> | undefined;
   nft: Nft;
+  auctionHouse: Maybe<AuctionHouse> | undefined;
 }
 
 interface CancelListingContext {
@@ -322,17 +417,20 @@ interface CancelListingContext {
   closingListing: boolean;
 }
 
-export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListingContext {
+export function useCloseListing({
+  listing,
+  nft,
+  auctionHouse,
+}: CloseListingArgs): CancelListingContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const [closingListing, setClosing] = useState(false);
 
   const onCloseListing = async () => {
-    if (!publicKey || !signTransaction || !listing || !listing.auctionHouse) {
+    if (!publicKey || !signTransaction || !listing || !auctionHouse || !nft || !nft.owner) {
       return;
     }
     setClosing(true);
-    const auctionHouse = listing.auctionHouse;
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const authority = new PublicKey(auctionHouse.authority);
@@ -341,9 +439,7 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
 
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
-
-    listing.auctionHouse?.treasuryMint;
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [sellerTradeState, _tradeStateBump] =
       await RewardCenterProgram.findAuctioneerTradeStateAddress(
@@ -394,19 +490,49 @@ export function useCloseListing({ listing, nft }: CloseListingArgs): CancelListi
     try {
       const signedTx = await signTransaction(tx);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
-
-        toast('Listing canceled', { type: 'success' });
+      if (!signature) {
+        return;
       }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
+
+          return {
+            nft: {
+              ...data.nft,
+              listings,
+            },
+          };
+        }
+      );
+
+      toast('Listing canceled', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Listing cancelled',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
     } finally {
       setClosing(false);

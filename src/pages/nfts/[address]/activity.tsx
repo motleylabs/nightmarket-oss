@@ -19,6 +19,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
@@ -57,42 +58,55 @@ export default function NftActivity() {
     },
   });
 
+  if (activitiesQuery.loading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Activity.Skeleton />
+        <Activity.Skeleton />
+        <Activity.Skeleton />
+        <Activity.Skeleton />
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-4 flex flex-col">
-      {activitiesQuery.loading ? (
-        <>
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-        </>
-      ) : (
-        <>
-          {activitiesQuery.data?.nft.activities.map((activity) => (
-            <Activity
-              avatar={
-                <Link href={`/profiles/${activity.primaryWallet.address}/collected`} passHref>
-                  <a className="cursor-pointer transition hover:scale-[1.02]">
+    <div className="flex flex-col">
+      {activitiesQuery.called && activitiesQuery.data?.nft.activities?.length === 0 && (
+        <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
+          <h3 className="text-gray-300">No activty</h3>
+        </div>
+      )}
+      <div className="flex flex-col gap-4">
+        {activitiesQuery.data?.nft?.activities?.length !== 0 && (
+          <>
+            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{'All activty'}</h6>
+            {activitiesQuery.data?.nft.activities.map((activity) => (
+              <Activity
+                avatar={
+                  <Link
+                    className="cursor-pointer transition hover:scale-[1.02]"
+                    href={`/profiles/${activity.primaryWallet?.address}/collected`}
+                  >
                     <Avatar
                       circle
-                      src={activity.primaryWallet.previewImage as string}
+                      src={activity.primaryWallet?.previewImage as string}
                       size={AvatarSize.Standard}
                     />
-                  </a>
-                </Link>
-              }
-              type={activity.activityType as ActivityType}
-              key={activity.id}
-              meta={
-                <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
-              }
-            >
-              <Activity.Price amount={activity.solPrice} />
-              <Activity.Timestamp timeSince={activity.timeSince} />
-            </Activity>
-          ))}
-        </>
-      )}
+                  </Link>
+                }
+                type={activity.activityType as ActivityType}
+                key={activity.id}
+                meta={
+                  <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
+                }
+              >
+                <Activity.Price amount={activity.solPrice} />
+                <Activity.Timestamp timeSince={activity.timeSince} />
+              </Activity>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 }

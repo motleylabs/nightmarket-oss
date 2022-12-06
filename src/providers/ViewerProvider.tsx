@@ -13,14 +13,24 @@ export const ViewerProvider: React.FC<ViewerProviderProps> = ({ children }) => {
   const { publicKey } = useWallet();
 
   useEffect(() => {
+    if (!publicKey) return;
+    const handle = connection.onAccountChange(
+      publicKey,
+      (ev) => viewerVar({ ...viewerVar(), balance: ev.lamports, solBalance: toSol(ev.lamports) }),
+      'confirmed'
+    );
+    return () => {
+      connection.removeAccountChangeListener(handle);
+    };
+  }, [connection, publicKey]);
+
+  useEffect(() => {
     (async () => {
       if (!publicKey) {
         return;
       }
-
       try {
         const balance = await connection.getBalance(publicKey);
-
         viewerVar({
           balance,
           address: publicKey?.toBase58() as string,

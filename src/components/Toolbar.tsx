@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { MutableRefObject, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface ToolbarProps {
   children: ReactNode;

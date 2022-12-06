@@ -171,26 +171,28 @@ function SolScanIcon({ className, width = 12, height = 12 }: IconProps) {
 Icon.SolScan = SolScanIcon;
 
 function SolIcon({
-  className = 'w-4 h-4 mr-2 flex flex-shrink-0',
+  className = 'w-4 h-4 lex flex-shrink-0',
   gradient = false,
+  defaultColor = '#A8A8A8',
 }: {
   className?: string;
   gradient?: boolean;
+  defaultColor?: string;
 }) {
   return (
     <svg className={className} viewBox="0 0 16 13" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_1084_6329)">
         <path
           d="M2.48681 9.65948C2.5792 9.56708 2.70625 9.51318 2.84099 9.51318H15.0604C15.2837 9.51318 15.3954 9.78267 15.2375 9.94052L12.8237 12.3544C12.7313 12.4468 12.6042 12.5007 12.4695 12.5007H0.25004C0.0267485 12.5007 -0.0848973 12.2312 0.0729468 12.0733L2.48681 9.65948Z"
-          fill={gradient ? 'url(#paint0_linear_1084_6329)' : '#A8A8A8'}
+          fill={gradient ? 'url(#paint0_linear_1084_6329)' : defaultColor}
         ></path>
         <path
           d="M2.48681 0.646295C2.58305 0.553898 2.7101 0.5 2.84099 0.5H15.0604C15.2837 0.5 15.3954 0.76949 15.2375 0.927334L12.8237 3.34119C12.7313 3.43359 12.6042 3.48749 12.4695 3.48749H0.25004C0.0267485 3.48749 -0.0848973 3.218 0.0729468 3.06015L2.48681 0.646295Z"
-          fill={gradient ? 'url(#paint1_linear_1084_6329)' : '#A8A8A8'}
+          fill={gradient ? 'url(#paint1_linear_1084_6329)' : defaultColor}
         ></path>
         <path
           d="M12.8237 5.12286C12.7313 5.03046 12.6042 4.97656 12.4695 4.97656H0.25004C0.0267485 4.97656 -0.0848973 5.24605 0.0729468 5.4039L2.48681 7.81776C2.5792 7.91015 2.70625 7.96405 2.84099 7.96405H15.0604C15.2837 7.96405 15.3954 7.69456 15.2375 7.53672L12.8237 5.12286Z"
-          fill={gradient ? 'url(#paint2_linear_1084_6329)' : '#A8A8A8'}
+          fill={gradient ? 'url(#paint2_linear_1084_6329)' : defaultColor}
         ></path>
       </g>
       <defs>
@@ -293,6 +295,22 @@ function DiscordIcon({ className = 'h-6 w-auto' }: { className?: string }) {
 }
 
 Icon.Discord = DiscordIcon;
+
+function WebIcon({ className = 'h-6 w-auto' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M17.5 10C17.5 14.1421 14.1421 17.5 10 17.5M17.5 10C17.5 5.85786 14.1421 2.5 10 2.5M17.5 10H2.5M10 17.5C5.85786 17.5 2.5 14.1421 2.5 10M10 17.5C11.3807 17.5 12.5 14.1421 12.5 10C12.5 5.85786 11.3807 2.5 10 2.5M10 17.5C8.61929 17.5 7.5 14.1421 7.5 10C7.5 5.85786 8.61929 2.5 10 2.5M2.5 10C2.5 5.85786 5.85786 2.5 10 2.5"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
+
+Icon.Web = WebIcon;
 
 function SauceIcon({ className = 'h-4 w-auto' }: { className?: string }) {
   return (

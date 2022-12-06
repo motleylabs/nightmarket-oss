@@ -22,7 +22,7 @@ export default function LaunchpadPage() {
 
   return (
     <>
-      <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
+      <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 md:mt-12 md:px-8">
         <Head>
           <title>{'Launchpad test'}</title>
           <meta name="description" content="Launchpad test description"></meta>
@@ -79,15 +79,19 @@ export default function LaunchpadPage() {
             <div className="flex flex-row items-center justify-between gap-4">
               <h4 className="text-3xl font-bold">Team Motley</h4>
               <div className="flex flex-row items-center gap-2 text-[#A8A8A8]">
-                <Link href={'https://twitter.com/holaplex'}>
-                  <a target="_blank" className="transform ease-in-out hover:scale-105">
-                    <Icon.Twitter />
-                  </a>
+                <Link
+                  target="_blank"
+                  className="transform ease-in-out hover:scale-105"
+                  href="https://twitter.com/holaplex"
+                >
+                  <Icon.Twitter />
                 </Link>
-                <Link href={'https://discord.gg/holaplex'}>
-                  <a target="_blank" className="transform ease-in-out hover:scale-105">
-                    <Icon.Discord />
-                  </a>
+                <Link
+                  target="_blank"
+                  className="transform ease-in-out hover:scale-105"
+                  href="https://discord.gg/holaplex"
+                >
+                  <Icon.Discord />
                 </Link>
               </div>
             </div>
@@ -96,11 +100,11 @@ export default function LaunchpadPage() {
             </p>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-xs text-gray-300">{t('supply')}</p>
+                <p className="text-sm text-gray-300">{t('supply')}</p>
                 <h6 className="text-lg font-bold text-white">10,000</h6>
               </div>
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-xs text-gray-300">{t('mintDate')}</p>
+                <p className="text-sm text-gray-300">{t('mintDate')}</p>
                 <h6 className="text-lg font-bold text-white">10/24/2022</h6>
               </div>
             </div>

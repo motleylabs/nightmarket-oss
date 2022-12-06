@@ -89,7 +89,7 @@ interface OverviewFigureProps {
 
 function Figure({ figure, label }: OverviewFigureProps): JSX.Element {
   return (
-    <li className="flex gap-2 text-xs text-white sm:text-sm md:text-base">
+    <li className="flex gap-2 text-sm text-white sm:text-sm md:text-base">
       {figure}
       <span className="text-gray-300">{label}</span>
     </li>
@@ -106,7 +106,7 @@ Overview.Actions = Actions;
 
 function Aside({ children }: OverviewProps): JSX.Element {
   return (
-    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gradient-radial from-gray-900 to-gray-800 p-4 text-white md:text-xs lg:mt-0 xl:text-base">
+    <aside className="mt-4 flex flex-none flex-row gap-8 rounded-lg bg-gradient-radial from-gray-900 to-gray-800 p-4 text-white md:text-sm lg:mt-0 xl:text-base">
       {children}
     </aside>
   );
@@ -122,7 +122,7 @@ function Tabs({ children }: OverviewTabsProps) {
   return (
     <nav
       className={clsx(
-        'relative mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:-mb-16 md:max-w-sm',
+        'relative mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:mb-[-75px] md:max-w-sm',
         `grid-cols-${children.length}`
       )}
     >
@@ -135,19 +135,17 @@ Overview.Tabs = Tabs;
 
 function Tab(props: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={props.href} passHref>
-      <a>
-        <div
-          className={clsx(
-            'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
-            props.active
-              ? 'rounded-full bg-gray-800 text-white'
-              : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
-          )}
-        >
-          {props.label}
-        </div>
-      </a>
+    <Link href={props.href} scroll={false}>
+      <div
+        className={clsx(
+          'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
+          props.active
+            ? 'rounded-full bg-gray-800 text-white'
+            : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+        )}
+      >
+        {props.label}
+      </div>
     </Link>
   );
 }
@@ -179,7 +177,7 @@ Overview.Tab = Tab;
 //   const router = useRouter();
 
 //   return (
-//     <Link href={href} passHref>
+//     <Link href={href} >
 //       <a
 //         className={clsx(
 //           'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',

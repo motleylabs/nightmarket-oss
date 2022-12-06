@@ -58,24 +58,3 @@ input[type='search']::-webkit-search-cancel-button {
 .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
   stroke-opacity: 0;
 }
-
-@font-face {
-  font-family: 'Brice';
-  src: url('/fonts/Brice-Bold.otf');
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Hauora';
-  src: url('/fonts/Hauora-Regular.otf');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Hauora';
-  src: url('/fonts/Hauora-Bold.otf');
-  font-weight: 700;
-  font-style: normal;
-}

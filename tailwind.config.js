@@ -14,17 +14,24 @@ module.exports = {
       pattern: /grid-cols-(1|2|3|4|6|8)/,
       variants: ['sm', 'md', 'lg', 'xl', '2xl'],
     },
+    {
+      pattern: /gap-(0|1|2|3|4|6|8|10)/,
+      variants: ['sm', 'md', 'lg', 'xl', '2xl'],
+    },
+    {
+      pattern: /col-span-[0-12]/,
+      variants: ['sm', 'md', 'lg', 'xl', '2xl'],
+    },
   ],
   theme: {
     extend: {
       fontSize: {
-        // xs: ['0.5rem', '0.75rem'],
+        xs: ['0.5rem', '0.75rem'],
         sm: ['0.75rem', '1rem'],
-        // base: '1rem',
       },
       fontFamily: {
-        serif: ['Brice', ...defaultTheme.fontFamily.serif],
-        sans: ['Hauora', 'Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['var(--font-brice)', ...defaultTheme.fontFamily.serif],
+        sans: ['var(--font-hauora)', 'Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Space_Mono', ...defaultTheme.fontFamily.mono],
       },
       backgroundImage: {

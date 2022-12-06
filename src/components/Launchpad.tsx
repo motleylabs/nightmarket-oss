@@ -75,7 +75,7 @@ function LaunchpadActive({
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (
-            <p className="text-xs font-semibold text-gray-300">{t('phases.dynamic')}</p>
+            <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic')}</p>
           )}
           {!isPublic && (
             <div className="flex flex-row items-center gap-2">
@@ -85,7 +85,7 @@ function LaunchpadActive({
                   hasAccess ? 'bg-green-500' : 'bg-primary-700'
                 )}
               />
-              <p className="text-xs font-semibold text-gray-300">
+              <p className="text-sm font-semibold text-gray-300">
                 {hasAccess ? t('phases.allowed') : t('phases.notAllowed')}
               </p>
             </div>
@@ -95,10 +95,10 @@ function LaunchpadActive({
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
-            <span className="text-xs font-normal text-gray-300">
+            <span className="text-sm font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.startingPrice') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>
@@ -106,7 +106,7 @@ function LaunchpadActive({
         {/* TODO: add graph for dynamic pricing */}
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-normal text-gray-300">{t('phases.minting')}</p>
+            <p className="text-sm font-normal text-gray-300">{t('phases.minting')}</p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
@@ -156,22 +156,22 @@ function LaunchpadFinished({
     <div className="flex flex-col justify-between rounded-lg bg-gray-800 p-4 opacity-75">
       <div className="flex flex-col gap-4">
         {mintType === MintOption.Dynamic && (
-          <p className="text-xs font-semibold text-gray-300">{t('phases.dynamic')}</p>
+          <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic')}</p>
         )}
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
-            <span className="text-xs font-normal text-gray-300">
+            <span className="text-sm font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.finishedPrice') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>
         </div>
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-normal text-gray-300">{t('phases.minted')}</p>
+            <p className="text-sm font-normal text-gray-300">{t('phases.minted')}</p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
@@ -218,7 +218,7 @@ function LaunchpadUpcoming({
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (
-            <p className="text-xs font-semibold text-gray-300">{t('phases.dynamic')}</p>
+            <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic')}</p>
           )}
           {!isPublic && (
             <div className="flex flex-row items-center gap-2">
@@ -228,7 +228,7 @@ function LaunchpadUpcoming({
                   hasAccess ? 'bg-green-500' : 'bg-primary-700'
                 )}
               />
-              <p className="text-xs font-semibold text-gray-300">
+              <p className="text-sm font-semibold text-gray-300">
                 {hasAccess ? t('phases.allowed') : t('phases.notAllowed')}
               </p>
             </div>
@@ -238,10 +238,10 @@ function LaunchpadUpcoming({
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
-            <span className="text-xs font-normal text-gray-300">
+            <span className="text-sm font-normal text-gray-300">
               {mintType === MintOption.Dynamic ? t('phases.dynamic') : t('phases.price')}
             </span>{' '}
-            <span className="flex items-center">
+            <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
             </span>
           </p>
@@ -249,7 +249,7 @@ function LaunchpadUpcoming({
         {/* TODO: add graph for dynamic pricing */}
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-normal text-gray-300">{t('phases.supply')}</p>
+            <p className="text-sm font-normal text-gray-300">{t('phases.supply')}</p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{supply}</p>
             </div>

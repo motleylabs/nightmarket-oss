@@ -1,7 +1,37 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
 #import "./fragments/listing.graphql"
-#import "./fragments/offer.graphql"
+
+query NftDetailsQuery($address: String!) {
+  nft: nftByMintAddress(address: $address) {
+    address
+    mintAddress
+    name
+    image(width: 1400)
+    description
+    moonrankCollection {
+      name
+      verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
+      }
+    }
+    owner {
+      address
+      associatedTokenAccountAddress
+      previewImage @client
+      displayName @client
+      profile {
+        ...ProfileInfo
+      }
+    }
+  }
+}
 
 query NftQuery($address: String!, $auctionHouse: String!) {
   auctionHouse(address: $auctionHouse) {
@@ -14,6 +44,10 @@ query NftQuery($address: String!, $auctionHouse: String!) {
     auctionHouseTreasury
     rewardCenter {
       address
+      tokenMint
+      sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
     }
   }
 
@@ -40,18 +74,6 @@ query NftQuery($address: String!, $auctionHouse: String!) {
       traitType
       value
     }
-    moonrankCollection {
-      name
-      verifiedCollectionAddress
-      shortVerifiedCollectionAddress @client
-      id
-      description
-      image(width: 100)
-      trends {
-        floor1d
-        compactFloor1d @client
-      }
-    }
     creators {
       verified
       address
@@ -71,12 +93,13 @@ query NftActivitiesQuery($address: String!) {
       id
       metadata
       price
+      solPrice @client
       createdAt
       timeSince @client
       marketplaceProgramAddress
-      solPrice @client
       nftMarketplace @client {
         name
+        link
         logo
       }
       primaryWallet @client {
@@ -112,10 +135,30 @@ query NftActivitiesQuery($address: String!) {
   }
 }
 
-query NftMarketInfoQuery($address: String!, $viewerAddress: String!) {
+query NftMarketInfoQuery($address: String!) {
   nft: nftByMintAddress(address: $address) {
     address
     mintAddress
+    owner {
+      address
+      associatedTokenAccountAddress
+    }
+    lastSale {
+      price
+      solPrice @client
+    }
+    moonrankCollection {
+      name
+      verifiedCollectionAddress
+      shortVerifiedCollectionAddress @client
+      id
+      description
+      image(width: 100)
+      trends {
+        floor1d
+        compactFloor1d @client
+      }
+    }
     offers {
       id
       tradeState
@@ -126,25 +169,6 @@ query NftMarketInfoQuery($address: String!, $viewerAddress: String!) {
       auctionHouse {
         address
       }
-    }
-    viewerOffer(address: $viewerAddress) @client {
-      id
-      tradeState
-      buyer
-      metadata
-      price
-      solPrice @client
-    }
-    highestOffer @client {
-      id
-      tradeState
-      buyer
-      metadata
-      price
-      solPrice @client
-    }
-    listing @client {
-      ...ListingInfo
     }
     listings {
       ...ListingInfo

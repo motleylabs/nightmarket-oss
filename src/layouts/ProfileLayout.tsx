@@ -1,5 +1,5 @@
 import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
-import { Wallet } from '../graphql.types';
+import { AuctionHouse, Wallet } from '../graphql.types';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { useTranslation } from 'next-i18next';
@@ -17,11 +17,19 @@ export interface WalletProfileData {
 
 export interface WalletProfileVariables {
   address: string;
+  rewardCenter: string;
 }
 
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
+}
+
+enum ProfilePath {
+  Collected = '/profiles/[address]/collected',
+  Offers = '/profiles/[address]/offers',
+  Activity = '/profiles/[address]/activity',
 }
 
 function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
@@ -37,7 +45,7 @@ function ProfileFigure(props: { figure: ReactNode; label: string; loading: boole
   );
 }
 
-function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
+function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
   const router = useRouter();
@@ -50,6 +58,7 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
     {
       variables: {
         address: address as string,
+        rewardCenter: auctionHouse.rewardCenter?.address as string,
       },
     }
   );
@@ -133,11 +142,11 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
           />
           <ProfileFigure
             label="SAUCE earned"
-            loading={false}
+            loading={walletProfileClientQuery.loading}
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
-                824
+                {walletProfileClientQuery.data?.wallet.totalRewards}
               </div>
             }
           />
@@ -147,17 +156,17 @@ function ProfileLayout({ children, wallet }: ProfileLayout): JSX.Element {
         <Overview.Tab
           label="NFTs"
           href={`/profiles/${router.query.address}/collected`}
-          active={router.pathname.includes('collected')}
+          active={router.pathname === ProfilePath.Collected}
         />
         <Overview.Tab
           label={t('activity')}
           href={`/profiles/${router.query.address}/activity`}
-          active={router.pathname.includes('activity')}
+          active={router.pathname === ProfilePath.Activity}
         />
         <Overview.Tab
           label={t('offers')}
           href={`/profiles/${router.query.address}/offers`}
-          active={router.pathname.includes('offers')}
+          active={router.pathname === ProfilePath.Offers}
         />
       </Overview.Tabs>
       {cloneElement(children, { walletProfileClientQuery })}

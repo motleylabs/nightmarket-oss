@@ -11,10 +11,15 @@ query CollectionQuery($id: String!) @cached(ttl: 300) {
     image
     compactPieces @client
     pieces
+
+    twitterUrl
+    discordUrl
+    websiteUrl
   }
 }
 
-query CollectionQueryClient($id: String!) @cached(ttl: 300) {
+query CollectionQueryClient($id: String!, $startTime: DateTimeUtc!, $endTime: DateTimeUtc!)
+@cached(ttl: 300) {
   collection(id: $id) {
     id
     holderCount
@@ -27,6 +32,18 @@ query CollectionQueryClient($id: String!) @cached(ttl: 300) {
       floor1d
       volume30d
       listed1d
+    }
+    timeseries(startTime: $startTime, endTime: $endTime) {
+      floorPrice {
+        timestamp
+        value
+        amount @client
+      }
+      listedCount {
+        timestamp
+        value
+        amount @client
+      }
     }
   }
 }
@@ -49,12 +66,20 @@ query CollectionNFTsQuery(
   $order: OrderDirection
   $sortBy: NftSort
   $attributes: [AttributeFilter!]
+  $auctionHouse: String!
   $limit: Int = 24
   $offset: Int = 0
 ) {
   collection(id: $id) {
     id
-    nfts(order: $order, sortBy: $sortBy, attributes: $attributes, limit: $limit, offset: $offset) {
+    nfts(
+      order: $order
+      sortBy: $sortBy
+      attributes: $attributes
+      limit: $limit
+      offset: $offset
+      auctionHouse: $auctionHouse
+    ) {
       ...NftListingInfo
     }
   }
@@ -62,7 +87,7 @@ query CollectionNFTsQuery(
 
 query CollectionActivitiesQuery(
   $id: String!
-  $eventTypes: [String!]
+  $eventTypes: [ActivityType!]
   $limit: Int = 25
   $offset: Int = 0
 ) @cached(ttl: 180) {
@@ -72,6 +97,7 @@ query CollectionActivitiesQuery(
       id
       metadata
       price
+      solPrice @client
       createdAt
       timeSince @client
       marketplaceProgramAddress
@@ -80,7 +106,6 @@ query CollectionActivitiesQuery(
         link
         logo
       }
-      solPrice @client
       primaryWallet @client {
         address
         twitterHandle
@@ -109,6 +134,74 @@ query CollectionActivitiesQuery(
         name
         mintAddress
         image(width: 100)
+      }
+    }
+  }
+}
+
+query CollectionNftPreviewsQuery($id: String!, $auctionHouse: String) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    nfts(limit: 7, offset: 0, sortBy: LISTED_AT, order: DESC, auctionHouse: $auctionHouse) {
+      name
+      mintAddress
+      image(width: 100)
+      listings {
+        id
+        createdAt
+        price
+        solPrice @client
+      }
+    }
+  }
+}
+
+query CollectionAnalyticsFloorPriceQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    timeseries(startTime: $startTime, endTime: $endTime) {
+      floorPrice {
+        timestamp
+        value
+        amount @client
+      }
+    }
+  }
+}
+
+query CollectionAnalyticsListedCountQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    timeseries(startTime: $startTime, endTime: $endTime) {
+      listedCount {
+        timestamp
+        value
+        amount @client
+      }
+    }
+  }
+}
+
+query CollectionAnalyticsHolderCountQuery(
+  $id: String!
+  $startTime: DateTimeUtc!
+  $endTime: DateTimeUtc!
+) @cached(ttl: 300) {
+  collection(id: $id) {
+    id
+    timeseries(startTime: $startTime, endTime: $endTime) {
+      ownersCount {
+        timestamp
+        value
+        amount @client
       }
     }
   }

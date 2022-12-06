@@ -81,6 +81,11 @@ interface SearchInputProps {
   autofocus?: boolean;
 }
 
+const getOs = () => {
+  const os = ['Win32', 'Mac']; // add your OS values
+  return os.find((v) => (global as any).window?.navigator.platform.indexOf(v) >= 0);
+};
+
 function SearchInput({
   onChange,
   onFocus,
@@ -91,13 +96,18 @@ function SearchInput({
 }: SearchInputProps): JSX.Element {
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-  });
+    const os = getOs();
+    if (os === 'Win32') {
+      setSearchKeyboardPrompt('CTRL + K');
+    }
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!e.ctrlKey) return;
+    if (!e.metaKey) return;
     switch (e.key) {
       case 'k':
         e.preventDefault();
@@ -122,7 +132,6 @@ function SearchInput({
         debounceTimeout={300}
         autoComplete="off"
         autoCorrect="off"
-        autoCapitalize="off"
         className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-400 focus:outline-none md:py-2"
         type="search"
         onFocus={onFocus}
@@ -134,10 +143,10 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
-      <button className="absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
-        <span className="hidden h-6 w-6 items-center justify-center rounded bg-gray-800 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
-          K
-        </span>
+      <button className="pointer-events-none absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
+        <kbd className=" hidden h-6 items-center justify-center rounded bg-gray-800 px-2 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
+          {searchKeyboardPrompt}
+        </kbd>
       </button>
     </div>
   );
@@ -168,7 +177,7 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50  h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
+      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50 h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
         {searching ? (
           <>
             <SearchLoadingItem />
@@ -223,7 +232,7 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 Search.Group = SearchGroup;
 
 interface SearchResultProps {
-  address: string;
+  slug: string;
   image: string;
   name?: Maybe<string> | undefined;
   value: SearchResultItemType | MetadataJson;
@@ -238,16 +247,17 @@ function CollectionSearchResult({
   image,
   collection,
   value,
+  slug,
 }: CollectionSearchResultProps): JSX.Element {
   const router = useRouter();
 
   return (
     <Combobox.Option
-      key={`collection-${collection?.id}`}
+      key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${collection?.id}/nfts`);
-      }, [router, collection?.id])}
+        router.push(`/collections/${slug}/nfts`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -259,7 +269,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || collection?.id}
+              alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -279,7 +289,7 @@ interface MintAddressSearchResultProps extends SearchResultProps {
 
 function MintAddressSearchResult({
   creator,
-  address,
+  slug,
   name,
   image,
   nft,
@@ -289,11 +299,11 @@ function MintAddressSearchResult({
 
   return (
     <Combobox.Option
-      key={`nft-${address}`}
+      key={`nft-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/nfts/${address}`);
-      }, [router, address])}
+        router.push(`/nfts/${slug}`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -305,7 +315,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <img
               src={image}
-              alt={name || address}
+              alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
@@ -331,7 +341,7 @@ interface ProfileSearchResultProps extends SearchResultProps {
 
 function ProfileSearchResult({
   image,
-  address,
+  slug,
   profile,
   value,
 }: ProfileSearchResultProps): JSX.Element | null {
@@ -339,11 +349,11 @@ function ProfileSearchResult({
 
   return (
     <Combobox.Option
-      key={`profile-${address}`}
+      key={`profile-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/profiles/${address}/collected`);
-      }, [router, address])}
+        router.push(`/profiles/${slug}/collected`);
+      }, [router, slug])}
     >
       {({ active }) => (
         <div
@@ -356,7 +366,7 @@ function ProfileSearchResult({
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <img
                 src={image}
-                alt={`profile-${address}`}
+                alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />
             </div>

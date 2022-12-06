@@ -6,18 +6,20 @@ export enum ButtonBackground {
   Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',
   Black = 'bg-black',
   Slate = 'bg-gray-800',
+  Cell = 'bg-gray-900',
 }
 
 export enum ButtonColor {
   Gradient = 'gradient',
   White = 'text-white',
-  Gray = 'text-gray-300 hover:text-white group-focus:text-white',
+  Gray = 'text-gray-300 hover:text-white group-focus:text-white disabled:text-gray-300',
   Slate = 'text-gray-800',
 }
 
 export enum ButtonBorder {
   Gradient = 'gradient',
   Gray = 'gray',
+  White = 'white',
 }
 
 export enum ButtonSize {
@@ -68,6 +70,19 @@ const Button = ({
     }
   }, [size]);
 
+  const spinnerColor = useMemo(() => {
+    switch (color) {
+      case ButtonColor.Slate:
+        return '#17161C';
+      case ButtonColor.Gray:
+        return '#8B8B8E';
+      case ButtonColor.White:
+        return '#fff';
+      case ButtonColor.Gradient:
+        return '#ED9E09';
+    }
+  }, [color]);
+
   return (
     <button
       className={clsx(
@@ -80,12 +95,14 @@ const Button = ({
           [color]: color !== ButtonColor.Gradient,
           'bg-gradient-secondary p-0.5 hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-secondary':
             border === ButtonBorder.Gradient,
-          'border-2 border-gray-300 bg-none hover:border-white active:text-white':
+          'border-2 border-gray-300 bg-none hover:border-white active:text-white disabled:border-gray-300 ':
             border === ButtonBorder.Gray,
+          'border-2 border-white bg-none hover:border-gray-300 active:text-white disabled:border-gray-300 ':
+            border === ButtonBorder.White,
           'w-full': block,
-          'py-1 px-4 text-xs': size === ButtonSize.Tiny && border !== ButtonBorder.Gradient,
-          'py-1 px-4 text-xs md:text-sm':
-            size === ButtonSize.Small && border !== ButtonBorder.Gradient,
+          'py-1 px-4 text-sm':
+            (size === ButtonSize.Tiny || size === ButtonSize.Small) &&
+            border !== ButtonBorder.Gradient,
           'py-3 px-6': size === ButtonSize.Large && border !== ButtonBorder.Gradient,
           'disabled:opacity-50': disabled,
           'px-0 py-0': circle,
@@ -100,9 +117,9 @@ const Button = ({
           'flex h-full w-full grow-0 items-center justify-center gap-1 rounded-full text-center',
           {
             [background]: border === ButtonBorder.Gradient,
-            'py-1 px-4 text-xs': size === ButtonSize.Tiny && border === ButtonBorder.Gradient,
-            'py-1 px-4 text-xs md:text-sm':
-              size === ButtonSize.Small && border === ButtonBorder.Gradient,
+            'py-1 px-4 text-sm':
+              (size === ButtonSize.Tiny || size === ButtonSize.Small) &&
+              border === ButtonBorder.Gradient,
             'py-3 px-6': size === ButtonSize.Large && border === ButtonBorder.Gradient,
           }
         )}
@@ -111,9 +128,8 @@ const Button = ({
           <TailSpin
             height={spinnerSize}
             width={spinnerSize}
-            color={color !== ButtonColor.Gradient ? 'text-primary-500' : 'text-primary-700'}
-            ariaLabel="loading"
-            wrapperClass="inline aspect-square mr-1"
+            color={spinnerColor}
+            wrapperClass="inline aspect-square mr-2"
           />
         )}
         {icon && icon}

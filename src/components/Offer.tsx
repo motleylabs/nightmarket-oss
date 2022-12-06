@@ -1,43 +1,80 @@
-import { Offer } from '../graphql.types';
+import { AuctionHouse, Offer, Maybe, Nft, AhListing } from '../graphql.types';
+import { useMemo } from 'react';
 import Button, { ButtonSize, ButtonBackground, ButtonColor, ButtonBorder } from './Button';
-import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
-import { Avatar, AvatarSize } from './Avatar';
 import { Activity, ActivityType } from './Activity';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useCloseOffer } from './../hooks/offer';
+import { useCloseOffer, useAcceptOffer, AcceptOfferResponse } from './../hooks/offer';
+import config from '../app.config';
+import { toast } from 'react-toastify';
 
 interface OfferProps {
   offer: Offer;
+  auctionHouse: Maybe<AuctionHouse> | undefined;
+  avatar?: JSX.Element;
+  meta: JSX.Element;
+  nft: Maybe<Nft> | undefined;
+  onCancel: () => void;
+  onAccept: (payload: AcceptOfferResponse) => void;
 }
-export default function OfferUI({ offer }: OfferProps): JSX.Element {
+
+export default function OfferUI({
+  offer,
+  auctionHouse,
+  nft,
+  meta,
+  avatar,
+  onAccept,
+  onCancel,
+}: OfferProps): JSX.Element {
   const { publicKey } = useWallet();
-  const { t } = useTranslation('offers');
+  const { t } = useTranslation('common');
   const { closingOffer, onCloseOffer } = useCloseOffer(offer);
   const viewerAddress = publicKey?.toBase58();
 
+  const listing: AhListing | null = useMemo(() => {
+    const listing = nft?.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [nft?.listings]);
+
+  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(offer);
+
+  const handleAcceptOffer = async () => {
+    if (!auctionHouse || !nft) {
+      return;
+    }
+
+    try {
+      const response = await onAcceptOffer({ auctionHouse, nft, listing });
+
+      if (!response) {
+        return;
+      }
+
+      onAccept(response);
+    } catch (e: any) {}
+  };
+
+  const handleCancelOffer = async () => {
+    try {
+      await onCloseOffer({ nft, auctionHouse });
+      onCancel();
+    } catch (err: any) {}
+  };
+
   return (
     <Activity
-      avatar={
-        <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
-          <a className="cursor-pointer transition hover:scale-[1.02]">
-            <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-          </a>
-        </Link>
-      }
-      type={ActivityType.Offer}
+      type={ActivityType.OfferCreated}
       key={offer.id}
-      meta={
-        <Activity.Meta
-          title={<Activity.Tag />}
-          marketplace={offer.nftMarketplace}
-          source={<Activity.Wallet wallet={offer.buyerWallet} />}
-        />
-      }
+      avatar={avatar}
+      meta={meta}
       actionButton={
-        publicKey && (
+        offer.auctionHouse?.address === config.auctionHouse && (
           <>
-            {offer.buyer == viewerAddress && (
+            {offer.buyer === viewerAddress && (
               <Button
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gray}
@@ -45,18 +82,19 @@ export default function OfferUI({ offer }: OfferProps): JSX.Element {
                 size={ButtonSize.Small}
                 loading={closingOffer}
                 disabled={closingOffer}
-                onClick={() => onCloseOffer({ nft: offer.nft, auctionHouse: offer.auctionHouse })}
+                onClick={handleCancelOffer}
               >
-                {t('common:cancel')}
+                {t('cancel')}
               </Button>
             )}
-            {offer.nft?.owner?.address === viewerAddress && (
+            {nft?.owner?.address === viewerAddress && (
               <Button
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}
                 color={ButtonColor.Gradient}
                 size={ButtonSize.Small}
-                onClick={() => {}}
+                onClick={handleAcceptOffer}
+                loading={acceptingOffer}
               >
                 {t('accept')}
               </Button>

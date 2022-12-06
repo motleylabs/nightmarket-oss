@@ -12,6 +12,7 @@ fragment NftInfo on Nft {
   moonrankRank
   owner {
     address
+    associatedTokenAccountAddress
   }
   creators {
     address
@@ -37,17 +38,29 @@ fragment NftInfo on Nft {
     buyer
     seller
   }
+  offers {
+    id
+    tradeState
+    buyer
+    metadata
+    price
+    solPrice @client
+    auctionHouse {
+      address
+    }
+  }
   listings {
     ...ListingInfo
+  }
+  lastSale {
+    price
+    solPrice @client
   }
 }
 
 fragment NftListingInfo on Nft {
   ...NftInfo
 
-  listing @client {
-    ...ListingInfo
-  }
   listings {
     ...ListingInfo
   }
