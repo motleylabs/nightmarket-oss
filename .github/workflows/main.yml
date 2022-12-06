@@ -36,7 +36,6 @@ jobs:
           app=frontend
           git_branch=${GITHUB_REF##*/}
           solana_endpoint="https://holaplex-main-9e4a.mainnet.rpcpool.com"
-          node_env=production
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
 
           if [ $git_branch == 'main' ];then
@@ -73,6 +72,7 @@ jobs:
             });
 
       - name: Triggering deployment manifest update in kubes repository (prod)
+        if: github.ref == 'refs/heads/main'
         uses: actions/github-script@v6
         env:
           BRANCH: ${{ github.ref_name }}
