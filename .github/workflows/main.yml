@@ -29,19 +29,27 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ github.event.repository.name }}
-          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY}}
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          HOLAINDEXER_URL_PROD: ${{ secrets.HOLAINDEXER_URL_PROD }}
+          HOLAINDEXER_URL_DEV: ${{ secrets.HOLAINDEXER_URL_DEV }}
+          HOLAINDEXER_URL_TEST: ${{ secrets.HOLAINDEXER_URL_TEST }}
+          SOL_ENDPOINT: ${{ secrets.SOL_ENDPOINT }}
 
         run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           app=frontend
           git_branch=${GITHUB_REF##*/}
-          solana_endpoint="https://holaplex-main-9e4a.mainnet.rpcpool.com"
+          solana_endpoint="$SOL_ENDPOINT"
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
 
-          if [ $git_branch == 'main' ];then
-            graphql_endpoint="https://graph.holaplex.com/v1"
+          if [ $git_branch == 'main' || $git_branch == 'dev' ];then
+            if [ $git_branch == 'main' ];then
+              graphql_endpoint="$HOLAINDEXER_URL_PROD"
+            else
+              graphql_endpoint="$HOLAINDEXER_URL_DEV"
+            fi
           else
-            graphql_endpoint="https://graph-test.holaplex.tools/v1"
+            graphql_endpoint="$HOLAINDEXER_URL_TEST"
           fi
           #build
           docker build -t $image_tag  \
