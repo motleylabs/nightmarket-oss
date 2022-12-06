@@ -14,6 +14,8 @@
   "allActivity": "All activity",
   "offers": "Offers",
   "sales": "Sales",
+  "youPaid": "You paid",
+  "accept": "Accept",
   "search": {
     "collection": "Collection",
     "profiles": "Profiles",
@@ -33,6 +35,7 @@
     "discover": "Discover"
   },
   "offerable": {
+    "yourOffer": "Your offer",
     "makeOffer": "Make an offer",
     "floorPrice": "Current floor price",
     "listPrice": "Current listed price",
@@ -58,9 +61,13 @@
   "purchase": "Sold",
   "listing": "Listed",
   "offer": "Offer",
+  "cancelledOffer": "Cancelled Offer",
+  "cancelledListing": "Cancelled Listing",
   "update": "Update",
   "list": "List",
+  "lastSale": "Last sale",
   "viewProfile": "View profile",
   "switchWallet": "Switch wallet",
-  "disconnectWallet": "Disconnect wallet"
+  "disconnectWallet": "Disconnect wallet",
+  "clear": "Clear"
 }

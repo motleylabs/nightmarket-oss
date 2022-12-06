@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
+import Image from './Image';
 
 export enum AvatarSize {
   Tiny,
@@ -18,10 +19,8 @@ interface AvatarProps {
 
 export function Avatar({ src, circle, size }: AvatarProps) {
   return (
-    <img
-      src={src}
-      alt="avatar"
-      className={clsx('aspect-square object-cover', {
+    <div
+      className={clsx('group relative block overflow-clip', {
         'rounded-full': circle,
         'w-12': size === AvatarSize.Standard,
         'w-16': size === AvatarSize.Large,
@@ -30,6 +29,15 @@ export function Avatar({ src, circle, size }: AvatarProps) {
           [AvatarSize.Tiny, AvatarSize.Small, AvatarSize.Standard, AvatarSize.Large].includes(size),
         'rounded-lg': !circle && [AvatarSize.Jumbo, AvatarSize.Gigantic].includes(size),
       })}
-    />
+    >
+      <Image
+        src={src}
+        alt="avatar"
+        className={clsx(
+          'aspect-square object-cover',
+          'duration-100 ease-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
+        )}
+      />
+    </div>
   );
 }

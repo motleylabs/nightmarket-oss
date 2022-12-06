@@ -4,7 +4,7 @@ import { CollectionQuery, CollectionActivitiesQuery } from './../../../queries/c
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Collection } from '../../../graphql.types';
+import { Collection, ActivityType as EventTypes } from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import Select from '../../../components/Select';
 import { Activity, ActivityType } from '../../../components/Activity';
@@ -17,12 +17,17 @@ import { useForm, Controller } from 'react-hook-form';
 import { InView } from 'react-intersection-observer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'collection']);
+  const i18n = await serverSideTranslations(locale as string, [
+    'common',
+    'collection',
+    'analytics',
+  ]);
 
   const {
     data: { collection },
   } = await client.query({
     query: CollectionQuery,
+    fetchPolicy: 'network-only',
     variables: {
       id: params?.id,
     },
@@ -50,14 +55,14 @@ interface CollectionActivitiesVariables {
   offset: number;
   limit: number;
   id: string;
-  eventTypes: string[] | null;
+  eventTypes: EventTypes[] | null;
 }
 
 enum ActivityFilter {
   All = 'ALL',
-  Listings = 'LISTINGS',
-  Offers = 'OFFERS',
-  Sales = 'PURCHASES',
+  Listings = 'LISTING_CREATED',
+  Offers = 'OFFER_CREATED',
+  Sales = 'SALES',
 }
 
 interface CollectionActivityForm {
@@ -103,13 +108,13 @@ export default function CollectionActivity(): JSX.Element {
         case ActivityFilter.All:
           break;
         case ActivityFilter.Listings:
-          variables.eventTypes = [ActivityFilter.Listings];
+          variables.eventTypes = [EventTypes.ListingCreated];
           break;
         case ActivityFilter.Offers:
-          variables.eventTypes = [ActivityFilter.Offers];
+          variables.eventTypes = [EventTypes.OfferCreated];
           break;
         case ActivityFilter.Sales:
-          variables.eventTypes = [ActivityFilter.Sales];
+          variables.eventTypes = [EventTypes.Purchase];
           break;
       }
 
@@ -124,21 +129,23 @@ export default function CollectionActivity(): JSX.Element {
   return (
     <>
       <Toolbar>
-        <div />
-        <Controller
-          control={control}
-          name="type"
-          render={({ field: { onChange, value } }) => (
-            <Select
-              value={value}
-              onChange={onChange}
-              options={activityFilterOptions}
-              className="col-span-2 w-36 md:col-span-1"
-            />
-          )}
-        />
+        <div className="block" />
+        <div className="flex justify-end">
+          <Controller
+            control={control}
+            name="type"
+            render={({ field: { onChange, value } }) => (
+              <Select
+                value={value}
+                onChange={onChange}
+                options={activityFilterOptions}
+                className="w-36"
+              />
+            )}
+          />
+        </div>
       </Toolbar>
-      <div className="flex flex-col px-4 md:px-8">
+      <div className="flex flex-col gap-4 px-4 pt-4 md:px-8">
         {activitiesQuery.loading ? (
           <>
             <Activity.Skeleton />
@@ -151,10 +158,11 @@ export default function CollectionActivity(): JSX.Element {
             {activitiesQuery.data?.collection.activities.map((activity) => (
               <Activity
                 avatar={
-                  <Link href={`/nfts/${activity.nft?.mintAddress}/details`} passHref>
-                    <a className="cursor-pointer transition hover:scale-[1.02]">
-                      <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
-                    </a>
+                  <Link
+                    className="cursor-pointer transition hover:scale-[1.02]"
+                    href={`/nfts/${activity.nft?.mintAddress}/details`}
+                  >
+                    <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
                   </Link>
                 }
                 type={activity.activityType as ActivityType}
@@ -183,7 +191,6 @@ export default function CollectionActivity(): JSX.Element {
                       data: { collection },
                     } = await activitiesQuery.fetchMore({
                       variables: {
-                        ...activitiesQuery.variables,
                         offset: activitiesQuery.data?.collection.activities.length,
                       },
                     });

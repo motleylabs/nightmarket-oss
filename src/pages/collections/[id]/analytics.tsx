@@ -1,51 +1,21 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import client from '../../../client';
 import { Collection } from '../../../graphql.types';
 import CollectionLayout from '../../../layouts/CollectionLayout';
-import { CollectionQuery } from './../../../queries/collection.graphql';
+import {
+  CollectionQuery,
+  CollectionAnalyticsHolderCountQuery,
+  CollectionAnalyticsListedCountQuery,
+  CollectionAnalyticsFloorPriceQuery,
+} from './../../../queries/collection.graphql';
+import { CollectionAnalyticsData, CollectionAnalyticsVariables } from './../../../app.types';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
-import { useForm } from 'react-hook-form';
-import { Chart, DateRangeOption } from '../../../components/Chart';
+import { Chart } from '../../../components/Chart';
 import { useTranslation } from 'next-i18next';
-
-const floorPriceData = Array.from({ length: 24 }, (v, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 40) + 10,
-}));
-
-const listedCountData = Array.from({ length: 24 }).map((_, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 50) + 930,
-}));
-
-const priceDistributionData = Array.from({ length: 24 }).map((_, i) => ({
-  label: i > 12 ? i - 12 : i,
-  price: Math.floor(Math.random() * 200) + 930,
-}));
-
-const holdersVsTokensHeldData = [
-  {
-    y: 2012,
-    label: '1',
-  },
-  {
-    y: 959,
-    label: '2-5',
-  },
-  {
-    y: 60,
-    label: '6-24',
-  },
-  {
-    y: 4,
-    label: '25-50',
-  },
-  {
-    y: 0,
-    label: '50+',
-  },
-];
+import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import { DateRangeOption, getDateTimeRange } from '../../../modules/time';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -56,6 +26,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   const { data } = await client.query({
     query: CollectionQuery,
+    fetchPolicy: 'network-only',
     variables: {
       id: params?.id,
     },
@@ -76,53 +47,100 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
-export default function CollectionAnalyticsPage(props: { collection: Collection }) {
-  const { t } = useTranslation('analytics');
+const DEFAULT_DATE_RANGE = getDateTimeRange(DateRangeOption.DAY);
 
-  const { watch, control } = useForm({
-    defaultValues: {
-      floorPriceDateRange: DateRangeOption.DAY,
-      listingCountDateRange: DateRangeOption.DAY,
-      priceDistributionDateRange: DateRangeOption.DAY,
-      holdersVsHeldDateRange: DateRangeOption.DAY,
-    },
-  });
+const FloorPriceChart = () => {
+  const { t } = useTranslation('analytics');
+  const router = useRouter();
+
+  const floorDataQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsFloorPriceQuery,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: {
+        id: router.query.id as string,
+        startTime: DEFAULT_DATE_RANGE.startTime,
+        endTime: DEFAULT_DATE_RANGE.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    }
+  );
 
   return (
-    <div className="mt-10 px-10 pt-6 pb-20 md:mt-32">
-      <Chart.Card
-        className="h-96"
-        title={t('collection.floorPriceChartTitle')}
-        dateRangeId="floorPriceDateRange"
-        control={control}
-        chart={<Chart.LineChart data={floorPriceData} />}
-      />
+    <Chart.Timeseries
+      className="h-96"
+      title={t('collection.floorPriceChartTitle')}
+      query={floorDataQuery}
+      timeseries={floorDataQuery.data?.collection.timeseries.floorPrice}
+    />
+  );
+};
 
-      <div className="grid grid-cols-2 gap-8 py-8">
-        <Chart.Card
-          className="h-96"
-          title={t('collection.listedCountChartTitle')}
-          dateRangeId="listingCountDateRange"
-          control={control}
-          chart={<Chart.LineChart data={listedCountData} />}
-        />
+const ListedCountChart = () => {
+  const { t } = useTranslation('analytics');
+  const router = useRouter();
 
-        <Chart.Card
-          className="h-96"
-          title={t('collection.priceDistributionChartTitle')}
-          dateRangeId="priceDistributionDateRange"
-          control={control}
-          chart={<Chart.LineChart data={priceDistributionData} />}
-        />
+  const listedCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsListedCountQuery,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: {
+        id: router.query.id as string,
+        startTime: DEFAULT_DATE_RANGE.startTime,
+        endTime: DEFAULT_DATE_RANGE.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    }
+  );
+
+  return (
+    <Chart.Timeseries
+      className="h-96"
+      title={t('collection.listedCountChartTitle')}
+      query={listedCountQuery}
+      timeseries={listedCountQuery.data?.collection.timeseries.listedCount}
+    />
+  );
+};
+
+const HolderCountChart = () => {
+  const { t } = useTranslation('analytics');
+  const router = useRouter();
+
+  const holderCountQuery = useQuery<CollectionAnalyticsData, CollectionAnalyticsVariables>(
+    CollectionAnalyticsHolderCountQuery,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: {
+        id: router.query.id as string,
+        startTime: DEFAULT_DATE_RANGE.startTime,
+        endTime: DEFAULT_DATE_RANGE.endTime,
+      },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+    }
+  );
+
+  return (
+    <Chart.Timeseries
+      className="h-96"
+      title={t('collection.holderCountChartTitle')}
+      query={holderCountQuery}
+      timeseries={holderCountQuery.data?.collection.timeseries.ownersCount}
+    />
+  );
+};
+
+export default function CollectionAnalyticsPage(props: { collection: Collection }) {
+  return (
+    <div className="mt-10 px-10 pt-4 md:mt-[90px]">
+      <FloorPriceChart />
+      <div className="flex flex-col gap-8 py-8 sm:grid sm:grid-cols-2">
+        <ListedCountChart />
+        <HolderCountChart />
       </div>
-
-      <Chart.Card
-        className="h-96"
-        title={t('collection.holdersVsTokensHeldChartTitle')}
-        dateRangeId="holdersVsHeldDateRange"
-        control={control}
-        chart={<Chart.BarChart data={holdersVsTokensHeldData} />}
-      />
     </div>
   );
 }

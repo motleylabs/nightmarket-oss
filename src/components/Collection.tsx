@@ -1,12 +1,17 @@
 import clsx from 'clsx';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import Price from './Price';
 import { useTranslation } from 'next-i18next';
-import { Nft, Maybe } from '../graphql.types';
+import { CollectionNftPreviewsQuery } from './../queries/collection.graphql';
+import { Nft, Maybe, Collection } from '../graphql.types';
 import Icon from './Icon';
 import Link from 'next/link';
+import { useQuery } from '@apollo/client';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
+import Image from './../components/Image';
+import config from '../app.config';
+import { asCompactNumber } from '../modules/number';
 
 export function Collection() {
   return <div />;
@@ -48,10 +53,12 @@ function CollectionOption({
         <div className="flex w-full flex-col justify-between overflow-hidden px-3">
           {header}
           <div className="flex items-end justify-between">
-            <div className="-mb-1 flex flex-col">
-              <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
-              <Price price={floorPrice} />
-            </div>
+            {floorPrice && (
+              <div className="-mb-1 flex flex-col">
+                <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
+                <Price price={floorPrice} />
+              </div>
+            )}
             {children}
           </div>
         </div>
@@ -76,7 +83,7 @@ function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Ele
         alt="collection avatar"
       />
       {figure && (
-        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-xs text-white">
+        <span className="min-w-6 absolute right-0 bottom-0 z-10 m-1 flex aspect-square h-6 items-center justify-center rounded bg-gray-800 text-sm text-white">
           {figure}
         </span>
       )}
@@ -124,10 +131,16 @@ function CollectionOptionEstimatedValue({
   const { t } = useTranslation('collection');
 
   return (
-    <div className="-mb-1 flex flex-col">
-      <span className="text-[10px] text-gray-400">{t('estimatedValue', { ns: 'collection' })}</span>
-      <Price price={amount} />
-    </div>
+    <>
+      {amount && amount != 0 && (
+        <div className="-mb-1 flex flex-col">
+          <span className="text-[10px] text-gray-400">
+            {t('estimatedValue', { ns: 'collection' })}
+          </span>
+          <Price price={amount} />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -166,14 +179,16 @@ export default function CollectionCard({
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
           <span className="text-xs text-gray-300">{t('card.supply')}</span>
-          <div className="flex items-center justify-center">
-            <Icon.Sol /> {nftCount}
+          <div className="flex items-center justify-center gap-1">
+            <Icon.Sol />
+            {nftCount}
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <span className="text-xs text-gray-300">{t('card.floor')}</span>
-          <div className="flex items-center justify-center">
-            <Icon.Sol /> {floorPrice}
+          <span className="text-sm text-gray-300">{t('card.floor')}</span>
+          <div className="flex flex-row items-center justify-center gap-1">
+            <Icon.Sol />
+            {floorPrice}
           </div>
         </div>
       </div>
@@ -208,7 +223,7 @@ Collection.List = CollectionList;
 
 function CollectionListLoading() {
   return (
-    <div className="mb-2 flex items-center gap-4 rounded-2xl bg-gray-800 p-4 md:px-6 lg:gap-7">
+    <div className="mb-4 flex animate-pulse items-center gap-4 rounded-2xl bg-gray-800 p-4 transition md:px-6 lg:gap-7">
       {/* Collection Image */}
       <div className="h-16 w-16 rounded-lg bg-gray-800 md:h-12 md:w-12" />
       <div className="flex w-full flex-col justify-between gap-2 py-1 md:flex-row md:items-center lg:gap-8">
@@ -245,20 +260,100 @@ function CollectionListLoading() {
 CollectionList.Loading = CollectionListLoading;
 
 interface CollectionListRowProps {
-  id: String;
   children?: ReactNode;
 }
-function CollectionListRow({ children, id }: CollectionListRowProps) {
+function CollectionListRow({ children }: CollectionListRowProps) {
   return (
-    <Link href={`/collections/${id}`}>
-      <a className="mb-4 flex items-center gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:px-6 lg:gap-7">
-        {children}
-      </a>
-    </Link>
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gray-800 px-4 py-4 text-white md:flex-nowrap md:px-6 xl:gap-7">
+      {children}
+    </div>
   );
 }
 
 CollectionList.Row = CollectionListRow;
+
+interface CollectionListNftPreviewProps {
+  collection?: string;
+}
+
+interface CollectionNftPreviewsVariables {
+  auctionHouse: string;
+  id: string | undefined;
+}
+
+interface CollectionNftPreviewData {
+  collection: Collection;
+}
+
+function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps): JSX.Element {
+  const nftPreviewQuery = useQuery<CollectionNftPreviewData, CollectionNftPreviewsVariables>(
+    CollectionNftPreviewsQuery,
+    {
+      variables: {
+        id: collection,
+        auctionHouse: config.auctionHouse,
+      },
+    }
+  );
+
+  return (
+    <>
+      <div className="flex w-full justify-between md:hidden">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(0, 4)
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
+        )}
+      </div>
+      <div className="hidden justify-end gap-2 md:flex lg:gap-4">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(0, 2)
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
+        )}
+      </div>
+      <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(2, 5)
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
+        )}
+      </div>
+      <div className="hidden justify-end gap-2 lg:gap-4 2xl:flex">
+        {nftPreviewQuery.loading ? (
+          <>
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+            <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
+          </>
+        ) : (
+          nftPreviewQuery.data?.collection.nfts
+            .slice(5, 7)
+            .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
+        )}
+      </div>
+    </>
+  );
+}
+
+CollectionList.NftPreview = CollectionListNftPreview;
 
 interface CollectionListColProps {
   className?: String;
@@ -281,8 +376,8 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
-      <div className="flex flex-col justify-start gap-2 sm:w-32 sm:flex-row sm:items-center">
-        <p className="flex items-center text-sm font-semibold md:text-base">
+      <div className="flex flex-col justify-start gap-2 sm:w-28 sm:flex-row sm:items-center">
+        <p className="flex items-center gap-1 text-sm font-semibold md:text-base">
           {icon}
           {value}
         </p>
@@ -309,9 +404,9 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
         'text-[#F04438]': value < 0,
       })}
     >
-      {Math.abs(value)}%
+      {asCompactNumber(Math.abs(value))}%
       <ArrowUpIcon
-        className={clsx(clsx, 'h-3 w-3', {
+        className={clsx(clsx, 'h-2 w-2 md:h-3 md:w-3', {
           'rotate-180 transform': value < 0,
           'rotate-0 transform': value >= 0,
         })}
@@ -323,31 +418,41 @@ function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusP
 CollectionListDataPoint.Status = CollectionListDataPointStatus;
 
 interface CollectionListShowcaseNftProps {
-  image: string;
-  name: string;
-  price: number;
+  nft: Nft;
 }
-function CollectionListShowcaseNft({ image, name, price }: CollectionListShowcaseNftProps) {
+function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
+  const listing = nft.listings?.find((listing) => {
+    return listing.auctionHouse?.address === config.auctionHouse;
+  });
+
   return (
-    <div className=" flex w-16 flex-col items-center">
-      <a href={'/nfts/'} className=" rounded-lg p-0.5 hover:bg-gradient-primary">
-        <img src={image} alt={name} className="h-16 w-16 rounded-lg object-cover" />
-      </a>
-      <div className="group ">
-        <Button
-          icon={<Icon.Sol className="h-3 w-3" />}
-          color={ButtonColor.Gray}
-          background={ButtonBackground.Slate}
-          size={ButtonSize.Tiny}
-          className="-mt-3 shadow-lg shadow-black group-hover:hidden"
-        >
-          {price}
-        </Button>
-        <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
-          Buy
-        </Button>
+    <Link href={`/nfts/${nft.mintAddress}`}>
+      <div className="flex w-16 flex-col items-center">
+        <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
+          <Image
+            src={nft.image}
+            alt={`${nft.name} preview`}
+            className="h-16 w-16 rounded-lg object-cover"
+          />
+        </div>
+        {listing?.price && (
+          <div className="group ">
+            <Button
+              icon={<Icon.Sol className="h-3 w-3" />}
+              color={ButtonColor.Gray}
+              background={ButtonBackground.Slate}
+              size={ButtonSize.Tiny}
+              className="-mt-3 shadow-lg shadow-black group-hover:hidden"
+            >
+              {listing?.price}
+            </Button>
+            <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
+              Buy
+            </Button>
+          </div>
+        )}
       </div>
-    </div>
+    </Link>
   );
 }
 

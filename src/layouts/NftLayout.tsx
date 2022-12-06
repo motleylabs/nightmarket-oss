@@ -1,11 +1,12 @@
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
+import { ReactNode, useState, useMemo } from 'react';
+import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
-import { AuctionHouse, Nft } from '../graphql.types';
+import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
+import { Overview } from './../components/Nft';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
@@ -13,13 +14,17 @@ import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import { Form } from '../components/Form';
 import Head from 'next/head';
 import { viewerVar } from './../cache';
+import { Paragraph, TextColor, FontWeight } from '../components/Typography';
 import Icon from '../components/Icon';
 import { useWallet } from '@solana/wallet-adapter-react';
 import useBuyNow from '../hooks/buy';
 import useLogin from '../hooks/login';
-import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
-import { buyerSellerRewards } from '../modules/reward-center/calculateRewards';
-import { asCompactNumber } from '../modules/number';
+import config from '../app.config';
+import Image, { ImgBackdrop } from './../components/Image';
+import Lightbox from '../components/Lightbox';
+import { RewardCenterProgram } from '../modules/reward-center';
+import Flex, { FlexAlign, FlexDirection, FlexJustify } from '../components/Flex';
+import { Row, Col } from '../components/Grid';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -33,7 +38,6 @@ interface NftMarketData {
 
 interface NftMarketVariables {
   address: string;
-  viewerAddress: string;
 }
 
 enum NftPage {
@@ -47,33 +51,46 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   const router = useRouter();
   const onLogin = useLogin();
   const { publicKey, connected } = useWallet();
+  const client = useApolloClient();
   const viewer = useReactiveVar(viewerVar);
+  const [expanded, setExpanded] = useState(false);
 
   const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
     variables: {
       address: router.query.address as string,
-      viewerAddress: publicKey?.toBase58() as string,
     },
   });
 
-  const isOwner = viewer?.address === nft.owner?.address;
+  const isOwner = viewer?.address === data?.nft.owner?.address;
   const notOwner = !isOwner;
-  const listing = data?.nft.listing;
-  const highestOffer = data?.nft.highestOffer;
-  const viewerOffer = data?.nft.viewerOffer;
-  const rewardCenter = listing?.auctionHouse?.rewardCenter;
-  const rewards = useMemo(
-    () =>
-      listing && rewardCenter
-        ? buyerSellerRewards(
-            listing.price,
-            rewardCenter.mathematicalOperand,
-            rewardCenter.payoutNumeral,
-            rewardCenter.sellerRewardPayoutBasisPoints
-          )
-        : { buyerRewards: 0, sellerRewards: 0 },
-    [listing, rewardCenter]
-  );
+  const listing: AhListing | null = useMemo(() => {
+    const listing = data?.nft.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [data?.nft.listings]);
+  const highestOffer: Offer | null = useMemo(() => {
+    const offers = data?.nft.offers
+      .filter((offer: Offer) => offer.auctionHouse?.address === config.auctionHouse)
+      .sort((a: Offer, b: Offer) => {
+        return (b.solPrice as number) - (a.solPrice as number);
+      });
+
+    if (!offers) {
+      return null;
+    }
+
+    return offers[0] || null;
+  }, [data?.nft.offers]);
+  const viewerOffer: Offer | null = useMemo(() => {
+    const offer = data?.nft.offers.find(
+      (offer: Offer) =>
+        offer.buyer === publicKey?.toBase58() && offer.auctionHouse?.address === config.auctionHouse
+    );
+
+    return offer || null;
+  }, [data?.nft.offers, publicKey]);
 
   const {
     makeOffer,
@@ -83,32 +100,164 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     onOpenOffer,
     offerFormState,
     onCancelMakeOffer,
-  } = useMakeOffer();
+  } = useMakeOffer(data?.nft);
 
   const handleOffer = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
       return;
     }
-    await onMakeOffer({ amount, nft, auctionHouse });
+
+    try {
+      const response = await onMakeOffer({ amount, nft, auctionHouse });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice } =
+        response;
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offer: Offer = {
+            __typename: 'Offer',
+            id: `temp-id-${buyerTradeState.toBase58()}`,
+            tradeState: buyerTradeState.toBase58(),
+            tradeStateBump: buyerTradeStateBump,
+            buyer: publicKey?.toBase58(),
+            metadata: metadata.toBase58(),
+            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+            tokenAccount: associatedTokenAccount.toBase58(),
+            // @ts-ignore
+            auctionHouse: {
+              address: auctionHouse.address,
+              __typename: 'AuctionHouse',
+            },
+            createdAt: new Date().toISOString(),
+            // @ts-ignore
+            price: buyerPrice.toString(),
+            // @ts-ignore
+            nft: {
+              __typename: 'Nft',
+              address: nft.address,
+              mintAddress: nft.mintAddress,
+              name: nft.name,
+              image: nft.image,
+              owner: {
+                __typename: 'NftOwner',
+                address: nft.owner?.address as string,
+                associatedTokenAccountAddress: associatedTokenAccount.toBase58(),
+              },
+            },
+            // @ts-ignore
+            buyerWallet: {
+              __typename: 'Wallet',
+              address: publicKey?.toBase58(),
+              twitterHandle: null,
+              profile: null,
+            },
+          };
+
+          const offers = [...data.nft.offers, offer];
+
+          return {
+            nft: {
+              ...data.nft,
+              offers,
+            },
+          };
+        }
+      );
+    } catch (e: any) {}
   };
 
-  const {
-    buy,
-    registerBuy,
-    onBuyNow,
-    onOpenBuy,
-    onCloseBuy,
-    handleSubmitBuy,
-    buyFormState,
-    setValue,
-  } = useBuyNow();
+  const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
       return;
     }
 
-    await onBuyNow({ nft, auctionHouse, ahListing: listing });
+    try {
+      const response = await onBuyNow({
+        nft,
+        auctionHouse,
+        ahListing: listing,
+      });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
+
+      if (router.pathname === '/nfts/[address]/details') {
+        client.cache.updateQuery(
+          {
+            query: NftDetailsQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            return {
+              nft: {
+                ...data.nft,
+                owner: {
+                  __typename: 'NftOwner',
+                  address: publicKey?.toBase58(),
+                  associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+                  profile: null,
+                },
+              },
+            };
+          }
+        );
+      }
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
+
+          const nft = {
+            ...data.nft,
+            listings,
+            lastSale: {
+              __typename: 'LastSale',
+              price: listing.price.toString(),
+            },
+            owner: {
+              __typename: 'NftOwner',
+              address: publicKey?.toBase58(),
+              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+              profile: null,
+            },
+          };
+
+          return {
+            nft,
+          };
+        }
+      );
+    } catch (e: any) {}
   };
 
   const {
@@ -116,8 +265,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     handleSubmitListNft,
     registerListNft,
     onSubmitListNft,
-    onCancelListNftClick,
     onListNftClick,
+    onCancelListNftClick,
     listNftState,
   } = useListNft();
 
@@ -128,7 +277,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onSubmitListNft({ amount, nft, auctionHouse });
   };
 
-  const { onCloseListing, closingListing } = useCloseListing({ listing, nft });
+  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
 
   const {
     updateListing,
@@ -149,14 +298,119 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
   const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
 
-  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
-
-  const handleAcceptOffer = async () => {
-    if (!auctionHouse || !nft) {
+  const handleCloseOffer = async () => {
+    if (!viewerOffer) {
       return;
     }
 
-    await onAcceptOffer({ auctionHouse, nft });
+    try {
+      await onCloseOffer({ nft, auctionHouse });
+
+      client.cache.evict({
+        id: client.cache.identify(viewerOffer),
+      });
+    } catch (e: any) {}
+  };
+
+  const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
+
+  const handleAcceptOffer = async () => {
+    if (!auctionHouse || !nft || !highestOffer) {
+      return;
+    }
+
+    try {
+      const response = await onAcceptOffer({ auctionHouse, nft, listing });
+
+      if (!response) {
+        return;
+      }
+
+      const { buyerReceiptTokenAccount } = response;
+
+      client.cache.modify({
+        id: client.cache.identify({
+          __typename: 'Wallet',
+          address: data?.nft?.owner?.address as string,
+        }),
+        fields: {
+          collectedCollections(collectedCollections, { readField }) {
+            return collectedCollections.reduce((memo: any[], cc: any) => {
+              const id = readField('id', cc.collection);
+              if (id === data?.nft?.moonrankCollection?.id) {
+                const trends: Readonly<CollectionTrend> | undefined = readField(
+                  'trends',
+                  cc.collection
+                );
+
+                const estimatedValue = (
+                  parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                ).toString();
+
+                const update = {
+                  ...cc,
+                  estimatedValue,
+                  nftsOwned: cc.nftsOwned - 1,
+                };
+
+                if (update.nftsOwned === 0) {
+                  return memo;
+                }
+
+                return [...memo, update];
+              }
+
+              return [...memo, cc];
+            }, []);
+          },
+          nftCounts(counts, { readField }) {
+            let owned: number | undefined = readField('owned', counts);
+
+            if (!owned) {
+              return counts;
+            }
+
+            return {
+              ...counts,
+              owned: owned - 1,
+            };
+          },
+        },
+      });
+
+      client.cache.updateQuery(
+        {
+          query: NftMarketInfoQuery,
+          broadcast: false,
+          overwrite: true,
+          variables: {
+            address: nft.mintAddress,
+          },
+        },
+        (data) => {
+          const offers = data.nft.offers.filter((o: Offer) => o.id !== highestOffer.id);
+
+          const nft = {
+            ...data.nft,
+            offers,
+            lastSale: {
+              __typename: 'LastSale',
+              price: highestOffer.price.toString(),
+            },
+            owner: {
+              __typename: 'NftOwner',
+              address: highestOffer.buyer,
+              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+              profile: null,
+            },
+          };
+
+          return {
+            nft,
+          };
+        }
+      );
+    } catch (er: any) {}
   };
 
   const {
@@ -167,7 +421,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     updateOfferFormState,
     handleSubmitUpdateOffer,
     updateOffer,
-  } = useUpdateOffer(viewerOffer);
+  } = useUpdateOffer(viewerOffer, data?.nft);
 
   const handleUpdateOffer = async ({ amount }: { amount: string }) => {
     if (!amount || !nft || !auctionHouse) {
@@ -177,159 +431,106 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     await onUpdateOffer({ amount, nft, auctionHouse });
   };
 
-  useEffect(() => {
-    setValue('amount', listing?.solPrice as number);
-  }, [setValue, listing]);
-
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
-  const [expanded, setExpanded] = useState(false);
-
-  const expandedRef = useRef<HTMLDivElement>(null!);
-
   return (
-    <main className="relative mx-auto mt-8 flex max-w-7xl flex-wrap justify-start px-4 pb-4 md:mt-12 md:px-8 md:pb-8">
+    <Overview>
       <Head>
         <title>{nft.name}</title>
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="align-self-start relative mb-10 lg:w-1/2 lg:pr-10 ">
-        <div className="relative">
-          <img src={nft.image} alt="nft image" className="w-full rounded-lg object-cover" />
-          <button
-            onClick={() => setExpanded(true)}
-            className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 bg-opacity-20 text-white backdrop-blur-sm transition ease-in-out hover:scale-110 md:bottom-6 md:right-6"
-          >
-            <ArrowsPointingOutIcon className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-      <div
-        role="dialog"
-        onClick={() => setExpanded(false)}
-        className={clsx(
-          'fixed inset-0',
-          'cursor-pointer bg-gray-800 bg-opacity-40 backdrop-blur-lg',
-          'transition-opacity duration-500 ease-in-out',
-          'z-50 flex flex-col items-center justify-center',
-          {
-            'opacity-100': expanded,
-            'opacity-0': !expanded,
-            'pointer-events-auto': expanded,
-            'pointer-events-none': !expanded,
-            'z-50': expanded,
-          }
-        )}
-      >
-        <div
-          ref={expandedRef}
-          className={clsx(
-            `relative z-50 flex aspect-auto w-full flex-col overflow-x-auto overflow-y-auto rounded-lg text-white shadow-md scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 sm:h-auto `,
-            'px-4 sm:h-auto sm:max-w-2xl'
-          )}
-        >
-          <div>
-            <div className={`relative`}>
-              <img
-                src={nft.image}
-                className={`aspect-auto h-full w-full rounded-lg`}
-                alt={nft.name + ' image'}
-              />
-            </div>
+      <Overview.Media>
+        <Lightbox.Container>
+          <Image
+            src={nft.image}
+            alt="nft image"
+            className="w-full rounded-lg object-cover"
+            backdrop={ImgBackdrop.Cell}
+          />
+          <Lightbox.Show onClick={() => setExpanded(true)} />
+        </Lightbox.Container>
+      </Overview.Media>
+      <Lightbox show={expanded} onDismiss={() => setExpanded(false)}>
+        <Image
+          src={nft.image}
+          className="aspect-auto h-full w-full rounded-lg"
+          alt={`${nft.name} image`}
+        />
+      </Lightbox>
+      <Overview.Aside>
+        {loading ? (
+          <div className="mb-4 flex animate-pulse flex-row items-center gap-2 transition">
+            <div className="aspect-square w-10 rounded-md bg-gray-800" />
+            <div className="h-6 w-40 rounded-md bg-gray-800" />
           </div>
-        </div>
-      </div>
-      <div className="top-10 w-full pt-0 lg:sticky lg:w-1/2 lg:pt-20 lg:pl-10">
-        <div className="mb-4 flex flex-row items-center justify-between gap-2">
-          {nft.moonrankCollection ? (
-            // TODO: Update to collection id once nft is updated
-            <Link href={`/collections/${nft.moonrankCollection.id}/nfts`}>
-              <a className="flex flex-row items-center gap-2 transition hover:scale-[1.02]">
-                <img
-                  src={nft.moonrankCollection.image}
-                  className="aspect-square w-10 rounded-md object-cover"
-                  alt="collection image"
-                />
-                <h2 className="text-2xl">{nft.moonrankCollection.name}</h2>
-              </a>
+        ) : (
+          data?.nft.moonrankCollection && (
+            <Link
+              className="group mb-4 flex flex-row items-center gap-2 transition"
+              href={`/collections/${data?.nft.moonrankCollection.id}/nfts`}
+            >
+              <Image
+                src={data?.nft.moonrankCollection.image}
+                className="aspect-square w-10 rounded-md object-cover"
+                alt="collection image"
+              />
+              <h2 className="text-2xl transition group-hover:opacity-80">
+                {data?.nft.moonrankCollection.name}
+              </h2>
             </Link>
-          ) : (
-            <div />
-          )}
-        </div>
-        <h1 className="mb-6 text-4xl lg:text-5xl">{nft.name}</h1>
+          )
+        )}
+        <Overview.Title>{nft.name}</Overview.Title>
         {buy && (
-          <Form
-            onSubmit={handleSubmitBuy(handleBuy)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
-          >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
-              {t('buy')}
-            </h2>
-            <div className="mt-4 flex flex-col gap-4 px-6 pt-8 pb-6 md:pt-0">
+          <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
+            <Overview.Form.Title>{t('buy')}</Overview.Form.Title>
+            <Flex direction={FlexDirection.Col} className="mt-4 px-6 pt-8 pb-6 md:pt-0">
               <div>
-                <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
+                <Flex
+                  align={FlexAlign.Center}
+                  justify={FlexJustify.Between}
+                  className="rounded-md bg-primary-600 p-4"
+                >
                   <img
                     src="/images/nightmarket.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p className="text-primary-700">{400} SAUCE</p>
-                </div>
+                  <Paragraph color={TextColor.Orange}>SAUCE</Paragraph>
+                </Flex>
               </div>
-              <div className="flex flex-col gap-2">
-                {nft.moonrankCollection?.trends && (
-                  <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">
-                      {t('buyable.floorPrice', { ns: 'common' })}
-                    </p>
-                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {nft.moonrankCollection?.trends?.compactFloor1d}
-                    </p>
-                  </div>
+              <Overview.Form.Points>
+                {data?.nft.moonrankCollection?.trends && (
+                  <Overview.Form.Point label={t('buyable.floorPrice', { ns: 'common' })}>
+                    <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
+                  </Overview.Form.Point>
                 )}
                 {listing && (
-                  <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">
-                      {t('buyable.listPrice', { ns: 'common' })}
-                    </p>
-                    {/* TODO: sort for lowest listing thats not expired */}
-                    <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {listing.solPrice}
-                    </p>
-                  </div>
+                  <Overview.Form.Point label={t('buyable.listPrice', { ns: 'common' })}>
+                    <Icon.Sol /> {listing.solPrice}
+                  </Overview.Form.Point>
                 )}
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">
-                    {t('buyable.marketplaceFee', { ns: 'common' })}
-                  </p>
-                  <p className="text-base font-medium text-gray-300">
-                    {auctionHouse.fee}%{/* TODO: calculate based on listing price */}
-                  </p>
-                </div>
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">
-                    {t('buyable.currentBalance', { ns: 'common' })}
-                  </p>
-                  <p className="flex flex-row items-center justify-center text-base font-medium text-gray-300">
-                    <Icon.Sol /> {viewer?.solBalance}
-                  </p>
-                </div>
-              </div>
-              <div id={'buy-buttons'} className="flex flex-col gap-4">
+                <Overview.Form.Point label={t('buyable.marketplaceFee', { ns: 'common' })}>
+                  {auctionHouse.fee}%
+                </Overview.Form.Point>
+                <Overview.Form.Point label={t('buyable.currentBalance', { ns: 'common' })}>
+                  <Icon.Sol /> {viewer?.solBalance}
+                </Overview.Form.Point>
+              </Overview.Form.Points>
+              <Flex direction={FlexDirection.Col} gap={4}>
                 {connected ? (
                   <>
                     <Button
-                      className="font-semibold"
                       block
                       htmlType="submit"
-                      loading={buyFormState.isSubmitting}
+                      loading={buying}
+                      disabled={buying}
+                      onClick={handleBuy}
                     >
-                      {t('buyable.buyNowButton', { ns: 'common' })}
+                      {t('buy')}
                     </Button>
                     <Button
-                      className="font-semibold"
                       block
                       onClick={() => {
                         onCloseBuy();
@@ -337,6 +538,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
+                      disabled={buying}
                     >
                       {t('cancel', { ns: 'common' })}
                     </Button>
@@ -346,480 +548,386 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     {t('connectToBuy')}
                   </Button>
                 )}
-              </div>
-            </div>
-          </Form>
+              </Flex>
+            </Flex>
+          </div>
         )}
         {makeOffer && (
-          <Form
+          <Overview.Form
             onSubmit={handleSubmitOffer(handleOffer)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
+            title={<Overview.Form.Title>{t('placeBid')}</Overview.Form.Title>}
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
-              {t('placeBid')}
-            </h2>
-            <div className="px-6 pt-8 pb-6 md:pt-0">
-              <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
-                  src={nft.image}
-                  alt="nft image"
-                  className="h-12 w-12 rounded-md object-cover"
-                />
-                <div className="flex flex-col justify-between">
-                  <h6>{nft.name}</h6>
-                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
-                </div>
-              </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.moonrankCollection && (
-                  <li className="flex justify-between">
-                    <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
-                    </span>
-                  </li>
-                )}
-                {viewer && (
-                  <li className="flex justify-between">
-                    <span>{t('walletBalance')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol />
-                      {viewer.solBalance}
-                    </span>
-                  </li>
-                )}
-              </ul>
-              <Form.Label name={t('amount')}>
-                <div
-                  className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                    'input'
-                  )}
-                >
+            <Overview.Form.Preview
+              name={nft.name}
+              image={nft.image}
+              collection={data?.nft.moonrankCollection?.name}
+            />
+            <Overview.Form.Points>
+              {data?.nft.moonrankCollection?.trends && (
+                <Overview.Form.Point label={t('currentFloor')}>
+                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                </Overview.Form.Point>
+              )}
+              {viewer && (
+                <Overview.Form.Point label={t('walletBalance')}>
                   <Icon.Sol />
-                  <input
-                    {...registerOffer('amount', { required: true })}
-                    autoFocus
-                    className={clsx('w-full bg-transparent pl-2')}
-                  />
-                </div>
-                {offerFormState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
-                    {offerFormState.errors.amount?.message}
-                  </p>
-                )}
-              </Form.Label>
-              <Button
-                block
-                className="mb-4"
-                htmlType="submit"
-                loading={offerFormState.isSubmitting}
-              >
-                {t('submitOffer')}
-              </Button>
-              <Button
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gray}
-                color={ButtonColor.Gray}
-                block
-                onClick={onCancelMakeOffer}
-              >
-                {t('cancel', { ns: 'common' })}
-              </Button>
-            </div>
-          </Form>
+                  {viewer.solBalance}
+                </Overview.Form.Point>
+              )}
+            </Overview.Form.Points>
+            <Form.Label name={t('amount')}>
+              <Form.Input
+                icon={<Icon.Sol />}
+                error={offerFormState.errors.amount}
+                {...registerOffer('amount', { required: true })}
+              />
+              <Form.Error message={offerFormState.errors.amount?.message} />
+            </Form.Label>
+            <Button
+              block
+              className="mb-4"
+              htmlType="submit"
+              disabled={offerFormState.isSubmitting}
+              loading={offerFormState.isSubmitting}
+            >
+              {t('submitOffer')}
+            </Button>
+            <Button
+              background={ButtonBackground.Slate}
+              border={ButtonBorder.Gray}
+              color={ButtonColor.Gray}
+              block
+              disabled={offerFormState.isSubmitting}
+              onClick={onCancelMakeOffer}
+            >
+              {t('cancel', { ns: 'common' })}
+            </Button>
+          </Overview.Form>
         )}
         {updateOffer && (
-          <Form
+          <Overview.Form
             onSubmit={handleSubmitUpdateOffer(handleUpdateOffer)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md"
+            title={<Overview.Form.Title>{t('updateBid')}</Overview.Form.Title>}
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold text-white md:border-b-0 md:pb-0 md:text-left">
-              {t('updateBid')}
-            </h2>
-            <div className="px-6 pt-8 pb-6 md:pt-0">
-              <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
-                  src={nft.image}
-                  alt="nft image"
-                  className="h-12 w-12 rounded-md object-cover"
-                />
-                <div className="flex flex-col justify-between">
-                  <h6>{nft.name}</h6>
-                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
-                </div>
-              </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.moonrankCollection && (
-                  <li className="flex justify-between">
-                    <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
-                    </span>
-                  </li>
-                )}
-                {viewer && (
-                  <li className="flex justify-between">
-                    <span>{t('walletBalance')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol />
-                      {viewer.solBalance}
-                    </span>
-                  </li>
-                )}
-              </ul>
-              <Form.Label name={t('amount')}>
-                <div
-                  className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                    'input'
-                  )}
-                >
+            <Overview.Form.Preview
+              name={nft.name}
+              image={nft.image}
+              collection={data?.nft.moonrankCollection?.name}
+            />
+            <Overview.Form.Points>
+              {data?.nft.moonrankCollection && (
+                <Overview.Form.Point label={t('currentFloor')}>
+                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                </Overview.Form.Point>
+              )}
+              {viewer && (
+                <Overview.Form.Point label={t('walletBalance')}>
                   <Icon.Sol />
-                  <input
-                    {...registerUpdateOffer('amount', { required: true })}
-                    autoFocus
-                    className={clsx('w-full bg-transparent pl-2')}
-                  />
-                </div>
-                {updateOfferFormState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
-                    {updateOfferFormState.errors.amount?.message}
-                  </p>
-                )}
-              </Form.Label>
-              <Button
-                block
-                htmlType="submit"
-                className="mb-4"
-                loading={updateOfferFormState.isSubmitting}
-              >
-                {t('update')}
-              </Button>
-              <Button
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gray}
-                color={ButtonColor.Gray}
-                block
-                onClick={onCancelUpdateOffer}
-              >
-                {t('cancel', { ns: 'common' })}
-              </Button>
-            </div>
-          </Form>
+                  {viewer.solBalance}
+                </Overview.Form.Point>
+              )}
+            </Overview.Form.Points>
+            <Form.Label name={t('amount')}>
+              <Form.Input
+                icon={<Icon.Sol />}
+                error={updateOfferFormState.errors.amount}
+                {...registerUpdateOffer('amount', { required: true })}
+              />
+              <Form.Error message={updateOfferFormState.errors.amount?.message} />
+            </Form.Label>
+            <Button
+              block
+              htmlType="submit"
+              className="mb-4"
+              loading={updateOfferFormState.isSubmitting}
+              disabled={updateOfferFormState.isSubmitting}
+            >
+              {t('update')}
+            </Button>
+            <Button
+              background={ButtonBackground.Slate}
+              border={ButtonBorder.Gray}
+              color={ButtonColor.Gray}
+              block
+              onClick={onCancelUpdateOffer}
+              disabled={updateOfferFormState.isSubmitting}
+            >
+              {t('cancel', { ns: 'common' })}
+            </Button>
+          </Overview.Form>
         )}
         {listNft && (
-          <Form
+          <Overview.Form
             onSubmit={handleSubmitListNft(handleList)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            title={<Overview.Form.Title>{t('listNft')}</Overview.Form.Title>}
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
+            <Overview.Form.Preview
+              name={nft.name}
+              image={nft.image}
+              collection={data?.nft.moonrankCollection?.name}
+            />
+            <Overview.Form.Points>
+              {data?.nft.moonrankCollection?.trends && (
+                <Overview.Form.Point label={t('currentFloor')}>
+                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                </Overview.Form.Point>
+              )}
+            </Overview.Form.Points>
+            <Form.Label name={t('amount')}>
+              <Form.Input
+                icon={<Icon.Sol />}
+                autoFocus
+                error={offerFormState.errors.amount}
+                {...registerListNft('amount', { required: true })}
+              />
+              <Form.Error message={listNftState.errors.amount?.message} />
+            </Form.Label>
+            <Button
+              block
+              htmlType="submit"
+              className="mb-4"
+              loading={listNftState.isSubmitting}
+              disabled={listNftState.isSubmitting}
+            >
               {t('listNft')}
-            </h2>
-            <div className="px-6 pt-8 pb-6 md:pt-0">
-              <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
-                  src={nft.image}
-                  alt="nft image"
-                  className="h-12 w-12 rounded-md object-cover"
-                />
-                <div className="flex flex-col justify-between">
-                  <h6>{nft.name}</h6>
-                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
-                </div>
-              </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.moonrankCollection?.trends && (
-                  <li className="flex justify-between">
-                    <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
-                    </span>
-                  </li>
-                )}
-              </ul>
-              <Form.Label name={t('amount')}>
-                <div
-                  className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                    'input'
-                  )}
-                >
-                  <Icon.Sol />
-                  <input
-                    {...registerListNft('amount', { required: true })}
-                    autoFocus
-                    className="w-full bg-transparent"
-                  />
-                </div>
-                {listNftState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
-                    {listNftState.errors.amount?.message}
-                  </p>
-                )}
-              </Form.Label>
-              <Button block htmlType="submit" className="mb-4" loading={listNftState.isSubmitting}>
-                {t('listNft')}
-              </Button>
-              <Button
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gray}
-                color={ButtonColor.Gray}
-                block
-                onClick={onCancelListNftClick}
-              >
-                {t('cancel', { ns: 'common' })}
-              </Button>
-            </div>
-          </Form>
+            </Button>
+            <Button
+              block
+              background={ButtonBackground.Slate}
+              border={ButtonBorder.Gray}
+              color={ButtonColor.Gray}
+              onClick={onCancelListNftClick}
+              disabled={listNftState.isSubmitting}
+            >
+              {t('cancel', { ns: 'common' })}
+            </Button>
+          </Overview.Form>
         )}
         {updateListing && (
-          <Form
+          <Overview.Form
             onSubmit={handleSubmitUpdateListing(handleUpdateListing)}
-            className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 shadow-xl md:relative md:z-0 md:mb-10 md:rounded-md"
+            title={<Overview.Form.Title>{t('updateListing')}</Overview.Form.Title>}
           >
-            <h2 className="border-b-2 border-b-gray-800 p-6 text-center text-lg font-semibold md:border-b-0 md:pb-0 md:text-left">
-              {t('updateListing')}
-            </h2>
-            <div className="px-6 pt-8 pb-6 md:pt-0">
-              <div className="flex flex-row justify-start gap-4 md:hidden">
-                <img
-                  src={nft.image}
-                  alt="nft image"
-                  className="h-12 w-12 rounded-md object-cover"
-                />
-                <div className="flex flex-col justify-between">
-                  <h6>{nft.name}</h6>
-                  {nft.moonrankCollection && <h4>{nft.moonrankCollection.name}</h4>}
-                </div>
-              </div>
-              <ul className="my-6 flex flex-grow flex-col gap-2 text-gray-300">
-                {nft.moonrankCollection?.trends && (
-                  <li className="flex justify-between">
-                    <span>{t('currentFloor')}</span>
-                    <span className="flex flex-row items-center justify-center">
-                      <Icon.Sol /> {nft.moonrankCollection.trends?.compactFloor1d}
-                    </span>
-                  </li>
-                )}
-              </ul>
-              <Form.Label name={t('newPrice')}>
-                <div
-                  className={clsx(
-                    'flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
-                    'input'
-                  )}
-                >
-                  <Icon.Sol />
-                  <input
-                    {...registerUpdateListing('amount', { required: true })}
-                    autoFocus
-                    className="w-full bg-transparent"
-                  />
-                </div>
-                {updateListingState.errors.amount?.message && (
-                  <p className="whitespace-nowrap text-left text-xs text-red-500">
-                    {updateListingState.errors.amount?.message}
-                  </p>
-                )}
-              </Form.Label>
-              <Button
-                block
-                htmlType="submit"
-                className="mb-4"
-                loading={updateListingState.isSubmitting}
-              >
-                {t('update')}
-              </Button>
-              <Button
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gray}
-                color={ButtonColor.Gray}
-                block
-                onClick={onCancelUpdateListing}
-              >
-                {t('cancel', { ns: 'common' })}
-              </Button>
-            </div>
-          </Form>
-        )}
-        <div
-          className={clsx('mb-10 flex flex-col gap-4 rounded-md bg-black', {
-            'md:hidden': activeForm,
-          })}
-        >
-          <div className="flex flex-col items-center justify-between rounded-lg bg-gray-800">
-            {(listing || highestOffer) && (
-              <div className="flex w-full flex-row items-center justify-between border-b-[1px] border-b-gray-900 py-4 px-6">
-                <img
-                  src="/images/nightmarket.svg"
-                  className="h-5 w-auto object-fill"
-                  alt="night market logo"
-                />
-                <span className="flex flex-row gap-1">
-                  <p className="font-semibold">{t(isOwner ? 'sellEarn' : 'buyEarn')}</p>
-                  {listing && isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.sellerRewards)} $SAUCE
-                    </p>
-                  )}
-                  {listing && !isOwner && (
-                    <p className="text-primary-700">
-                      {asCompactNumber(rewards.buyerRewards)} $SAUCE
-                    </p>
-                  )}
-                </span>
-              </div>
-            )}
-            <div className={clsx('flex w-full flex-col gap-6 px-6 pt-6', { 'pb-6': listing })}>
-              <div className="grid w-full grid-cols-12">
-                {listing && (
-                  <div className="col-span-6 flex flex-col justify-between text-gray-300">
-                    <span>{t('listed')}</span>
-                    <div className="flex items-center gap-2">
-                      <Icon.Sol className="h-5 w-5" />
-                      <span className="text-2xl text-white">{listing.solPrice}</span>
-                    </div>
-                  </div>
-                )}
-                <div className="col-span-6">
-                  {listing && isOwner && (
-                    <Button block onClick={onUpdateListing}>
-                      {t('update')}
-                    </Button>
-                  )}
-                  {notOwner && listing && (
-                    <Button block onClick={onOpenBuy}>
-                      {t('buy')}
-                    </Button>
-                  )}
-                </div>
-              </div>
-              {listing && isOwner && (
-                <Button
-                  block
-                  loading={closingListing}
-                  border={ButtonBorder.Gray}
-                  color={ButtonColor.Gray}
-                  onClick={onCloseListing}
-                >
-                  {t('Cancel')}
-                </Button>
+            <Overview.Form.Preview
+              name={nft.name}
+              image={nft.image}
+              collection={data?.nft.moonrankCollection?.name}
+            />
+            <Overview.Form.Points>
+              {data?.nft.moonrankCollection?.trends && (
+                <Overview.Form.Point label={t('currentFloor')}>
+                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                </Overview.Form.Point>
               )}
-            </div>
-            {!listing && (
-              <div className="grid w-full grid-cols-12 gap-4 px-6 pb-6">
-                <div className="col-span-12 flex flex-row justify-start gap-4 text-gray-300 md:col-span-6">
-                  {(highestOffer || viewerOffer) && (
+            </Overview.Form.Points>
+            <Form.Label name={t('newPrice')}>
+              <Form.Input
+                icon={<Icon.Sol />}
+                error={updateListingState.errors.amount}
+                autoFocus
+                {...registerUpdateListing('amount', { required: true })}
+              />
+              <Form.Error message={updateListingState.errors.amount?.message} />
+            </Form.Label>
+            <Button
+              block
+              htmlType="submit"
+              className="mb-4"
+              loading={updateListingState.isSubmitting}
+              disabled={updateListingState.isSubmitting}
+            >
+              {t('update')}
+            </Button>
+            <Button
+              block
+              background={ButtonBackground.Slate}
+              border={ButtonBorder.Gray}
+              color={ButtonColor.Gray}
+              disabled={updateListingState.isSubmitting}
+              onClick={onCancelUpdateListing}
+            >
+              {t('cancel', { ns: 'common' })}
+            </Button>
+          </Overview.Form>
+        )}
+        {loading ? (
+          <Overview.Aside.Skeleton />
+        ) : (
+          <>
+            <Overview.Card
+              className={clsx({
+                'md:hidden': activeForm,
+              })}
+            >
+              <Flex
+                direction={FlexDirection.Col}
+                align={FlexAlign.Center}
+                justify={FlexJustify.Between}
+              >
+                {listing && (
+                  <Flex
+                    block
+                    align={FlexAlign.Center}
+                    justify={FlexJustify.Between}
+                    className="border-b-[1px] border-b-gray-900 py-4 px-6"
+                  >
+                    <img
+                      src="/images/nightmarket.svg"
+                      className="h-5 w-auto object-fill"
+                      alt="night market logo"
+                    />
+                    <Flex gap={1}>
+                      <Paragraph weight={FontWeight.Semibold}>
+                        {t(isOwner ? 'sellEarn' : 'buyEarn')}
+                      </Paragraph>
+                      <Paragraph color={TextColor.Orange}>SAUCE</Paragraph>
+                    </Flex>
+                  </Flex>
+                )}
+                <Flex block direction={FlexDirection.Col} gap={6} className="p-6">
+                  <Row block align={FlexAlign.Center}>
+                    <Overview.Figures>
+                      {listing && (
+                        <Overview.Figure
+                          label={t('listed')}
+                          amount={listing?.solPrice}
+                          size={Overview.Figure.Size.Large}
+                        />
+                      )}
+                      {data?.nft.lastSale?.price ? (
+                        <Overview.Figure
+                          className="md:flex-row"
+                          label={t('lastSale')}
+                          amount={data?.nft.lastSale?.solPrice}
+                        />
+                      ) : (
+                        <Paragraph weight={FontWeight.Semibold} color={TextColor.Gray}>
+                          {t('noSales')}
+                        </Paragraph>
+                      )}
+                    </Overview.Figures>
+                    <Col
+                      span={6}
+                      direction={FlexDirection.Col}
+                      justify={FlexJustify.Center}
+                      gap={6}
+                    >
+                      {isOwner ? (
+                        listing ? (
+                          <>
+                            <Button block onClick={onUpdateListing}>
+                              {t('updateListing')}
+                            </Button>
+                            <Button
+                              block
+                              loading={closingListing}
+                              border={ButtonBorder.Gray}
+                              color={ButtonColor.Gray}
+                              onClick={onCloseListing}
+                            >
+                              {t('cancelListing')}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button block onClick={onListNftClick}>
+                            {t('listNft')}
+                          </Button>
+                        )
+                      ) : (
+                        listing && (
+                          <Button block onClick={onOpenBuy}>
+                            {t('buy')}
+                          </Button>
+                        )
+                      )}
+                    </Col>
+                  </Row>
+                </Flex>
+              </Flex>
+            </Overview.Card>
+            <Overview.Card
+              className={clsx({
+                'md:hidden': activeForm,
+              })}
+            >
+              <Row block align={FlexAlign.Center} justify={FlexJustify.Start} className="p-6">
+                <Overview.Figures>
+                  {highestOffer || viewerOffer ? (
                     <>
                       {highestOffer && (
-                        <div>
-                          <span>{t('highestOffer')}</span>
-                          <span className="flex flex-row items-center justify-start">
-                            <Icon.Sol />
-                            {highestOffer.solPrice}
-                          </span>
-                        </div>
+                        <Overview.Figure
+                          label={t('highestOffer')}
+                          amount={highestOffer.solPrice}
+                          size={Overview.Figure.Size.Large}
+                        />
                       )}
                       {viewerOffer && (
-                        <div>
-                          <span>{t('viewerOffer')}</span>
-                          <span className="flex flex-row items-center justify-start">
-                            <Icon.Sol />
-                            {viewerOffer.solPrice}
-                          </span>
-                        </div>
+                        <Overview.Figure
+                          label={t('viewerOffer')}
+                          className="md:flex-row"
+                          amount={viewerOffer.solPrice}
+                        />
                       )}
                     </>
+                  ) : (
+                    <Paragraph weight={FontWeight.Semibold}>{t('noOffers')}</Paragraph>
                   )}
-                </div>
-                <div className="col-span-12 md:col-span-6">
-                  {isOwner &&
-                    (highestOffer ? (
-                      <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
-                        {t('accept')}
+                </Overview.Figures>
+                <Col span={6} direction={FlexDirection.Col} gap={4}>
+                  {isOwner && highestOffer && (
+                    <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
+                      {t('acceptOffer')}
+                    </Button>
+                  )}
+                  {notOwner &&
+                    (viewerOffer ? (
+                      <Button onClick={onOpenUpdateOffer} block>
+                        {t('updateOffer')}
                       </Button>
                     ) : (
-                      <Button block onClick={onListNftClick}>
-                        {t('listNft')}
+                      <Button
+                        onClick={onOpenOffer}
+                        background={ButtonBackground.Slate}
+                        border={ButtonBorder.Gradient}
+                        color={ButtonColor.Gradient}
+                        block
+                      >
+                        {t('bid')}
                       </Button>
                     ))}
-                  {notOwner && !listing && !viewerOffer && (
-                    <Button
-                      onClick={onOpenOffer}
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                      block
-                    >
-                      {t('bid')}
-                    </Button>
-                  )}
                   {viewerOffer && (
-                    <Button
-                      onClick={onOpenUpdateOffer}
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                      block
-                    >
-                      {t('update')}
-                    </Button>
-                  )}
-                </div>
-                {viewerOffer && (
-                  <div className="col-span-12">
                     <Button
                       block
                       loading={closingOffer}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
-                      onClick={() => onCloseOffer({ nft, auctionHouse })}
+                      onClick={handleCloseOffer}
                     >
-                      {t('Cancel')}
+                      {t('cancelOffer')}
                     </Button>
-                  </div>
-                )}
-                {isOwner && !listing && highestOffer && (
-                  <div className="col-span-12">
-                    <Button
-                      block
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                      background={ButtonBackground.Slate}
-                      onClick={onListNftClick}
-                    >
-                      {t('listNft')}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="align-self-start mb-10 w-full md:pr-10 lg:w-1/2">
-        <div className="mb-10 flex flex-row items-center justify-center">
+                  )}
+                </Col>
+              </Row>
+            </Overview.Card>
+          </>
+        )}
+      </Overview.Aside>
+      <Overview.Content>
+        <Overview.Tabs>
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
-            <Link href={`/nfts/${nft.mintAddress}/details`} passHref>
-              <a>
-                <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
-              </a>
+            <Link href={`/nfts/${nft.mintAddress}/details`} scroll={false}>
+              <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/offers`} passHref>
-              <a>
-                <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
-              </a>
+            <Link href={`/nfts/${nft.mintAddress}/offers`} scroll={false}>
+              <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
             </Link>
-            <Link href={`/nfts/${nft.mintAddress}/activity`} passHref>
-              <a>
-                <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
-              </a>
+            <Link href={`/nfts/${nft.mintAddress}/activity`} scroll={false}>
+              <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
             </Link>
           </ButtonGroup>
-        </div>
+        </Overview.Tabs>
         {children}
-      </div>
-    </main>
+      </Overview.Content>
+    </Overview>
   );
 }

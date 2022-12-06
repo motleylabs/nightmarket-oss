@@ -1,7 +1,8 @@
 #import "./fragments/profile.graphql"
 #import "./fragments/nft.graphql"
+#import "./fragments/listing.graphql"
 
-query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
+query WalletProfileQuery($address: PublicKey!, $auctionHouse: String!) @cached(ttl: 300) {
   wallet(address: $address) {
     address
     displayName @client
@@ -11,14 +12,31 @@ query WalletProfileQuery($address: PublicKey!) @cached(ttl: 300) {
       ...ProfileInfo
     }
   }
+  auctionHouse(address: $auctionHouse) {
+    address
+    sellerFeeBasisPoints
+    treasuryMint
+    authority
+    auctionHouseFeeAccount
+    auctionHouseTreasury
+    rewardCenter {
+      address
+      tokenMint
+      sellerRewardPayoutBasisPoints
+      payoutNumeral
+      mathematicalOperand
+    }
+  }
 }
 
-query WalletProfileClientQuery($address: PublicKey!) @cached(ttl: 120) {
+query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) @cached(ttl: 120) {
   wallet(address: $address) {
     address
+    totalRewards(rewardCenter: $rewardCenter)
     compactOwnedCount @client
     nftCounts {
       owned
+      listed
     }
     collectedCollections {
       collection {
@@ -64,11 +82,11 @@ query CollectedNFTsQuery(
 
 query ProfileActivitiesQuery(
   $address: PublicKey!
-  $eventTypes: [String!]
+  $eventTypes: [ActivityType!]
   $limit: Int = 25
   $offset: Int = 0
-) {
-  wallet(address: $address) @cached(ttl: 120) {
+) @cached(ttl: 120) {
+  wallet(address: $address) {
     address
     activities(eventTypes: $eventTypes, limit: $limit, offset: $offset) {
       id
@@ -113,6 +131,7 @@ query ProfileOffersQuery(
       timeSince @client
       marketplaceProgramAddress
       solPrice @client
+      buyer
       nftMarketplace @client {
         name
         logo
@@ -125,9 +144,19 @@ query ProfileOffersQuery(
         address
         name
         mintAddress
+        creators {
+          address
+        }
+        listings {
+          ...ListingInfo
+        }
         image(width: 100)
+        moonrankCollection {
+          id
+        }
         owner {
           address
+          associatedTokenAccountAddress
         }
       }
       buyerWallet {

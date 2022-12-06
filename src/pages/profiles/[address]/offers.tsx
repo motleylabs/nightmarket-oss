@@ -3,7 +3,13 @@ import { ReactElement, useEffect, useState } from 'react';
 import { WalletProfileQuery, ProfileOffersQuery } from './../../../queries/profile.graphql';
 import client from '../../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { OfferType, Wallet } from '../../../graphql.types';
+import {
+  AuctionHouse,
+  CollectedCollection,
+  CollectionTrend,
+  OfferType,
+  Wallet,
+} from '../../../graphql.types';
 import { Toolbar } from '../../../components/Toolbar';
 import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
@@ -16,27 +22,24 @@ import ProfileLayout from '../../../layouts/ProfileLayout';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { useWallet } from '@solana/wallet-adapter-react';
-import Button, {
-  ButtonSize,
-  ButtonBackground,
-  ButtonBorder,
-  ButtonColor,
-} from '../../../components/Button';
-import { Offerable } from '../../../components/Offerable';
+import Offer from './../../../components/Offer';
+import config from '../../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
   const {
-    data: { wallet },
+    data: { wallet, auctionHouse },
   } = await client.query({
     query: WalletProfileQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
+      auctionHouse: config.auctionHouse,
     },
   });
 
-  if (wallet === null) {
+  if (wallet === null || auctionHouse === null) {
     return {
       notFound: true,
     };
@@ -45,6 +48,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   return {
     props: {
       wallet,
+      auctionHouse,
       ...i18n,
     },
   };
@@ -71,7 +75,11 @@ interface ProfileOffersForm {
   type: string;
 }
 
-export default function ProfileOffers(): JSX.Element {
+interface ProfileOfferPageProps {
+  auctionHouse: AuctionHouse;
+}
+
+export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): JSX.Element {
   const { t } = useTranslation(['common', 'profile']);
   const { publicKey } = useWallet();
 
@@ -144,7 +152,7 @@ export default function ProfileOffers(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <div className="mt-4 flex flex-col px-4 md:px-8">
+      <div className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8">
         {offersQuery.loading ? (
           <>
             <Activity.Skeleton />
@@ -154,59 +162,91 @@ export default function ProfileOffers(): JSX.Element {
           </>
         ) : (
           <>
-            <Offerable connected={Boolean(publicKey)}>
-              {({ makeOffer }) =>
-                offersQuery.data?.wallet.offers.map((offer) => (
-                  <Activity
-                    avatar={
-                      <Link href={`/nfts/${offer.nft?.mintAddress}/details`} passHref>
-                        <a className="cursor-pointer transition hover:scale-[1.02]">
-                          <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
-                        </a>
-                      </Link>
-                    }
-                    type={ActivityType.Offer}
-                    key={offer.id}
-                    meta={
-                      <Activity.Meta
-                        title={<Activity.Tag />}
-                        marketplace={offer.nftMarketplace}
-                        source={<Activity.Wallet wallet={offer.buyerWallet} />}
-                      />
-                    }
-                    actionButton={
-                      <>
-                        {publicKey && offer.buyerWallet.address === publicKey.toBase58() && (
-                          <Button
-                            background={ButtonBackground.Slate}
-                            border={ButtonBorder.Gray}
-                            color={ButtonColor.Gray}
-                            size={ButtonSize.Small}
-                            onClick={() => {}}
-                          >
-                            {t('profile:update')}
-                          </Button>
-                        )}
-                        {publicKey && offer.nft?.owner?.address === publicKey.toBase58() && (
-                          <Button
-                            background={ButtonBackground.Slate}
-                            border={ButtonBorder.Gradient}
-                            color={ButtonColor.Gradient}
-                            size={ButtonSize.Small}
-                            onClick={() => {}}
-                          >
-                            {t('profile:accept')}
-                          </Button>
-                        )}
-                      </>
-                    }
-                  >
-                    <Activity.Price amount={offer.solPrice} />
-                    <Activity.Timestamp timeSince={offer.timeSince} />
-                  </Activity>
-                ))
-              }
-            </Offerable>
+            {offersQuery.data?.wallet.offers.map((offer, i) => {
+              return (
+                <Offer
+                  nft={offer.nft}
+                  avatar={
+                    <Link
+                      className="cursor-pointer transition hover:scale-[1.02]"
+                      href={`/nfts/${offer.nft?.mintAddress}/details`}
+                    >
+                      <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
+                    </Link>
+                  }
+                  offer={offer}
+                  auctionHouse={auctionHouse}
+                  key={`${offer.id}-${i}`}
+                  onAccept={() => {
+                    client.cache.evict({
+                      id: client.cache.identify(offer),
+                    });
+
+                    client.cache.modify({
+                      id: client.cache.identify({
+                        __typename: 'Wallet',
+                        address: router.query.address as string,
+                      }),
+                      fields: {
+                        collectedCollections(collectedCollections, { readField }) {
+                          return collectedCollections.reduce((memo: any[], cc: any) => {
+                            const id = readField('id', cc.collection);
+                            if (id === offer.nft?.moonrankCollection?.id) {
+                              const trends: Readonly<CollectionTrend> | undefined = readField(
+                                'trends',
+                                cc.collection
+                              );
+
+                              const estimatedValue = (
+                                parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                              ).toString();
+
+                              const update = {
+                                ...cc,
+                                estimatedValue,
+                                nftsOwned: cc.nftsOwned - 1,
+                              };
+
+                              if (update.nftsOwned === 0) {
+                                return memo;
+                              }
+
+                              return [...memo, update];
+                            }
+
+                            return [...memo, cc];
+                          }, []);
+                        },
+                        nftCounts(counts, { readField }) {
+                          let owned: number | undefined = readField('owned', counts);
+
+                          if (!owned) {
+                            return counts;
+                          }
+
+                          return {
+                            ...counts,
+                            owned: owned - 1,
+                          };
+                        },
+                      },
+                    });
+                  }}
+                  onCancel={() => {
+                    client.cache.evict({
+                      id: client.cache.identify(offer),
+                    });
+                  }}
+                  meta={
+                    <Activity.Meta
+                      title={<Activity.Tag />}
+                      marketplace={offer.nftMarketplace}
+                      source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                    />
+                  }
+                />
+              );
+            })}
             {hasMore && (
               <>
                 <InView
@@ -219,7 +259,6 @@ export default function ProfileOffers(): JSX.Element {
                       data: { wallet },
                     } = await offersQuery.fetchMore({
                       variables: {
-                        ...offersQuery.variables,
                         offset: offersQuery.data?.wallet.offers.length,
                       },
                     });
@@ -243,11 +282,17 @@ export default function ProfileOffers(): JSX.Element {
 interface ProfileActivityLayoutProps {
   children: ReactElement;
   wallet: Wallet;
+  auctionHouse: AuctionHouse;
 }
 
 ProfileOffers.getLayout = function ProfileActivityLayout({
   children,
   wallet,
+  auctionHouse,
 }: ProfileActivityLayoutProps): JSX.Element {
-  return <ProfileLayout wallet={wallet}>{children}</ProfileLayout>;
+  return (
+    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
+      {children}
+    </ProfileLayout>
+  );
 };

@@ -1,6 +1,9 @@
+import { QueryResult } from '@apollo/client';
 import clsx from 'clsx';
-import { ReactNode } from 'react';
-import { Controller } from 'react-hook-form';
+import { format, roundToNearestMinutes } from 'date-fns';
+import { ReactNode, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { CollectionAnalyticsData, CollectionAnalyticsVariables } from '../app.types';
 import {
   Bar,
   BarChart,
@@ -12,27 +15,36 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Datapoint } from '../graphql.types';
 import { ButtonGroup } from './ButtonGroup';
-
-export enum DateRangeOption {
-  DAY = 'One day',
-  WEEK = 'One week',
-  MONTH = 'One month',
-}
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { DateRangeOption, getDateTimeRange } from '../modules/time';
+import { TailSpin } from 'react-loader-spinner';
 
 export function Chart() {
   return <div />;
 }
 
+const tickGapDict = {
+  [DateRangeOption.DAY]: 60,
+  [DateRangeOption.WEEK]: 200,
+  [DateRangeOption.MONTH]: 90,
+};
+
 function StyledLineChart(props: {
+  dateRange?: DateRangeOption;
   height?: number;
-  data: any[];
+  data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return (
+  const { t } = useTranslation('analytics');
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data} margin={{ top: 24, right: 10, bottom: 24, left: 10 }}>
         <defs>
@@ -48,16 +60,32 @@ function StyledLineChart(props: {
           strokeDasharray="1000 0 "
         />
         <XAxis
-          interval={10}
+          interval="preserveEnd"
           tickLine={false}
-          width={25}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
+          height={1}
+          dataKey="timestamp"
+          type="number"
+          scale={'time'}
+          domain={['auto', 'auto']}
+          minTickGap={(props.dateRange && tickGapDict[props.dateRange]) || 5}
+          tickFormatter={(tick) => {
+            const dateTime = roundToNearestMinutes(tick, { nearestTo: 30 });
+            if (props.dateRange === DateRangeOption.DAY) {
+              return format(dateTime, 'h:mm'); // 12:30
+            } else if (props.dateRange === DateRangeOption.WEEK) {
+              return format(dateTime, 'do'); // 24th
+            } else {
+              return format(dateTime, 'do'); // 24th
+            }
+          }}
         />
         <YAxis
           tickCount={3}
           tickLine={false}
-          width={25}
+          allowDecimals={false}
+          width={30}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
@@ -66,27 +94,47 @@ function StyledLineChart(props: {
           type="monotone"
           dot={false}
           strokeWidth={4}
-          dataKey="price"
+          dataKey="amount"
           stroke="url(#lineColor)"
         />
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto pb-10 text-lg text-gray-300">
+      {props.loading ? (
+        <TailSpin height="40px" width="40px" color="#ED9E09" ariaLabel={t('loading')} />
+      ) : (
+        t('noData')
+      )}
+    </div>
   );
 }
 Chart.LineChart = StyledLineChart;
 
 function TinyLineChart(props: {
   height?: number;
-  data: any[];
+  data: Datapoint[];
+  loading: boolean;
   options?: {
     yDataKey?: string;
   };
   children?: ReactNode;
 }) {
-  return (
+  const { t } = useTranslation('analytics');
+
+  const chartRef = useRef(null);
+  const [hideAxis, setHideAxis] = useState(true);
+
+  return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={props.data}>
+      <LineChart
+        ref={chartRef}
+        data={props.data}
+        margin={{ top: 2, right: 24, bottom: 0, left: hideAxis ? 24 : 50 }}
+        onMouseEnter={() => setHideAxis(false)}
+        onMouseLeave={() => setHideAxis(true)}
+      >
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -98,7 +146,8 @@ function TinyLineChart(props: {
           tickCount={4}
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '10px' }}
-          width={15}
+          width={10}
+          hide={hideAxis}
           axisLine={false}
           domain={['dataMin', 'dataMax']}
         />
@@ -106,12 +155,20 @@ function TinyLineChart(props: {
           type="monotone"
           dot={false}
           strokeWidth={2}
-          dataKey="price"
+          dataKey="amount"
           stroke="url(#lineColor)"
         />
         {props.children}
       </LineChart>
     </ResponsiveContainer>
+  ) : (
+    <div className="my-auto mx-auto text-sm text-gray-300">
+      {props.loading ? (
+        <TailSpin height="20px" width="20px" color="#ED9E09" ariaLabel={t('loading')} />
+      ) : (
+        t('noData')
+      )}
+    </div>
   );
 }
 Chart.TinyLineChart = TinyLineChart;
@@ -126,7 +183,7 @@ function StyledBarChart(props: {
 }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={props.data} margin={{ bottom: 10 }}>
+      <BarChart data={props.data}>
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
@@ -136,33 +193,20 @@ function StyledBarChart(props: {
         <CartesianGrid vertical={false} stroke="#A8A8A8" horizontal={false} />
         <YAxis
           dataKey={'y'}
-          tickCount={6}
+          tickCount={10}
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
         >
-          <Label
-            value="Number of Holders"
-            angle={-90}
-            fontSize="12px"
-            fill="#8B8B8E"
-            position={'insideLeft'}
-          />
+          <Label angle={-90} fontSize="12px" fill="#8B8B8E" position="insideLeft" />
         </YAxis>
         <XAxis
-          // interval={10}
           tickLine={false}
           tick={{ stroke: '#A8A8A8', strokeWidth: '0.5', fontSize: '12px' }}
           axisLine={false}
           dataKey="label"
         >
-          <Label
-            value="Number of Tokens Held"
-            fontSize="12px"
-            fill="#8B8B8E"
-            position={'insideBottom'}
-            dy={15}
-          />
+          <Label fontSize="12px" fill="#8B8B8E" position="insideBottom" dy={15} />
         </XAxis>
         <CartesianGrid vertical={false} stroke="#A8A8A8" />
         <Bar type="monotone" barSize={24} dataKey="y" fill="url(#lineColor)" />
@@ -173,45 +217,85 @@ function StyledBarChart(props: {
 }
 Chart.BarChart = StyledBarChart;
 
-function ChartCard(props: {
+function ChartTimeseries(props: {
   title: string;
-  control: any;
-  dateRangeId?: string;
-  chart: ReactNode;
   className?: string;
+  query: QueryResult<CollectionAnalyticsData, CollectionAnalyticsVariables>;
+  timeseries: Datapoint[] | undefined;
 }) {
+  const router = useRouter();
+  const { t } = useTranslation('analytics');
+
+  const { watch, control } = useForm({
+    defaultValues: {
+      range: DateRangeOption.DAY,
+    },
+  });
+
+  const dateRange = watch('range');
+
+  const selectedDateRange = useMemo(() => {
+    switch (dateRange) {
+      case DateRangeOption.DAY:
+        return t('oneDay');
+      case DateRangeOption.WEEK:
+        return t('oneWeek');
+      case DateRangeOption.MONTH:
+        return t('oneMonth');
+    }
+  }, [dateRange, t]);
+
+  useEffect(() => {
+    const subscription = watch(({ range }) => {
+      let dateRange = getDateTimeRange(range!);
+
+      let variables: CollectionAnalyticsVariables = {
+        id: router.query.id as string,
+        startTime: dateRange.startTime,
+        endTime: dateRange.endTime,
+      };
+
+      props.query.refetch(variables);
+    });
+
+    return subscription.unsubscribe;
+  }, [watch, router.query.id, props.query]);
+
   return (
     <div className={clsx('flex flex-col gap-10 rounded-lg bg-gray-800 p-6', props.className)}>
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h2>{props.title}</h2>
-          <p className="text-gray-250 text-xs">One Day</p>
+          <p className="text-gray-250 text-sm">{selectedDateRange}</p>
         </div>
-        {props.dateRangeId && (
-          <Controller
-            control={props.control}
-            name={props.dateRangeId}
-            render={({ field: { onChange, value } }) => (
-              <ButtonGroup value={value} onChange={onChange} style="plain">
-                <ButtonGroup.Option plain value={DateRangeOption.DAY}>
-                  1D
-                </ButtonGroup.Option>
-                <ButtonGroup.Option plain value={DateRangeOption.WEEK}>
-                  1W
-                </ButtonGroup.Option>
-                <ButtonGroup.Option plain value={DateRangeOption.MONTH}>
-                  1M
-                </ButtonGroup.Option>
-              </ButtonGroup>
-            )}
-          />
-        )}
+        <Controller
+          control={control}
+          name="range"
+          render={({ field: { onChange, value } }) => (
+            <ButtonGroup value={value} onChange={onChange} style="plain">
+              <ButtonGroup.Option plain value={DateRangeOption.DAY}>
+                1D
+              </ButtonGroup.Option>
+              <ButtonGroup.Option plain value={DateRangeOption.WEEK}>
+                1W
+              </ButtonGroup.Option>
+              <ButtonGroup.Option plain value={DateRangeOption.MONTH}>
+                1M
+              </ButtonGroup.Option>
+            </ButtonGroup>
+          )}
+        />
       </div>
-      {props.chart}
+      <Chart.LineChart
+        dateRange={dateRange}
+        data={props.timeseries || []}
+        loading={props.query.loading}
+      />
     </div>
   );
 }
-Chart.Card = ChartCard;
+
+Chart.Timeseries = ChartTimeseries;
 
 function ChartPreview({
   title,
@@ -225,8 +309,8 @@ function ChartPreview({
   className?: string;
 }) {
   return (
-    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 p-6', className)}>
-      <div className="flex items-center justify-between">
+    <div className={clsx('flex flex-col gap-3 rounded-xl bg-gray-800 py-6', className)}>
+      <div className="flex items-center justify-between px-6">
         <h2 className="text-sm text-gray-300">{title}</h2>
         <h2 className="text-sm text-gray-300">{dateRange}</h2>
       </div>
@@ -234,4 +318,5 @@ function ChartPreview({
     </div>
   );
 }
+
 Chart.Preview = ChartPreview;

@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import zod from 'zod';
+import zod, { z, ZodObject } from 'zod';
 import { useEffect } from 'react';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
+import { AhListing, AuctionHouse, Maybe, Nft, Offer } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import {
   createCreateOfferInstruction,
@@ -14,18 +14,27 @@ import {
   createCloseOfferInstruction,
   CloseOfferInstructionAccounts,
   CloseOfferInstructionArgs,
-  createCreateListingInstruction,
-  CreateListingInstructionAccounts,
-  CreateListingInstructionArgs,
-  createExecuteSaleInstruction,
-  ExecuteSaleInstructionAccounts,
-  ExecuteSaleInstructionArgs,
+  createAcceptOfferInstruction,
+  AcceptOfferInstructionAccounts,
+  AcceptOfferInstructionArgs,
+  CloseListingInstructionAccounts,
+  createCloseListingInstruction,
 } from '@holaplex/hpl-reward-center';
-import { PublicKey, Transaction, AccountMeta, TransactionInstruction } from '@solana/web3.js';
+import {
+  PublicKey,
+  Transaction,
+  AccountMeta,
+  TransactionInstruction,
+  ComputeBudgetProgram,
+} from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
+import { useApolloClient } from '@apollo/client';
+import { useRouter } from 'next/router';
+import { notifyInstructionError } from '../modules/bugsnag';
+import config from '../app.config';
 
 interface OfferForm {
   amount: string;
@@ -36,49 +45,105 @@ interface MakeOfferForm extends OfferForm {
   auctionHouse: AuctionHouse;
 }
 
-const schema = zod.object({
-  amount: zod
-    .string()
-    .min(1, `Must enter an amount`)
-    .regex(/^[0-9.]*$/, { message: `Must be a number` }),
-});
+interface MakeOfferResponse {
+  buyerTradeState: PublicKey;
+  metadata: PublicKey;
+  buyerTradeStateBump: number;
+  associatedTokenAccount: PublicKey;
+  buyerPrice: number;
+}
 
 interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<void>;
+  onMakeOffer: ({
+    amount,
+    nft,
+    auctionHouse,
+  }: MakeOfferForm) => Promise<MakeOfferResponse | undefined>;
   onOpenOffer: () => void;
   onCancelMakeOffer: () => void;
   offerFormState: FormState<OfferForm>;
 }
 
-export function useMakeOffer(): MakeOfferContext {
+export function useMakeOffer(nft?: Nft): MakeOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
+
   const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
+
+  const listing: AhListing | null = useMemo(() => {
+    const listing = nft?.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [nft?.listings]);
+
+  const offerSchema = useMemo(() => {
+    let validation: zod.ZodNumber = zod.number();
+
+    if (listing?.solPrice) {
+      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+          config.offerMinimums.percentageListing * 100
+        }% of the listing price`
+      );
+    } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+      const minOffer =
+        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        config.offerMinimums.percentageFloor;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+          config.offerMinimums.percentageFloor * 100
+        }% of the floor price`
+      );
+    }
+
+    const offerSchema = zod.object({
+      amount: zod.preprocess((input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      }, validation),
+    });
+
+    return offerSchema;
+  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+
   const {
     register: registerOffer,
     handleSubmit: handleSubmitOffer,
-    reset,
     formState: offerFormState,
   } = useForm<OfferForm>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(offerSchema),
   });
 
   const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
-    if (!connected || !publicKey || !signTransaction) {
-      return;
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
+      throw Error('not all params provided');
     }
+
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const offerPrice = toLamports(Number(amount));
+    const buyerPrice = toLamports(Number(amount));
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
+    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
@@ -89,7 +154,7 @@ export function useMakeOffer(): MakeOfferContext {
         auctionHouseAddress,
         treasuryMint,
         tokenMint,
-        offerPrice,
+        buyerPrice,
         1
       );
 
@@ -106,7 +171,7 @@ export function useMakeOffer(): MakeOfferContext {
       paymentAccount: publicKey,
       transferAuthority: publicKey,
       treasuryMint,
-      tokenAccount: associatedTokenAcc,
+      tokenAccount: associatedTokenAccount,
       metadata,
       escrowPaymentAccount: escrowPaymentAcc,
       authority,
@@ -122,13 +187,36 @@ export function useMakeOffer(): MakeOfferContext {
       createOfferParams: {
         tradeStateBump: buyerTradeStateBump,
         escrowPaymentBump,
-        buyerPrice: offerPrice,
+        buyerPrice,
         tokenSize: 1,
       },
     };
 
     const instruction = createCreateOfferInstruction(accounts, args);
     const tx = new Transaction();
+
+    const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      publicKey
+    );
+
+    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      token,
+      buyerRewardTokenAccount,
+      publicKey,
+      publicKey
+    );
+
+    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
+
+    if (!buyerAtAInfo) {
+      tx.add(buyerATAInstruction);
+    }
+
     tx.add(instruction);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -148,11 +236,24 @@ export function useMakeOffer(): MakeOfferContext {
           'confirmed'
         );
       }
-      toast('You offer is in', { type: 'success' });
+
+      toast('Your offer is in', { type: 'success' });
+
+      return { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice };
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer created',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
-      setMakeOffer(true);
+      setMakeOffer(false);
     }
   };
 
@@ -189,18 +290,68 @@ interface UpdateOfferContext {
   updateOfferFormState: FormState<OfferForm>;
 }
 
-export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferContext {
+export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): UpdateOfferContext {
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
   const [updateOffer, setUpdateOffer] = useState(false);
+  const client = useApolloClient();
+
+  const listing: AhListing | null = useMemo(() => {
+    const listing = nft?.listings?.find((listing: AhListing) => {
+      return listing.auctionHouse?.address === config.auctionHouse;
+    });
+
+    return listing || null;
+  }, [nft?.listings]);
+
+  const offerSchema = useMemo(() => {
+    let validation: zod.ZodNumber = zod.number();
+
+    if (listing?.solPrice) {
+      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+          config.offerMinimums.percentageListing * 100
+        }% of the listing price`
+      );
+    } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
+      const minOffer =
+        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        config.offerMinimums.percentageFloor;
+
+      validation = validation.min(
+        minOffer,
+        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${Math.round(
+          config.offerMinimums.percentageFloor * 100
+        )}% of the floor price`
+      );
+    }
+
+    const offerSchema = zod.object({
+      amount: zod.preprocess((input) => {
+        const processed = zod
+          .string()
+          .min(1, `Must enter an amount`)
+          .regex(/^[0-9.]*$/, { message: `Must be a number` })
+          .transform(Number)
+          .safeParse(input);
+        return processed.success ? processed.data : input;
+      }, validation),
+    });
+
+    return offerSchema;
+  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+
   const {
     register: registerUpdateOffer,
     handleSubmit: handleSubmitUpdateOffer,
     reset,
     formState: updateOfferFormState,
   } = useForm<OfferForm>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(offerSchema),
   });
 
   useEffect(() => {
@@ -210,7 +361,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
   }, [offer?.solPrice, reset]);
 
   const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
-    if (!connected || !publicKey || !signTransaction || !offer) {
+    if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
@@ -220,18 +371,18 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-    const [buyerTradeState, _tradeStateBump] =
+    const [buyerTradeState, _buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(
         publicKey,
         auctionHouseAddress,
         treasuryMint,
         tokenMint,
-        Number(offer.price),
+        offer.price.toNumber(),
         1
       );
 
@@ -258,17 +409,12 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
       rewardCenter
     );
 
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
-      tokenMint,
-      publicKey
-    );
-
     const closeOfferAccounts: CloseOfferInstructionAccounts = {
       wallet: publicKey,
       offer: rewardsOffer,
       treasuryMint,
       tokenAccount: associatedTokenAcc,
-      receiptAccount: buyerReceiptTokenAccount,
+      receiptAccount: publicKey,
       escrowPaymentAccount: escrowPaymentAcc,
       metadata,
       tokenMint,
@@ -337,12 +483,34 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined): UpdateOfferCont
           },
           'confirmed'
         );
-        toast('Offer updated', { type: 'success' });
       }
+
+      client.cache.modify({
+        id: client.cache.identify({
+          __typename: 'Offer',
+          id: offer.id,
+        }),
+        fields: {
+          price() {
+            return newOfferPrice.toString();
+          },
+        },
+      });
+
+      toast('Offer updated', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer updated',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
     } finally {
-      setUpdateOffer(true);
+      setUpdateOffer(false);
     }
   };
 
@@ -381,6 +549,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
   const login = useLogin();
+  const router = useRouter();
   const [closingOffer, setClosingOffer] = useState(false);
 
   const onCloseOffer = async ({
@@ -407,23 +576,18 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
     const metadata = new PublicKey(nft.address);
     const associatedTokenAcc = new PublicKey(nft.owner!.associatedTokenAccountAddress);
 
+    const [buyerTradeState, _tradeStateBump] =
+      await AuctionHouseProgram.findPublicBidTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        treasuryMint,
+        tokenMint,
+        offer.price.toNumber(),
+        1
+      );
+
     const [escrowPaymentAcc, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
-      tokenMint,
-      publicKey
-    );
-
-    const [buyerTradeState, _tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      associatedTokenAcc,
-      treasuryMint,
-      tokenMint,
-      Number(offer.price),
-      1
-    );
 
     const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
 
@@ -443,7 +607,7 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
       offer: rewardsOffer,
       treasuryMint,
       tokenAccount: associatedTokenAcc,
-      receiptAccount: buyerReceiptTokenAccount,
+      receiptAccount: publicKey,
       escrowPaymentAccount: escrowPaymentAcc,
       metadata,
       tokenMint,
@@ -483,9 +647,21 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
         },
         'confirmed'
       );
+
       toast('Offer canceled', { type: 'success' });
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer cancelled',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setClosingOffer(false);
     }
@@ -500,24 +676,35 @@ export function useCloseOffer(offer: Maybe<Offer> | undefined): CancelOfferConte
 interface AcceptOfferParams {
   auctionHouse: AuctionHouse;
   nft: Nft;
+  listing?: AhListing | null;
+}
+
+export interface AcceptOfferResponse {
+  buyerTradeState: PublicKey;
+  metadata: PublicKey;
+  buyerReceiptTokenAccount: PublicKey;
 }
 
 interface AcceptOfferContext {
   acceptingOffer: boolean;
-  onAcceptOffer: (args: AcceptOfferParams) => Promise<void>;
+  onAcceptOffer: (args: AcceptOfferParams) => Promise<AcceptOfferResponse | undefined>;
 }
+
 export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferContext {
   const [acceptingOffer, setAcceptingOffer] = useState(false);
   const { connected, publicKey, signTransaction } = useWallet();
   const { connection } = useConnection();
-  const login = useLogin();
+  const router = useRouter();
 
-  const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
-    if (!connected || !publicKey || !signTransaction || !offer) {
-      return;
+  const onAcceptOffer = async ({ auctionHouse, nft, listing }: AcceptOfferParams) => {
+    if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
+      throw Error('not all params provided');
     }
+
+    setAcceptingOffer(true);
+
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const buyerPrice = parseInt(offer.price);
+    const buyerPrice = offer.price.toNumber();
     const authority = new PublicKey(auctionHouse.authority);
     const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
@@ -525,10 +712,10 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const tokenMint = new PublicKey(nft.mintAddress);
     const metadata = new PublicKey(nft.address);
     const buyerAddress = new PublicKey(offer.buyer);
-    const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
-    const associatedTokenAccount = new PublicKey(nft.owner!.associatedTokenAccountAddress);
+    const token = new PublicKey(auctionHouse.rewardCenter?.tokenMint);
+    const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
 
-    const [buyerTradeState, _buyerTradeStateBump] =
+    const [buyerTradeState, buyerTradeStateBump] =
       await AuctionHouseProgram.findPublicBidTradeStateAddress(
         buyerAddress,
         auctionHouseAddress,
@@ -543,13 +730,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const [escrowPaymentAccount, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, buyerAddress);
 
-    const sellerPaymentReceiptAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      treasuryMint,
-      publicKey
-    );
-
     const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
@@ -558,7 +738,9 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       true
     );
 
-    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(
+    const buyerReceiptTokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
       tokenMint,
       buyerAddress
     );
@@ -587,12 +769,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         1
       );
 
-    const [listingAddress] = await RewardCenterProgram.findListingAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
     const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
       buyerAddress,
       metadata,
@@ -604,48 +780,11 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       rewardCenter
     );
 
-    const listingAccounts: CreateListingInstructionAccounts = {
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      listing: listingAddress,
-      rewardCenter: rewardCenter,
-      wallet: publicKey,
-      tokenAccount: associatedTokenAccount,
-      metadata: metadata,
-      authority: authority,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount,
-      sellerTradeState,
-      freeSellerTradeState,
-      ahAuctioneerPda: auctioneer,
-      programAsSigner: programAsSigner,
-    };
-
-    const listingArgs: CreateListingInstructionArgs = {
-      createListingParams: {
-        price: buyerPrice,
-        tokenSize: 1,
-        tradeStateBump: sellerTradeStateBump,
-        freeTradeStateBump,
-        programAsSignerBump: programAsSignerBump,
-      },
-    };
-
-    const listingIx = createCreateListingInstruction(listingAccounts, listingArgs);
-
     const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       token,
       buyerAddress
-    );
-
-    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      token,
-      buyerRewardTokenAccount,
-      buyerAddress,
-      publicKey
     );
 
     const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
@@ -664,22 +803,19 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       publicKey
     );
 
-    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
     const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
-    const executeSaleAccounts: ExecuteSaleInstructionAccounts = {
+    const acceptOfferAccounts: AcceptOfferInstructionAccounts = {
       buyer: buyerAddress,
       buyerRewardTokenAccount,
       seller: publicKey,
       sellerRewardTokenAccount,
-      listing: listingAddress,
       offer: rewardsOffer,
-      payer: publicKey,
       tokenAccount: associatedTokenAccount,
       tokenMint,
       metadata,
       treasuryMint,
-      sellerPaymentReceiptAccount,
+      sellerPaymentReceiptAccount: publicKey,
       buyerReceiptTokenAccount,
       authority,
       escrowPaymentAccount,
@@ -696,20 +832,21 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       auctionHouseProgram: AuctionHouseProgram.PUBKEY,
     };
 
-    const executeSaleArgs: ExecuteSaleInstructionArgs = {
-      executeSaleParams: {
+    const acceptOfferArgs: AcceptOfferInstructionArgs = {
+      acceptOfferParams: {
         escrowPaymentBump,
         freeTradeStateBump,
         sellerTradeStateBump,
         programAsSignerBump,
+        buyerTradeStateBump,
       },
     };
 
-    const executeSaleIx = createExecuteSaleInstruction(executeSaleAccounts, executeSaleArgs);
+    const acceptOfferIx = createAcceptOfferInstruction(acceptOfferAccounts, acceptOfferArgs);
 
     let remainingAccounts: AccountMeta[] = [];
 
-    for (let creator of nft.creators) {
+    for (let creator of nft.creators.slice(0, 2)) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
         isSigner: false,
@@ -720,24 +857,61 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const tx = new Transaction();
 
-    if (!buyerAtAInfo) {
-      tx.add(buyerATAInstruction);
+    const keys = acceptOfferIx.keys.concat(remainingAccounts);
+
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
+
+    tx.add(ix);
+
+    if (listing) {
+      if (nft.creators.length > 3) {
+        toast(
+          'Since this NFT has more than 3 creators the outstanding listing can not be canceled along with accepting the offer in a single transaction. Please cancel your listing before accepting the offer.',
+          { type: 'info', autoClose: 15 * 1000 }
+        );
+
+        setAcceptingOffer(false);
+
+        throw new Error('too many creators to close listing along with accepting the offer');
+      }
+
+      const [listingAddress] = await RewardCenterProgram.findListingAddress(
+        publicKey,
+        metadata,
+        rewardCenter
+      );
+
+      const accounts: CloseListingInstructionAccounts = {
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+        listing: listingAddress,
+        rewardCenter: rewardCenter,
+        wallet: publicKey,
+        tokenAccount: associatedTokenAccount,
+        metadata: metadata,
+        authority: authority,
+        auctionHouse: auctionHouseAddress,
+        auctionHouseFeeAccount: auctionHouseFeeAccount,
+        tokenMint,
+        tradeState: sellerTradeState,
+        ahAuctioneerPda: auctioneer,
+      };
+
+      const closeListingIx = createCloseListingInstruction(accounts);
+
+      tx.add(closeListingIx);
     }
 
     if (!sellerAtAInfo) {
       tx.add(sellerATAInstruction);
     }
 
-    tx.add(listingIx);
     tx.add(
       new TransactionInstruction({
-        programId: AuctionHouseProgram.PUBKEY,
-        data: executeSaleIx.data,
-        keys: executeSaleIx.keys.concat(remainingAccounts),
+        programId: RewardCenterProgram.PUBKEY,
+        data: acceptOfferIx.data,
+        keys,
       })
     );
-
-    debugger;
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -757,9 +931,23 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
         },
         'confirmed'
       );
+
       toast('Offer accepted', { type: 'success' });
+
+      return { buyerTradeState, metadata, buyerReceiptTokenAccount };
     } catch (err: any) {
+      notifyInstructionError(err, {
+        operation: 'Offer accepted',
+        metadata: {
+          userPubkey: publicKey.toBase58(),
+          programLogs: err.logs,
+          nft,
+        },
+      });
+
       toast(err.message, { type: 'error' });
+
+      throw err;
     } finally {
       setAcceptingOffer(false);
     }

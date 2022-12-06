@@ -1,6 +1,13 @@
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AuctionHouse, Nft } from '../../../graphql.types';
+import {
+  AuctionHouse,
+  Nft,
+  Maybe,
+  Offer as OfferType,
+  AhListing,
+  CollectionTrend,
+} from '../../../graphql.types';
 import client from './../../../client';
 import { NftQuery } from './../../../queries/nft.graphql';
 import { NftOffersQuery } from './../../../queries/offers.graphql';
@@ -9,6 +16,7 @@ import config from '../../../app.config';
 import { useWallet } from '@solana/wallet-adapter-react';
 import NftLayout from '../../../layouts/NftLayout';
 import { ReactNode, useMemo } from 'react';
+import { NftMarketInfoQuery } from './../../../queries/nft.graphql';
 import { useQuery } from '@apollo/client';
 import { Activity } from '../../../components/Activity';
 import Offer from './../../../components/Offer';
@@ -20,6 +28,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     data: { nft, auctionHouse },
   } = await client.query({
     query: NftQuery,
+    fetchPolicy: 'network-only',
     variables: {
       address: params?.address,
       auctionHouse: config.auctionHouse,
@@ -46,14 +55,15 @@ interface NFTOffersVariables {
 }
 
 interface NFTOffersData {
-  nftOffers: Partial<Nft>;
+  nftOffers: Maybe<Nft> | undefined;
 }
 
 interface NftOfferPageProps {
   nft: Nft;
+  auctionHouse: AuctionHouse;
 }
 
-export default function NftOffers({ nft }: NftOfferPageProps) {
+export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
   const { t } = useTranslation('offers');
   const { publicKey } = useWallet();
 
@@ -85,7 +95,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
   }
 
   return (
-    <>
+    <div className="flex flex-col">
       {called && data?.nftOffers?.offers?.length === 0 && (
         <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
           <h3 className="text-gray-300">{t('noOffers')}</h3>
@@ -96,18 +106,135 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
           <>
             <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
             {yourOffers.map((offer, i) => (
-              <Offer offer={offer} key={offer.id} />
+              <Offer
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplace={offer.nftMarketplace}
+                    source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                  />
+                }
+                offer={offer}
+                key={offer.id}
+                auctionHouse={auctionHouse}
+                nft={data?.nftOffers}
+                onAccept={() => {}}
+                onCancel={() => {
+                  client.cache.evict({
+                    id: client.cache.identify(offer),
+                  });
+                }}
+              />
             ))}
           </>
         )}
         {remainingOffers && remainingOffers.length > 0 && (
-          <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+          <>
+            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+            {remainingOffers?.map((offer, i) => (
+              <Offer
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplace={offer.nftMarketplace}
+                    source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                  />
+                }
+                offer={offer}
+                key={offer.id}
+                auctionHouse={auctionHouse}
+                nft={data?.nftOffers}
+                onAccept={({ buyerReceiptTokenAccount }) => {
+                  client.cache.updateQuery(
+                    {
+                      query: NftMarketInfoQuery,
+                      broadcast: false,
+                      overwrite: true,
+                      variables: {
+                        address: nft.mintAddress,
+                      },
+                    },
+                    (data) => {
+                      const offers = data.nft.offers.filter((o: OfferType) => o.id !== offer.id);
+
+                      const nft = {
+                        ...data.nft,
+                        offers,
+                        lastSale: {
+                          __typename: 'LastSale',
+                          price: offer.price.toString(),
+                        },
+                        owner: {
+                          __typename: 'NftOwner',
+                          address: offer.buyer,
+                          associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
+                          profile: null,
+                        },
+                      };
+
+                      return {
+                        nft,
+                      };
+                    }
+                  );
+
+                  client.cache.modify({
+                    id: client.cache.identify({
+                      __typename: 'Wallet',
+                      address: nft.owner?.address as string,
+                    }),
+                    fields: {
+                      collectedCollections(collectedCollections, { readField }) {
+                        return collectedCollections.reduce((memo: any[], cc: any) => {
+                          const id = readField('id', cc.collection);
+                          if (id === data?.nftOffers?.moonrankCollection?.id) {
+                            const trends: Readonly<CollectionTrend> | undefined = readField(
+                              'trends',
+                              cc.collection
+                            );
+
+                            const estimatedValue = (
+                              parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                            ).toString();
+
+                            const update = {
+                              ...cc,
+                              estimatedValue,
+                              nftsOwned: cc.nftsOwned - 1,
+                            };
+
+                            if (update.nftsOwned === 0) {
+                              return memo;
+                            }
+
+                            return [...memo, update];
+                          }
+
+                          return [...memo, cc];
+                        }, []);
+                      },
+                      nftCounts(counts, { readField }) {
+                        let owned: number | undefined = readField('owned', counts);
+
+                        if (!owned) {
+                          return counts;
+                        }
+
+                        return {
+                          ...counts,
+                          owned: owned - 1,
+                        };
+                      },
+                    },
+                  });
+                }}
+                onCancel={() => {}}
+              />
+            ))}
+          </>
         )}
-        {remainingOffers?.map((offer, i) => (
-          <Offer offer={offer} key={offer.id} />
-        ))}
       </div>
-    </>
+    </div>
   );
 }
 
