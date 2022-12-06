@@ -243,11 +243,8 @@ const Home: NextPage = () => {
               link={'/launchpad/test'}
             />
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              <h4 className="text-xl font-semibold">{t('drops.more')}</h4>
-              <p>
-                Labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                ullamco laboris nisi
-              </p>
+              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle')}</h4>
+              <p>{t('drops.moreLaunchesDescription')}</p>
               <a
                 href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
                 target={'_blank'}

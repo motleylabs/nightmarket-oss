@@ -18,7 +18,8 @@
   "drops": {
     "title": "Upcoming drops",
     "launchButton": "Launch with us",
-    "more": "More launches coming soon",
+    "moreLaunchesTitle": "More launches coming soon",
+    "moreLaunchesDescription": "If you're an upcoming collection looking for white-glove service and community support, we'd love to learn more about you! Please apply below.",
     "drops": "Drops",
     "price": "Price",
     "supply": "Supply",
