@@ -99,8 +99,6 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
         parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
         config.offerMinimums.percentageFloor;
 
-      console.log(minOffer);
-
       validation = validation.min(
         minOffer,
         `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
@@ -321,7 +319,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
       const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
