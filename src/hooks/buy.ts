@@ -16,6 +16,11 @@ import {
   AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
+  AddressLookupTableProgram,
+  TransactionMessage,
+  VersionedTransaction,
+  sendAndConfirmTransaction,
+  Signer,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
@@ -195,6 +200,43 @@ export default function useBuyNow(): BuyContext {
       },
     };
 
+    const arrayOfInstructions = new Array<TransactionInstruction>();
+
+    const slot = await connection.getSlot();
+
+    const [lookupTableInst, lookupTableAddress] = AddressLookupTableProgram.createLookupTable({
+      authority: publicKey,
+      payer: publicKey,
+      recentSlot: slot,
+    });
+
+    arrayOfInstructions.push(lookupTableInst);
+
+    // get the table from the cluster
+    const lookupTableAccount = await connection
+      .getAddressLookupTable(lookupTableAddress)
+      .then((res) => res.value);
+
+    const extendInstruction = AddressLookupTableProgram.extendLookupTable({
+      payer: publicKey,
+      authority: publicKey,
+      lookupTable: lookupTableAddress,
+      addresses: [
+        auctionHouseAddress,
+        auctioneer,
+        rewardCenter,
+        auctionHouseTreasury,
+        ahFeeAcc,
+        authority,
+        associatedTokenAcc,
+        treasuryMint,
+        rewardCenterRewardTokenAccount,
+        programAsSigner,
+      ],
+    });
+
+    arrayOfInstructions.push(extendInstruction);
+
     const buyListingIx = createBuyListingInstruction(accounts, args);
 
     let remainingAccounts: AccountMeta[] = [];
@@ -208,20 +250,18 @@ export default function useBuyNow(): BuyContext {
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
-    const tx = new Transaction();
-
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
 
     const keys = buyListingIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
-    tx.add(ix);
+    arrayOfInstructions.push(ix);
 
     if (!buyerAtAInfo) {
-      tx.add(buyerATAInstruction);
+      arrayOfInstructions.push(buyerATAInstruction);
     }
 
-    tx.add(
+    arrayOfInstructions.push(
       new TransactionInstruction({
         programId: RewardCenterProgram.PUBKEY,
         data: buyListingIx.data,
@@ -230,23 +270,27 @@ export default function useBuyNow(): BuyContext {
     );
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message([lookupTableAccount!]);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
+    transactionV0.sign([publicKey]);
 
     try {
-      const signedTx = await signTransaction(tx);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (!signature) {
-        return;
-      }
-      await connection.confirmTransaction(
-        {
-          blockhash,
-          lastValidBlockHeight,
-          signature,
-        },
-        'confirmed'
-      );
+      const txid = await connection.sendTransaction(transactionV0);
+
+      // await connection.confirmTransaction(
+      //   {
+      //     blockhash,
+      //     lastValidBlockHeight,
+      //     signature,
+      //   },
+      //   'confirmed'
+      // );
 
       toast('NFT purchased', { type: 'success' });
 
