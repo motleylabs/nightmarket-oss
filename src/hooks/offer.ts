@@ -96,8 +96,10 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
       const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
         config.offerMinimums.percentageFloor;
+
+      console.log(minOffer);
 
       validation = validation.min(
         minOffer,
