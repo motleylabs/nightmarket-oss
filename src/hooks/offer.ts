@@ -26,6 +26,8 @@ import {
   AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
@@ -855,13 +857,17 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
-    const tx = new Transaction();
-
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
 
-    tx.add(ix);
+    const arrayOfInstructions = new Array<TransactionInstruction>();
+
+    const lookupTableAccount = await connection
+      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
+      .then((res) => res.value);
+
+    arrayOfInstructions.push(ix);
 
     if (listing) {
       if (nft.creators.length > 3) {
@@ -898,14 +904,14 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       const closeListingIx = createCloseListingInstruction(accounts);
 
-      tx.add(closeListingIx);
+      arrayOfInstructions.push(closeListingIx);
     }
 
     if (!sellerAtAInfo) {
-      tx.add(sellerATAInstruction);
+      arrayOfInstructions.push(sellerATAInstruction);
     }
 
-    tx.add(
+    arrayOfInstructions.push(
       new TransactionInstruction({
         programId: RewardCenterProgram.PUBKEY,
         data: acceptOfferIx.data,
@@ -914,11 +920,17 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     );
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message([lookupTableAccount!]);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
+      const signedTx = await signTransaction(transactionV0);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
       if (!signature) {
         return;
