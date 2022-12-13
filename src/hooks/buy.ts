@@ -26,6 +26,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/sp
 import { RewardCenterProgram } from '../modules/reward-center';
 import useViewer from './viewer';
 import { notifyInstructionError } from '../modules/bugsnag';
+import config from '../app.config';
 
 interface BuyForm {
   amount?: number;
@@ -202,40 +203,9 @@ export default function useBuyNow(): BuyContext {
 
     const arrayOfInstructions = new Array<TransactionInstruction>();
 
-    const slot = await connection.getSlot();
-
-    const [lookupTableInst, lookupTableAddress] = AddressLookupTableProgram.createLookupTable({
-      authority: publicKey,
-      payer: publicKey,
-      recentSlot: slot,
-    });
-
-    arrayOfInstructions.push(lookupTableInst);
-
-    // get the table from the cluster
     const lookupTableAccount = await connection
-      .getAddressLookupTable(lookupTableAddress)
+      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
       .then((res) => res.value);
-
-    const extendInstruction = AddressLookupTableProgram.extendLookupTable({
-      payer: publicKey,
-      authority: publicKey,
-      lookupTable: lookupTableAddress,
-      addresses: [
-        auctionHouseAddress,
-        auctioneer,
-        rewardCenter,
-        auctionHouseTreasury,
-        ahFeeAcc,
-        authority,
-        associatedTokenAcc,
-        treasuryMint,
-        rewardCenterRewardTokenAccount,
-        programAsSigner,
-      ],
-    });
-
-    arrayOfInstructions.push(extendInstruction);
 
     const buyListingIx = createBuyListingInstruction(accounts, args);
 
