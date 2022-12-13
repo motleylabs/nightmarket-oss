@@ -55,7 +55,8 @@ interface BuyContext {
 }
 
 export default function useBuyNow(): BuyContext {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const wallet = useWallet();
+  const { connected, publicKey, signTransaction } = wallet;
   const { connection } = useConnection();
   const viewer = useViewer();
   const [buy, setBuy] = useState(false);
@@ -248,19 +249,21 @@ export default function useBuyNow(): BuyContext {
     }).compileToV0Message([lookupTableAccount!]);
 
     const transactionV0 = new VersionedTransaction(messageV0);
-    transactionV0.sign([publicKey]);
 
     try {
-      const txid = await connection.sendTransaction(transactionV0);
-
-      // await connection.confirmTransaction(
-      //   {
-      //     blockhash,
-      //     lastValidBlockHeight,
-      //     signature,
-      //   },
-      //   'confirmed'
-      // );
+      const signedTx = await signTransaction(transactionV0);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (!signature) {
+        return;
+      }
+      await connection.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
+        },
+        'confirmed'
+      );
 
       toast('NFT purchased', { type: 'success' });
 
