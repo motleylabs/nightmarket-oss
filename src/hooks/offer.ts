@@ -870,17 +870,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     arrayOfInstructions.push(ix);
 
     if (listing) {
-      if (nft.creators.length > 3) {
-        toast(
-          'Since this NFT has more than 3 creators the outstanding listing can not be canceled along with accepting the offer in a single transaction. Please cancel your listing before accepting the offer.',
-          { type: 'info', autoClose: 15 * 1000 }
-        );
-
-        setAcceptingOffer(false);
-
-        throw new Error('too many creators to close listing along with accepting the offer');
-      }
-
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
         metadata,
