@@ -6,6 +6,7 @@ import Link from 'next/link';
 import React from 'react';
 import config from '../app.config';
 import { viewerVar } from '../cache';
+
 import Image from './Image';
 import { Nft, Maybe } from '../graphql.types';
 import useViewer from '../hooks/viewer';
@@ -13,6 +14,8 @@ import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from 
 import Icon from './Icon';
 import { Form } from './Form';
 import Img from './Image';
+import CheckBox from './CheckBox';
+import { useBulkListContext } from '../providers/BulkListProvider';
 
 interface PreviewProps {
   nft: Nft;
@@ -30,7 +33,7 @@ export function Preview({
   onBuy,
 }: PreviewProps): JSX.Element {
   const { t } = useTranslation(['common', 'offerable']);
-
+  const {selected, setSelected} = useBulkListContext()
   const { data } = useViewer();
 
   const listing = nft.listings?.find((listing) => {
@@ -44,6 +47,22 @@ export function Preview({
   const viewer = useReactiveVar(viewerVar);
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
+
+  const handleBulkSelect = () => {
+    setSelected(selectedList => {
+      const index = selectedList.findIndex(selected => selected.address === nft.address)
+      const copyList = [...selectedList] // don't mutate original
+      if (index < 0) {
+        //not found so add nft
+        copyList.push(nft)
+      } else {
+        //already selected, remove from selected list
+        copyList.splice(index, 1)
+      }
+      return copyList
+    })
+  }
+  const isBulkSelected = selected.includes(nft)
 
   return (
     <>
@@ -86,21 +105,24 @@ export function Preview({
         <div className="relative flex h-[28px] flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              {listing ? (
-                <span className="flex items-center justify-center gap-1 text-lg">
-                  <Icon.Sol /> {listing?.solPrice}
-                </span>
-              ) : nft.lastSale?.price ? (
-                <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                  {t('lastSale')}
-                  <div className="flex flex-row items-center gap-1">
-                    <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                    {nft.lastSale?.solPrice}
-                  </div>
-                </span>
-              ) : (
-                <div />
-              )}
+              {listing
+                ? (
+                  <span className="flex items-center justify-center gap-1 text-lg">
+                    <Icon.Sol /> {listing?.solPrice}
+                  </span>
+                )
+                : nft.lastSale?.price
+                  ? (
+                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                      {t('lastSale')}
+                      <div className="flex flex-row items-center gap-1">
+                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                        {nft.lastSale?.solPrice}
+                      </div>
+                    </span>
+                  )
+                  : null //no last sale and not listed
+              }
             </>
           ) : (
             <>
@@ -154,6 +176,15 @@ export function Preview({
               )}
             </>
           )}
+        </div>
+
+        <div className='px-4'>
+          <CheckBox
+            label="Select for Bulk Listing"
+            selected={isBulkSelected}
+            onClick={handleBulkSelect}
+            containerClass="justify-center my-2"
+          />
         </div>
       </div>
     </>

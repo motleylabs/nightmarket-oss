@@ -1,5 +1,5 @@
 import { CoinGeckoClient } from 'coingecko-api-v3';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import { asUsdString } from '../modules/number';
 
 const COIN_GECKO_CURRENCY_IDS: { [key: string]: string } = {
@@ -36,7 +36,7 @@ interface ICurrencyContext {
 export const CurrencyContext = React.createContext<ICurrencyContext | null>(null);
 
 interface CurrencyProviderProps {
-  children: JSX.Element[];
+  children: ReactNode;
 }
 
 export default function CurrencyProvider(props: CurrencyProviderProps): JSX.Element {

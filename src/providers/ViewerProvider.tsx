@@ -12,6 +12,7 @@ export const ViewerProvider: React.FC<ViewerProviderProps> = ({ children }) => {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
 
+
   useEffect(() => {
     if (!publicKey) return;
     const handle = connection.onAccountChange(
