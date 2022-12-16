@@ -77,7 +77,7 @@ export default function useBuyNow(): BuyContext {
 
     setBuying(true);
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const listedPrice = parseInt(ahListing.price);
+    const listedPrice = parseFloat(ahListing.price);
     const seller = new PublicKey(nft?.owner?.address);
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
