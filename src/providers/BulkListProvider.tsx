@@ -17,7 +17,7 @@ interface ProviderProps {
   children: ReactNode
 }
 const BulkListProvider = ({ children }: ProviderProps) => {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<Nft[]>([]);
   return (
     <BulkListContext.Provider
       value={{ selected, setSelected }}

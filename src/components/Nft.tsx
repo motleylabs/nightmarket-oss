@@ -178,14 +178,19 @@ export function Preview({
           )}
         </div>
 
-        <div className='px-4'>
-          <CheckBox
-            label="Select for Bulk Listing"
-            selected={isBulkSelected}
-            onClick={handleBulkSelect}
-            containerClass="justify-center my-2"
-          />
-        </div>
+        {isOwner
+          ? (
+            <div className='px-4'>
+              <CheckBox
+                label="Select for Bulk Listing"
+                selected={isBulkSelected}
+                onClick={handleBulkSelect}
+                containerClass="justify-center my-2"
+              />
+            </div>
+          )
+          : null
+        }
       </div>
     </>
   );

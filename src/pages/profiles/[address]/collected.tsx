@@ -25,6 +25,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
+import BulkListBottomDrawer from '../../../components/BulkListing/BottomDrawer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -289,6 +290,7 @@ export default function ProfileCollected({
           </>
         </Sidebar.Content>
       </Sidebar.Page>
+      <BulkListBottomDrawer ownedNfts={nftsQuery.data?.wallet.nfts}/>
     </>
   );
 }
