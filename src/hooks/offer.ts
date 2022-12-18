@@ -26,6 +26,8 @@ import {
   AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { toLamports } from '../modules/sol';
@@ -96,7 +98,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
       const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
@@ -319,7 +321,7 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
       const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
@@ -855,26 +857,19 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
-    const tx = new Transaction();
-
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
 
-    tx.add(ix);
+    const arrayOfInstructions = new Array<TransactionInstruction>();
+
+    const lookupTableAccount = await connection
+      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
+      .then((res) => res.value);
+
+    arrayOfInstructions.push(ix);
 
     if (listing) {
-      if (nft.creators.length > 3) {
-        toast(
-          'Since this NFT has more than 3 creators the outstanding listing can not be canceled along with accepting the offer in a single transaction. Please cancel your listing before accepting the offer.',
-          { type: 'info', autoClose: 15 * 1000 }
-        );
-
-        setAcceptingOffer(false);
-
-        throw new Error('too many creators to close listing along with accepting the offer');
-      }
-
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
         metadata,
@@ -898,14 +893,14 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       const closeListingIx = createCloseListingInstruction(accounts);
 
-      tx.add(closeListingIx);
+      arrayOfInstructions.push(closeListingIx);
     }
 
     if (!sellerAtAInfo) {
-      tx.add(sellerATAInstruction);
+      arrayOfInstructions.push(sellerATAInstruction);
     }
 
-    tx.add(
+    arrayOfInstructions.push(
       new TransactionInstruction({
         programId: RewardCenterProgram.PUBKEY,
         data: acceptOfferIx.data,
@@ -914,11 +909,17 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     );
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message([lookupTableAccount!]);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
+      const signedTx = await signTransaction(transactionV0);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
       if (!signature) {
         return;

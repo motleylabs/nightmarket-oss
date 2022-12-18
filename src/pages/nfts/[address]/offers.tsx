@@ -194,7 +194,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
                             );
 
                             const estimatedValue = (
-                              parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                              parseFloat(cc.estimatedValue) - parseInt(trends?.floor1d)
                             ).toString();
 
                             const update = {
