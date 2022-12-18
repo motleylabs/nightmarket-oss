@@ -16,11 +16,17 @@ import {
   AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
+  AddressLookupTableProgram,
+  TransactionMessage,
+  VersionedTransaction,
+  sendAndConfirmTransaction,
+  Signer,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { RewardCenterProgram } from '../modules/reward-center';
 import useViewer from './viewer';
 import { notifyInstructionError } from '../modules/bugsnag';
+import config from '../app.config';
 
 interface BuyForm {
   amount?: number;
@@ -49,7 +55,8 @@ interface BuyContext {
 }
 
 export default function useBuyNow(): BuyContext {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const wallet = useWallet();
+  const { connected, publicKey, signTransaction } = wallet;
   const { connection } = useConnection();
   const viewer = useViewer();
   const [buy, setBuy] = useState(false);
@@ -70,7 +77,7 @@ export default function useBuyNow(): BuyContext {
 
     setBuying(true);
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const listedPrice = parseInt(ahListing.price);
+    const listedPrice = parseFloat(ahListing.price);
     const seller = new PublicKey(nft?.owner?.address);
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
@@ -195,6 +202,12 @@ export default function useBuyNow(): BuyContext {
       },
     };
 
+    const arrayOfInstructions = new Array<TransactionInstruction>();
+
+    const lookupTableAccount = await connection
+      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
+      .then((res) => res.value);
+
     const buyListingIx = createBuyListingInstruction(accounts, args);
 
     let remainingAccounts: AccountMeta[] = [];
@@ -208,20 +221,18 @@ export default function useBuyNow(): BuyContext {
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
-    const tx = new Transaction();
-
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
 
     const keys = buyListingIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
-    tx.add(ix);
+    arrayOfInstructions.push(ix);
 
     if (!buyerAtAInfo) {
-      tx.add(buyerATAInstruction);
+      arrayOfInstructions.push(buyerATAInstruction);
     }
 
-    tx.add(
+    arrayOfInstructions.push(
       new TransactionInstruction({
         programId: RewardCenterProgram.PUBKEY,
         data: buyListingIx.data,
@@ -230,11 +241,17 @@ export default function useBuyNow(): BuyContext {
     );
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message([lookupTableAccount!]);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
+      const signedTx = await signTransaction(transactionV0);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
       if (!signature) {
         return;

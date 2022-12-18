@@ -344,7 +344,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 );
 
                 const estimatedValue = (
-                  parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                  parseFloat(cc.estimatedValue) - parseFloat(trends?.floor1d)
                 ).toString();
 
                 const update = {

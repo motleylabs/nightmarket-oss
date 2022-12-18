@@ -13,6 +13,7 @@ interface AppConfig {
   };
   website: string;
   auctionHouse: string;
+  addressLookupTable: string;
 }
 
 const config: AppConfig = {
@@ -30,6 +31,7 @@ const config: AppConfig = {
     percentageFloor: 0.8,
     percentageListing: 0.8,
   },
+  addressLookupTable: process.env.NEXT_PUBLIC_ADDRESS_LOOKUP_TABLE as string,
 };
 
 export default config;

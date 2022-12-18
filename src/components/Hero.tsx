@@ -193,7 +193,9 @@ const HeroPreview = ({
                   className="aspect-square w-4 rounded-sm object-cover"
                 />
               )}
-              <span className="truncate">{payout?.nft?.name}</span>
+              <span className="truncate">
+                {payout?.nft?.moonrankCollection?.name || payout?.nft?.name}
+              </span>
             </div>
             {/* <span className="flex items-center text-sm text-gray-500">
               {payout.sinceCreated}
