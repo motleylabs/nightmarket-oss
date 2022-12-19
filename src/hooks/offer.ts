@@ -848,7 +848,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     let remainingAccounts: AccountMeta[] = [];
 
-    for (let creator of nft.creators.slice(0, 2)) {
+    for (let creator of nft.creators) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
         isSigner: false,
