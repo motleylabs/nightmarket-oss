@@ -4,13 +4,13 @@ import { Form } from "../Form";
 import Icon from "../Icon";
 import Image from "../Image";
 import Tooltip from "../Tooltip";
-
+import { FieldError } from 'react-hook-form';
 
 interface ListingItemProps {
   nft: Nft;
-  price?: number;
+  price?: string;
   disabled: boolean;
-  onChange: (price?: number) => void; 
+  onChange: (price?: string) => void; 
 }
 export default function ListingItem({ nft, price, disabled, onChange }: ListingItemProps): JSX.Element {
   const {solToUsdString} = useCurrencies()
@@ -27,7 +27,7 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
               <Icon.Sol />
               <p>{lastSale.solPrice}</p>
             </div>
-            <p className="text-xs font-bold text-gray-600 float-right">{solToUsdString(lastSale.solPrice)}</p>
+            <p className="text-xs font-bold text-gray-600 ml-5">{solToUsdString(lastSale.solPrice)}</p>
           </div>
         )}
         placement="right"
@@ -38,7 +38,7 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
     :null
 
   return (
-    <div className="bg-gray-800 rounded-lg mb-3 flex justify-between p-4">
+    <div className="bg-gray-800 rounded-lg mb-3 flex justify-between items-center p-4">
       <div className="flex gap-5 items-center">
         <Image src={nft.image} alt="nft image" className="h-14 w-14 rounded-lg object-cover border-solid border-2 border-gray-400/50" />
         <div>
@@ -50,13 +50,20 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
         </div>
       </div>
 
-      <Form.Input
-        className="w-36"
-        icon={<Icon.Sol />}
-        value={price}
-        disabled={disabled}
-        onChange={(e) => onChange(parseInt(e.target.value) || undefined)}
-      />
+      <div>
+        <Form.Input
+          // error={{
+          //   type: "validate",
+          //   message: "please enter a number"
+          // }}
+          className="w-36"
+          icon={<Icon.Sol />}
+          value={price}
+          disabled={disabled}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        {/* <Form.Error message="Please enter a number"/> */}
+      </div>
     </div>
   )
 }
