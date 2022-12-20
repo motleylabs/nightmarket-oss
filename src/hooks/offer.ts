@@ -30,7 +30,7 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { toLamports } from '../modules/sol';
+import { toLamports, toSol } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
@@ -39,7 +39,7 @@ import { notifyInstructionError } from '../modules/bugsnag';
 import config from '../app.config';
 
 interface OfferForm {
-  amount: string;
+  amount: number;
 }
 
 interface MakeOfferForm extends OfferForm {
@@ -87,42 +87,41 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
   const offerSchema = useMemo(() => {
     let validation: zod.ZodNumber = zod.number();
 
-    if (listing?.solPrice) {
-      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+    if (listing?.price) {
+      const minOfferLamports = listing?.price.toNumber() * config.offerMinimums.percentageListing;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-      const minOffer =
-        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
+      const minOfferLamports =
+        toLamports(parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d)) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageFloor * 100
         }% of the floor price`
       );
     }
 
-    const offerSchema = zod.object({
+    return zod.object({
       amount: zod.preprocess((input) => {
         const processed = zod
           .string()
           .min(1, `Must enter an amount`)
           .regex(/^[0-9.]*$/, { message: `Must be a number` })
           .transform(Number)
+          .transform(toLamports)
           .safeParse(input);
         return processed.success ? processed.data : input;
       }, validation),
     });
-
-    return offerSchema;
-  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+  }, [listing?.price, nft?.moonrankCollection?.trends?.compactFloor1d]);
 
   const {
     register: registerOffer,
@@ -138,7 +137,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
     }
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const buyerPrice = toLamports(Number(amount));
+    const buyerPrice = amount; // already preprocessed as lamports by zod
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
@@ -310,64 +309,56 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
   const offerSchema = useMemo(() => {
     let validation: zod.ZodNumber = zod.number();
 
-    if (listing?.solPrice) {
-      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+    if (listing?.price) {
+      const minOfferLamports = listing?.price.toNumber() * config.offerMinimums.percentageListing;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-      const minOffer =
-        parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d) *
+      const minOfferLamports =
+        toLamports(parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d)) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${Math.round(
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${Math.round(
           config.offerMinimums.percentageFloor * 100
         )}% of the floor price`
       );
     }
 
-    const offerSchema = zod.object({
+    return zod.object({
       amount: zod.preprocess((input) => {
         const processed = zod
           .string()
           .min(1, `Must enter an amount`)
           .regex(/^[0-9.]*$/, { message: `Must be a number` })
           .transform(Number)
+          .transform(toLamports)
           .safeParse(input);
         return processed.success ? processed.data : input;
       }, validation),
     });
-
-    return offerSchema;
-  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+  }, [listing?.price, nft?.moonrankCollection?.trends?.compactFloor1d]);
 
   const {
     register: registerUpdateOffer,
     handleSubmit: handleSubmitUpdateOffer,
-    reset,
     formState: updateOfferFormState,
   } = useForm<OfferForm>({
     resolver: zodResolver(offerSchema),
   });
-
-  useEffect(() => {
-    reset({
-      amount: offer?.solPrice?.toString(),
-    });
-  }, [offer?.solPrice, reset]);
 
   const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const newOfferPrice = toLamports(Number(amount));
+    const newOfferPrice = amount; // already preprocessed as lamports by zod to lamports by zod
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
