@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useCurrencies } from "../../hooks/currencies";
 import { useBulkListContext } from "../../providers/BulkListProvider";
 import { roundToPrecision } from "../../utils/numbers";
-import Button from "../Button";
+import Button, { ButtonBackground } from "../Button";
 import { Form } from "../Form";
 import Icon from "../Icon";
 import Modal from "../Modal"
@@ -15,11 +15,13 @@ interface BulkListModalProps {
 }
 type PriceForm = { [nftAddress: string]: string | undefined}
 function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
-  const { selected } = useBulkListContext()
+  const { selected, setSelected } = useBulkListContext()
   const {solToUsdString} = useCurrencies()
   const [globalPrice, setGlobalPrice] = useState<string>()
   const [useGlobalPrice, setUseGlobalPrice] = useState(false)
   const [prices, setPrices] = useState<PriceForm>({})
+  const [isListing, setIsListing] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   const total = Object.keys(prices).reduce((acc, cur) => {
     return acc + parseFloat(prices[cur] || "0")
@@ -41,14 +43,30 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
       })
       setPrices(globalPrices)
     }
-  },[selected, useGlobalPrice, globalPrice])
+  }, [selected, useGlobalPrice, globalPrice])
 
-  return (
-    <Modal
-      title="Bulk Listing"
-      open={open}
-      setOpen={setOpen}
-    >
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setSuccess(false)
+        setIsListing(false)
+      }, 1000)
+    }
+  }, [open])
+
+  const handleList = () => {
+    setIsListing(true)
+    try {
+      setSuccess(true)
+      setSelected([])
+    } catch (e) {
+      
+    }
+    setIsListing(false)
+  }
+
+  const renderMainContent = () => (
+    <>
       <div className="my-6 flex justify-between items-center gap-2 p-2 bg-gray-800 rounded-lg">
         <label className="inline-flex relative cursor-pointer ml-3 items-center">
           <input type="checkbox" value="" checked={useGlobalPrice} className="sr-only peer" onChange={(e) => setUseGlobalPrice(e.target.checked)}/>
@@ -119,7 +137,27 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
           <p className="text-sm text-gray-600 ml-5">{solToUsdString(total)}</p>
         </div>
       </div>
-      <Button>List now ({selected.length})</Button>
+      {isListing
+        ? <Button loading background={ButtonBackground.Slate}>Please Wait</Button>
+        : <Button onClick={handleList}>List now ({selected.length})</Button>
+      }
+    </>
+  )
+
+  return (
+    <Modal
+      title="Bulk Listing"
+      open={open}
+      setOpen={setOpen}
+    >
+      {success 
+      ? <img
+            src="/images/moon success.svg"
+            className="w-auto object-fill px-5 py-32"
+            alt="success"
+          />
+      : renderMainContent()
+      }
 
     </Modal>
   )
