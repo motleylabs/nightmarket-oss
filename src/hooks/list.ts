@@ -234,7 +234,6 @@ export function useListNft(): ListNftContext {
     if (connected) {
       return setListNft(true);
     }
-
     return login();
   }, [setListNft, connected, login]);
 

@@ -1,15 +1,16 @@
 import clsx from "clsx"
 import { useMemo, useState } from "react"
-import { Nft } from "../../graphql.types"
+import { AuctionHouse, Nft } from "../../graphql.types"
 import { useBulkListContext } from "../../providers/BulkListProvider"
 import Button, { ButtonBackground, ButtonColor } from "../Button"
 import CheckBox from "../CheckBox"
 import BulkListModal from "./BulkListModal"
 
 interface BulkListBottomDrawerProps {
-  ownedNfts?: Nft[]
+  ownedNfts?: Nft[];
+  auctionHouse: AuctionHouse
 }
-function BulkListBottomDrawer({ ownedNfts = [] }: BulkListBottomDrawerProps): JSX.Element {
+function BulkListBottomDrawer({ ownedNfts = [], auctionHouse }: BulkListBottomDrawerProps): JSX.Element {
   const { selected, setSelected } = useBulkListContext()
   const [listingOpen, setListingOpen] = useState(false)
 
@@ -42,7 +43,7 @@ function BulkListBottomDrawer({ ownedNfts = [] }: BulkListBottomDrawerProps): JS
         </div>
       </div>
       <div className="w-full bg-black h-20" />
-      <BulkListModal open={listingOpen} setOpen={setListingOpen} />
+      <BulkListModal open={listingOpen} setOpen={setListingOpen} auctionHouse={auctionHouse} />
     </div>
   )
 }

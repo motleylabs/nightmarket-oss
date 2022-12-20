@@ -79,11 +79,14 @@ interface CollectionNFTsVariables {
   collections?: (string | undefined)[] | null | undefined;
 }
 
+interface ProfileCollectedPageProps {
+  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
+  auctionHouse: AuctionHouse;
+}
 export default function ProfileCollected({
   walletProfileClientQuery,
-}: {
-  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
-}) {
+  auctionHouse
+}: ProfileCollectedPageProps) {
   const { t } = useTranslation(['common', 'collection']);
 
   const { watch, control, setValue } = useForm<CollectionNFTForm>({
@@ -291,7 +294,7 @@ export default function ProfileCollected({
           </>
         </Sidebar.Content>
       </Sidebar.Page>
-      <BulkListBottomDrawer ownedNfts={nftsQuery.data?.wallet.nfts}/>
+      <BulkListBottomDrawer ownedNfts={nftsQuery.data?.wallet.nfts} auctionHouse={auctionHouse} />
     </>
   );
 }

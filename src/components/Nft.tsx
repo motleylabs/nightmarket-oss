@@ -178,7 +178,7 @@ export function Preview({
           )}
         </div>
 
-        {isOwner
+        {isOwner && !listing
           ? (
             <div className='px-4'>
               <CheckBox

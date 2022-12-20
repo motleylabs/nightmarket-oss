@@ -42,8 +42,8 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
       <div className="flex gap-5 items-center">
         <Image src={nft.image} alt="nft image" className="h-14 w-14 rounded-lg object-cover border-solid border-2 border-gray-400/50" />
         <div>
-          <div className="flex gap-2">
-            <p className="mb-1 whitespace-nowrap text-ellipsis overflow-hidden max-w-[10rem]">{nft.name} </p>
+          <div className="flex gap-1">
+            <p className="mb-1 whitespace-nowrap text-ellipsis overflow-hidden max-w-[11rem]">{nft.name}</p>
             {renderInfoTooltip()}
           </div>
           <p className="text-sm text-gray-400 font-bold">{collectionName}</p>

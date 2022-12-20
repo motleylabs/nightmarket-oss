@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useCurrencies } from "../../hooks/currencies";
+import { useListNft } from "../../hooks/list";
 import { useBulkListContext } from "../../providers/BulkListProvider";
 import { roundToPrecision } from "../../utils/numbers";
 import Button, { ButtonBackground } from "../Button";
@@ -8,31 +9,46 @@ import Icon from "../Icon";
 import Modal from "../Modal"
 import Tooltip from "../Tooltip";
 import ListingItem from "./ListingItem";
+import config from '../../app.config'
+import { AuctionHouse } from "../../graphql.types";
 
 interface BulkListModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
+  auctionHouse: AuctionHouse;
 }
 type PriceForm = { [nftAddress: string]: string | undefined}
-function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
+function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.Element {
   const { selected, setSelected } = useBulkListContext()
   const {solToUsdString} = useCurrencies()
   const [globalPrice, setGlobalPrice] = useState<string>()
   const [useGlobalPrice, setUseGlobalPrice] = useState(false)
   const [prices, setPrices] = useState<PriceForm>({})
-  const [isListing, setIsListing] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  const {
+    listNft,
+    handleSubmitListNft,
+    registerListNft,
+    onSubmitListNft,
+    onListNftClick,
+    onCancelListNftClick,
+    listNftState,
+  } = useListNft();
 
   const total = Object.keys(prices).reduce((acc, cur) => {
     return acc + parseFloat(prices[cur] || "0")
   }, 0)
 
-  const totalPrevSales = selected.reduce((acc, cur) => {
-    const sale = cur.lastSale?.solPrice ? cur.lastSale.solPrice : 0
-    return acc + sale
+  const PnL = selected.reduce((acc, cur) => {
+    if (cur.lastSale?.solPrice) {
+      const listingPrice = parseFloat(prices[cur.address] || "0")
+      const pnl = listingPrice - cur.lastSale.solPrice
+      return acc + pnl
+    }
+    return acc 
   }, 0)
 
-  const PnL = total - totalPrevSales
   const pnlColor = PnL < 0 ? "text-red-500" : "text-white"
   
   useEffect(() => {
@@ -49,20 +65,18 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
     if (!open) {
       setTimeout(() => {
         setSuccess(false)
-        setIsListing(false)
       }, 1000)
     }
   }, [open])
 
-  const handleList = () => {
-    setIsListing(true)
-    try {
-      setSuccess(true)
-      setSelected([])
-    } catch (e) {
-      
-    }
-    setIsListing(false)
+  console.log("🚀 ~ file: BulkListModal.tsx:80 ~ handleList ~ listNftState.errors", listNftState.errors)
+  const handleList = async () => {
+    if (!globalPrice) return;
+    await onSubmitListNft({
+      amount: globalPrice,
+      nft: selected[0],
+      auctionHouse: auctionHouse
+    })
   }
 
   const renderMainContent = () => (
@@ -78,11 +92,13 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
         </label>
         <Form.Input
           className="w-1/2"
-          // error={offerFormState.errors.amount}   
+          error={listNftState.errors.amount}   
+          {...registerListNft('amount', { required: true })}
           icon={<Icon.Sol />}
           value={globalPrice}
           onChange={(e) => setGlobalPrice(e.target.value)}
         />
+        <Form.Error message={listNftState.errors.amount?.message} />
       </div>
 
       <div className="overflow-scroll">
@@ -137,9 +153,9 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
           <p className="text-sm text-gray-600 ml-5">{solToUsdString(total)}</p>
         </div>
       </div>
-      {isListing
+      {listNft
         ? <Button loading background={ButtonBackground.Slate}>Please Wait</Button>
-        : <Button onClick={handleList}>List now ({selected.length})</Button>
+        : <Button onClick={handleSubmitListNft(handleList)}>List now ({selected.length})</Button>
       }
     </>
   )
