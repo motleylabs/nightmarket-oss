@@ -91,6 +91,7 @@ export default function ProfileCollected({
       collections: [],
     },
   });
+  
   const { publicKey } = useWallet();
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();

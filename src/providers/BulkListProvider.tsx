@@ -11,6 +11,7 @@ const initContext: ContextProps = {
   setSelected: () => null
 }
 const BulkListContext = createContext(initContext)
+
 export const useBulkListContext = () => useContext(BulkListContext)
 
 interface ProviderProps {
