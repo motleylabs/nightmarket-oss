@@ -34,6 +34,22 @@ interface ListingDetailsForm extends ListNftForm {
   auctionHouse: AuctionHouse;
 }
 
+interface BulkListingForm {
+  amounts: { [address: string]: string }
+  nfts: Nft[]
+  auctionHouse: AuctionHouse;
+}
+
+interface BulkListPending {
+  nft: Nft
+  instructionData: {
+    listingAddress: PublicKey;
+    sellerTradeState: PublicKey;
+    tradeStateBump: number;
+    buyerPrice: number;
+  };
+}
+
 interface ListNftContext {
   listNft: boolean;
   listNftState: FormState<ListNftForm>;
@@ -42,6 +58,7 @@ interface ListNftContext {
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
   onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<void>;
 }
 
 export function useListNft(): ListNftContext {
@@ -230,6 +247,211 @@ export function useListNft(): ListNftContext {
     }
   };
 
+  const onSubmitBulkListNft = async ({ amounts, nfts, auctionHouse }: BulkListingForm) => {
+    if (!connected || !publicKey || !signTransaction || !nfts) {
+      return;
+    }
+    setListNft(true)
+
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const authority = new PublicKey(auctionHouse.authority);
+    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+
+    const tx = new Transaction();
+
+    const pendingNfts = await Promise.allSettled(nfts.map(async (nft): Promise<BulkListPending> => {
+      if(!nft.owner) throw new Error(`${nft.address} has no owner data available`)
+      const buyerPrice = toLamports(Number(amounts[nft.address]));
+      const tokenMint = new PublicKey(nft.mintAddress);
+      const metadata = new PublicKey(nft.address);
+      const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+      const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
+      const [sellerTradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
+          publicKey,
+          auctionHouseAddress,
+          associatedTokenAccount,
+          treasuryMint,
+          tokenMint,
+          1
+        );
+        
+
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+
+      const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+      
+      const [listingAddress] = await RewardCenterProgram.findListingAddress(
+        publicKey,
+        metadata,
+        rewardCenter
+      );
+
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+        auctionHouseAddress,
+        rewardCenter
+      );
+
+      const accounts: CreateListingInstructionAccounts = {
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+        listing: listingAddress,
+        rewardCenter: rewardCenter,
+        wallet: publicKey,
+        tokenAccount: associatedTokenAccount,
+        metadata: metadata,
+        authority: authority,
+        auctionHouse: auctionHouseAddress,
+        auctionHouseFeeAccount: auctionHouseFeeAccount,
+        sellerTradeState: sellerTradeState,
+        freeSellerTradeState: freeTradeState,
+        ahAuctioneerPda: auctioneer,
+        programAsSigner: programAsSigner,
+      };
+
+      const args: CreateListingInstructionArgs = {
+        createListingParams: {
+          price: buyerPrice,
+          tokenSize: 1,
+          tradeStateBump,
+          freeTradeStateBump,
+          programAsSignerBump: programAsSignerBump,
+        },
+      };
+
+      const instruction = createCreateListingInstruction(accounts, args);
+      console.log("🚀 ~ file: list.ts:334 ~ pendingNfts ~ instruction", instruction)
+
+      const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        publicKey
+      );
+
+      const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        sellerRewardTokenAccount,
+        publicKey,
+        publicKey
+      );
+      const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
+      if (!sellerAtAInfo) {
+        tx.add(sellerATAInstruction);
+      }
+
+      tx.add(instruction);
+
+      return {
+        nft,
+        instructionData: {
+          listingAddress,
+          sellerTradeState,
+          tradeStateBump,
+          buyerPrice
+        }
+      }
+    }))
+
+    const settledNfts = pendingNfts.reduce((
+      acc: {
+        rejected: string[],
+        fulfilled: BulkListPending[]
+    },
+      cur) => {
+      if (cur.status === "fulfilled") acc.fulfilled.push(cur.value)
+      if(cur.status === "rejected") acc.fulfilled.push(cur.reason)
+      return acc
+    }, { rejected: [], fulfilled: [] })
+    console.log("🚀 ~ file: list.ts:366 ~ onSubmitBulkListNft ~ settledNfts", settledNfts)
+    
+
+
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = publicKey;
+
+    try {
+      const signedTx = await signTransaction(tx);
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      if (signature) {
+        await connection.confirmTransaction(
+          {
+            blockhash,
+            lastValidBlockHeight,
+            signature,
+          },
+          'confirmed'
+        );
+      }
+
+      settledNfts.fulfilled.forEach(({ nft, instructionData }) => {
+        const {listingAddress, sellerTradeState, tradeStateBump, buyerPrice} = instructionData
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data) => {
+            const listing = {
+              __typename: 'AhListing',
+              id: `temp-id-listing-${listingAddress.toBase58()}`,
+              seller: publicKey.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tradeState: sellerTradeState.toBase58(),
+              tradeStateBump: tradeStateBump,
+              price: buyerPrice.toString(),
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+            };
+
+            const listings = [...data.nft.listings, listing];
+
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
+      })
+      toast('Listing posted', { type: 'success' });
+    } catch (err: any) {
+      // notifyInstructionError(err, {
+      //   operation: 'Listing created',
+      //   metadata: {
+      //     userPubkey: publicKey.toBase58(),
+      //     programLogs: err.logs,
+      //     nft,
+      //   },
+      // });
+      toast(err.message, { type: 'error' });
+    } finally {
+      setListNft(false);
+    }
+  };
+
   const onListNftClick = useCallback(() => {
     if (connected) {
       return setListNft(true);
@@ -250,6 +472,7 @@ export function useListNft(): ListNftContext {
     onCancelListNftClick,
     handleSubmitListNft,
     onSubmitListNft,
+    onSubmitBulkListNft
   };
 }
 

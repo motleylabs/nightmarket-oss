@@ -34,6 +34,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     onListNftClick,
     onCancelListNftClick,
     listNftState,
+    onSubmitBulkListNft
   } = useListNft();
 
   const total = Object.keys(prices).reduce((acc, cur) => {
@@ -69,14 +70,23 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     }
   }, [open])
 
-  console.log("🚀 ~ file: BulkListModal.tsx:80 ~ handleList ~ listNftState.errors", listNftState.errors)
   const handleList = async () => {
     if (!globalPrice) return;
-    await onSubmitListNft({
-      amount: globalPrice,
-      nft: selected[0],
-      auctionHouse: auctionHouse
-    })
+    try {
+      Object.keys(prices).forEach(key => {
+        //error handling/feedback for listings with no price
+        if(!prices[key]) throw new Error("All listings must have a set price")
+      })
+      await onSubmitBulkListNft({
+        amounts: prices as { [address: string]: string },
+        nfts: selected,
+        auctionHouse: auctionHouse
+      })
+      setSuccess(true)
+      setSelected([])
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const renderMainContent = () => (
@@ -128,7 +138,13 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
         <div>
           <div className="flex gap-1 items-center">
             <p className="text-sm text-gray-400">PnL</p>
-            <Tooltip content="PnL stands for profit and loss, and it can be either realized or unrealized." className="max-w-[14rem]">
+            <Tooltip
+              content={(<>
+                <p>PnL stands for profit and loss, and it can be either realized or unrealized.</p>
+                <p className="italic mt-1">Note: if last sale price per NFT is not detected, the PnL value will not be accurate.</p>
+              </>
+              )}
+              className="max-w-[14rem]">
               <Icon.Info />
             </Tooltip>
           </div>
