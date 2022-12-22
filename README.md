@@ -2,6 +2,8 @@
 
 A Solana NFT marketplace built by the people for the people using opensource software by [Holaplex](https://holaplex.com/) and [Metaplex](https://metaplex.com/).
 
+[![Night Market Codebase Review](https://cdn.loom.com/sessions/thumbnails/df21609222da4259bf9353b8f8a885ff-with-play.gif)](https://www.loom.com/embed/df21609222da4259bf9353b8f8a885ff)
+
 ## Overview
 
 - `@types/*` - Auto-generated graphql typescript declarations.
