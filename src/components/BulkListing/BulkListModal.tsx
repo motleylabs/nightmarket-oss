@@ -30,9 +30,6 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     listNft,
     handleSubmitListNft,
     registerListNft,
-    onSubmitListNft,
-    onListNftClick,
-    onCancelListNftClick,
     listNftState,
     onSubmitBulkListNft
   } = useListNft();
@@ -71,19 +68,19 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
   }, [open])
 
   const handleList = async () => {
-    if (!globalPrice) return;
     try {
-      Object.keys(prices).forEach(key => {
-        //error handling/feedback for listings with no price
-        if(!prices[key]) throw new Error("All listings must have a set price")
-      })
-      await onSubmitBulkListNft({
+      const { fulfilled } = await onSubmitBulkListNft({
         amounts: prices as { [address: string]: string },
         nfts: selected,
         auctionHouse: auctionHouse
       })
-      setSuccess(true)
-      setSelected([])
+      if (fulfilled.length) {
+        setSuccess(true)
+        setSelected(prev => {
+          const copy = [...prev]
+          return copy.filter(nft => !fulfilled.includes(nft))
+        })
+      }
     } catch (e) {
       console.log(e)
     }
@@ -91,7 +88,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
 
   const renderMainContent = () => (
     <>
-      <div className="my-6 flex justify-between items-center gap-2 p-2 bg-gray-800 rounded-lg">
+      <div className="my-6 flex justify-between items-center gap-2 p-4 sm:p-2 bg-gray-800 rounded-lg flex-wrap">
         <label className="inline-flex relative cursor-pointer ml-3 items-center">
           <input type="checkbox" value="" checked={useGlobalPrice} className="sr-only peer" onChange={(e) => setUseGlobalPrice(e.target.checked)}/>
           <div className="w-12 h-7 bg-black rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-gray-200 peer-checked:after:bg-gradient-secondary  after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
@@ -101,14 +98,11 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
           </Tooltip>
         </label>
         <Form.Input
-          className="w-1/2"
-          error={listNftState.errors.amount}   
-          {...registerListNft('amount', { required: true })}
+          className="sm:w-1/2"
           icon={<Icon.Sol />}
           value={globalPrice}
           onChange={(e) => setGlobalPrice(e.target.value)}
         />
-        <Form.Error message={listNftState.errors.amount?.message} />
       </div>
 
       <div className="overflow-scroll">

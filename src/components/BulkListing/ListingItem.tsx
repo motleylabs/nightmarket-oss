@@ -5,6 +5,7 @@ import Icon from "../Icon";
 import Image from "../Image";
 import Tooltip from "../Tooltip";
 import { FieldError } from 'react-hook-form';
+import { useListNft } from "../../hooks/list";
 
 interface ListingItemProps {
   nft: Nft;
@@ -16,6 +17,17 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
   const {solToUsdString} = useCurrencies()
   const lastSale = nft.lastSale;
   const collectionName = nft.moonrankCollection?.name;
+
+  const {
+    listNft,
+    handleSubmitListNft,
+    registerListNft,
+    onSubmitListNft,
+    onListNftClick,
+    onCancelListNftClick,
+    listNftState,
+    onSubmitBulkListNft
+  } = useListNft();
 
   const renderInfoTooltip = () => lastSale?.solPrice
     ? (
@@ -38,7 +50,7 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
     :null
 
   return (
-    <div className="bg-gray-800 rounded-lg mb-3 flex justify-between items-center p-4">
+    <div className="bg-gray-800 rounded-lg mb-3 flex justify-between items-center p-4 gap-3 flex-wrap">
       <div className="flex gap-5 items-center">
         <Image src={nft.image} alt="nft image" className="h-14 w-14 rounded-lg object-cover border-solid border-2 border-gray-400/50" />
         <div>
@@ -50,19 +62,16 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
         </div>
       </div>
 
-      <div>
+      <div className="w-full sm:w-36">
         <Form.Input
-          // error={{
-          //   type: "validate",
-          //   message: "please enter a number"
-          // }}
-          className="w-36"
+          error={listNftState.errors.amount}  
+          {...registerListNft('amount', { required: true })}
           icon={<Icon.Sol />}
           value={price}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
         />
-        {/* <Form.Error message="Please enter a number"/> */}
+        <Form.Error message={listNftState.errors.amount?.message} />
       </div>
     </div>
   )

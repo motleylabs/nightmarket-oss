@@ -8,9 +8,10 @@ import BulkListModal from "./BulkListModal"
 
 interface BulkListBottomDrawerProps {
   ownedNfts?: Nft[];
-  auctionHouse: AuctionHouse
+  auctionHouse: AuctionHouse;
+  openDrawer: boolean
 }
-function BulkListBottomDrawer({ ownedNfts = [], auctionHouse }: BulkListBottomDrawerProps): JSX.Element {
+function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkListBottomDrawerProps): JSX.Element {
   const { selected, setSelected } = useBulkListContext()
   const [listingOpen, setListingOpen] = useState(false)
 
@@ -21,14 +22,14 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse }: BulkListBottomDr
     else setSelected([])
   }
 
-  const inView = selected.length > 0
+  const inView = selected.length > 0 || openDrawer
   const position = inView ? "translate-y-0" : "translate-y-36"
 
   return (
     <div className={clsx("transition-transform duration-1000 fixed bottom-0 w-full z-10", position)}>
       <div className="w-full bg-gradient-to-t from-black to-transparent flex justify-center p-2">
-        <div className="rounded-full bg-gray-900 p-2 flex justify-center flex-wrap gap-3 relative top-10">
-          <Button onClick={handleMassSelect} background={ButtonBackground.Gray}>
+        <div className="rounded-full bg-gray-900 p-2 flex justify-center items-center gap-3 relative top-10">
+          <Button onClick={handleMassSelect} background={ButtonBackground.Gray} className="text-left">
             <CheckBox
               label={`Select all unlisted (${unlistedNfts.length})`}
               selected={selected.length >= unlistedNfts.length}
@@ -37,6 +38,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse }: BulkListBottomDr
           </Button>
           <Button
             onClick={() => setListingOpen(true)}
+            className="text-sm"
           >
             List selected ({selected.length})
           </Button>

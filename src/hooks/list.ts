@@ -24,6 +24,7 @@ import { useApolloClient } from '@apollo/client';
 import client from '../client';
 import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
+import { rejects } from 'assert';
 
 interface ListNftForm {
   amount: string;
@@ -58,7 +59,7 @@ interface ListNftContext {
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
   onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
-  onSubmitBulkListNft: (form: BulkListingForm) => Promise<void>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]}>;
 }
 
 export function useListNft(): ListNftContext {
@@ -230,8 +231,9 @@ export function useListNft(): ListNftContext {
           };
         }
       );
-
+      
       toast('Listing posted', { type: 'success' });
+      
     } catch (err: any) {
       notifyInstructionError(err, {
         operation: 'Listing created',
@@ -242,6 +244,7 @@ export function useListNft(): ListNftContext {
         },
       });
       toast(err.message, { type: 'error' });
+
     } finally {
       setListNft(false);
     }
@@ -258,28 +261,30 @@ export function useListNft(): ListNftContext {
     const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
 
+    //more than 1 token, add compute unit instruction;
+
     const tx = new Transaction();
 
     const pendingNfts = await Promise.allSettled(nfts.map(async (nft): Promise<BulkListPending> => {
-      if(!nft.owner) throw new Error(`${nft.address} has no owner data available`)
+      if (!nft.owner) throw new Error(`${nft.address} has no owner data available`)
+      if (!amounts[nft.address]) throw new Error(`${nft.address} has no listing price`)
+
       const buyerPrice = toLamports(Number(amounts[nft.address]));
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
       const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
       const [sellerTradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
-          publicKey,
-          auctionHouseAddress,
-          associatedTokenAccount,
-          treasuryMint,
-          tokenMint,
-          1
-        );
-        
-
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        1
+      );
+      
       const [programAsSigner, programAsSignerBump] =
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
 
       const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
         publicKey,
@@ -292,7 +297,7 @@ export function useListNft(): ListNftContext {
       );
 
       const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-      
+    
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
         metadata,
@@ -331,7 +336,6 @@ export function useListNft(): ListNftContext {
       };
 
       const instruction = createCreateListingInstruction(accounts, args);
-      console.log("🚀 ~ file: list.ts:334 ~ pendingNfts ~ instruction", instruction)
 
       const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -355,8 +359,10 @@ export function useListNft(): ListNftContext {
       }
 
       tx.add(instruction);
+      //check if instruction maxed the compute limit
+      // if maxed create new TX
 
-      return {
+      return{
         nft,
         instructionData: {
           listingAddress,
@@ -374,19 +380,29 @@ export function useListNft(): ListNftContext {
     },
       cur) => {
       if (cur.status === "fulfilled") acc.fulfilled.push(cur.value)
-      if(cur.status === "rejected") acc.fulfilled.push(cur.reason)
+      if(cur.status === "rejected") acc.rejected.push(cur.reason)
       return acc
     }, { rejected: [], fulfilled: [] })
-    console.log("🚀 ~ file: list.ts:366 ~ onSubmitBulkListNft ~ settledNfts", settledNfts)
-    
-
+    console.log("🚀 ~ file: list.ts:383 ~ onSubmitBulkListNft ~ settledNfts", settledNfts)
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
 
+    //testing block
+    const res = await connection.simulateTransaction(tx)
+    console.log("🚀 ~ file: list.ts:389 ~ onSubmitBulkListNft ~ res", res)
+
+    const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
+    toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
+    setListNft(false)
+    return { fulfilled: fulfilledNfts }
+    //testing block
+
+    
     try {
       const signedTx = await signTransaction(tx);
+      //sign all txs
       const signature = await connection.sendRawTransaction(signedTx.serialize());
       if (signature) {
         await connection.confirmTransaction(
@@ -436,7 +452,9 @@ export function useListNft(): ListNftContext {
           }
         );
       })
-      toast('Listing posted', { type: 'success' });
+      const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
+      toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
+      return { fulfilled: fulfilledNfts }
     } catch (err: any) {
       // notifyInstructionError(err, {
       //   operation: 'Listing created',
@@ -447,6 +465,7 @@ export function useListNft(): ListNftContext {
       //   },
       // });
       toast(err.message, { type: 'error' });
+      return { fulfilled: [] }
     } finally {
       setListNft(false);
     }

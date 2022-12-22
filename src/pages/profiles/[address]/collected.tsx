@@ -294,7 +294,11 @@ export default function ProfileCollected({
           </>
         </Sidebar.Content>
       </Sidebar.Page>
-      <BulkListBottomDrawer ownedNfts={nftsQuery.data?.wallet.nfts} auctionHouse={auctionHouse} />
+      <BulkListBottomDrawer
+        ownedNfts={nftsQuery.data?.wallet.nfts}
+        auctionHouse={auctionHouse}
+        openDrawer={Boolean(collections?.length)} //open bulk drawer if one or more collections are selected
+      />
     </>
   );
 }
