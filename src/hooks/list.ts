@@ -390,15 +390,15 @@ export function useListNft(): ListNftContext {
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
 
-    //testing block
-    const res = await connection.simulateTransaction(tx)
-    console.log("🚀 ~ file: list.ts:389 ~ onSubmitBulkListNft ~ res", res)
+    // //testing block
+    // const res = await connection.simulateTransaction(tx)
+    // console.log("🚀 ~ file: list.ts:389 ~ onSubmitBulkListNft ~ res", res)
 
-    const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
-    toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
-    setListNft(false)
-    return { fulfilled: fulfilledNfts }
-    //testing block
+    // const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
+    // toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
+    // setListNft(false)
+    // return { fulfilled: fulfilledNfts }
+    // //testing block
 
 
     try {
