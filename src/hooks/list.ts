@@ -248,6 +248,7 @@ export function useListNft(): ListNftContext {
     } finally {
       setListNft(false);
     }
+      
   };
 
   const onSubmitBulkListNft = async ({ amounts, nfts, auctionHouse }: BulkListingForm) => {
@@ -399,7 +400,7 @@ export function useListNft(): ListNftContext {
     return { fulfilled: fulfilledNfts }
     //testing block
 
-    
+
     try {
       const signedTx = await signTransaction(tx);
       //sign all txs
@@ -416,7 +417,7 @@ export function useListNft(): ListNftContext {
       }
 
       settledNfts.fulfilled.forEach(({ nft, instructionData }) => {
-        const {listingAddress, sellerTradeState, tradeStateBump, buyerPrice} = instructionData
+        const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData
         client.cache.updateQuery(
           {
             query: NftMarketInfoQuery,
@@ -426,7 +427,7 @@ export function useListNft(): ListNftContext {
               address: nft.mintAddress,
             },
           },
-          (data) => {
+          (data: any) => {
             const listing = {
               __typename: 'AhListing',
               id: `temp-id-listing-${listingAddress.toBase58()}`,
@@ -452,6 +453,7 @@ export function useListNft(): ListNftContext {
           }
         );
       })
+
       const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
       toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
       return { fulfilled: fulfilledNfts }

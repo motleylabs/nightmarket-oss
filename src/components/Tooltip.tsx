@@ -33,7 +33,7 @@ export default function Tooltip({
         <div
           ref={setTooltipRef}
           {...getTooltipProps()}
-          className={clsx("bg-[#27262E] text-white py-2 px-4 rounded text-sm z-20", className)}
+          className={clsx("bg-gray-700 text-white py-2 px-4 rounded text-sm z-20", className)}
           >
           {content}
         </div>

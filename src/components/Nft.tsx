@@ -7,7 +7,6 @@ import React from 'react';
 import config from '../app.config';
 import { viewerVar } from '../cache';
 
-import Image from './Image';
 import { Nft, Maybe } from '../graphql.types';
 import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
@@ -470,7 +469,7 @@ interface OverviewFormPreviewProps {
 function OverviewFormPreview({ name, image, collection }: OverviewFormPreviewProps) {
   return (
     <div className="flex flex-row justify-start gap-4 md:hidden">
-      <Image src={image} alt="nft image" className="h-12 w-12 rounded-md object-cover" />
+      <Img src={image} alt="nft image" className="h-12 w-12 rounded-md object-cover" />
       <div className="flex flex-col justify-between">
         <h6>{name}</h6>
         {collection && <h4>{collection}</h4>}

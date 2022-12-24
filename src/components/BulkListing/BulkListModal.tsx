@@ -129,29 +129,31 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
       </div>
       <hr className="w-[110%] relative -left-[5%] border-b-none border-t-[0.5px] border-gray-700/75"/>
       <div className="w-full grid grid-cols-3 gap-2 py-6">
-        <div>
-          <div className="flex gap-1 items-center">
-            <p className="text-sm text-gray-400">PnL</p>
-            <Tooltip
-              content={(<>
-                <p>PnL stands for profit and loss, and it can be either realized or unrealized.</p>
-                <p className="italic mt-1">Note: if last sale price per NFT is not detected, the PnL value will not be accurate.</p>
-              </>
-              )}
-              className="max-w-[14rem]">
-              <Icon.Info />
-            </Tooltip>
+        <Tooltip
+          placement="top"
+          content={(<>
+            <p>PnL stands for profit and loss, and it can be either realized or unrealized.</p>
+            <p className="italic mt-1">Note: if last sale price per NFT is not detected, the PnL value will not be accurate.</p>
+          </>
+          )}
+          className="max-w-[14rem]"
+        >
+          <div>
+            <div className="flex gap-1 items-center">
+                <p className="text-sm text-gray-400">PnL</p>
+                <Icon.Info />
+            </div>
+            <div className="flex items-center gap-1">
+              <Icon.Sol />
+              <p className={pnlColor}>{roundToPrecision(PnL, 2)}</p>
+            </div>
+            <p className="text-sm text-gray-600 ml-5">{solToUsdString(PnL)}</p>
           </div>
-          <div className="flex items-center gap-1">
-            <Icon.Sol />
-            <p className={pnlColor}>{roundToPrecision(PnL, 2)}</p>
-          </div>
-          <p className="text-sm text-gray-600 ml-5">{solToUsdString(PnL)}</p>
-        </div>
+        </Tooltip>
 
         <div className="justify-self-center">
-          <p className="text-sm text-gray-400">Service Fee</p>
-          <p>0.1% placeholder</p>
+          <p className="text-sm text-gray-400">Tx Fee</p>
+          <p>~0.1% (placeholder)</p>
         </div>
         
         <div className="justify-self-end min-w-[4rem]">
