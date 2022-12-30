@@ -435,8 +435,8 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
             className="h-16 w-16 rounded-lg object-cover"
           />
         </div>
-        {listing?.price && (
-          <div className="group ">
+        {listing?.solPrice && (
+          <div className="group z-20 ">
             <Button
               icon={<Icon.Sol className="h-3 w-3" />}
               color={ButtonColor.Gray}
@@ -444,7 +444,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
               size={ButtonSize.Tiny}
               className="-mt-3 shadow-lg shadow-black group-hover:hidden"
             >
-              {listing?.price}
+              {listing?.solPrice}
             </Button>
             <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
               Buy
