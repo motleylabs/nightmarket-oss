@@ -170,7 +170,7 @@ function NavigationBar() {
             className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
           >
             <img
-              src="/images/nightmarket-stacked.svg"
+              src="/images/nightmarket-stacked-beta.svg"
               className="h-8 w-auto object-fill md:h-11"
               alt="night market logo"
             />
@@ -492,7 +492,7 @@ function MobileNavMenu({
       <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
         <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
           <img
-            src="/images/nightmarket-stacked.svg"
+            src="/images/nightmarket-stacked-beta.svg"
             className="h-8 w-auto object-fill"
             alt="night market logo"
           />
@@ -651,7 +651,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                           href="/"
                         >
                           <img
-                            src="/images/nightmarket-stacked.svg"
+                            src="/images/nightmarket-stacked-beta.svg"
                             className="h-8 w-auto object-fill md:h-20"
                             alt="night market logo"
                           />
