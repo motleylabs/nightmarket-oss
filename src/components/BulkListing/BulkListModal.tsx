@@ -48,6 +48,29 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
   }, 0)
 
   const pnlColor = PnL < 0 ? "text-red-500" : "text-white"
+
+  const getTxFee = () => {
+    const numListing = selected.length
+    const listingsPerTx = 6 //roughly 6 listings per tx
+
+    const baseTxFee = 0.00005 //SOL
+    const baseRent = 0.02 //SOL
+    const computeIncrease = 0.00001 //SOL
+
+    const numTx = Math.ceil(numListing / listingsPerTx) 
+    const computeIncRate = 2 // every 2 Tx
+    const numIncreases = (numTx - 1) * computeIncRate
+
+    const txFee = baseTxFee * numTx;
+    const computeFee = computeIncrease * numIncreases
+    const rentFee = baseRent * numListing; //Will be refunded on sell/delist
+
+    const totalFee = txFee + computeFee + rentFee
+    return {
+      sol: totalFee,
+      percent: (totalFee/total) * 100
+    }
+  } 
   
   useEffect(() => {
     if (useGlobalPrice && globalPrice) {
@@ -139,7 +162,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
           className="max-w-[14rem]"
         >
           <div>
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1 items-center -mt-[2px]">
                 <p className="text-sm text-gray-400">PnL</p>
                 <Icon.Info />
             </div>
@@ -153,7 +176,8 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
 
         <div className="justify-self-center">
           <p className="text-sm text-gray-400">Tx Fee</p>
-          <p>~0.1% (placeholder)</p>
+          {/* <p className="text-gray-200">{getTxFee().sol} SOL</p> */}
+          <p className="text-gray-200">~{roundToPrecision(getTxFee().percent, 6)}%</p>
         </div>
         
         <div className="justify-self-end min-w-[4rem]">
