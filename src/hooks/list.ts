@@ -60,7 +60,7 @@ interface ListNftContext {
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
   onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
-  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]}>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]} | undefined>;
 }
 
 export function useListNft(): ListNftContext {
@@ -377,7 +377,6 @@ export function useListNft(): ListNftContext {
     //nfts (+ data) with successfully made instructions go into .fulfilled, failed to .rejected;
     //"pendingTxInstructions" should only contain the successfully created instructions
     const settledNftInstructions = reduceSettledPromise(pendingNfts)
-    console.log("🚀 ~ file: list.ts:380 ~ onSubmitBulkListNft ~ settledNftInstructions", settledNftInstructions)
 
     //Batch up the listing instructions into transactions
     const pendingTransactions: Transaction[] = [];
@@ -396,90 +395,88 @@ export function useListNft(): ListNftContext {
         bulkTransaction.feePayer = publicKey;
         pendingTransactions.push(bulkTransaction);
       }
+    } 
+    
+    //sign all txs
+    let signedTxs: Transaction[] = []
+    if (signAllTransactions) {
+      signedTxs = await signAllTransactions(pendingTransactions);
+    } else {
+      //fallback to sign tx batches individually (if wallet doesn't support signAll)
+      const settledTxs = await Promise.allSettled(pendingTransactions.map(async (tx) => {
+        const signedTx = await signTransaction(tx);
+        return signedTx
+      }))
+      const { fulfilled } = reduceSettledPromise(settledTxs)
+
+      signedTxs = fulfilled
     }
 
-    
-    
-      //sign all txs
-      let signedTxs: Transaction[] = []
-      if (signAllTransactions) {
-        signedTxs = await signAllTransactions(pendingTransactions);
-      } else {
-        //fallback to sign tx batches individually (if wallet doesn't support signAll)
-        const settledTxs = await Promise.allSettled(pendingTransactions.map(async (tx) => {
-          const signedTx = await signTransaction(tx);
-          return signedTx
-        }))
-        const { fulfilled } = reduceSettledPromise(settledTxs)
-
-        signedTxs = fulfilled
-      }
-
-      const pendingSigned = await Promise.allSettled(signedTxs.map((tx, i, allTx) => {
-        //send all tx in intervals to avoid overloading the network
-        return new Promise<string>((resolve => {
-          setTimeout(() => {
-            console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
-            connection.sendRawTransaction(tx.serialize()).then(txHash => resolve(txHash));
-          }, i * TX_INTERVAL)
-        }))
+    const pendingSigned = await Promise.allSettled(signedTxs.map((tx, i, allTx) => {
+      //send all tx in intervals to avoid overloading the network
+      return new Promise<string>((resolve => {
+        setTimeout(() => {
+          console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
+          connection.sendRawTransaction(tx.serialize()).then(txHash => resolve(txHash));
+        }, i * TX_INTERVAL)
       }))
-    
-      //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
-      const settledSignedTxs = reduceSettledPromise(pendingSigned)
+    }))
+  
+    //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
+    const settledSignedTxs = reduceSettledPromise(pendingSigned)
 
 
-      settledNftInstructions.fulfilled.map(({nft, instructionData}) => {
-        const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
-        try {
-          client.cache.updateQuery(
-            {
-              query: NftMarketInfoQuery,
-              broadcast: false,
-              overwrite: true,
-              variables: {
-                address: nft.mintAddress,
-              },
+    settledNftInstructions.fulfilled.map(({nft, instructionData}) => {
+      const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
+      try {
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
             },
-            (data: any) => {
-              const listing = {
-                __typename: 'AhListing',
-                id: `temp-id-listing-${listingAddress.toBase58()}`,
-                seller: publicKey.toBase58(),
-                marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-                tradeState: sellerTradeState.toBase58(),
-                tradeStateBump: tradeStateBump,
-                price: buyerPrice.toString(),
-                auctionHouse: {
-                  address: auctionHouse.address,
-                  __typename: 'AuctionHouse',
-                },
-              };
+          },
+          (data: any) => {
+            const listing = {
+              __typename: 'AhListing',
+              id: `temp-id-listing-${listingAddress.toBase58()}`,
+              seller: publicKey.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tradeState: sellerTradeState.toBase58(),
+              tradeStateBump: tradeStateBump,
+              price: buyerPrice.toString(),
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+            };
 
-              const listings = [...(data.nft?.listings || []), listing];
+            const listings = [...(data.nft?.listings || []), listing];
 
-              return {
-                nft: {
-                  ...data.nft,
-                  listings,
-                },
-              };
-            }
-          );
-        } catch (e) {
-          console.error(e)
-        }
- 
-      })
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
+      } catch (e) {
+        console.error("Error caching", e)
+        console.error("Failed to cache nft listing: ", nft)
+      }
+    })
       
     if (settledSignedTxs.fulfilled.length > 0) {
       const fulfilledNfts = settledNftInstructions.fulfilled.map(({ nft }) => nft)
       toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
       return { fulfilled: fulfilledNfts }
-    } else {
-      toast("No Items were listed", { type: 'error' });
-      return { fulfilled: [] }
-    }
+    } 
+
+    toast("No Items were listed", { type: 'error' });
+    return { fulfilled: [] }
   };
   
 
