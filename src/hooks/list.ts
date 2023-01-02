@@ -13,7 +13,7 @@ import {
   UpdateListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -25,6 +25,7 @@ import client from '../client';
 import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
 import { rejects } from 'assert';
+import { reduceSettledPromise } from '../utils/promises';
 
 interface ListNftForm {
   amount: string;
@@ -63,7 +64,7 @@ interface ListNftContext {
 }
 
 export function useListNft(): ListNftContext {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
   const client = useApolloClient();
@@ -256,16 +257,16 @@ export function useListNft(): ListNftContext {
       return;
     }
     setListNft(true)
+    const LISTINGS_PER_TX = 3; // >3 is too large 
+    const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const authority = new PublicKey(auctionHouse.authority);
     const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
 
-    //more than 1 token, add compute unit instruction;
-
-    const tx = new Transaction();
-
+    //create instruction list (and listed nfts with associated data for the cache)
+    const pendingTxInstructions: TransactionInstruction[] = []
     const pendingNfts = await Promise.allSettled(nfts.map(async (nft): Promise<BulkListPending> => {
       if (!nft.owner) throw new Error(`${nft.address} has no owner data available`)
       if (!amounts[nft.address]) throw new Error(`${nft.address} has no listing price`)
@@ -356,122 +357,131 @@ export function useListNft(): ListNftContext {
       const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
       if (!sellerAtAInfo) {
-        tx.add(sellerATAInstruction);
+        //We should probably only do this once? but not sure where else to put it since it requires individual token information
+        pendingTxInstructions.push(sellerATAInstruction);
       }
 
-      tx.add(instruction);
-      //check if instruction maxed the compute limit
-      // if maxed create new TX
+      pendingTxInstructions.push(instruction);
 
-      return{
+      return {
         nft,
         instructionData: {
           listingAddress,
           sellerTradeState,
           tradeStateBump,
-          buyerPrice
+          buyerPrice,
         }
       }
     }))
 
-    const settledNfts = pendingNfts.reduce((
-      acc: {
-        rejected: string[],
-        fulfilled: BulkListPending[]
-    },
-      cur) => {
-      if (cur.status === "fulfilled") acc.fulfilled.push(cur.value)
-      if(cur.status === "rejected") acc.rejected.push(cur.reason)
-      return acc
-    }, { rejected: [], fulfilled: [] })
-    console.log("🚀 ~ file: list.ts:383 ~ onSubmitBulkListNft ~ settledNfts", settledNfts)
+    //nfts (+ data) with successfully made instructions go into .fulfilled, failed to .rejected;
+    //"pendingTxInstructions" should only contain the successfully created instructions
+    const settledNftInstructions = reduceSettledPromise(pendingNfts)
+    console.log("🚀 ~ file: list.ts:380 ~ onSubmitBulkListNft ~ settledNftInstructions", settledNftInstructions)
 
+    //Batch up the listing instructions into transactions
+    const pendingTransactions: Transaction[] = [];
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+    
+    const numTransactions = Math.ceil(pendingTxInstructions.length / LISTINGS_PER_TX);
+    for (let i = 0; i < numTransactions; i++) {
+      let bulkTransaction = new Transaction();
+      let lowerIndex = i * LISTINGS_PER_TX;
+      let upperIndex = (i + 1) * LISTINGS_PER_TX;
+      for (let j = lowerIndex; j < upperIndex; j++) {
+        if (pendingTxInstructions[j]) {
+          bulkTransaction.add(pendingTxInstructions[j]);
+        }
+        bulkTransaction.recentBlockhash = blockhash;
+        bulkTransaction.feePayer = publicKey;
+        pendingTransactions.push(bulkTransaction);
+      }
+    }
 
-    // //testing block
-    // const res = await connection.simulateTransaction(tx)
-    // console.log("🚀 ~ file: list.ts:389 ~ onSubmitBulkListNft ~ res", res)
-
-    // const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
-    // toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
-    // setListNft(false)
-    // return { fulfilled: fulfilledNfts }
-    // //testing block
-
-
-    try {
-      const signedTx = await signTransaction(tx);
+    
+    
       //sign all txs
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
+      let signedTxs: Transaction[] = []
+      if (signAllTransactions) {
+        signedTxs = await signAllTransactions(pendingTransactions);
+      } else {
+        //fallback to sign tx batches individually (if wallet doesn't support signAll)
+        const settledTxs = await Promise.allSettled(pendingTransactions.map(async (tx) => {
+          const signedTx = await signTransaction(tx);
+          return signedTx
+        }))
+        const { fulfilled } = reduceSettledPromise(settledTxs)
+
+        signedTxs = fulfilled
       }
 
-      settledNfts.fulfilled.forEach(({ nft, instructionData }) => {
-        const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData
-        client.cache.updateQuery(
-          {
-            query: NftMarketInfoQuery,
-            broadcast: false,
-            overwrite: true,
-            variables: {
-              address: nft.mintAddress,
+      const pendingSigned = await Promise.allSettled(signedTxs.map((tx, i, allTx) => {
+        //send all tx in intervals to avoid overloading the network
+        return new Promise<string>((resolve => {
+          setTimeout(() => {
+            console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
+            connection.sendRawTransaction(tx.serialize()).then(txHash => resolve(txHash));
+          }, i * TX_INTERVAL)
+        }))
+      }))
+    
+      //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
+      const settledSignedTxs = reduceSettledPromise(pendingSigned)
+
+
+      settledNftInstructions.fulfilled.map(({nft, instructionData}) => {
+        const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
+        try {
+          client.cache.updateQuery(
+            {
+              query: NftMarketInfoQuery,
+              broadcast: false,
+              overwrite: true,
+              variables: {
+                address: nft.mintAddress,
+              },
             },
-          },
-          (data: any) => {
-            const listing = {
-              __typename: 'AhListing',
-              id: `temp-id-listing-${listingAddress.toBase58()}`,
-              seller: publicKey.toBase58(),
-              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-              tradeState: sellerTradeState.toBase58(),
-              tradeStateBump: tradeStateBump,
-              price: buyerPrice.toString(),
-              auctionHouse: {
-                address: auctionHouse.address,
-                __typename: 'AuctionHouse',
-              },
-            };
+            (data: any) => {
+              const listing = {
+                __typename: 'AhListing',
+                id: `temp-id-listing-${listingAddress.toBase58()}`,
+                seller: publicKey.toBase58(),
+                marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+                tradeState: sellerTradeState.toBase58(),
+                tradeStateBump: tradeStateBump,
+                price: buyerPrice.toString(),
+                auctionHouse: {
+                  address: auctionHouse.address,
+                  __typename: 'AuctionHouse',
+                },
+              };
 
-            const listings = [...data.nft.listings, listing];
+              const listings = [...(data.nft?.listings || []), listing];
 
-            return {
-              nft: {
-                ...data.nft,
-                listings,
-              },
-            };
-          }
-        );
+              return {
+                nft: {
+                  ...data.nft,
+                  listings,
+                },
+              };
+            }
+          );
+        } catch (e) {
+          console.error(e)
+        }
+ 
       })
-
-      const fulfilledNfts = settledNfts.fulfilled.map(({ nft }) => nft)
+      
+    if (settledSignedTxs.fulfilled.length > 0) {
+      const fulfilledNfts = settledNftInstructions.fulfilled.map(({ nft }) => nft)
       toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
       return { fulfilled: fulfilledNfts }
-    } catch (err: any) {
-      // notifyInstructionError(err, {
-      //   operation: 'Listing created',
-      //   metadata: {
-      //     userPubkey: publicKey.toBase58(),
-      //     programLogs: err.logs,
-      //     nft,
-      //   },
-      // });
-      toast(err.message, { type: 'error' });
+    } else {
+      toast("No Items were listed", { type: 'error' });
       return { fulfilled: [] }
-    } finally {
-      setListNft(false);
     }
   };
+  
 
   const onListNftClick = useCallback(() => {
     if (connected) {
