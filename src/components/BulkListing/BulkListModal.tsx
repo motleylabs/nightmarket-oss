@@ -184,7 +184,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
             </div>
             <br />
             <p>Estimated Rent</p>
-            <p className="text-sm italic text-gray-200">This will be returned upon sale or de-listing</p>
+            <p className="text-sm italic text-gray-200">This will be refunded when sold or de-listed</p>
             <div className="flex gap-2">
               <p className="text-sm italic"><Icon.Sol className="inline-block w-3 h-3 mb-1" /> {roundToPrecision(txFees.rent, 6)}</p>
               <p className="text-gray-200 text-sm italic"> ({roundToPrecision(txFees.rentPercent, 6)}%)</p>
