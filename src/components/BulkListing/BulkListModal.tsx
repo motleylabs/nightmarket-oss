@@ -68,7 +68,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     const totalFee = txFee + computeFee + rentFee
     return {
       sol: totalFee,
-      percent: (totalFee/total) * 100
+      percent: total ? (totalFee/total) * 100 : 0
     }
   } 
   
