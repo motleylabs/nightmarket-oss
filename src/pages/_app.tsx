@@ -19,7 +19,6 @@ import ViewerProvider from '../providers/ViewerProvider';
 import client from './../client';
 import './../../styles/globals.css';
 import config from './../app.config';
-import CurrencyProvider from '../providers/CurrencyProvider';
 import { Popover, Transition } from '@headlessui/react';
 import { Bars3Icon, CheckIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -635,7 +634,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
               className={`${BriceFont.variable} ${HauoraFont.variable} wallet-modal-theme font-sans`}
             >
               <ViewerProvider>
-                <CurrencyProvider>
+                <>
                   <NavigationBar />
                   <PageLayout {...pageProps}>
                     <Component {...pageProps} />
@@ -765,7 +764,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                       </div>
                     </div>
                   </footer>
-                </CurrencyProvider>
+                </>
               </ViewerProvider>
             </WalletModalProvider>
           </WalletProvider>

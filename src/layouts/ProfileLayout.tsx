@@ -73,16 +73,21 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       0
     );
 
-    if (!total) {
+    const solanaPrice = solanaNetworkQuery.data?.solanaNetwork.price;
+
+    if (!total || !solanaPrice) {
       return 0;
     }
 
     const multiplier = Math.pow(10, 2);
-    return Math.round((total * multiplier) / multiplier);
-  }, [walletProfileClientQuery.data?.wallet.collectedCollections]);
+    return Math.round((total * multiplier) / multiplier) * solanaPrice;
+  }, [
+    solanaNetworkQuery.data?.solanaNetwork.price,
+    walletProfileClientQuery.data?.wallet.collectedCollections,
+  ]);
+
   const loading = walletProfileClientQuery.loading || solanaNetworkQuery.loading;
-  console.log('solana price', solanaNetworkQuery);
-  console.log('portfolio', portfolioValue);
+
   return (
     <>
       <Head>
@@ -131,16 +136,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           </div>
         </div>
         <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
-          <ProfileFigure
-            figure={
-              (solanaNetworkQuery.data?.solanaNetwork.price &&
-                portfolioValue &&
-                solanaNetworkQuery.data?.solanaNetwork.price * portfolioValue) ||
-              '0'
-            }
-            label="Net Worth"
-            loading={loading}
-          />
+          <ProfileFigure figure={portfolioValue} label="Net Worth" loading={loading} />
           <ProfileFigure
             label="Total NFTs"
             figure={walletProfileClientQuery.data?.wallet.nftCounts.owned}
