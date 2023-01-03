@@ -43,7 +43,6 @@ import { viewerVar } from '../cache';
 import { BriceFont, HauoraFont } from '../fonts';
 import { start } from '../modules/bugsnag';
 import ReportQuery from './../queries/report.graphql';
-import { useCurrencies } from '../hooks/currencies';
 import { DateRangeOption, getDateTimeRange } from '../modules/time';
 
 start();
@@ -63,8 +62,7 @@ interface ReportHeaderVariables {
 const EmptyBox = () => <div className="h-6 w-14 animate-pulse rounded-md bg-white transition" />;
 
 function ReportHeader({ reportQuery }: ReportHeaderVariables) {
-  const { initialized, solPrice } = useCurrencies();
-  const loading = !initialized || reportQuery.loading;
+  const loading = reportQuery.loading;
 
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
@@ -86,7 +84,7 @@ function ReportHeader({ reportQuery }: ReportHeaderVariables) {
         {loading ? (
           <EmptyBox />
         ) : (
-          <span className="font-semibold text-white">{`$${solPrice()}`}</span>
+          <span className="font-semibold text-white">{`$${reportQuery.data?.solanaNetwork.price}`}</span>
         )}
       </div>
       <div className="flex items-center gap-2">

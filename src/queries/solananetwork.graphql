@@ -1,0 +1,5 @@
+query SolanaNetworkQuery @cached(ttl: 300) {
+  solanaNetwork {
+    price(currency: USD)
+  }
+}

@@ -1,12 +1,13 @@
 import { cloneElement, ReactElement, ReactNode, useMemo } from 'react';
-import { AuctionHouse, Wallet } from '../graphql.types';
+import { AuctionHouse, SolanaNetwork, Wallet } from '../graphql.types';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
+import { SolanaNetworkQuery } from './../queries/solananetwork.graphql';
+
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import Head from 'next/head';
 import { useQuery } from '@apollo/client';
-import { useCurrencies } from '../hooks/currencies';
 import Icon from '../components/Icon';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
@@ -19,7 +20,9 @@ export interface WalletProfileVariables {
   address: string;
   rewardCenter: string;
 }
-
+export interface SolanaNetworkData {
+  solanaNetwork: SolanaNetwork;
+}
 interface ProfileLayout {
   children: ReactElement;
   wallet: Wallet;
@@ -51,7 +54,6 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
   const router = useRouter();
 
   const { copied, copyText } = useClipboard(address);
-  const { initialized: currenciesReady, solToUsdString } = useCurrencies();
 
   const walletProfileClientQuery = useQuery<WalletProfileData, WalletProfileVariables>(
     WalletProfileClientQuery,
@@ -62,6 +64,8 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       },
     }
   );
+
+  const solanaNetworkQuery = useQuery<SolanaNetworkData, {}>(SolanaNetworkQuery);
 
   const portfolioValue = useMemo(() => {
     const total = walletProfileClientQuery.data?.wallet.collectedCollections.reduce(
@@ -76,7 +80,9 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
     const multiplier = Math.pow(10, 2);
     return Math.round((total * multiplier) / multiplier);
   }, [walletProfileClientQuery.data?.wallet.collectedCollections]);
-
+  const loading = walletProfileClientQuery.loading || solanaNetworkQuery.loading;
+  console.log('solana price', solanaNetworkQuery);
+  console.log('portfolio', portfolioValue);
   return (
     <>
       <Head>
@@ -126,23 +132,28 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
         </div>
         <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
           <ProfileFigure
-            figure={(currenciesReady && portfolioValue && solToUsdString(portfolioValue)) || '0'}
+            figure={
+              (solanaNetworkQuery.data?.solanaNetwork.price &&
+                portfolioValue &&
+                solanaNetworkQuery.data?.solanaNetwork.price * portfolioValue) ||
+              '0'
+            }
             label="Net Worth"
-            loading={walletProfileClientQuery.loading}
+            loading={loading}
           />
           <ProfileFigure
             label="Total NFTs"
             figure={walletProfileClientQuery.data?.wallet.nftCounts.owned}
-            loading={walletProfileClientQuery.loading}
+            loading={loading}
           />
           <ProfileFigure
             label="Listed NFTs"
             figure={walletProfileClientQuery.data?.wallet.nftCounts.listed || 0}
-            loading={walletProfileClientQuery.loading}
+            loading={loading}
           />
           <ProfileFigure
             label="SAUCE earned"
-            loading={walletProfileClientQuery.loading}
+            loading={loading}
             figure={
               <div className="flex items-center gap-2">
                 <Icon.Sauce />
