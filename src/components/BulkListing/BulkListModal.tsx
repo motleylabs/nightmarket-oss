@@ -49,7 +49,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
 
   const pnlColor = PnL < 0 ? "text-red-500" : "text-white"
 
-  const getTxFee = () => {
+  const txFees = useMemo(() => {
     const numListing = selected.length
     const listingsPerTx = 6 //roughly 6 listings per tx
 
@@ -65,12 +65,14 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     const computeFee = computeIncrease * numIncreases
     const rentFee = baseRent * numListing; //Will be refunded on sell/delist
 
-    const totalFee = txFee + computeFee + rentFee
+    const totalFee = txFee + computeFee
     return {
-      sol: totalFee,
-      percent: total ? (totalFee/total) * 100 : 0
+      fee: totalFee,
+      feePercent: total ? (totalFee / total) * 100 : 0,
+      rent: rentFee,
+      rentPercent: total ? (rentFee / total) * 100 : 0,
     }
-  } 
+  }, [selected.length, total])
   
   useEffect(() => {
     if (useGlobalPrice && globalPrice) {
@@ -161,24 +163,43 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
           )}
           className="max-w-[14rem]"
         >
-          <div>
-            <div className="flex gap-1 items-center -mt-[2px]">
-                <p className="text-sm text-gray-400">PnL</p>
-                <Icon.Info />
-            </div>
-            <div className="flex items-center gap-1">
-              <Icon.Sol />
-              <p className={pnlColor}>{roundToPrecision(PnL, 2)}</p>
-            </div>
-            <p className="text-sm text-gray-600 ml-5">{solToUsdString(PnL)}</p>
+          <div className="flex gap-1 items-center -mt-[2px]">
+              <p className="text-sm text-gray-400">PnL</p>
+              <Icon.Info />
           </div>
+          <div className="flex items-center gap-1">
+            <Icon.Sol />
+            <p className={pnlColor}>{roundToPrecision(PnL, 2)}</p>
+          </div>
+          <p className="text-sm text-gray-600 ml-5">{solToUsdString(PnL)}</p>
         </Tooltip>
 
-        <div className="justify-self-center">
-          <p className="text-sm text-gray-400">Tx Fee</p>
-          {/* <p className="text-gray-200">{getTxFee().sol} SOL</p> */}
-          <p className="text-gray-200">~{roundToPrecision(getTxFee().percent, 6)}%</p>
-        </div>
+        <Tooltip
+          placement="top"
+          content={(<>
+            <p>Estimated Network Fee</p>
+            <div className="flex gap-2">
+              <p className="text-sm italic"><Icon.Sol className="inline-block w-3 h-3 mb-1" /> {roundToPrecision(txFees.fee, 6)}</p>
+              <p className="text-gray-200 text-sm italic"> ({roundToPrecision(txFees.feePercent, 6)}%)</p>
+            </div>
+            <br />
+            <p>Estimated Rent</p>
+            <p className="text-sm italic text-gray-200">This will be returned upon sale or de-listing</p>
+            <div className="flex gap-2">
+              <p className="text-sm italic"><Icon.Sol className="inline-block w-3 h-3 mb-1" /> {roundToPrecision(txFees.rent, 6)}</p>
+              <p className="text-gray-200 text-sm italic"> ({roundToPrecision(txFees.rentPercent, 6)}%)</p>
+            </div>
+          </>
+          )}
+          className="max-w-[18rem]"
+          wrapperClass="justify-self-center"
+        >
+          <div className="flex gap-1 items-center -mt-[2px]">
+            <p className="text-sm text-gray-400">Tx Fee</p>
+            <Icon.Info />
+          </div>
+          <p className="text-gray-200">~{roundToPrecision(txFees.feePercent + txFees.rentPercent, 6)}%</p>
+        </Tooltip>
         
         <div className="justify-self-end min-w-[4rem]">
           <p className="text-sm text-gray-400">Total</p>

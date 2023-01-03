@@ -60,7 +60,7 @@ interface ListNftContext {
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
   onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
-  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]} | undefined>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]}>;
 }
 
 export function useListNft(): ListNftContext {
@@ -254,7 +254,7 @@ export function useListNft(): ListNftContext {
 
   const onSubmitBulkListNft = async ({ amounts, nfts, auctionHouse }: BulkListingForm) => {
     if (!connected || !publicKey || !signTransaction || !nfts) {
-      return;
+      return { fulfilled: [] }
     }
     setListNft(true)
     const LISTINGS_PER_TX = 3; // >3 is too large 

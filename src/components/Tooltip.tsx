@@ -9,13 +9,15 @@ interface TooltipProps {
   content: ReactNode;
   className?: string;
   placement?: PopperOptions["placement"];
+  wrapperClass?: string;
 }
 
 export default function Tooltip({
   children,
   content,
   className,
-  placement
+  placement,
+  wrapperClass
 }: TooltipProps) {
   const {
     getTooltipProps,
@@ -26,7 +28,7 @@ export default function Tooltip({
 
   return (
     <>
-      <div ref={setTriggerRef} className="inline">
+      <div ref={setTriggerRef} className={clsx("inline", wrapperClass)}>
         {children}
       </div>
       {visible && (
