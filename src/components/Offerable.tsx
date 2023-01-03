@@ -6,13 +6,14 @@ import { AuctionHouse, Nft } from '../graphql.types';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
-import { useMakeOffer } from '../hooks/offer';
+import { OfferForm, useMakeOffer } from '../hooks/offer';
 import Icon from './Icon';
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
 import { viewerVar } from '../cache';
 import config from './../app.config';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { SubmitHandler } from 'react-hook-form';
 
 interface OfferableData {
   nft: Nft;
@@ -59,14 +60,13 @@ export function Offerable({ children, connected = false }: OfferableProps) {
   const { registerOffer, onMakeOffer, handleSubmitOffer, onCancelMakeOffer, offerFormState } =
     useMakeOffer(data?.nft);
 
-  const handleOffer = async ({ amount }: { amount: string }) => {
+  const handleOffer: any = async ({ amount }: { amount: string }) => {
     if (!data?.nft || !data?.auctionHouse) {
       return;
     }
-
     try {
       const response = await onMakeOffer({
-        amount,
+        amount: Number(amount),
         nft: data?.nft,
         auctionHouse: data.auctionHouse,
       });

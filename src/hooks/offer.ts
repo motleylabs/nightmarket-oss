@@ -38,7 +38,7 @@ import { useRouter } from 'next/router';
 import { notifyInstructionError } from '../modules/bugsnag';
 import config from '../app.config';
 
-interface OfferForm {
+export interface OfferForm {
   amount: number;
 }
 
