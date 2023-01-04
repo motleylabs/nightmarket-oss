@@ -44,11 +44,15 @@ function StyledLineChart(props: {
 }) {
   const { t } = useTranslation('analytics');
 
+  // TODO: replace this hack with a better solution once this https://github.com/recharts/recharts/issues/3055 is resolved
+  // could for better accuracy check if the values are the same across the entire array but for speed we'll avoid that for now
+  const hasNoChange: boolean = props.data[0]?.amount === props.data[props.data.length - 1]?.amount;
+
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={props.data} margin={{ top: 24, right: 10, bottom: 24, left: 10 }}>
         <defs>
-          <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
+          <linearGradient id="lineColor" x1="0" y1="1" x2="0" y2="0">
             <stop offset="0%" stopColor="#F85C04" />
             <stop offset="100%" stopColor="#EC9D08" />
           </linearGradient>
@@ -95,7 +99,7 @@ function StyledLineChart(props: {
           dot={false}
           strokeWidth={4}
           dataKey="amount"
-          stroke="url(#lineColor)"
+          stroke={hasNoChange ? '#F85C04' : 'url(#lineColor)'}
         />
         {props.children}
       </LineChart>
@@ -125,6 +129,10 @@ function TinyLineChart(props: {
 
   const chartRef = useRef(null);
   const [hideAxis, setHideAxis] = useState(true);
+
+  // TODO: replace this hack with a better solution once this https://github.com/recharts/recharts/issues/3055 is resolved
+  // could for better accuracy check if the values are the same across the entire array but for speed we'll avoid that for now
+  const hasNoChange: boolean = props.data[0]?.amount === props.data[props.data.length - 1]?.amount;
 
   return props.data.length > 0 && !props.loading ? (
     <ResponsiveContainer width="100%" height="100%">
@@ -156,7 +164,7 @@ function TinyLineChart(props: {
           dot={false}
           strokeWidth={2}
           dataKey="amount"
-          stroke="url(#lineColor)"
+          stroke={hasNoChange ? '#F85C04' : 'url(#lineColor)'}
         />
         {props.children}
       </LineChart>

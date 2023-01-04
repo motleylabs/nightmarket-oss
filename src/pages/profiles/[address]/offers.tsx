@@ -198,7 +198,7 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
                               );
 
                               const estimatedValue = (
-                                parseInt(cc.estimatedValue) - parseInt(trends?.floor1d)
+                                parseFloat(cc.estimatedValue) - parseFloat(trends?.floor1d)
                               ).toString();
 
                               const update = {

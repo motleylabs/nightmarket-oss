@@ -1,10 +1,11 @@
 query ReportQuery($address: String!, $startDate: DateTimeUtc, $endDate: DateTimeUtc)
-@cached(ttl: 120) {
+@cached(ttl: 300) {
   auctionHouse(address: $address) {
     address
     volume(startDate: $startDate, endDate: $endDate)
   }
   solanaNetwork {
     tps
+    price(currency: USD)
   }
 }

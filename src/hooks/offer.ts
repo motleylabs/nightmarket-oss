@@ -26,9 +26,11 @@ import {
   AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { toLamports } from '../modules/sol';
+import { toLamports, toSol } from '../modules/sol';
 import { RewardCenterProgram } from '../modules/reward-center';
 import { toast } from 'react-toastify';
 import { useApolloClient } from '@apollo/client';
@@ -36,8 +38,8 @@ import { useRouter } from 'next/router';
 import { notifyInstructionError } from '../modules/bugsnag';
 import config from '../app.config';
 
-interface OfferForm {
-  amount: string;
+export interface OfferForm {
+  amount: number;
 }
 
 interface MakeOfferForm extends OfferForm {
@@ -85,42 +87,41 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
   const offerSchema = useMemo(() => {
     let validation: zod.ZodNumber = zod.number();
 
-    if (listing?.solPrice) {
-      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+    if (listing?.price) {
+      const minOfferLamports = listing?.price.toNumber() * config.offerMinimums.percentageListing;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-      const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+      const minOfferLamports =
+        toLamports(parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d)) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageFloor * 100
         }% of the floor price`
       );
     }
 
-    const offerSchema = zod.object({
+    return zod.object({
       amount: zod.preprocess((input) => {
         const processed = zod
           .string()
           .min(1, `Must enter an amount`)
           .regex(/^[0-9.]*$/, { message: `Must be a number` })
           .transform(Number)
+          .transform(toLamports)
           .safeParse(input);
         return processed.success ? processed.data : input;
       }, validation),
     });
-
-    return offerSchema;
-  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+  }, [listing?.price, nft?.moonrankCollection?.trends?.compactFloor1d]);
 
   const {
     register: registerOffer,
@@ -136,7 +137,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
     }
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const buyerPrice = toLamports(Number(amount));
+    const buyerPrice = amount; // already preprocessed as lamports by zod
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
@@ -308,64 +309,56 @@ export function useUpdateOffer(offer: Maybe<Offer> | undefined, nft?: Nft): Upda
   const offerSchema = useMemo(() => {
     let validation: zod.ZodNumber = zod.number();
 
-    if (listing?.solPrice) {
-      const minOffer = listing?.solPrice * config.offerMinimums.percentageListing;
+    if (listing?.price) {
+      const minOfferLamports = listing?.price.toNumber() * config.offerMinimums.percentageListing;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${
           config.offerMinimums.percentageListing * 100
         }% of the listing price`
       );
     } else if (nft?.moonrankCollection?.trends?.compactFloor1d) {
-      const minOffer =
-        parseInt(nft?.moonrankCollection?.trends?.compactFloor1d) *
+      const minOfferLamports =
+        toLamports(parseFloat(nft?.moonrankCollection?.trends?.compactFloor1d)) *
         config.offerMinimums.percentageFloor;
 
       validation = validation.min(
-        minOffer,
-        `Your offer must be at least ${parseFloat(minOffer.toFixed(5))} which is ${Math.round(
+        minOfferLamports,
+        `Your offer must be at least ${toSol(minOfferLamports)} which is ${Math.round(
           config.offerMinimums.percentageFloor * 100
         )}% of the floor price`
       );
     }
 
-    const offerSchema = zod.object({
+    return zod.object({
       amount: zod.preprocess((input) => {
         const processed = zod
           .string()
           .min(1, `Must enter an amount`)
           .regex(/^[0-9.]*$/, { message: `Must be a number` })
           .transform(Number)
+          .transform(toLamports)
           .safeParse(input);
         return processed.success ? processed.data : input;
       }, validation),
     });
-
-    return offerSchema;
-  }, [listing?.solPrice, nft?.moonrankCollection?.trends?.compactFloor1d]);
+  }, [listing?.price, nft?.moonrankCollection?.trends?.compactFloor1d]);
 
   const {
     register: registerUpdateOffer,
     handleSubmit: handleSubmitUpdateOffer,
-    reset,
     formState: updateOfferFormState,
   } = useForm<OfferForm>({
     resolver: zodResolver(offerSchema),
   });
-
-  useEffect(() => {
-    reset({
-      amount: offer?.solPrice?.toString(),
-    });
-  }, [offer?.solPrice, reset]);
 
   const onUpdateOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
     if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
       return;
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const newOfferPrice = toLamports(Number(amount));
+    const newOfferPrice = amount; // already preprocessed as lamports by zod to lamports by zod
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
@@ -846,7 +839,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     let remainingAccounts: AccountMeta[] = [];
 
-    for (let creator of nft.creators.slice(0, 2)) {
+    for (let creator of nft.creators) {
       const creatorAccount = {
         pubkey: new PublicKey(creator.address),
         isSigner: false,
@@ -855,26 +848,19 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
-    const tx = new Transaction();
-
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
 
-    tx.add(ix);
+    const arrayOfInstructions = new Array<TransactionInstruction>();
+
+    const lookupTableAccount = await connection
+      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
+      .then((res) => res.value);
+
+    arrayOfInstructions.push(ix);
 
     if (listing) {
-      if (nft.creators.length > 3) {
-        toast(
-          'Since this NFT has more than 3 creators the outstanding listing can not be canceled along with accepting the offer in a single transaction. Please cancel your listing before accepting the offer.',
-          { type: 'info', autoClose: 15 * 1000 }
-        );
-
-        setAcceptingOffer(false);
-
-        throw new Error('too many creators to close listing along with accepting the offer');
-      }
-
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
         metadata,
@@ -898,14 +884,14 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
       const closeListingIx = createCloseListingInstruction(accounts);
 
-      tx.add(closeListingIx);
+      arrayOfInstructions.push(closeListingIx);
     }
 
     if (!sellerAtAInfo) {
-      tx.add(sellerATAInstruction);
+      arrayOfInstructions.push(sellerATAInstruction);
     }
 
-    tx.add(
+    arrayOfInstructions.push(
       new TransactionInstruction({
         programId: RewardCenterProgram.PUBKEY,
         data: acceptOfferIx.data,
@@ -914,11 +900,17 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     );
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message([lookupTableAccount!]);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
+      const signedTx = await signTransaction(transactionV0);
       const signature = await connection.sendRawTransaction(signedTx.serialize());
       if (!signature) {
         return;
