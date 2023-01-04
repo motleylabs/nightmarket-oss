@@ -230,7 +230,7 @@ function OverviewAsideSkeleton(): JSX.Element {
       <div className="mb-10 grid animate-pulse rounded-lg bg-gray-800 transition">
         <div className="flex w-full flex-row items-center justify-between border-b-[1px] border-b-gray-900 py-4 px-6">
           <img
-            src="/images/nightmarket.svg"
+            src="/images/nightmarket-beta.svg"
             className="h-5 w-auto object-fill"
             alt="night market logo"
           />
