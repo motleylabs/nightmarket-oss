@@ -44,6 +44,7 @@ import { start } from '../modules/bugsnag';
 import ReportQuery from './../queries/report.graphql';
 import { DateRangeOption, getDateTimeRange } from '../modules/time';
 import BulkListProvider from '../providers/BulkListProvider';
+import CurrencyProvider from '../providers/CurrencyProvider';
 
 start();
 
