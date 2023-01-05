@@ -1,0 +1,19 @@
+{
+  "referrals": "Referrals",
+  "description": "",
+  "generateLink": "To generate a referral link, connect your wallet",
+  "connectWallet": "Connect Wallet",
+  "welcomeMarket": "Welcome to the Night Market!",
+  "createUnique": "Now create a unique name for your referral link",
+  "placeholder": "placeholder",
+  "createLink": "Create link",
+  "creating": "Creating",
+  "fee": "Fee for the link generation",
+  "successCreate": "You successfully created your referral link",
+  "manage": "You can manage your benefits in Profile",
+  "goTo": "Go to Profile",
+  "share": "Share",
+  "and": "&",
+  "earn": "Earn",
+  "nameLengthError": "Your name must be at least 3 characters"
+}

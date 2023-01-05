@@ -261,6 +261,19 @@ function TwitterIcon({ className = 'h-6 w-auto' }: IconProps) {
 
 Icon.Twitter = TwitterIcon;
 
+function TelegramIcon({ className = 'h-6 w-auto' }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="19" viewBox="0 0 24 19" fill="none">
+      <path
+        d="M1.64987 8.17945C8.09231 5.49813 12.3883 3.73044 14.5378 2.87638C20.675 0.437868 21.9503 0.0142721 22.7815 0.000135604C22.9643 -0.00279163 23.3731 0.0404885 23.6379 0.245728C23.8614 0.419028 23.9229 0.653132 23.9524 0.817439C23.9818 0.981746 24.0185 1.35604 23.9893 1.64851C23.6567 4.98665 22.2177 13.0874 21.4856 16.8262C21.1758 18.4082 20.5658 18.9387 19.9753 18.9906C18.6919 19.1034 17.7174 18.1804 16.4744 17.402C14.5294 16.1841 13.4305 15.4259 11.5425 14.2374C9.36064 12.8638 10.7751 12.1089 12.0185 10.8752C12.344 10.5523 17.9985 5.63915 18.1079 5.19345C18.1216 5.1377 18.1343 4.92992 18.0051 4.82021C17.8759 4.71049 17.6851 4.74801 17.5475 4.77785C17.3524 4.82015 14.2452 6.78204 8.22584 10.6635C7.34386 11.2421 6.54499 11.524 5.82924 11.5092C5.04017 11.4929 3.52233 11.083 2.39397 10.7326C1.00999 10.3029 -0.0899675 10.0757 0.00581422 9.3458C0.0557033 8.96565 0.603724 8.57687 1.64987 8.17945Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+Icon.Telegram = TelegramIcon;
+
 function MediumIcon({ className = 'h-6 w-auto' }: IconProps) {
   return (
     <svg
@@ -420,3 +433,119 @@ function DollarIcon({ className = "" }: IconProps) {
 }
 
 Icon.Dollar = DollarIcon
+
+function StampIcon({ className = 'h-6 w-auto' }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="50"
+      height="50"
+      viewBox="0 0 50 50"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M26.1667 0.863069C29.4581 -0.798416 33.4723 0.277192 35.492 3.36176L35.9609 4.07798C36.9791 5.633 38.556 6.73717 40.3655 7.16209L41.1989 7.3578C44.7882 8.20068 47.1719 11.6049 46.7363 15.2661L46.6352 16.1162C46.4156 17.9618 46.9139 19.8213 48.0269 21.3099L48.5395 21.9956C50.7473 24.9484 50.3851 29.0884 47.6981 31.613L47.0742 32.1992C45.7196 33.4719 44.906 35.2167 44.8018 37.0724L44.7537 37.9272C44.547 41.6083 41.6083 44.5469 37.9272 44.7537L37.0725 44.8017C35.2167 44.906 33.472 45.7196 32.1993 47.0741L31.613 47.6981C29.0884 50.385 24.9484 50.7473 21.9956 48.5395L21.31 48.0268C19.8213 46.9138 17.9619 46.4156 16.1162 46.6352L15.2661 46.7363C11.605 47.1719 8.20071 44.7882 7.35784 41.1989L7.16213 40.3655C6.73721 38.556 5.63303 36.9791 4.07801 35.9609L3.36179 35.4919C0.277225 33.4723 -0.798383 29.4581 0.863102 26.1667L1.24889 25.4025C2.08649 23.7432 2.25427 21.8255 1.71752 20.0459L1.4703 19.2263C0.405599 15.6964 2.16193 11.93 5.55034 10.4766L6.33712 10.1392C8.04532 9.40651 9.40655 8.04529 10.1392 6.33708L10.4767 5.55031C11.93 2.1619 15.6965 0.405568 19.2264 1.47027L20.046 1.71749C21.8255 2.25424 23.7432 2.08646 25.4025 1.24886L26.1667 0.863069Z"
+        fill="url(#paint0_linear_1150_48792)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_1150_48792"
+          x1="9.56919"
+          y1="-8.05001"
+          x2="53.0575"
+          y2="27.7212"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#F85C04" />
+          <stop offset="1" stopColor="#7C1E05" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+Icon.Stamp = StampIcon;
+
+function LoadingIcon({ className = 'h-6 w-auto' }: IconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M17.654 17.6544C16.206 19.1014 14.209 20.0004 12 20.0004C7.582 20.0004 4 16.4184 4 12.0004C4 11.3924 4.074 10.8024 4.202 10.2334"
+        stroke="url(#paint0_linear_1392_1370)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2 12L4 10L6 12"
+        stroke="url(#paint1_linear_1392_1370)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M22 12L20 14L18 12"
+        stroke="url(#paint2_linear_1392_1370)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6.34302 6.343C7.79102 4.896 9.79102 4 12 4C16.418 4 20 7.582 20 12C20 12.608 19.926 13.198 19.798 13.767"
+        stroke="url(#paint3_linear_1392_1370)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_1392_1370"
+          x1="5.12999"
+          y1="10.2334"
+          x2="15.9669"
+          y2="17.118"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#F85C04" />
+          <stop offset={1} stopColor="#EC9D08" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_1392_1370"
+          x1="2.33103"
+          y1={10}
+          x2="4.77128"
+          y2="12.2179"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#F85C04" />
+          <stop offset={1} stopColor="#EC9D08" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_1392_1370"
+          x1="18.331"
+          y1={12}
+          x2="20.7713"
+          y2="14.2179"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#F85C04" />
+          <stop offset={1} stopColor="#EC9D08" />
+        </linearGradient>
+        <linearGradient
+          id="paint3_linear_1392_1370"
+          x1="7.47325"
+          y1={4}
+          x2="18.3112"
+          y2="10.8868"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#F85C04" />
+          <stop offset={1} stopColor="#EC9D08" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+Icon.Loading = LoadingIcon;

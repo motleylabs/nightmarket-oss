@@ -85,6 +85,9 @@ module.exports = {
       animation: {
         'draw-border': 'draw .5s',
       },
+      transitionProperty: {
+        width: 'width',
+      },
     },
   },
   plugins: [
