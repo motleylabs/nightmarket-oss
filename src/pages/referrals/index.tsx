@@ -6,6 +6,7 @@ import Head from 'next/head';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Steps } from '../../components/ReferralSteps';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { Animation } from '../../components/ReferralsAnimation';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'referrals']);
@@ -95,35 +96,39 @@ const Referrals: NextPage = () => {
   }, [steps]);
 
   return (
-    <main className="h-[calc(100vh_-_120px)]">
+    <main className="z-0 h-[calc(100vh_-_120px)]">
       <Head>
         <title>{t('referrals')}</title>
         <meta name="description" content={t('description')} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="">{/* background */}</div>
-      <div className="flex  flex-col items-center pt-20">
-        <div className="relative flex h-6 w-80 flex-row justify-between">
-          <div className="absolute inset-y-0 my-auto h-0.5 w-full bg-gray-800" />
-          <div
-            className="absolute inset-y-0 my-auto h-0.5 bg-gradient-hover transition-[width] duration-700"
-            style={{ width: `${((steps - 1) / (TOTAL_STEPS - 1)) * 100}%` }}
-          />
-          {[...Array(TOTAL_STEPS)].map((_, key) => (
-            <div
-              className={`z-10 flex h-6 w-6 flex-none items-center justify-center rounded-full  bg-gray-800 text-base font-bold text-white ${
-                steps >= key + 1 ? 'bg-gradient-hover' : ''
-              }`}
-              onClick={() => {
-                setSteps(key + 1);
-              }}
-              key={`step-${key}`}
-            >
-              {key + 1}
-            </div>
-          ))}
+      <div className="relative h-[calc(100vh_-_8px)] overflow-hidden">
+        <div className="-z-10">
+          <Animation.Leaves steps={steps} />
         </div>
-        <div className="">{step}</div>
+        <div className="z-10 flex flex-col items-center pt-20">
+          <div className="relative flex h-6 w-80 flex-row justify-between">
+            <div className="absolute inset-y-0 my-auto h-0.5 w-full bg-gray-800" />
+            <div
+              className="absolute inset-y-0 my-auto h-0.5 bg-gradient-hover transition-[width] duration-700"
+              style={{ width: `${((steps - 1) / (TOTAL_STEPS - 1)) * 100}%` }}
+            />
+            {[...Array(TOTAL_STEPS)].map((_, key) => (
+              <div
+                className={`z-10 flex h-6 w-6 flex-none items-center justify-center rounded-full  bg-gray-800 text-base font-bold text-white ${
+                  steps >= key + 1 ? 'bg-gradient-hover' : ''
+                }`}
+                onClick={() => {
+                  setSteps(key + 1);
+                }}
+                key={`step-${key}`}
+              >
+                {key + 1}
+              </div>
+            ))}
+          </div>
+          <div className="z-10 bg-black px-6 pb-6">{step}</div>
+        </div>
       </div>
     </main>
   );
