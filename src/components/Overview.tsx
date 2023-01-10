@@ -115,15 +115,16 @@ function Aside({ children }: OverviewProps): JSX.Element {
 Overview.Aside = Aside;
 
 interface OverviewTabsProps {
-  children: JSX.Element[];
+  children: (JSX.Element | null)[];
 }
 
 function Tabs({ children }: OverviewTabsProps) {
+  const length = children.filter((child) => child !== null).length;
   return (
     <nav
       className={clsx(
         'relative mx-4 grid items-center justify-center gap-2 rounded-full border border-gray-800 px-1 py-1 md:mx-auto md:mb-[-75px] md:max-w-sm',
-        `grid-cols-${children.length}`
+        `grid-cols-${length}`
       )}
     >
       {children}

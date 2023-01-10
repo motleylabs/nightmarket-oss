@@ -15,5 +15,15 @@
   "share": "Share",
   "and": "&",
   "earn": "Earn",
-  "nameLengthError": "Your name must be at least 3 characters"
+  "nameLengthError": "Your name must be at least 3 characters",
+  "profile": {
+    "available": "Available to Claim",
+    "claimRewards": "Claim Rewards",
+    "allTimeClaim": "Claimed (All Time)",
+    "totalGeneratedRevenue": "Total Generated Volume",
+    "affiliateLink": "Your Affiliate Link",
+    "claimHistory": "Claim History",
+    "referred": "Referred",
+    "inactive": "Inactive"
+  }
 }

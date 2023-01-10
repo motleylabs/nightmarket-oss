@@ -25,6 +25,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        auto: 'repeat(auto-fit, minmax(150px, 1fr))',
+      },
       fontSize: {
         xs: ['0.5rem', '0.75rem'],
         sm: ['0.75rem', '1rem'],
