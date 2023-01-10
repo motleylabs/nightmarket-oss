@@ -107,7 +107,7 @@ const Referrals: NextPage = () => {
           <Animation.Leaves steps={steps} />
         </div>
         <div className="z-10 flex flex-col items-center pt-20">
-          <div className="relative flex h-6 w-80 flex-row justify-between">
+          <div className="relative flex h-6 w-60 flex-row justify-between xl:w-80">
             <div className="absolute inset-y-0 my-auto h-0.5 w-full bg-gray-800" />
             <div
               className="absolute inset-y-0 my-auto h-0.5 bg-gradient-hover transition-[width] duration-700"
@@ -118,16 +118,13 @@ const Referrals: NextPage = () => {
                 className={`z-10 flex h-6 w-6 flex-none items-center justify-center rounded-full  bg-gray-800 text-base font-bold text-white ${
                   steps >= key + 1 ? 'bg-gradient-hover' : ''
                 }`}
-                onClick={() => {
-                  setSteps(key + 1);
-                }}
                 key={`step-${key}`}
               >
                 {key + 1}
               </div>
             ))}
           </div>
-          <div className="z-10 bg-black px-6 pb-6">{step}</div>
+          <div className="z-10 px-6 pb-6">{step}</div>
         </div>
       </div>
     </main>

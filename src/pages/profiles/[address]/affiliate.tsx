@@ -2,7 +2,7 @@ import { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { WalletProfileQuery } from './../../../queries/profile.graphql';
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useMemo, useState } from 'react';
 import client from '../../../client';
 import { AuctionHouse, Wallet } from '../../../graphql.types';
 import ProfileLayout from '../../../layouts/ProfileLayout';
@@ -18,7 +18,6 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { Table } from '../../../components/Table';
 import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
-import { Collection } from '../../../components/Collection';
 import { QRCodeSVG } from 'qrcode.react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -81,110 +80,136 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
     [setTab, tab]
   );
 
+  const url = useMemo(() => {
+    return `${config.baseUrl}/r/${buddy?.name}`;
+  }, [buddy?.name]);
+
   return (
     <>
       <div className="">
-        <header className="top-0 my-4 mx-4 grid h-[58px] grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex"></header>
-        <div className="mt-14 flex h-[150px] w-full justify-center">
-          <div className="mr-4 h-full min-w-[328px] rounded-2xl bg-gray-800 p-4">
-            <div className="flex h-8 items-center justify-between">
-              <h4 className="font-semibold text-gray-300">{t('profile.available')}</h4>
-              <Button
-                className="ml-4 h-8 w-full md:w-auto"
-                block
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
-                size={ButtonSize.Small}
-                onClick={async () => {
-                  if (buddy) {
-                    await onClaimBuddy(buddy?.name);
-                    refreshBalance();
-                  }
-                }}
-              >
-                {t('profile.claimRewards')}
-              </Button>
-            </div>
-            <div className="mt-5 flex items-center">
-              <Icon.Solana />
-              <h2 className="ml-1 text-2xl font-bold">{balance}</h2>
-            </div>
+        <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
+        <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] xl:w-full xl:flex-row">
+          <div className="w-full md:flex md:items-center md:justify-center  xl:w-auto">
+            {loadingBuddy ? (
+              <>
+                <StatsSkeleton />
+                <StatsSkeleton className="md:mr-0 xl:mr-4" />
+              </>
+            ) : (
+              <>
+                <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
+                  <div className="flex h-8 items-center justify-between">
+                    <h4 className="font-semibold text-gray-300">{t('profile.available')}</h4>
+                    <Button
+                      className="ml-4 h-8 w-full md:w-auto"
+                      block
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                      size={ButtonSize.Small}
+                      onClick={async () => {
+                        if (buddy) {
+                          await onClaimBuddy(buddy?.name);
+                          refreshBalance();
+                        }
+                      }}
+                    >
+                      {t('profile.claimRewards')}
+                    </Button>
+                  </div>
+                  <div className="mt-5 flex items-center">
+                    <Icon.Solana />
+                    <h2 className="ml-1 text-2xl font-bold">{balance}</h2>
+                  </div>
+                </div>
+                <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:min-w-[328px] xl:mb-0 xl:mr-4">
+                  <div className="flex h-8 items-center ">
+                    <h4 className="text-gray-300">{t('profile.allTimeClaim')}</h4>
+                  </div>
+                  <div className="mt-4 flex items-center">
+                    <Icon.Solana />
+                    <h2 className="ml-1 text-2xl font-bold">{chest?.totalEarned?.toNumber()}</h2>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-          <div className="mr-4 h-full min-w-[328px] rounded-2xl bg-gray-800 p-4">
-            <div className="flex h-8 items-center ">
-              <h4 className="text-gray-300">{t('profile.allTimeClaim')}</h4>
-            </div>
-            <div className="mt-4 flex items-center">
-              <Icon.Solana />
-              <h2 className="ml-1 text-2xl font-bold">{chest?.totalEarned?.toNumber()}</h2>
-            </div>
-          </div>
-          <div className="mr-4 h-full min-w-[328px] rounded-2xl bg-gray-800 p-4">
-            <div className="flex h-8 items-center ">
-              <h4 className="text-gray-300">{t('profile.totalGeneratedRevenue')}</h4>
-            </div>
-            <div className="flex">
-              <div className="mt-4 flex w-full items-center">
-                <Icon.Solana />
-                <h2 className="ml-1 text-2xl font-bold">0{/* need info from motley */}</h2>
-              </div>
-              <div className="mt-4 flex w-full items-center">
-                <Icon.User />
-                <h2 className="ml-1 text-2xl font-bold">
-                  {buddy?.numberOfReferredUsers.toNumber()}
-                </h2>
-              </div>
-            </div>
-          </div>
-          <div className="h-full min-w-[328px] rounded-2xl border border-gray-800 p-4">
-            <div className="flex justify-between">
-              <h4 className="font-semibold text-gray-300">{t('profile.affiliateLink')}</h4>
-              <div
-                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded bg-gray-800 hover:bg-gray-700"
-                onClick={() => {
-                  setVisible(true);
-                }}
-              >
-                <Icon.QRCode />
-              </div>
-            </div>
-            <div className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-gray-800">
-              <p className="flex items-center text-gray-400">
-                {config.baseUrl}/r/<span className="text-white">{buddy?.name}</span>
-                <Icon.Copy className="ml-2 h-4 w-4" />
-              </p>
-            </div>
-            <div className="mt-3 flex items-center justify-center">
-              <Link
-                target="_blank"
-                rel="nofollow noreferrer"
-                className="text-white opacity-50"
-                href={''}
-              >
-                <Icon.Telegram className="h-4 w-auto" />
-              </Link>
-              <Link
-                target="_blank"
-                rel="nofollow noreferrer"
-                className="mx-4 text-white opacity-50"
-                href={''}
-              >
-                <Icon.Twitter className="h-5 w-auto" />
-              </Link>
-              <Link
-                target="_blank"
-                rel="nofollow noreferrer"
-                className="text-white opacity-50"
-                href={''}
-              >
-                <Icon.Discord className="h-5 w-auto" />
-              </Link>
-            </div>
+          <div className="w-full md:flex md:items-center md:justify-center xl:w-auto">
+            {loadingBuddy ? (
+              <>
+                <StatsSkeleton />
+                <StatsSkeleton className="md:mr-0 xl:mr-0" />
+              </>
+            ) : (
+              <>
+                <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
+                  <div className="flex h-8 items-center ">
+                    <h4 className="text-gray-300">{t('profile.totalGeneratedRevenue')}</h4>
+                  </div>
+                  <div className="flex">
+                    <div className="mt-4 flex w-full items-center">
+                      <Icon.Solana />
+                      <h2 className="ml-1 text-2xl font-bold">0{/* need info from motley */}</h2>
+                    </div>
+                    <div className="mt-4 flex w-full items-center">
+                      <Icon.User />
+                      <h2 className="ml-1 text-2xl font-bold">
+                        {buddy?.numberOfReferredUsers.toNumber()}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+                <div className="h-[150px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]">
+                  <div className="flex justify-between">
+                    <h4 className="font-semibold text-gray-300">{t('profile.affiliateLink')}</h4>
+                    <div
+                      className="flex h-6 w-6 cursor-pointer items-center justify-center rounded bg-gray-800 hover:bg-gray-700"
+                      onClick={() => {
+                        setVisible(true);
+                      }}
+                    >
+                      <Icon.QRCode />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-gray-800">
+                    <p className="flex items-center text-gray-400">
+                      {config.baseUrl}/r/<span className="text-white">{buddy?.name}</span>
+                      <Icon.Copy className="ml-2 h-4 w-4" />
+                    </p>
+                  </div>
+                  <div className="mt-3 flex items-center justify-center">
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="text-white opacity-50"
+                      href={`https://t.me/share/url?url=${url}`}
+                    >
+                      <Icon.Telegram className="h-4 w-auto" />
+                    </Link>
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="mx-4 text-white opacity-50"
+                      href={`https://twitter.com/share?url=${url}`}
+                    >
+                      <Icon.Twitter className="h-5 w-auto" />
+                    </Link>
+                    <Link
+                      target="_blank"
+                      rel="nofollow noreferrer"
+                      className="text-white opacity-50"
+                      href={''}
+                    >
+                      <Icon.Discord className="h-5 w-auto" />
+                    </Link>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
-        <div className="mt-11 flex w-full justify-center pl-12">
-          <div className="h-[56px] w-full max-w-[1500px]">
+        <div className="mt-11 w-full overflow-auto md:pl-6 xl:flex xl:justify-center xl:pl-0">
+          <div className="h-[56px] w-full min-w-[485px] max-w-[1500px]">
             <Tabs>
               <Tab
                 label={t('profile.claimHistory')}
@@ -210,15 +235,15 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
             </Tabs>
           </div>
         </div>
-        <div className="mt-11 flex w-full justify-center pl-12">
+        <div className="mt-11 flex w-full justify-center md:px-6 xl:px-12">
           <div className="w-full max-w-[1500px]">
             {loadingBuddy ? (
               <>
-                <Collection.Option.Skeleton />
-                <Collection.Option.Skeleton />
-                <Collection.Option.Skeleton />
-                <Collection.Option.Skeleton />
-                <Collection.Option.Skeleton />
+                <Table.Skeleton />
+                <Table.Skeleton />
+                <Table.Skeleton />
+                <Table.Skeleton />
+                <Table.Skeleton />
               </>
             ) : (
               <Table metadata={metadata} />
@@ -227,7 +252,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
         </div>
       </div>
       <QRCode
-        url={`${config.baseUrl}/r/${buddy?.name}`}
+        url={url}
         isVisible={visible}
         close={() => {
           setVisible(false);
@@ -263,7 +288,7 @@ function Tabs({ children }: TabsProps) {
   return (
     <div
       className={clsx(
-        'relative mx-4 grid items-center justify-center gap-2 rounded-full px-1 py-1 md:mb-[-75px] md:max-w-md',
+        'relative mx-0 grid items-center justify-center gap-2 rounded-full px-1 py-1 md:mb-[-75px] md:max-w-md',
         `grid-cols-${children.length}`
       )}
     >
@@ -298,7 +323,7 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
     <div className="fixed inset-0 z-50 h-screen w-screen">
       <div className="h-full w-full bg-black opacity-80"></div>
       <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center">
-        <div className="relative h-[400px] w-[400px] rounded-3xl bg-gray-800 p-8">
+        <div className="relative h-[280px] w-[280px] rounded-3xl bg-gray-800 p-4 md:h-[320px] md:w-[320px] md:p-6 xl:h-[400px] xl:w-[400px] xl:p-8">
           <QRCodeSVG
             height={'100%'}
             width={'100%'}
@@ -306,9 +331,8 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
             fgColor={'white'}
             bgColor={'rgb(23, 22, 28)'}
           />
-
-          <div className="absolute -right-[50px] flex h-[95px] w-[95px] rotate-12 items-center justify-center">
-            <div className="absolute inset-0 m-auto flex h-[80px] w-[80px] items-center justify-center text-center text-xl leading-5 text-white">
+          <div className="absolute -right-[25px] flex h-[50px] w-[50px] rotate-12 items-center justify-center md:-right-[30px] md:h-[60px] md:w-[60px] xl:-right-[50px] xl:h-[95px] xl:w-[95px]">
+            <div className="leading-2 absolute inset-0 m-auto flex items-center justify-center text-center text-xs text-white md:h-[30px] md:w-[30px] md:text-sm md:leading-3 xl:h-[80px] xl:w-[80px] xl:text-xl xl:leading-5">
               {t('share')} <br /> {t('and')} <br /> {t('earn')}
             </div>
             <Icon.Stamp className="h-full w-full" />
@@ -321,6 +345,19 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
           <Icon.Close />
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatsSkeleton({ className = '' }: { className?: string }) {
+  return (
+    <div className="over flex animate-pulse rounded-md p-2 transition">
+      <div
+        className={clsx(
+          'mb-4 h-[150px] w-full rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0',
+          className
+        )}
+      />
     </div>
   );
 }

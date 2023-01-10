@@ -163,30 +163,32 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           />
         </div>
       </section>
-      <Overview.Tabs>
-        <Overview.Tab
-          label="NFTs"
-          href={`/profiles/${router.query.address}/collected`}
-          active={router.pathname === ProfilePath.Collected}
-        />
-        <Overview.Tab
-          label={t('activity')}
-          href={`/profiles/${router.query.address}/activity`}
-          active={router.pathname === ProfilePath.Activity}
-        />
-        <Overview.Tab
-          label={t('offers')}
-          href={`/profiles/${router.query.address}/offers`}
-          active={router.pathname === ProfilePath.Offers}
-        />
-        {address === publicKey?.toString() ? (
+      <div className="w-full overflow-auto md:overflow-visible">
+        <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
           <Overview.Tab
-            label={t('affiliate')}
-            href={`/profiles/${router.query.address}/affiliate`}
-            active={router.pathname === ProfilePath.Affiliate}
+            label="NFTs"
+            href={`/profiles/${router.query.address}/collected`}
+            active={router.pathname === ProfilePath.Collected}
           />
-        ) : null}
-      </Overview.Tabs>
+          <Overview.Tab
+            label={t('activity')}
+            href={`/profiles/${router.query.address}/activity`}
+            active={router.pathname === ProfilePath.Activity}
+          />
+          <Overview.Tab
+            label={t('offers')}
+            href={`/profiles/${router.query.address}/offers`}
+            active={router.pathname === ProfilePath.Offers}
+          />
+          {address === publicKey?.toString() ? (
+            <Overview.Tab
+              label={t('affiliate')}
+              href={`/profiles/${router.query.address}/affiliate`}
+              active={router.pathname === ProfilePath.Affiliate}
+            />
+          ) : null}
+        </Overview.Tabs>
+      </div>
       {cloneElement(children, { walletProfileClientQuery })}
     </>
   );

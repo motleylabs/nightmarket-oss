@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useMemo } from 'react';
 
 interface Sorter {
@@ -60,3 +61,13 @@ export function Table({ metadata }: TableProps): JSX.Element {
     </div>
   );
 }
+
+function Skeleton({ className = '' }: { className?: string }) {
+  return (
+    <div className={clsx('over flex animate-pulse rounded-md p-2 transition', className)}>
+      <div className=" h-14 w-full rounded-md bg-gray-800 p-4" />
+    </div>
+  );
+}
+
+Table.Skeleton = Skeleton;

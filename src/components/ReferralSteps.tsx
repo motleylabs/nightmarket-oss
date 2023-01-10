@@ -34,9 +34,11 @@ function Connect({ setSteps }: ConnectProps): JSX.Element {
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 520 }}>
-      <div className="text-center text-3xl text-white">{t('generateLink')}</div>
+      <div className="text-center text-2xl font-bold text-white  md:text-3xl">
+        {t('generateLink')}
+      </div>
 
-      <Button onClick={onLogin} className="mt-10 hidden font-semibold md:inline-block">
+      <Button onClick={onLogin} className="mt-10 inline-block  font-semibold">
         {t('connectWallet')}
       </Button>
     </div>
@@ -76,7 +78,9 @@ function Welcome({ setSteps, commitName }: WelcomeProps): JSX.Element {
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 320 }}>
-      <div className="text-center text-3xl text-white">{t('welcomeMarket')}</div>
+      <div className="text-center text-2xl font-bold text-white  md:text-3xl">
+        {t('welcomeMarket')}
+      </div>
     </div>
   );
 }
@@ -111,7 +115,9 @@ function Create({ setSteps, commitName }: CreateProps): JSX.Element {
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
-      <div className="text-center text-3xl text-white">{t('createUnique')}</div>
+      <div className="text-center text-2xl font-bold text-white  md:text-3xl">
+        {t('createUnique')}
+      </div>
       <div
         className={clsx(
           'mt-10 flex h-12 w-full flex-row items-center rounded-lg border border-neutral-600 py-2 px-4',
@@ -206,7 +212,9 @@ function Success({ name }: SuccessProps): JSX.Element {
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
-      <div className="text-center text-3xl text-white">{t('successCreate')}</div>
+      <div className="text-center  text-2xl font-bold text-white md:text-3xl">
+        {t('successCreate')}
+      </div>
       <div className="mt-8 h-36 w-36  [&>svg]:h-36 [&>svg]:w-36">
         {url ? <QRCodeSVG value={url} fgColor={'white'} bgColor={'black'} /> : null}
       </div>
@@ -227,7 +235,7 @@ function Success({ name }: SuccessProps): JSX.Element {
         </button>
       </div>
       <div className="relative w-full">
-        <div className="absolute right-0 -top-5 flex h-14 w-14 rotate-12 items-center justify-center">
+        <div className="absolute -top-24 right-4 flex h-14 w-14 rotate-12 items-center justify-center md:-top-5 xl:right-0">
           <div
             className="absolute inset-0 m-auto h-10 w-10 text-center leading-3 text-white"
             style={{ paddingTop: 2, fontSize: 10 }}
@@ -238,19 +246,29 @@ function Success({ name }: SuccessProps): JSX.Element {
         </div>
       </div>
       <div className="mt-8 flex items-center justify-center">
-        <Link target="_blank" rel="nofollow noreferrer" className="text-white" href={''}>
+        <Link
+          target="_blank"
+          rel="nofollow noreferrer"
+          className="text-white"
+          href={`https://t.me/share/url?url=${url}`}
+        >
           <Icon.Telegram />
         </Link>
-        <Link target="_blank" rel="nofollow noreferrer" className="mx-4 text-white" href={''}>
+        <Link
+          target="_blank"
+          rel="nofollow noreferrer"
+          className="mx-4 text-white"
+          href={`https://twitter.com/share?url=${url}`}
+        >
           <Icon.Twitter />
         </Link>
-        <Link target="_blank" rel="nofollow noreferrer" className="text-white" href={''}>
+        <Link target="_blank" rel="nofollow noreferrer" className="text-white" href={``}>
           <Icon.Discord />
         </Link>
       </div>
-      <div className="mt-5 font-semibold text-white">{t('manage')}</div>
+      <div className="mt-5 text-white xl:font-semibold">{t('manage')}</div>
       <Button
-        className="mt-3 w-full md:w-auto"
+        className="mt-6 w-32 text-sm xl:mt-3 xl:w-auto"
         block
         background={ButtonBackground.Black}
         border={ButtonBorder.Gradient}
