@@ -34,6 +34,7 @@ import Drop from '../components/Drop';
 import { addDays } from 'date-fns';
 import Link from 'next/link';
 import config from '../app.config';
+import Banner from '../components/Banner';
 
 interface TrendingCollectionsData {
   collectionTrends: CollectionTrend[];
@@ -46,6 +47,7 @@ export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
     'collection',
     'profile',
     'launchpad',
+    'referrals',
   ]);
 
   return {
@@ -415,6 +417,9 @@ const Home: NextPage = () => {
           >
             {t('collection:showMoreCollections')}
           </Button>
+        </section>
+        <section>
+          <Banner />
         </section>
       </main>
       {/* Report Banner in Footer */}

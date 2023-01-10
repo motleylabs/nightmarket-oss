@@ -25,5 +25,11 @@
     "claimHistory": "Claim History",
     "referred": "Referred",
     "inactive": "Inactive"
+  },
+  "banner": {
+    "upTo": "UP TO",
+    "joinAffiliate": "Join our affiliate program and start earning now!",
+    "instruction": "Our referral program will allow you to earn easily, just follow the link and follow the instructions",
+    "createReferral": "Create referral link"
   }
 }

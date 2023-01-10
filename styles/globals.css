@@ -80,3 +80,11 @@ input[type='search']::-webkit-search-cancel-button {
 .fade-exit-active div{
   transition: opacity 250ms, transform 250ms;
 }
+
+.faded-gradient-text{
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) -13.46%, rgba(255, 255, 255, 0.568842) 20.3%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
