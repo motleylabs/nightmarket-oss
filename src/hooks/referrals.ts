@@ -6,17 +6,16 @@ import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapte
 import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
 
 interface CreateContext {
   created: boolean;
   creating: boolean;
-  onCreateBuddy: (name: string) => Promise<void>;
+  onCreateBuddy: (name: string, referrer: string) => Promise<void>;
 }
 
 // Do we want to store this information anywhere?
-const ORG_NAME = 'a24nzg60';
-const BPS = 0;
 
 export function useCreateBuddy(): CreateContext {
   const [created, setCreated] = useState(false);
@@ -25,7 +24,7 @@ export function useCreateBuddy(): CreateContext {
   const { connected, publicKey, signAllTransactions, signTransaction } = useWallet();
 
   const onCreateBuddy = useCallback(
-    async (name: string) => {
+    async (name: string, referrer: string) => {
       if (!connected || !publicKey || !signTransaction) {
         throw new Error('not all params provided');
       }
@@ -38,10 +37,14 @@ export function useCreateBuddy(): CreateContext {
           signAllTransactions,
           signTransaction,
         } as NodeWallet,
-        ORG_NAME
+        config.buddylink.organizationName
       );
 
-      const arrayOfInstructions = await buddy.createBuddyInstructions(name, BPS, '');
+      const arrayOfInstructions = await buddy.createBuddyInstructions(
+        name,
+        config.buddylink.buddyBPS,
+        referrer
+      );
 
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
@@ -113,7 +116,7 @@ export function useClaimBuddy() {
           signAllTransactions,
           signTransaction,
         } as NodeWallet,
-        ORG_NAME
+        config.buddylink.organizationName
       );
 
       const arrayOfInstructions = await buddyClient.claimInstructions(name);
@@ -179,7 +182,11 @@ export function useBuddy() {
 
   const gettingBuddy = useCallback(async () => {
     if (!anchorWallet) return null;
-    const buddyClient = createBuddyClient(connection, anchorWallet as NodeWallet, ORG_NAME);
+    const buddyClient = createBuddyClient(
+      connection,
+      anchorWallet as NodeWallet,
+      config.buddylink.organizationName
+    );
     setClient(buddyClient);
 
     const bud = await buddyClient.getBuddy();

@@ -1,8 +1,9 @@
 import { GetServerSidePropsContext, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useRouter } from 'next/router';
 import ReferralPage from '../../components/ReferralPage';
 
-export async function getServerSideProps({ locale }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'referrals']);
 
   return {
@@ -13,7 +14,11 @@ export async function getServerSideProps({ locale }: GetServerSidePropsContext) 
 }
 
 const Referrals: NextPage = () => {
-  return <ReferralPage />;
+  const router = useRouter();
+
+  const { refId } = router.query;
+
+  return <ReferralPage referrer={refId as string} />;
 };
 
 export default Referrals;

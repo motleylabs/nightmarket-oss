@@ -90,11 +90,12 @@ Steps.Welcome = Welcome;
 interface CreateProps {
   setSteps: Dispatch<SetStateAction<number>>;
   commitName: Dispatch<SetStateAction<string>>;
+  referrer: string;
 }
 
 const FEE_ESTIMATE = 0.007;
 
-function Create({ setSteps, commitName }: CreateProps): JSX.Element {
+function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -108,7 +109,7 @@ function Create({ setSteps, commitName }: CreateProps): JSX.Element {
 
   const handleEnter = useCallback(async () => {
     if (name.length >= 3) {
-      await onCreateBuddy(name);
+      await onCreateBuddy(name, referrer);
       commitName(name);
     } else setError(t('nameLengthError'));
   }, [name]);

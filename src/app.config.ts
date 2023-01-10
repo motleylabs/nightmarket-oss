@@ -11,6 +11,10 @@ interface AppConfig {
     percentageFloor: number;
     percentageListing: number;
   };
+  buddylink: {
+    organizationName: string;
+    buddyBPS: number;
+  };
   website: string;
   auctionHouse: string;
   addressLookupTable: string;
@@ -30,6 +34,10 @@ const config: AppConfig = {
   offerMinimums: {
     percentageFloor: 0.8,
     percentageListing: 0.8,
+  },
+  buddylink: {
+    organizationName: 'a24nzg60',
+    buddyBPS: 0,
   },
   addressLookupTable: process.env.NEXT_PUBLIC_ADDRESS_LOOKUP_TABLE as string,
 };
