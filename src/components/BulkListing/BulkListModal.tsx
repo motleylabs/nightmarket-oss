@@ -130,7 +130,7 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
         />
       </div>
 
-      <div className="overflow-scroll">
+      <div className="overflow-auto">
         {selected.map(nft => {
           const onChange = (price?: string) => {
             setPrices(prev => {
