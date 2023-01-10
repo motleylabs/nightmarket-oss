@@ -1,4 +1,4 @@
-name: Build, push and Deploy
+name: Build, push and Deploy (Beta)
 
 on:
   push:
