@@ -39,7 +39,7 @@ The list of required environment variables for the application. To be set throug
 
 ## Getting Started
 
-First, install dependencies:
+First, install dependencies
 
 ```bash
 npm install
