@@ -1,8 +1,10 @@
-name: Build, push and Deploy
+name: Build, push and Deploy Beta
 
 on:
   push:
-    branches: [dev, main]
+    branches: [ dev ]
+
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,14 +13,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.ML_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.ML_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.ML_AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -64,7 +66,7 @@ jobs:
           docker push $image_tag
           echo "::set-output name=image::$image_tag"
 
-      - name: Triggering deployment manifest update in kubes repository (Dev)
+      - name: Triggering deployment manifest update in kubes repository (Beta)
         if: github.ref == 'refs/heads/dev'
         uses: actions/github-script@v6
         env:
@@ -78,18 +80,3 @@ jobs:
               workflow_id: 'nightmarket.yaml',
               ref: process.env.BRANCH
             });
-
-      - name: Triggering deployment manifest update in kubes repository (prod)
-        if: github.ref == 'refs/heads/main'
-        uses: actions/github-script@v6
-        env:
-          BRANCH: ${{ github.ref_name }}
-        with:
-          github-token: ${{ secrets.ACTIONS_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'motleylabs',
-              repo: 'kubes',
-              workflow_id: 'nightmarket.yaml',
-              ref: process.env.BRANCH
-            })

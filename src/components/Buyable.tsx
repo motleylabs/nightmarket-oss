@@ -166,7 +166,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               <section>
                 <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
                   <img
-                    src="/images/nightmarket.svg"
+                    src="/images/nightmarket-beta.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />

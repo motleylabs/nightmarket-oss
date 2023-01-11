@@ -495,7 +495,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   className="rounded-md bg-primary-600 p-4"
                 >
                   <img
-                    src="/images/nightmarket.svg"
+                    src="/images/nightmarket-beta.svg"
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
@@ -774,7 +774,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="border-b-[1px] border-b-gray-900 py-4 px-6"
                   >
                     <img
-                      src="/images/nightmarket.svg"
+                      src="/images/nightmarket-beta.svg"
                       className="h-5 w-auto object-fill"
                       alt="night market logo"
                     />
