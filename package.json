@@ -33,6 +33,7 @@
     "@solana/wallet-adapter-react-ui": "^0.9.23",
     "@solana/wallet-adapter-wallets": "^0.19.6",
     "@solana/web3.js": "^1.50.1",
+    "autoprefixer": "^10.4.8",
     "bn.js": "^5.2.1",
     "clsx": "^1.2.1",
     "coingecko-api-v3": "^0.0.13",
