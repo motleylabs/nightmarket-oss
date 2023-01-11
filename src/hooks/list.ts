@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
+import { useForm, UseFormRegister, UseFormHandleSubmit, FormState, useFormState } from 'react-hook-form';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -26,6 +26,8 @@ import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
 import { rejects } from 'assert';
 import { reduceSettledPromise } from '../utils/promises';
+import { useBulkListContext } from '../providers/BulkListProvider';
+
 
 interface ListNftForm {
   amount: string;
@@ -35,23 +37,6 @@ interface ListingDetailsForm extends ListNftForm {
   nft: Nft;
   auctionHouse: AuctionHouse;
 }
-
-interface BulkListingForm {
-  amounts: { [address: string]: string }
-  nfts: Nft[]
-  auctionHouse: AuctionHouse;
-}
-
-interface BulkListPending {
-  nft: Nft
-  instructionData: {
-    listingAddress: PublicKey;
-    sellerTradeState: PublicKey;
-    tradeStateBump: number;
-    buyerPrice: number;
-  };
-}
-
 interface ListNftContext {
   listNft: boolean;
   listNftState: FormState<ListNftForm>;
@@ -60,11 +45,10 @@ interface ListNftContext {
   onCancelListNftClick: () => void;
   handleSubmitListNft: UseFormHandleSubmit<ListNftForm>;
   onSubmitListNft: (form: ListingDetailsForm) => Promise<void>;
-  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{fulfilled: Nft[]}>;
 }
 
 export function useListNft(): ListNftContext {
-  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
+  const { connected, publicKey, signTransaction } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
   const client = useApolloClient();
@@ -252,11 +236,92 @@ export function useListNft(): ListNftContext {
       
   };
 
-  const onSubmitBulkListNft = async ({ amounts, nfts, auctionHouse }: BulkListingForm) => {
-    if (!connected || !publicKey || !signTransaction || !nfts) {
+  const onListNftClick = useCallback(() => {
+    if (connected) {
+      return setListNft(true);
+    }
+    return login();
+  }, [setListNft, connected, login]);
+
+  const onCancelListNftClick = useCallback(() => {
+    reset();
+    setListNft(false);
+  }, [setListNft, reset]);
+
+  return {
+    listNft,
+    listNftState,
+    registerListNft,
+    onListNftClick,
+    onCancelListNftClick,
+    handleSubmitListNft,
+    onSubmitListNft,
+  };
+}
+
+export interface BulkListNftForm {
+  globalBulkPrice: string;
+  amounts: { [address: string]: string }
+}
+
+interface BulkListingForm extends BulkListNftForm {
+  useGlobalPrice: boolean;
+  nfts: Nft[];
+  auctionHouse: AuctionHouse;
+}
+
+interface BulkListPending {
+  nft: Nft
+  instructionData: {
+    listingAddress: PublicKey;
+    sellerTradeState: PublicKey;
+    tradeStateBump: number;
+    buyerPrice: number;
+  };
+}
+interface BulkListContext {
+  listingBulk: boolean;
+  bulkListNftState: FormState<BulkListNftForm>;
+  registerBulkListNft: UseFormRegister<BulkListNftForm>;
+  onCancelBulkListNftClick: () => void;
+  handleSubmitBulkListNft: UseFormHandleSubmit<BulkListNftForm>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{ fulfilled: Nft[] }>;
+  globalBulkPrice: BulkListNftForm["globalBulkPrice"];
+  amounts: BulkListNftForm["amounts"];
+}
+
+export function useBulkListing(): BulkListContext {
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
+  const login = useLogin();
+  const { connection } = useConnection();
+  const client = useApolloClient();
+
+  const [listingBulk, setListingBulk] = useState(false);
+  const {
+    register: registerBulkListNft,
+    handleSubmit: handleSubmitBulkListNft,
+    reset,
+    formState: bulkListNftState,
+    watch
+  } = useForm<BulkListNftForm>({
+    defaultValues: { globalBulkPrice: "", amounts: {} }
+  });
+ 
+  const globalBulkPrice = watch("globalBulkPrice");
+  const amounts = watch("amounts");
+
+
+  const onSubmitBulkListNft = async ({ amounts, globalBulkPrice, useGlobalPrice, nfts, auctionHouse }: BulkListingForm) => {
+    if (!connected) {
+      login();
       return { fulfilled: [] }
     }
-    setListNft(true)
+    if (!publicKey || !signTransaction || !nfts) {
+      return { fulfilled: [] }
+    }
+
+    setListingBulk(true);
+
     const LISTINGS_PER_TX = 3; // >3 is too large 
     const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
@@ -269,9 +334,11 @@ export function useListNft(): ListNftContext {
     const pendingTxInstructions: TransactionInstruction[] = []
     const pendingNfts = await Promise.allSettled(nfts.map(async (nft): Promise<BulkListPending> => {
       if (!nft.owner) throw new Error(`${nft.address} has no owner data available`)
-      if (!amounts[nft.address]) throw new Error(`${nft.address} has no listing price`)
+      if (!useGlobalPrice && !amounts[nft.address]) throw new Error(`${nft.address} has no listing price`)
+      if (useGlobalPrice && !globalBulkPrice) throw new Error("No Global price found");
 
-      const buyerPrice = toLamports(Number(amounts[nft.address]));
+      const basePrice = useGlobalPrice ? globalBulkPrice : amounts[nft.address]
+      const buyerPrice = toLamports(Number(basePrice));
       const tokenMint = new PublicKey(nft.mintAddress);
       const metadata = new PublicKey(nft.address);
       const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
@@ -284,7 +351,7 @@ export function useListNft(): ListNftContext {
         tokenMint,
         1
       );
-      
+
       const [programAsSigner, programAsSignerBump] =
         await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
@@ -299,7 +366,7 @@ export function useListNft(): ListNftContext {
       );
 
       const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-    
+
       const [listingAddress] = await RewardCenterProgram.findListingAddress(
         publicKey,
         metadata,
@@ -381,7 +448,7 @@ export function useListNft(): ListNftContext {
     //Batch up the listing instructions into transactions
     const pendingTransactions: Transaction[] = [];
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    
+
     const numTransactions = Math.ceil(pendingTxInstructions.length / LISTINGS_PER_TX);
     for (let i = 0; i < numTransactions; i++) {
       let bulkTransaction = new Transaction();
@@ -395,8 +462,8 @@ export function useListNft(): ListNftContext {
         bulkTransaction.feePayer = publicKey;
         pendingTransactions.push(bulkTransaction);
       }
-    } 
-    
+    }
+
     //sign all txs
     let signedTxs: Transaction[] = []
     if (signAllTransactions) {
@@ -421,12 +488,12 @@ export function useListNft(): ListNftContext {
         }, i * TX_INTERVAL)
       }))
     }))
-  
+
     //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
     const settledSignedTxs = reduceSettledPromise(pendingSigned)
 
 
-    settledNftInstructions.fulfilled.map(({nft, instructionData}) => {
+    settledNftInstructions.fulfilled.map(({ nft, instructionData }) => {
       const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
       try {
         client.cache.updateQuery(
@@ -465,43 +532,37 @@ export function useListNft(): ListNftContext {
         );
       } catch (e) {
         console.error("Error caching", e)
-        console.error("Failed to cache nft listing: ", nft)
+        console.log("Failed to cache nft listing: ", nft)
       }
     })
-      
+
+    setListingBulk(false);
+
     if (settledSignedTxs.fulfilled.length > 0) {
       const fulfilledNfts = settledNftInstructions.fulfilled.map(({ nft }) => nft)
       toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
       return { fulfilled: fulfilledNfts }
-    } 
+    }
 
     toast("No Items were listed", { type: 'error' });
     return { fulfilled: [] }
   };
-  
 
-  const onListNftClick = useCallback(() => {
-    if (connected) {
-      return setListNft(true);
-    }
-    return login();
-  }, [setListNft, connected, login]);
-
-  const onCancelListNftClick = useCallback(() => {
+  const onCancelBulkListNftClick = useCallback(() => {
     reset();
-    setListNft(false);
-  }, [setListNft, reset]);
+    setListingBulk(false);
+  }, [setListingBulk, reset]);
 
   return {
-    listNft,
-    listNftState,
-    registerListNft,
-    onListNftClick,
-    onCancelListNftClick,
-    handleSubmitListNft,
-    onSubmitListNft,
-    onSubmitBulkListNft
-  };
+    listingBulk,
+    bulkListNftState,
+    handleSubmitBulkListNft,
+    registerBulkListNft,
+    onSubmitBulkListNft,
+    onCancelBulkListNftClick,
+    globalBulkPrice,
+    amounts,
+  }
 }
 
 interface UpdateListingArgs {

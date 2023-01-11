@@ -4,30 +4,27 @@ import { Form } from "../Form";
 import Icon from "../Icon";
 import Image from "../Image";
 import Tooltip from "../Tooltip";
-import { FieldError } from 'react-hook-form';
-import { useListNft } from "../../hooks/list";
+import { FormState, UseFormRegister } from 'react-hook-form';
+import { BulkListNftForm, useBulkListing, useListNft } from "../../hooks/list";
 
 interface ListingItemProps {
   nft: Nft;
   price?: string;
   disabled: boolean;
-  onChange: (price?: string) => void; 
+  registerBulkListNft: UseFormRegister<BulkListNftForm>;
+  bulkListNftState: FormState<BulkListNftForm>
 }
-export default function ListingItem({ nft, price, disabled, onChange }: ListingItemProps): JSX.Element {
+export default function ListingItem({
+  nft,
+  disabled,
+  registerBulkListNft,
+  bulkListNftState
+}: ListingItemProps): JSX.Element {
   const {solToUsdString} = useCurrencies()
   const lastSale = nft.lastSale;
   const collectionName = nft.moonrankCollection?.name;
 
-  const {
-    listNft,
-    handleSubmitListNft,
-    registerListNft,
-    onSubmitListNft,
-    onListNftClick,
-    onCancelListNftClick,
-    listNftState,
-    onSubmitBulkListNft
-  } = useListNft();
+  const numberRegex = new RegExp(/^[0-9]*$/)
 
   const renderInfoTooltip = () => lastSale?.solPrice
     ? (
@@ -64,14 +61,15 @@ export default function ListingItem({ nft, price, disabled, onChange }: ListingI
 
       <div className="w-full sm:w-36">
         <Form.Input
-          error={listNftState.errors.amount}  
-          {...registerListNft('amount', { required: true })}
-          icon={<Icon.Sol />}
-          value={price}
+          error={bulkListNftState.errors.amounts?.[nft.address]}  
+          {...registerBulkListNft(`amounts.${nft.address}`, {
+            required: !disabled,
+            validate: value => Boolean(value.match(numberRegex)?.length)
+          })}
+          icon={<Icon.Sol defaultColor={!disabled ? "#A8A8A8" : "rgba(100,100,100,0.3)"} />}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
         />
-        <Form.Error message={listNftState.errors.amount?.message} />
+        <Form.Error message={bulkListNftState.errors.amounts?.[nft.address]?.message} />
       </div>
     </div>
   )

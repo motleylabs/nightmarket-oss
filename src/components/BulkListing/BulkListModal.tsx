@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useCurrencies } from "../../hooks/currencies";
-import { useListNft } from "../../hooks/list";
+import { BulkListNftForm, useBulkListing } from "../../hooks/list";
 import { useBulkListContext } from "../../providers/BulkListProvider";
 import { roundToPrecision } from "../../utils/numbers";
 import Button, { ButtonBackground } from "../Button";
@@ -9,43 +9,53 @@ import Icon from "../Icon";
 import Modal from "../Modal"
 import Tooltip from "../Tooltip";
 import ListingItem from "./ListingItem";
-import config from '../../app.config'
 import { AuctionHouse } from "../../graphql.types";
+import clsx from "clsx";
 
 interface BulkListModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
   auctionHouse: AuctionHouse;
 }
-type PriceForm = { [nftAddress: string]: string | undefined}
+
 function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.Element {
   const { selected, setSelected } = useBulkListContext()
   const {solToUsdString} = useCurrencies()
-  const [globalPrice, setGlobalPrice] = useState<string>()
   const [useGlobalPrice, setUseGlobalPrice] = useState(false)
-  const [prices, setPrices] = useState<PriceForm>({})
   const [success, setSuccess] = useState(false)
 
   const {
-    listNft,
-    handleSubmitListNft,
-    registerListNft,
-    listNftState,
-    onSubmitBulkListNft
-  } = useListNft();
+    listingBulk,
+    onCancelBulkListNftClick,
+    handleSubmitBulkListNft,
+    registerBulkListNft,
+    bulkListNftState,
+    onSubmitBulkListNft,
+    amounts,
+    globalBulkPrice
+  } = useBulkListing();
 
-  const total = Object.keys(prices).reduce((acc, cur) => {
-    return acc + parseFloat(prices[cur] || "0")
-  }, 0)
+  useEffect(() => {
+    if (!open) onCancelBulkListNftClick();
+  },[open, onCancelBulkListNftClick])
+
+
+  const totalListed = Object.keys(amounts).length;
+
+  const total = useGlobalPrice
+    ? Number(globalBulkPrice) * totalListed || 0 //catch for NaN
+    : Object.keys(amounts).reduce((acc, cur) => {
+        return acc + parseFloat(amounts[cur] || "0")
+      }, 0)
 
   const PnL = selected.reduce((acc, cur) => {
     if (cur.lastSale?.solPrice) {
-      const listingPrice = parseFloat(prices[cur.address] || "0")
+      const listingPrice = parseFloat(amounts[cur.address] || "0")
       const pnl = listingPrice - cur.lastSale.solPrice
       return acc + pnl
     }
-    return acc 
-  }, 0)
+    return acc
+  }, 0);
 
   const pnlColor = PnL < 0 ? "text-red-500" : "text-white"
 
@@ -75,16 +85,6 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
   }, [selected.length, total])
   
   useEffect(() => {
-    if (useGlobalPrice && globalPrice) {
-      const globalPrices: PriceForm = {}
-      selected.forEach(nft => {
-        globalPrices[nft.address] = globalPrice
-      })
-      setPrices(globalPrices)
-    }
-  }, [selected, useGlobalPrice, globalPrice])
-
-  useEffect(() => {
     if (!open) {
       setTimeout(() => {
         setSuccess(false)
@@ -92,10 +92,11 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     }
   }, [open])
 
-  const handleList = async () => {
+  const handleList = async (form: BulkListNftForm) => {
     try {
       const { fulfilled } = await onSubmitBulkListNft({
-        amounts: prices as { [address: string]: string },
+        ...form,
+        useGlobalPrice,
         nfts: selected,
         auctionHouse: auctionHouse
       })
@@ -111,8 +112,10 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
     }
   }
 
+  const numberRegex = new RegExp(/^[0-9]*$/)
+
   const renderMainContent = () => (
-    <>
+    <Form onSubmit={handleSubmitBulkListNft(handleList)}>
       <div className="my-6 flex justify-between items-center gap-2 p-4 sm:p-2 bg-gray-800 rounded-lg flex-wrap">
         <label className="inline-flex relative cursor-pointer ml-3 items-center">
           <input type="checkbox" value="" checked={useGlobalPrice} className="sr-only peer" onChange={(e) => setUseGlobalPrice(e.target.checked)}/>
@@ -123,34 +126,28 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
           </Tooltip>
         </label>
         <Form.Input
-          className="sm:w-1/2"
-          icon={<Icon.Sol />}
-          value={globalPrice}
-          onChange={(e) => setGlobalPrice(e.target.value)}
+          className={clsx("sm:w-1/2")}
+          icon={<Icon.Sol defaultColor={useGlobalPrice ? "#A8A8A8" : "rgba(100,100,100,0.3)"} />}
+          error={bulkListNftState.errors.globalBulkPrice}
+          {...registerBulkListNft("globalBulkPrice", {
+            required: useGlobalPrice,
+            validate: value => Boolean(value.match(numberRegex)?.length)
+          })}
+          disabled={!useGlobalPrice}
         />
+        <Form.Error message={bulkListNftState.errors.globalBulkPrice?.message} />
       </div>
 
       <div className="overflow-auto">
-        {selected.map(nft => {
-          const onChange = (price?: string) => {
-            setPrices(prev => {
-              const copy = { ...prev }
-              return {
-                ...copy,
-                [nft.address]: price
-              }
-            })
-          }
-          return (
-            <ListingItem
-              key={nft.address}
-              nft={nft}
-              price={prices[nft.address] || undefined}
-              disabled={useGlobalPrice}
-              onChange={onChange}
-            />
-          )
-        })}
+        {selected.map(nft => (
+          <ListingItem
+            key={nft.address}
+            nft={nft}
+            disabled={useGlobalPrice}
+            bulkListNftState={bulkListNftState}
+            registerBulkListNft={registerBulkListNft}
+          />
+        ))}
       </div>
       <hr className="w-[110%] relative -left-[5%] border-b-none border-t-[0.5px] border-gray-700/75"/>
       <div className="w-full grid grid-cols-3 gap-2 py-6">
@@ -210,18 +207,18 @@ function BulkListModal({ open, setOpen, auctionHouse}: BulkListModalProps): JSX.
           <p className="text-sm text-gray-600 ml-5">{solToUsdString(total)}</p>
         </div>
       </div>
-      {listNft
-        ? <Button loading background={ButtonBackground.Slate}>Please Wait</Button>
-        : <Button onClick={handleSubmitListNft(handleList)}>List now ({selected.length})</Button>
+      {listingBulk
+        ? <Button block loading background={ButtonBackground.Slate}>Please Wait</Button>
+        : <Button block htmlType="submit">List now ({selected.length})</Button>
       }
-    </>
+    </Form>
   )
 
   return (
     <Modal
       title="Bulk Listing"
       open={open}
-      setOpen={setOpen}
+      setOpen={setOpen} 
     >
       {success 
       ? <img
