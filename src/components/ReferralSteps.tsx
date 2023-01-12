@@ -263,9 +263,6 @@ function Success({ name }: SuccessProps): JSX.Element {
         >
           <Icon.Twitter />
         </Link>
-        <Link target="_blank" rel="nofollow noreferrer" className="text-white" href={``}>
-          <Icon.Discord />
-        </Link>
       </div>
       <div className="mt-5 text-white xl:font-semibold">{t('manage')}</div>
       <Button

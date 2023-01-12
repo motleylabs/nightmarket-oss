@@ -28,8 +28,9 @@
   },
   "banner": {
     "upTo": "UP TO",
+    "transactionFees": "Transaction Fees.",
     "joinAffiliate": "Join our affiliate program and start earning now!",
-    "instruction": "Our referral program will allow you to earn easily, just follow the link and follow the instructions",
+    "instruction": "Join our Affiliate Program which will allow you to earn up to 100% of Night Market transaction fees",
     "createReferral": "Create referral link"
   }
 }

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface Sorter {
   label?: string;
@@ -71,3 +71,53 @@ function Skeleton({ className = '' }: { className?: string }) {
 }
 
 Table.Skeleton = Skeleton;
+
+function ClaimHistory() {
+  const [loading, setLoading] = useState(false);
+  const metadata = {
+    data: [],
+    columns: [],
+  };
+
+  return loading ? (
+    <>
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+    </>
+  ) : (
+    <Table metadata={metadata} />
+  );
+}
+
+Table.ClaimHistory = ClaimHistory;
+
+function ReferredList() {
+  const [loading, setLoading] = useState(false);
+  const metadata = {
+    data: [],
+    columns: [],
+  };
+
+  return loading ? (
+    <>
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+      <Table.Skeleton />
+    </>
+  ) : (
+    <Table metadata={metadata} />
+  );
+}
+
+Table.ReferredList = ReferredList;
+
+function Inactive() {
+  return null;
+}
+
+Table.Inactive = Inactive;

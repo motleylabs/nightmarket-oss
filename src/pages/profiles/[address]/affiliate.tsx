@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import { Table } from '../../../components/Table';
 import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
 import { QRCodeSVG } from 'qrcode.react';
+import { CheckIcon } from '@heroicons/react/24/outline';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
@@ -61,6 +62,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
   const { loadingBuddy, buddy, balance, chest, refreshBalance } = useBuddy();
   const { onClaimBuddy } = useClaimBuddy();
   const [tab, setTab] = useState(CLAIM_TAB);
+  const [copied, setCopied] = useState(false);
   // const metadata = {
   //   data: [
   //     { Address: 'Wutm...Tiol', Date: '24.12.22' },
@@ -73,6 +75,24 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
     columns: [],
   };
 
+  const tabContent = useMemo(() => {
+    switch (tab) {
+      case CLAIM_TAB: {
+        return <Table.ClaimHistory />;
+      }
+      case REFERRED_TAB: {
+        return <Table.ReferredList />;
+      }
+      case INACTIVE_TAB: {
+        return <Table.Inactive />;
+      }
+    }
+  }, [tab]);
+
+  const url = useMemo(() => {
+    return `${config.baseUrl}/r/${buddy?.name}`;
+  }, [buddy?.name]);
+
   const handleTabClick = useCallback(
     (newTab: string) => {
       if (newTab !== tab) setTab(newTab);
@@ -80,9 +100,13 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
     [setTab, tab]
   );
 
-  const url = useMemo(() => {
-    return `${config.baseUrl}/r/${buddy?.name}`;
-  }, [buddy?.name]);
+  const handleCopy = useCallback(async () => {
+    if (url) {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [url]);
 
   return (
     <>
@@ -171,10 +195,17 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                       <Icon.QRCode />
                     </div>
                   </div>
-                  <div className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-gray-800">
+                  <div
+                    className="mt-4 flex h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-gray-800"
+                    onClick={handleCopy}
+                  >
                     <p className="flex items-center text-gray-400">
                       {config.baseUrl}/r/<span className="text-white">{buddy?.name}</span>
-                      <Icon.Copy className="ml-2 h-4 w-4" />
+                      {copied ? (
+                        <CheckIcon className="ml-2 h-4 w-4 text-gray-300" />
+                      ) : (
+                        <Icon.Copy className="ml-2 h-4 w-4" />
+                      )}
                     </p>
                   </div>
                   <div className="mt-3 flex items-center justify-center">
@@ -193,14 +224,6 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                       href={`https://twitter.com/share?url=${url}`}
                     >
                       <Icon.Twitter className="h-5 w-auto" />
-                    </Link>
-                    <Link
-                      target="_blank"
-                      rel="nofollow noreferrer"
-                      className="text-white opacity-50"
-                      href={''}
-                    >
-                      <Icon.Discord className="h-5 w-auto" />
                     </Link>
                   </div>
                 </div>
@@ -226,29 +249,18 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                 }}
               />
               <Tab
+                disabled
                 label={t('profile.inactive')}
                 active={tab === INACTIVE_TAB}
                 onClick={() => {
-                  handleTabClick(INACTIVE_TAB);
+                  // handleTabClick(INACTIVE_TAB);
                 }}
               />
             </Tabs>
           </div>
         </div>
         <div className="mt-11 flex w-full justify-center md:px-6 xl:px-12">
-          <div className="w-full max-w-[1500px]">
-            {loadingBuddy ? (
-              <>
-                <Table.Skeleton />
-                <Table.Skeleton />
-                <Table.Skeleton />
-                <Table.Skeleton />
-                <Table.Skeleton />
-              </>
-            ) : (
-              <Table metadata={metadata} />
-            )}
-          </div>
+          <div className="w-full max-w-[1500px]">{tabContent}</div>
         </div>
       </div>
       <QRCode
@@ -297,7 +309,7 @@ function Tabs({ children }: TabsProps) {
   );
 }
 
-function Tab(props: { onClick: () => void; label: string; active: boolean }) {
+function Tab(props: { onClick: () => void; label: string; active: boolean; disabled?: boolean }) {
   return (
     <div onClick={props.onClick}>
       <div
@@ -305,6 +317,8 @@ function Tab(props: { onClick: () => void; label: string; active: boolean }) {
           'flex h-12  flex-row items-center justify-center rounded-full  font-semibold',
           props.active
             ? 'rounded-full bg-gray-800 text-white'
+            : props.disabled
+            ? 'cursor-none bg-black text-gray-300'
             : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )}
       >

@@ -30,7 +30,7 @@ export function useCreateBuddy(): CreateContext {
       }
       setCreating(true);
 
-      const buddy = createBuddyClient(
+      const buddyClient = createBuddyClient(
         connection,
         {
           publicKey,
@@ -40,7 +40,13 @@ export function useCreateBuddy(): CreateContext {
         config.buddylink.organizationName
       );
 
-      const arrayOfInstructions = await buddy.createBuddyInstructions(
+      const referrerAccount = await buddyClient.getBuddy(referrer);
+
+      if (referrerAccount && referrerAccount.authority.toString() === publicKey.toString()) {
+        throw new Error('Buddy referred by the same wallet');
+      }
+
+      const arrayOfInstructions = await buddyClient.createBuddyInstructions(
         name,
         config.buddylink.buddyBPS,
         referrer
@@ -205,9 +211,16 @@ export function useBuddy() {
     }
   }, [client, buddy]);
 
+  const getReferrees = useCallback(async () => {
+    if (client && buddy) {
+      // tbd if we use the indexer for this information or do the enefficient way
+    }
+    return [];
+  }, [client, buddy]);
+
   useEffect(() => {
     if (anchorWallet) gettingBuddy();
   }, [anchorWallet]);
 
-  return { loadingBuddy, buddy, balance, chest, refreshBalance };
+  return { loadingBuddy, buddy, balance, chest, refreshBalance, getReferrees };
 }
