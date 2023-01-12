@@ -2,7 +2,7 @@ name: Build, push and Deploy Beta
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ beta ]
 
   workflow_dispatch:
 
@@ -13,14 +13,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ secrets.ML_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.ML_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.ML_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -35,7 +35,7 @@ jobs:
           HOLAINDEXER_URL_PROD: ${{ secrets.HOLAINDEXER_URL_PROD }}
           HOLAINDEXER_URL_DEV: ${{ secrets.HOLAINDEXER_URL_DEV }}
           HOLAINDEXER_URL_TEST: ${{ secrets.HOLAINDEXER_URL_TEST }}
-          SOL_ENDPOINT: ${{ secrets.SOL_ENDPOINT }}
+          SOL_ENDPOINT: ${{ secrets.BETA_SOL_ENDPOINT }}
 
         run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
@@ -43,16 +43,9 @@ jobs:
           git_branch=${GITHUB_REF##*/}
           solana_endpoint="$SOL_ENDPOINT"
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
-
-          if [ $git_branch == 'main' || $git_branch == 'dev' ];then
-            if [ $git_branch == 'main' ];then
-              graphql_endpoint="$HOLAINDEXER_URL_PROD"
-            else
-              graphql_endpoint="$HOLAINDEXER_URL_DEV"
-            fi
-          else
-            graphql_endpoint="$HOLAINDEXER_URL_TEST"
-          fi
+          
+          graphql_endpoint="$HOLAINDEXER_URL_PROD"
+          
           #build
           docker build -t $image_tag  \
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
@@ -67,7 +60,7 @@ jobs:
           echo "::set-output name=image::$image_tag"
 
       - name: Triggering deployment manifest update in kubes repository (Beta)
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/beta'
         uses: actions/github-script@v6
         env:
           BRANCH: ${{ github.ref_name }}
