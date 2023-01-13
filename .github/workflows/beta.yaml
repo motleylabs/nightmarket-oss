@@ -45,8 +45,7 @@ jobs:
           image_tag="$ECR_REGISTRY/$ECR_REPOSITORY:$git_branch-$git_hash"
           
           graphql_endpoint="$HOLAINDEXER_URL_PROD"
-          
-          #build it now
+      
           docker build -t $image_tag  \
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
           --build-arg SOLANA_ENDPOINT=${solana_endpoint} \
