@@ -7,6 +7,13 @@
     "logo": "/images/magiceden.svg"
   },
   {
+    "marketplaceProgramAddress": "7QUghbNVkcqp4Qtq3cDmPU6ZKo1KE99TMeXrxdxgzGYz",
+    "auctionHouseAddress": "9R8XEEez1uKz9qhSXUUAk4msH6RZ1VRnzmSHeXb9C7cE",
+    "name": "Night Market (Beta)",
+    "link": "https://beta.nightmarket.io/nfts/{}",
+    "logo": "/images/nightmarket-beta.svg"
+  },
+  {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "FrUzLxqzhp2gMYXv3WEJJwRSjB4xg3Xo8CmqvBKRQ756",
     "name": "Night Market (Dev)",
