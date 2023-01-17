@@ -50,6 +50,7 @@ jobs:
           --build-arg GRAPHQL_URL=${graphql_endpoint} \
           --build-arg SOLANA_ENDPOINT=${solana_endpoint} \
           --build-arg AUCTION_HOUSE_ADDRESS=9R8XEEez1uKz9qhSXUUAk4msH6RZ1VRnzmSHeXb9C7cE \
+          --build-arg ADDRESS_LOOKUP_TABLE=HwkMfUBwVt1hT9brnVH5WBz73gVP7YdJTYvy3kALwQ75 \
           --build-arg BUGSNAG_API_KEY=${BUGSNAG_API_KEY} \
           --build-arg NODE_ENV=$node_env \
           --build-arg MARKETPLACE_SUBDOMAIN=haus \
