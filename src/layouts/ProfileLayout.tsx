@@ -148,7 +148,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
             loading={loading}
           />
           <ProfileFigure
-            label="SAUCE earned"
+            label="BONK earned"
             loading={loading}
             figure={
               <div className="flex items-center gap-2">

@@ -499,7 +499,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <Paragraph color={TextColor.Orange}>SAUCE</Paragraph>
+                  <Paragraph color={TextColor.Orange}>BONK</Paragraph>
                 </Flex>
               </div>
               <Overview.Form.Points>
@@ -782,7 +782,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       <Paragraph weight={FontWeight.Semibold}>
                         {t(isOwner ? 'sellEarn' : 'buyEarn')}
                       </Paragraph>
-                      <Paragraph color={TextColor.Orange}>SAUCE</Paragraph>
+                      <Paragraph color={TextColor.Orange}>BONK</Paragraph>
                     </Flex>
                   </Flex>
                 )}

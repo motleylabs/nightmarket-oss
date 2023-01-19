@@ -23,7 +23,7 @@ const config: AppConfig = {
   socialMedia: {
     twitter: 'https://twitter.com/nightmarketio',
     discord: 'https://discord.gg/bn5z4A794E',
-    medium: 'https://medium.com/@MotleyLabs',
+    medium: 'https://medium.com/@Motleydao',
   },
   website: 'https://motleylabs.com',
   auctionHouse: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,

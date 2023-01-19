@@ -171,7 +171,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     alt="night market logo"
                   />
                   <p>
-                    {t('buyEarn', { ns: 'nft' })} <span className="text-primary-700">SAUCE</span>
+                    {t('buyEarn', { ns: 'nft' })} <span className="text-primary-700">BONK</span>
                   </p>
                 </div>
               </section>
