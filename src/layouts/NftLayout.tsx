@@ -441,6 +441,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         <title>{nft.name}</title>
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
+        <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <Overview.Media>
         <Lightbox.Container>
