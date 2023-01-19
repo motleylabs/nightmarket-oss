@@ -12,6 +12,8 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -30,6 +32,18 @@ const tickGapDict = {
   [DateRangeOption.DAY]: 60,
   [DateRangeOption.WEEK]: 200,
   [DateRangeOption.MONTH]: 90,
+};
+
+const CustomLineChartTooltip = ({ active, payload, label }: TooltipProps<number, string>): JSX.Element => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip">
+        <p className="label">{`${payload[0].value}`}</p>
+      </div>
+    );
+  } 
+
+  return <></>;
 };
 
 function StyledLineChart(props: {
@@ -101,7 +115,8 @@ function StyledLineChart(props: {
           dataKey="amount"
           stroke={hasNoChange ? '#F85C04' : 'url(#lineColor)'}
         />
-        {props.children}
+        <Tooltip content={<CustomLineChartTooltip />} wrapperStyle={{ backgroundColor: "#2D2D2D", padding: '6px', borderRadius: '4px'}} />
+        {props.children}              
       </LineChart>
     </ResponsiveContainer>
   ) : (
@@ -140,8 +155,6 @@ function TinyLineChart(props: {
         ref={chartRef}
         data={props.data}
         margin={{ top: 2, right: 24, bottom: 0, left: hideAxis ? 24 : 50 }}
-        onMouseEnter={() => setHideAxis(false)}
-        onMouseLeave={() => setHideAxis(true)}
       >
         <defs>
           <linearGradient id="lineColor" x1="1" y1="1" x2="0" y2="0">
@@ -166,6 +179,8 @@ function TinyLineChart(props: {
           dataKey="amount"
           stroke={hasNoChange ? '#F85C04' : 'url(#lineColor)'}
         />
+        <Tooltip content={<CustomLineChartTooltip />} wrapperStyle={{ backgroundColor: "#2D2D2D", padding: '4px', borderRadius: '2px', fontSize: "10px"}} />
+        
         {props.children}
       </LineChart>
     </ResponsiveContainer>

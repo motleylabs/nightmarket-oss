@@ -43,7 +43,7 @@ module.exports = {
       borderRadius: {
         md: '0.25rem',
       },
-      colors: {
+      colors: { 
         primary: {
           100: '#E15A0A', // 50 in figma
           200: '#C33C00', // 100 in figma
@@ -65,6 +65,7 @@ module.exports = {
           100: '#E0E0E0',
           200: '#BDBDBD',
           300: '#8B8B8E',
+          700: "#27262E",
           800: '#17161C',
           900: '#0B0A0E',
         },

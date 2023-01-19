@@ -7,6 +7,7 @@ export enum ButtonBackground {
   Black = 'bg-black',
   Slate = 'bg-gray-800',
   Cell = 'bg-gray-900',
+  Gray = 'bg-gray-700/75'
 }
 
 export enum ButtonColor {
