@@ -25,6 +25,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import config from '../../../app.config';
+import BulkListBottomDrawer from '../../../components/BulkListing/BottomDrawer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -78,11 +79,14 @@ interface CollectionNFTsVariables {
   collections?: (string | undefined)[] | null | undefined;
 }
 
+interface ProfileCollectedPageProps {
+  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
+  auctionHouse: AuctionHouse;
+}
 export default function ProfileCollected({
   walletProfileClientQuery,
-}: {
-  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
-}) {
+  auctionHouse
+}: ProfileCollectedPageProps) {
   const { t } = useTranslation(['common', 'collection']);
 
   const { watch, control, setValue } = useForm<CollectionNFTForm>({
@@ -90,6 +94,7 @@ export default function ProfileCollected({
       collections: [],
     },
   });
+  
   const { publicKey } = useWallet();
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
@@ -289,6 +294,11 @@ export default function ProfileCollected({
           </>
         </Sidebar.Content>
       </Sidebar.Page>
+      <BulkListBottomDrawer
+        ownedNfts={nftsQuery.data?.wallet.nfts}
+        auctionHouse={auctionHouse}
+        openDrawer={Boolean(collections?.length)} //open bulk drawer if one or more collections are selected
+      />
     </>
   );
 }

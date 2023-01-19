@@ -62,7 +62,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   });
 
   const isOwner = viewer?.address === data?.nft.owner?.address;
+
   const notOwner = !isOwner;
+
   const listing: AhListing | null = useMemo(() => {
     const listing = data?.nft.listings?.find((listing: AhListing) => {
       return listing.auctionHouse?.address === config.auctionHouse;

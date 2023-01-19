@@ -239,7 +239,7 @@ function SolIcon({
 
 Icon.Sol = SolIcon;
 
-function TwitterIcon({ className = 'h-6 w-auto' }: { className?: string }) {
+function TwitterIcon({ className = 'h-6 w-auto' }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -261,7 +261,7 @@ function TwitterIcon({ className = 'h-6 w-auto' }: { className?: string }) {
 
 Icon.Twitter = TwitterIcon;
 
-function MediumIcon({ className = 'h-6 w-auto' }: { className?: string }) {
+function MediumIcon({ className = 'h-6 w-auto' }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -279,7 +279,7 @@ function MediumIcon({ className = 'h-6 w-auto' }: { className?: string }) {
 
 Icon.Medium = MediumIcon;
 
-function DiscordIcon({ className = 'h-6 w-auto' }: { className?: string }) {
+function DiscordIcon({ className = 'h-6 w-auto' }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -296,7 +296,7 @@ function DiscordIcon({ className = 'h-6 w-auto' }: { className?: string }) {
 
 Icon.Discord = DiscordIcon;
 
-function WebIcon({ className = 'h-6 w-auto' }: { className?: string }) {
+function WebIcon({ className = 'h-6 w-auto' }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -312,7 +312,7 @@ function WebIcon({ className = 'h-6 w-auto' }: { className?: string }) {
 
 Icon.Web = WebIcon;
 
-function SauceIcon({ className = 'h-4 w-auto' }: { className?: string }) {
+function SauceIcon({ className = 'h-4 w-auto' }: IconProps) {
   return (
     <svg className="h-4 w-auto" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -392,3 +392,31 @@ function SauceIcon({ className = 'h-4 w-auto' }: { className?: string }) {
 }
 
 Icon.Sauce = SauceIcon;
+
+function InfoIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.77051 10C2.77051 5.51269 6.40819 1.875 10.8955 1.875C15.3828 1.875 19.0205 5.51269 19.0205 10C19.0205 14.4873 15.3828 18.125 10.8955 18.125C6.40819 18.125 2.77051 14.4873 2.77051 10ZM10.0257 8.79871C10.9809 8.32111 12.0564 9.18386 11.7974 10.2199L11.2066 12.5833L11.2411 12.566C11.5499 12.4116 11.9253 12.5368 12.0797 12.8455C12.234 13.1542 12.1089 13.5297 11.8002 13.684L11.7656 13.7013C10.8104 14.1789 9.73487 13.3162 9.99388 12.2801L10.5847 9.91674L10.5502 9.93403C10.2414 10.0884 9.866 9.96326 9.71163 9.65452C9.55726 9.34578 9.6824 8.97036 9.99114 8.81599L10.0257 8.79871ZM10.8955 7.5C11.2407 7.5 11.5205 7.22018 11.5205 6.875C11.5205 6.52982 11.2407 6.25 10.8955 6.25C10.5503 6.25 10.2705 6.52982 10.2705 6.875C10.2705 7.22018 10.5503 7.5 10.8955 7.5Z"
+        fill="#3A393E"
+      />
+    </svg>
+
+  )
+}
+
+Icon.Info = InfoIcon;
+
+function DollarIcon({ className = "" }: IconProps) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8.71967 7.28855C8.90901 7.13814 9.13392 7.02876 9.375 6.96041V9.28954C9.12931 9.21978 8.90503 9.10869 8.71967 8.96145C8.39156 8.7008 8.2646 8.39413 8.2646 8.125C8.2646 7.85587 8.39156 7.5492 8.71967 7.28855Z" fill="#3A393E" />
+      <path d="M10.625 13.0513V10.6986C10.9144 10.769 11.1781 10.8882 11.3928 11.0491C11.7482 11.3157 11.875 11.6207 11.875 11.875C11.875 12.1292 11.7482 12.4343 11.3928 12.7008C11.1781 12.8618 10.9144 12.981 10.625 13.0513Z" fill="#3A393E" />
+      <path fillRule="evenodd" clipRule="evenodd" d="M10 1.875C5.51269 1.875 1.875 5.51269 1.875 10C1.875 14.4873 5.51269 18.125 10 18.125C14.4873 18.125 18.125 14.4873 18.125 10C18.125 5.51269 14.4873 1.875 10 1.875ZM10.625 5C10.625 4.65482 10.3452 4.375 10 4.375C9.65482 4.375 9.375 4.65482 9.375 5V5.67969C8.85259 5.77224 8.35444 5.98228 7.94215 6.3098C7.34852 6.78138 7.0146 7.43442 7.0146 8.125C7.0146 8.81558 7.34852 9.46862 7.94215 9.9402C8.36087 10.2728 8.86055 10.4792 9.375 10.5703V13.0513C9.0857 12.9809 8.822 12.8618 8.6074 12.7008L7.87501 12.1515C7.59887 11.9444 7.20712 12.0003 7.00001 12.2765C6.7929 12.5526 6.84885 12.9444 7.12499 13.1515L7.85738 13.7008C8.30172 14.0341 8.83162 14.238 9.375 14.3253V15C9.375 15.3452 9.65482 15.625 10 15.625C10.3452 15.625 10.625 15.3452 10.625 15V14.3253C11.1685 14.238 11.6984 14.0341 12.1428 13.7008C12.7637 13.2351 13.125 12.5804 13.125 11.875C13.125 11.1695 12.7637 10.5148 12.1428 10.0492C11.6984 9.71586 11.1685 9.51194 10.625 9.42465V6.96047C10.866 7.02883 11.0908 7.13819 11.2801 7.28855L11.6258 7.56321C11.8961 7.77792 12.2893 7.73287 12.504 7.46259C12.7187 7.19232 12.6736 6.79916 12.4034 6.58445L12.0576 6.3098C11.6454 5.98233 11.1473 5.7723 10.625 5.67973V5Z" fill="#3A393E" />
+    </svg>
+  )
+}
+
+Icon.Dollar = DollarIcon

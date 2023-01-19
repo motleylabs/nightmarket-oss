@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
+import { useForm, UseFormRegister, UseFormHandleSubmit, FormState, useFormState } from 'react-hook-form';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -13,7 +13,7 @@ import {
   UpdateListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -24,6 +24,10 @@ import { useApolloClient } from '@apollo/client';
 import client from '../client';
 import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
+import { rejects } from 'assert';
+import { reduceSettledPromise } from '../utils/promises';
+import { useBulkListContext } from '../providers/BulkListProvider';
+
 
 interface ListNftForm {
   amount: string;
@@ -33,7 +37,6 @@ interface ListingDetailsForm extends ListNftForm {
   nft: Nft;
   auctionHouse: AuctionHouse;
 }
-
 interface ListNftContext {
   listNft: boolean;
   listNftState: FormState<ListNftForm>;
@@ -213,8 +216,9 @@ export function useListNft(): ListNftContext {
           };
         }
       );
-
+      
       toast('Listing posted', { type: 'success' });
+      
     } catch (err: any) {
       notifyInstructionError(err, {
         operation: 'Listing created',
@@ -225,16 +229,17 @@ export function useListNft(): ListNftContext {
         },
       });
       toast(err.message, { type: 'error' });
+
     } finally {
       setListNft(false);
     }
+      
   };
 
   const onListNftClick = useCallback(() => {
     if (connected) {
       return setListNft(true);
     }
-
     return login();
   }, [setListNft, connected, login]);
 
@@ -252,6 +257,312 @@ export function useListNft(): ListNftContext {
     handleSubmitListNft,
     onSubmitListNft,
   };
+}
+
+export interface BulkListNftForm {
+  globalBulkPrice: string;
+  amounts: { [address: string]: string }
+}
+
+interface BulkListingForm extends BulkListNftForm {
+  useGlobalPrice: boolean;
+  nfts: Nft[];
+  auctionHouse: AuctionHouse;
+}
+
+interface BulkListPending {
+  nft: Nft
+  instructionData: {
+    listingAddress: PublicKey;
+    sellerTradeState: PublicKey;
+    tradeStateBump: number;
+    buyerPrice: number;
+  };
+}
+interface BulkListContext {
+  listingBulk: boolean;
+  bulkListNftState: FormState<BulkListNftForm>;
+  registerBulkListNft: UseFormRegister<BulkListNftForm>;
+  onCancelBulkListNftClick: () => void;
+  handleSubmitBulkListNft: UseFormHandleSubmit<BulkListNftForm>;
+  onSubmitBulkListNft: (form: BulkListingForm) => Promise<{ fulfilled: Nft[] }>;
+  globalBulkPrice: BulkListNftForm["globalBulkPrice"];
+  amounts: BulkListNftForm["amounts"];
+}
+
+export function useBulkListing(): BulkListContext {
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
+  const login = useLogin();
+  const { connection } = useConnection();
+  const client = useApolloClient();
+
+  const [listingBulk, setListingBulk] = useState(false);
+  const {
+    register: registerBulkListNft,
+    handleSubmit: handleSubmitBulkListNft,
+    reset,
+    formState: bulkListNftState,
+    watch
+  } = useForm<BulkListNftForm>({
+    defaultValues: { globalBulkPrice: "", amounts: {} }
+  });
+ 
+  const globalBulkPrice = watch("globalBulkPrice");
+  const amounts = watch("amounts");
+
+
+  const onSubmitBulkListNft = async ({ amounts, globalBulkPrice, useGlobalPrice, nfts, auctionHouse }: BulkListingForm) => {
+    if (!connected) {
+      login();
+      return { fulfilled: [] }
+    }
+    if (!publicKey || !signTransaction || !nfts) {
+      return { fulfilled: [] }
+    }
+
+    setListingBulk(true);
+
+    const LISTINGS_PER_TX = 3; // >3 is too large 
+    const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
+
+    const auctionHouseAddress = new PublicKey(auctionHouse.address);
+    const authority = new PublicKey(auctionHouse.authority);
+    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+
+    //create instruction list (and listed nfts with associated data for the cache)
+    const pendingTxInstructions: TransactionInstruction[] = []
+    const pendingNfts = await Promise.allSettled(nfts.map(async (nft): Promise<BulkListPending> => {
+      if (!nft.owner) throw new Error(`${nft.address} has no owner data available`)
+      if (!useGlobalPrice && !amounts[nft.address]) throw new Error(`${nft.address} has no listing price`)
+      if (useGlobalPrice && !globalBulkPrice) throw new Error("No Global price found");
+
+      const basePrice = useGlobalPrice ? globalBulkPrice : amounts[nft.address]
+      const buyerPrice = toLamports(Number(basePrice));
+      const tokenMint = new PublicKey(nft.mintAddress);
+      const metadata = new PublicKey(nft.address);
+      const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
+      const associatedTokenAccount = new PublicKey(nft.owner.associatedTokenAccountAddress);
+      const [sellerTradeState, tradeStateBump] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        1
+      );
+
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+      const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+        publicKey,
+        auctionHouseAddress,
+        associatedTokenAccount,
+        treasuryMint,
+        tokenMint,
+        0,
+        1
+      );
+
+      const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
+
+      const [listingAddress] = await RewardCenterProgram.findListingAddress(
+        publicKey,
+        metadata,
+        rewardCenter
+      );
+
+      const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
+        auctionHouseAddress,
+        rewardCenter
+      );
+
+      const accounts: CreateListingInstructionAccounts = {
+        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
+        listing: listingAddress,
+        rewardCenter: rewardCenter,
+        wallet: publicKey,
+        tokenAccount: associatedTokenAccount,
+        metadata: metadata,
+        authority: authority,
+        auctionHouse: auctionHouseAddress,
+        auctionHouseFeeAccount: auctionHouseFeeAccount,
+        sellerTradeState: sellerTradeState,
+        freeSellerTradeState: freeTradeState,
+        ahAuctioneerPda: auctioneer,
+        programAsSigner: programAsSigner,
+      };
+
+      const args: CreateListingInstructionArgs = {
+        createListingParams: {
+          price: buyerPrice,
+          tokenSize: 1,
+          tradeStateBump,
+          freeTradeStateBump,
+          programAsSignerBump: programAsSignerBump,
+        },
+      };
+
+      const instruction = createCreateListingInstruction(accounts, args);
+
+      const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        publicKey
+      );
+
+      const sellerATAInstruction = Token.createAssociatedTokenAccountInstruction(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        token,
+        sellerRewardTokenAccount,
+        publicKey,
+        publicKey
+      );
+      const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+
+      if (!sellerAtAInfo) {
+        //We should probably only do this once? but not sure where else to put it since it requires individual token information
+        pendingTxInstructions.push(sellerATAInstruction);
+      }
+
+      pendingTxInstructions.push(instruction);
+
+      return {
+        nft,
+        instructionData: {
+          listingAddress,
+          sellerTradeState,
+          tradeStateBump,
+          buyerPrice,
+        }
+      }
+    }))
+
+    //nfts (+ data) with successfully made instructions go into .fulfilled, failed to .rejected;
+    //"pendingTxInstructions" should only contain the successfully created instructions
+    const settledNftInstructions = reduceSettledPromise(pendingNfts)
+
+    //Batch up the listing instructions into transactions
+    const pendingTransactions: Transaction[] = [];
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+    const numTransactions = Math.ceil(pendingTxInstructions.length / LISTINGS_PER_TX);
+    for (let i = 0; i < numTransactions; i++) {
+      let bulkTransaction = new Transaction();
+      let lowerIndex = i * LISTINGS_PER_TX;
+      let upperIndex = (i + 1) * LISTINGS_PER_TX;
+      for (let j = lowerIndex; j < upperIndex; j++) {
+        if (pendingTxInstructions[j]) {
+          bulkTransaction.add(pendingTxInstructions[j]);
+        }
+        bulkTransaction.recentBlockhash = blockhash;
+        bulkTransaction.feePayer = publicKey;
+        pendingTransactions.push(bulkTransaction);
+      }
+    }
+
+    //sign all txs
+    let signedTxs: Transaction[] = []
+    if (signAllTransactions) {
+      signedTxs = await signAllTransactions(pendingTransactions);
+    } else {
+      //fallback to sign tx batches individually (if wallet doesn't support signAll)
+      const settledTxs = await Promise.allSettled(pendingTransactions.map(async (tx) => {
+        const signedTx = await signTransaction(tx);
+        return signedTx
+      }))
+      const { fulfilled } = reduceSettledPromise(settledTxs)
+
+      signedTxs = fulfilled
+    }
+
+    const pendingSigned = await Promise.allSettled(signedTxs.map((tx, i, allTx) => {
+      //send all tx in intervals to avoid overloading the network
+      return new Promise<string>((resolve => {
+        setTimeout(() => {
+          console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
+          connection.sendRawTransaction(tx.serialize()).then(txHash => resolve(txHash));
+        }, i * TX_INTERVAL)
+      }))
+    }))
+
+    //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
+    const settledSignedTxs = reduceSettledPromise(pendingSigned)
+
+
+    settledNftInstructions.fulfilled.map(({ nft, instructionData }) => {
+      const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
+      try {
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
+          },
+          (data: any) => {
+            const listing = {
+              __typename: 'AhListing',
+              id: `temp-id-listing-${listingAddress.toBase58()}`,
+              seller: publicKey.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tradeState: sellerTradeState.toBase58(),
+              tradeStateBump: tradeStateBump,
+              price: buyerPrice.toString(),
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+            };
+
+            const listings = [...(data.nft?.listings || []), listing];
+
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
+      } catch (e) {
+        console.error("Error caching", e)
+        console.log("Failed to cache nft listing: ", nft)
+      }
+    })
+
+    setListingBulk(false);
+
+    if (settledSignedTxs.fulfilled.length > 0) {
+      const fulfilledNfts = settledNftInstructions.fulfilled.map(({ nft }) => nft)
+      toast(`Listings posted: ${fulfilledNfts.map(nft => nft.name).join(", ")}`, { type: 'success' });
+      return { fulfilled: fulfilledNfts }
+    }
+
+    toast("No Items were listed", { type: 'error' });
+    return { fulfilled: [] }
+  };
+
+  const onCancelBulkListNftClick = useCallback(() => {
+    reset();
+    setListingBulk(false);
+  }, [setListingBulk, reset]);
+
+  return {
+    listingBulk,
+    bulkListNftState,
+    handleSubmitBulkListNft,
+    registerBulkListNft,
+    onSubmitBulkListNft,
+    onCancelBulkListNftClick,
+    globalBulkPrice,
+    amounts,
+  }
 }
 
 interface UpdateListingArgs {
