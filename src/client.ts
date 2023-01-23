@@ -334,6 +334,7 @@ const client = new ApolloClient({
         },
       },
       CollectionTrend: {
+        merge: true,
         fields: {
           compactVolume1d: {
             read(_, { readField }): string {
@@ -429,6 +430,7 @@ const client = new ApolloClient({
       },
       Collection: {
         keyFields: ['id'],
+        merge: true,
         fields: {
           activities: offsetLimitPagination(['eventTypes']),
           nfts: offsetLimitPagination(),
@@ -705,6 +707,7 @@ const client = new ApolloClient({
       },
       Offer: {
         keyFields: ['id'],
+        merge: true,
         fields: {
           price: {
             read: asBN,
