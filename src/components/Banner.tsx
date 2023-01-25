@@ -8,7 +8,7 @@ export default function Banner() {
 
   return (
     <div className="relative mt-14 w-full overflow-hidden rounded-2xl bg-gradient-primary">
-      <div className="absolute w-full lg:flex lg:h-full lg:items-center">
+      <div className="pointer-events-none absolute w-full lg:flex lg:h-full lg:items-center">
         <StarBackground className="relative -left-[15%] top-[20px] h-auto w-[110%] lg:left-[25%] lg:top-0 lg:w-[75%]" />
       </div>
       <div className="p-6 md:p-11 lg:flex lg:flex-row-reverse lg:justify-between">
@@ -33,6 +33,7 @@ export default function Banner() {
             <Button
               background={ButtonBackground.Black}
               onClick={() => {
+                console.log('wtf is happening?');
                 router.push('/referrals');
               }}
             >
