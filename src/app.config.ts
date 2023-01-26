@@ -2,6 +2,8 @@ interface AppConfig {
   baseUrl: string;
   graphqlUrl: string;
   solanaRPCUrl: string;
+  referralUrl: string;
+  referralKey: string;
   socialMedia: {
     twitter?: string;
     discord?: string;
@@ -24,6 +26,8 @@ const config: AppConfig = {
   baseUrl: 'https://nightmarket.io', // could also be an ENV variable
   graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL as string,
   solanaRPCUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL as string,
+  referralUrl: process.env.NEXT_PUBLIC_REFERRAL_URL as string,
+  referralKey: process.env.NEXT_PUBLIC_REFERRAL_KEY as string,
   socialMedia: {
     twitter: 'https://twitter.com/nightmarketio',
     discord: 'https://discord.gg/bn5z4A794E',

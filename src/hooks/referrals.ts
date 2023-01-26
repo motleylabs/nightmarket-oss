@@ -6,6 +6,7 @@ import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapte
 import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import axios, { AxiosError } from 'axios';
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
 
@@ -224,3 +225,35 @@ export function useBuddy() {
 
   return { loadingBuddy, buddy, balance, chest, refreshBalance, getReferrees };
 }
+
+export function getBuddyStats(params: object) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState<AxiosError | null>(null);
+  const url = config.referralUrl;
+  const pathReferralUser = url+'/referral/user';
+  const key = config.referralKey;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(pathReferralUser, {
+          params,
+          headers: {
+            Authorization: key,
+          },
+        });
+        setData(response.data);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url, params]);
+
+  return { data, loading, error };
+};
