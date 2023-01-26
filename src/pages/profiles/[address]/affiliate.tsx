@@ -20,6 +20,7 @@ import { Table } from '../../../components/Table';
 import { useBuddyStats, useBuddy, useClaimBuddy } from '../../../hooks/referrals';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
@@ -64,13 +65,14 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
   const { onClaimBuddy } = useClaimBuddy();
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
   const {
     data: buddy,
     loading: loadingBuddy,
     refreshBuddy,
   } = useBuddyStats({
     wallet: wallet.address,
-    organization: config.buddylink.organizationName,
+    organisation: config.buddylink.organizationName,
   });
 
   const tabContent = useMemo(() => {
@@ -112,9 +114,15 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
         {!loadingBuddy && !buddy ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
-            <div className="mb-4 w-[350px] text-center text-lg text-white">{t('noBuddy')}</div>
+            <div className="mb-4 text-center text-lg text-white sm:w-[375px]">{t('noBuddy')}</div>
             <div className="">
-              <Button>{t('createLink')}</Button>
+              <Button
+                onClick={() => {
+                  router.push('/referrals');
+                }}
+              >
+                {t('createLink')}
+              </Button>
             </div>
           </div>
         ) : (

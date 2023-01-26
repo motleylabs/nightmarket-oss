@@ -252,19 +252,23 @@ interface TransactionHistory {
   readableBlocktime: string;
 }
 
-export function useBuddyHistory(params: {}) {
+interface BuddyHistoryProps {
+  wallet: string;
+  organisation: string;
+}
+
+export function useBuddyHistory(params: BuddyHistoryProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<TransactionHistory[] | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const url = config.referralUrl;
-  const pathUserTransaction = url + 'referral/userTransactions';
+  const pathUserTransaction = `${url}referral/userTransactions&wallet=${params.wallet}&organisation=${params.organisation}`;
   const key = config.referralKey;
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(pathUserTransaction, {
-        params,
         headers: {
           Authorization: key,
         },
@@ -308,21 +312,21 @@ interface BuddyStatsData {
 
 interface BuddyStatsProps {
   wallet: string;
-  organization: string;
+  organisation: string;
 }
+
 export function useBuddyStats(params: BuddyStatsProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BuddyStatsData | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const url = config.referralUrl;
-  const pathReferralUser = url + 'referral/user';
+  const pathReferralUser = `${url}referral/user&wallet=${params.wallet}&organisation=${params.organisation}`;
   const key = config.referralKey;
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(pathReferralUser, {
-        params,
         headers: {
           Authorization: key,
         },

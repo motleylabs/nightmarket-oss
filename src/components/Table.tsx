@@ -89,7 +89,7 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
   });
   const { data, loading } = useBuddyHistory({
     wallet: wallet.address,
-    organization: config.buddylink.organizationName,
+    organisation: config.buddylink.organizationName,
   });
 
   useEffect(() => {
