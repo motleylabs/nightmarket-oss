@@ -33,7 +33,6 @@ export default function Banner() {
             <Button
               background={ButtonBackground.Black}
               onClick={() => {
-                console.log('wtf is happening?');
                 router.push('/referrals');
               }}
             >

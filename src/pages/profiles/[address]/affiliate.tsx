@@ -17,7 +17,7 @@ import Icon from '../../../components/Icon';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { Table } from '../../../components/Table';
-import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
+import { useBuddyStats, useBuddy, useClaimBuddy } from '../../../hooks/referrals';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 
@@ -50,38 +50,36 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   };
 }
 
-interface ProfileAffiliatePageProps {}
+interface ProfileAffiliatePageProps {
+  wallet: Wallet;
+}
 
 const CLAIM_TAB = 'CLAIM_TAB';
 const REFERRED_TAB = 'REFERRED_TAB';
 const INACTIVE_TAB = 'INACTIVE_TAB';
 
-export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Element {
+export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps): JSX.Element {
   const { t } = useTranslation(['referrals', 'common']);
   const [visible, setVisible] = useState(false);
-  const { loadingBuddy, buddy, balance, chest, refreshBalance } = useBuddy();
   const { onClaimBuddy } = useClaimBuddy();
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
-  // const metadata = {
-  //   data: [
-  //     { Address: 'Wutm...Tiol', Date: '24.12.22' },
-  //     { Address: 'Wutm...Tiol', Date: '24.12.22' },
-  //   ],
-  //   columns: [{ label: 'Address' }, { label: 'Date' }],
-  // };
-  const metadata = {
-    data: [],
-    columns: [],
-  };
+  const {
+    data: buddy,
+    loading: loadingBuddy,
+    refreshBuddy,
+  } = useBuddyStats({
+    wallet: wallet.address,
+    organization: config.buddylink.organizationName,
+  });
 
   const tabContent = useMemo(() => {
     switch (tab) {
       case CLAIM_TAB: {
-        return <Table.ClaimHistory />;
+        return <Table.ClaimHistory wallet={wallet} />;
       }
       case REFERRED_TAB: {
-        return <Table.ReferredList />;
+        return <Table.ReferredList referred={buddy?.buddies} loading={loadingBuddy} />;
       }
       case INACTIVE_TAB: {
         return <Table.Inactive />;
@@ -90,8 +88,8 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
   }, [tab]);
 
   const url = useMemo(() => {
-    return `${config.baseUrl}/r/${buddy?.name}`;
-  }, [buddy?.name]);
+    return `${config.baseUrl}/r/${buddy?.username}`;
+  }, [buddy?.username]);
 
   const handleTabClick = useCallback(
     (newTab: string) => {
@@ -142,8 +140,8 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                           size={ButtonSize.Small}
                           onClick={async () => {
                             if (buddy) {
-                              await onClaimBuddy(buddy?.name);
-                              refreshBalance();
+                              await onClaimBuddy(buddy?.username);
+                              refreshBuddy();
                             }
                           }}
                         >
@@ -152,7 +150,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                       </div>
                       <div className="mt-5 flex items-center">
                         <Icon.Solana />
-                        <h2 className="ml-1 text-2xl font-bold">{balance}</h2>
+                        <h2 className="ml-1 text-2xl font-bold">{buddy?.totalClaimable}</h2>
                       </div>
                     </div>
                     <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:min-w-[328px] xl:mb-0 xl:mr-4">
@@ -161,9 +159,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                       </div>
                       <div className="mt-4 flex items-center">
                         <Icon.Solana />
-                        <h2 className="ml-1 text-2xl font-bold">
-                          {chest?.totalEarned?.toNumber()}
-                        </h2>
+                        <h2 className="ml-1 text-2xl font-bold">{buddy?.totalEarned}</h2>
                       </div>
                     </div>
                   </>
@@ -190,9 +186,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                         </div>
                         <div className="mt-4 flex w-full items-center">
                           <Icon.User />
-                          <h2 className="ml-1 text-2xl font-bold">
-                            {buddy?.numberOfReferredUsers.toNumber()}
-                          </h2>
+                          <h2 className="ml-1 text-2xl font-bold">{buddy?.buddies.length}</h2>
                         </div>
                       </div>
                     </div>
@@ -215,7 +209,7 @@ export default function ProfileAffiliate({}: ProfileAffiliatePageProps): JSX.Ele
                         onClick={handleCopy}
                       >
                         <p className="flex items-center text-gray-400">
-                          {config.baseUrl}/r/<span className="text-white">{buddy?.name}</span>
+                          {config.baseUrl}/r/<span className="text-white">{buddy?.username}</span>
                           {copied ? (
                             <CheckIcon className="ml-2 h-4 w-4 text-gray-300" />
                           ) : (
@@ -335,7 +329,7 @@ function Tab(props: { onClick: () => void; label: string; active: boolean; disab
           props.active
             ? 'rounded-full bg-gray-800 text-white'
             : props.disabled
-            ? 'cursor-none bg-black text-gray-300'
+            ? 'cursor-default bg-black text-gray-300'
             : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )}
       >

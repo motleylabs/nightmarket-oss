@@ -1,5 +1,10 @@
 import clsx from 'clsx';
-import { useMemo, useState } from 'react';
+import { format } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+import config from '../app.config';
+import { Wallet } from '../graphql.types';
+import { ReferredData, useBuddyHistory } from '../hooks/referrals';
+import Icon from './Icon';
 
 interface Sorter {
   label?: string;
@@ -72,12 +77,42 @@ function Skeleton({ className = '' }: { className?: string }) {
 
 Table.Skeleton = Skeleton;
 
-function ClaimHistory() {
-  const [loading, setLoading] = useState(false);
-  const metadata = {
+interface ClaimHistoryProps {
+  wallet: Wallet;
+}
+
+export const FILTER_HISTORY = ['ClaimSol'];
+function ClaimHistory({ wallet }: ClaimHistoryProps) {
+  const [metadata, setMetadata] = useState<TableMetadata>({
     data: [],
     columns: [],
-  };
+  });
+  const { data, loading } = useBuddyHistory({
+    wallet: wallet.address,
+    organization: config.buddylink.organizationName,
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log('data', data);
+      setMetadata({
+        data: data
+          .filter((tx) => FILTER_HISTORY.includes(tx.instruction))
+          .map((tx) => ({
+            Date: format(new Date(tx.blocktime * 1000), 'dd.MM.yy'),
+            Amount: (
+              <div className="flex items-center">
+                <div className="mr-1">
+                  <Icon.Sol />
+                </div>
+                <div>{Math.abs(tx.amount) / 1e9}</div>
+              </div>
+            ),
+          })),
+        columns: [{ label: 'Date' }, { label: 'Amount' }],
+      });
+    }
+  }, [data]);
 
   return loading ? (
     <>
@@ -94,12 +129,28 @@ function ClaimHistory() {
 
 Table.ClaimHistory = ClaimHistory;
 
-function ReferredList() {
-  const [loading, setLoading] = useState(false);
-  const metadata = {
+interface ReferredListProps {
+  referred?: ReferredData[];
+  loading: boolean;
+}
+
+function ReferredList({ referred, loading }: ReferredListProps) {
+  const [metadata, setMetadata] = useState<TableMetadata>({
     data: [],
     columns: [],
-  };
+  });
+
+  useEffect(() => {
+    if (referred) {
+      setMetadata({
+        data: referred.map((ref) => ({
+          Address: ellipsize(ref.publicKey),
+          Date: format(new Date(ref.dateCreated * 1000), 'dd.MM.yy'),
+        })),
+        columns: [{ label: 'Address' }, { label: 'Date' }],
+      });
+    }
+  }, [referred]);
 
   return loading ? (
     <>
@@ -121,3 +172,7 @@ function Inactive() {
 }
 
 Table.Inactive = Inactive;
+
+function ellipsize(pubKey: string) {
+  return `${pubKey.substring(0, 4)}...${pubKey.substring(pubKey.length - 4, pubKey.length)}`;
+}

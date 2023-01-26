@@ -226,34 +226,118 @@ export function useBuddy() {
   return { loadingBuddy, buddy, balance, chest, refreshBalance, getReferrees };
 }
 
-export function getBuddyStats(params: object) {
+interface Transfer {
+  from: string;
+  to:
+    | {
+        pubkey: string;
+        amount: number;
+      }
+    | {
+        pubkey: string;
+        amount: number;
+      }[]
+    | boolean;
+}
+
+interface TransactionHistory {
+  instruction: string;
+  userInstruction: string;
+  allTransfers: Transfer[] | Transfer;
+  currentUserTransfer: Transfer;
+  amount: number;
+  amountReadable: string;
+  signature: string;
+  blocktime: number;
+  readableBlocktime: string;
+}
+
+export function useBuddyHistory(params: {}) {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<TransactionHistory[] | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const url = config.referralUrl;
-  const pathReferralUser = url+'/referral/user';
+  const pathUserTransaction = url + 'referral/userTransactions';
   const key = config.referralKey;
 
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(pathUserTransaction, {
+        params,
+        headers: {
+          Authorization: key,
+        },
+      });
+      setData(response.data);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [pathUserTransaction, key]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(pathReferralUser, {
-          params,
-          headers: {
-            Authorization: key,
-          },
-        });
-        setData(response.data);
-      } catch (err: any) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [url, params]);
+  }, []);
 
-  return { data, loading, error };
-};
+  return { data, loading, error, refreshTransactions: fetchData };
+}
+
+export interface ReferredData {
+  username: string;
+  publicKey: string;
+  userWallet: string;
+  referrer: string;
+  dateCreated: number;
+  numberOfReferredUsers: number;
+}
+
+interface BuddyStatsData {
+  username: string;
+  userWallet: string;
+  publicKey: string;
+  referrer: string;
+  totalEarned: number;
+  totalClaimed: number;
+  totalClaimable: number;
+  recentSignatures: [];
+  buddies: ReferredData[];
+  chestAddress: string;
+}
+
+interface BuddyStatsProps {
+  wallet: string;
+  organization: string;
+}
+export function useBuddyStats(params: BuddyStatsProps) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<BuddyStatsData | null>(null);
+  const [error, setError] = useState<AxiosError | null>(null);
+  const url = config.referralUrl;
+  const pathReferralUser = url + 'referral/user';
+  const key = config.referralKey;
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(pathReferralUser, {
+        params,
+        headers: {
+          Authorization: key,
+        },
+      });
+      setData(response.data);
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [pathReferralUser, key]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return { data, loading, error, refreshBuddy: fetchData };
+}
