@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { format } from 'date-fns';
+import { useTranslation } from 'next-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import config from '../app.config';
 import { Wallet } from '../graphql.types';
@@ -83,6 +84,7 @@ interface ClaimHistoryProps {
 
 export const FILTER_HISTORY = ['ClaimSol'];
 function ClaimHistory({ wallet }: ClaimHistoryProps) {
+  const { t } = useTranslation('referrals');
   const [metadata, setMetadata] = useState<TableMetadata>({
     data: [],
     columns: [],
@@ -94,7 +96,6 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
 
   useEffect(() => {
     if (data) {
-      console.log('data', data);
       setMetadata({
         data: data
           .filter((tx) => FILTER_HISTORY.includes(tx.instruction))
@@ -122,8 +123,10 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
       <Table.Skeleton />
       <Table.Skeleton />
     </>
-  ) : (
+  ) : metadata.data.length > 0 ? (
     <Table metadata={metadata} />
+  ) : (
+    <p className="text-gray-300">{t('profile.noClaimHistory')}</p>
   );
 }
 
@@ -135,6 +138,7 @@ interface ReferredListProps {
 }
 
 function ReferredList({ referred, loading }: ReferredListProps) {
+  const { t } = useTranslation('referrals');
   const [metadata, setMetadata] = useState<TableMetadata>({
     data: [],
     columns: [],
@@ -144,7 +148,7 @@ function ReferredList({ referred, loading }: ReferredListProps) {
     if (referred) {
       setMetadata({
         data: referred.map((ref) => ({
-          Address: ellipsize(ref.publicKey),
+          Address: ellipsize(ref.userWallet),
           Date: format(new Date(ref.dateCreated * 1000), 'dd.MM.yy'),
         })),
         columns: [{ label: 'Address' }, { label: 'Date' }],
@@ -160,8 +164,10 @@ function ReferredList({ referred, loading }: ReferredListProps) {
       <Table.Skeleton />
       <Table.Skeleton />
     </>
-  ) : (
+  ) : metadata.data.length > 0 ? (
     <Table metadata={metadata} />
+  ) : (
+    <p className="text-gray-300">{t('profile.noReferred')}</p>
   );
 }
 

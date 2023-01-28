@@ -17,7 +17,7 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
   const ref3 = useRef(null);
   const ref4 = useRef(null);
 
-  const { connected, wallet, disconnecting } = useWallet();
+  const { connected, wallet, disconnecting, publicKey } = useWallet();
 
   useEffect(() => {
     if (!wallet) {
@@ -46,7 +46,9 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
       }
       case 1.5: {
         nodeRef = ref2;
-        Component = <Steps.Welcome setSteps={setSteps} commitName={setName} />;
+        Component = (
+          <Steps.Welcome setSteps={setSteps} commitName={setName} wallet={publicKey?.toString()!} />
+        );
         break;
       }
       case 2: {

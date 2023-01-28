@@ -7,7 +7,7 @@ import Router from 'next/router';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import config from '../app.config';
 import useLogin from '../hooks/login';
-import { useBuddy, useCreateBuddy } from '../hooks/referrals';
+import { useBuddyStats, useCreateBuddy } from '../hooks/referrals';
 import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import Icon from './Icon';
@@ -50,18 +50,22 @@ Steps.Connect = Connect;
 interface WelcomeProps {
   setSteps: Dispatch<SetStateAction<number>>;
   commitName: Dispatch<SetStateAction<string>>;
+  wallet: string;
 }
 
-function Welcome({ setSteps, commitName }: WelcomeProps): JSX.Element {
+function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [timeEllapsed, setTimeEllapsed] = useState(false);
 
-  const { loadingBuddy, buddy } = useBuddy();
+  const { loading: loadingBuddy, data: buddy } = useBuddyStats({
+    wallet: wallet,
+    organisation: config.buddylink.organizationName,
+  });
 
   useEffect(() => {
-    if (timeEllapsed && !loadingBuddy && !buddy) setSteps(2);
-    else if (timeEllapsed && !loadingBuddy && buddy) {
-      commitName(buddy.name);
+    if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) setSteps(2);
+    else if (timeEllapsed && !loadingBuddy && buddy?.publicKey) {
+      commitName(buddy.username);
       setSteps(3);
     }
   }, [timeEllapsed, loadingBuddy, buddy]);

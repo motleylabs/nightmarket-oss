@@ -25,7 +25,10 @@
     "affiliateLink": "Your Affiliate Link",
     "claimHistory": "Claim History",
     "referred": "Referred",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "generating": "Generating...",
+    "noClaimHistory": "You do not have claim history.",
+    "noReferred": "You do not have referred accounts yet."
   },
   "banner": {
     "upTo": "EARN UP TO",

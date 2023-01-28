@@ -1,8 +1,6 @@
 import { createBuddyClient } from '@ladderlabs/buddylink';
-import { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
 import { NodeWallet } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/create-buddy-client';
-import { Buddy, Chest } from '@ladderlabs/buddylink/dist/esm/types/BuddyLink';
-import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -40,8 +38,9 @@ export function useCreateBuddy(): CreateContext {
         } as NodeWallet,
         config.buddylink.organizationName
       );
+      const referrerName = referrer.toLowerCase();
 
-      const referrerAccount = await buddyClient.getBuddy(referrer);
+      const referrerAccount = await buddyClient.getBuddy(referrerName);
 
       if (referrerAccount && referrerAccount.authority.toString() === publicKey.toString()) {
         throw new Error('Buddy referred by the same wallet');
@@ -50,7 +49,7 @@ export function useCreateBuddy(): CreateContext {
       const arrayOfInstructions = await buddyClient.createBuddyInstructions(
         name,
         config.buddylink.buddyBPS,
-        referrer
+        referrerName
       );
 
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
@@ -176,54 +175,6 @@ export function useClaimBuddy() {
     claiming,
     onClaimBuddy,
   };
-}
-
-export function useBuddy() {
-  const [loadingBuddy, setLoadingBuddy] = useState(true);
-  const [buddy, setBuddy] = useState<Buddy | null>(null);
-  const [client, setClient] = useState<BuddyClient | null>(null);
-  const [balance, setBalance] = useState<number | null>(null);
-  const [chest, setChest] = useState<Chest | null>(null);
-  const { connection } = useConnection();
-  const anchorWallet = useAnchorWallet();
-
-  const gettingBuddy = useCallback(async () => {
-    if (!anchorWallet) return null;
-    const buddyClient = createBuddyClient(
-      connection,
-      anchorWallet as NodeWallet,
-      config.buddylink.organizationName
-    );
-    setClient(buddyClient);
-
-    const bud = await buddyClient.getBuddy();
-    setBuddy(bud);
-    if (bud) {
-      setBalance(await buddyClient.getClaimableBalance(bud.name));
-      setChest(await buddyClient.getChest(bud.name));
-    }
-    setLoadingBuddy(false);
-  }, [connection, anchorWallet]);
-
-  const refreshBalance = useCallback(async () => {
-    if (client && buddy) {
-      setBalance(await client.getBalance(buddy?.name));
-      setChest(await client.getChest(buddy?.name));
-    }
-  }, [client, buddy]);
-
-  const getReferrees = useCallback(async () => {
-    if (client && buddy) {
-      // tbd if we use the indexer for this information or do the enefficient way
-    }
-    return [];
-  }, [client, buddy]);
-
-  useEffect(() => {
-    if (anchorWallet) gettingBuddy();
-  }, [anchorWallet]);
-
-  return { loadingBuddy, buddy, balance, chest, refreshBalance, getReferrees };
 }
 
 interface Transfer {

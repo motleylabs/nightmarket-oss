@@ -17,10 +17,11 @@ import Icon from '../../../components/Icon';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { Table } from '../../../components/Table';
-import { useBuddyStats, useBuddy, useClaimBuddy } from '../../../hooks/referrals';
+import { useBuddyStats, useClaimBuddy } from '../../../hooks/referrals';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
@@ -66,6 +67,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
   const router = useRouter();
+  const { publicKey: adapterWallet, connecting, connected } = useWallet();
   const {
     data: buddy,
     loading: loadingBuddy,
@@ -108,11 +110,17 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
     }
   }, [url]);
 
+  useEffect(() => {
+    if (connected && wallet.address !== adapterWallet?.toString()) {
+      router.push(`/profiles/${wallet.address}`);
+    }
+  }, [wallet.address, adapterWallet?.toString(), connecting, connected]);
+
   return (
     <>
       <div className="">
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
-        {!loadingBuddy && !buddy ? (
+        {!loadingBuddy && !buddy?.publicKey ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
             <div className="mb-4 text-center text-lg text-white sm:w-[375px]">{t('noBuddy')}</div>
             <div className="">
@@ -216,14 +224,20 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                         className="mt-4 flex h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-gray-800"
                         onClick={handleCopy}
                       >
-                        <p className="flex items-center text-gray-400">
-                          {config.baseUrl}/r/<span className="text-white">{buddy?.username}</span>
-                          {copied ? (
-                            <CheckIcon className="ml-2 h-4 w-4 text-gray-300" />
-                          ) : (
-                            <Icon.Copy className="ml-2 h-4 w-4" />
-                          )}
-                        </p>
+                        {buddy?.username ? (
+                          <p className="flex items-center text-gray-400">
+                            {config.baseUrl}/r/<span className="text-white">{buddy?.username}</span>
+                            {copied ? (
+                              <CheckIcon className="ml-2 h-4 w-4 text-gray-300" />
+                            ) : (
+                              <Icon.Copy className="ml-2 h-4 w-4" />
+                            )}
+                          </p>
+                        ) : (
+                          <p className="flex items-center text-gray-400">
+                            {t('profile.generating')}
+                          </p>
+                        )}
                       </div>
                       <div className="mt-3 flex items-center justify-center">
                         <Link
