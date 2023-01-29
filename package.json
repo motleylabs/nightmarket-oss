@@ -27,7 +27,6 @@
     "@metaplex-foundation/mpl-token-metadata": "^1.2.5",
     "@next/font": "^13.0.4",
     "@react-hook/window-size": "^3.0.7",
-    "@sentry/nextjs": "^7.21.1",
     "@solana/wallet-adapter-base": "^0.9.19",
     "@solana/wallet-adapter-react": "^0.15.25",
     "@solana/wallet-adapter-react-ui": "^0.9.23",
