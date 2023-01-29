@@ -5,10 +5,10 @@
 @import 'swiper/css/grid';
 @import 'react-toastify/dist/ReactToastify.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind variants;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'tailwindcss/variants';
 
 h1,
 h2,

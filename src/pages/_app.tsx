@@ -1,5 +1,6 @@
 import React, { useMemo, ReactElement, useEffect } from 'react';
 import { appWithTranslation } from 'next-i18next';
+import nextI18NextConfig from '../../next-i18next.config.js';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -659,7 +660,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   );
 }
 
-export default appWithTranslation(AppPage);
+export default appWithTranslation(AppPage, nextI18NextConfig);
 
 interface FooterProps {
   links: {
