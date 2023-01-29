@@ -24,7 +24,7 @@ const BASIC_NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
 });
 
 export function asBasicNumber(number: number) {
-  return BASIC_NUMBER_FORMATTER.format(number);
+  return !isNaN(number) ? BASIC_NUMBER_FORMATTER.format(number) : null;
 }
 
 /**
