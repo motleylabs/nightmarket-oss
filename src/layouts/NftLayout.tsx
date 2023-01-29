@@ -2,7 +2,7 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { ReactNode, useState, useMemo } from 'react';
+import { ReactNode, useState, useMemo, useEffect } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
