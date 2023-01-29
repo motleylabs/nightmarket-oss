@@ -1,4 +1,4 @@
-import React, { useMemo, ReactElement } from 'react';
+import React, { useMemo, ReactElement, useEffect } from 'react';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { NextPage } from 'next';
@@ -626,6 +626,11 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
 
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
 
+  const links = [
+    [{ href: config.website, title: 'About the DAO', popout: true }],
+    [{ href: '#', title: 'Legal', popout: true }],
+  ];
+
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <ApolloProvider client={client}>
@@ -642,115 +647,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                     <PageLayout {...pageProps}>
                       <Component {...pageProps} />
                     </PageLayout>
-                    <footer className="mt-16 bg-gray-900 py-20 px-6 md:mt-28">
-                      <div className="container mx-auto grid grid-cols-2 items-center gap-4 md:grid-cols-3 ">
-                        <div>
-                          {/* Logos */}
-                          <Link
-                            className="flex flex-row gap-2 whitespace-nowrap pb-6 text-2xl font-bold"
-                            href="/"
-                          >
-                            <img
-                              src="/images/nightmarket-stacked.svg"
-                              className="h-8 w-auto object-fill md:h-20"
-                              alt="night market logo"
-                            />
-                          </Link>
-                          <div>
-                            <svg
-                              width="176"
-                              height="24"
-                              viewBox="0 0 176 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M2.792 18V13.864H5.776C5.992 13.864 6.36 13.848 6.664 13.8C8.584 13.496 9.552 12.04 9.552 10.168C9.552 8.304 8.592 6.84 6.664 6.544C6.36 6.496 6 6.48 5.776 6.48H1.12V18H2.792ZM2.792 8.056H5.712C5.92 8.056 6.2 8.072 6.44 8.136C7.464 8.376 7.848 9.32 7.848 10.168C7.848 11.016 7.464 11.96 6.44 12.208C6.2 12.264 5.92 12.28 5.712 12.28H2.792V8.056ZM14.7939 18.24C17.3699 18.24 19.0339 16.376 19.0339 13.672C19.0339 11 17.3859 9.12 14.7939 9.12C12.2499 9.12 10.5619 10.968 10.5619 13.672C10.5619 16.352 12.2019 18.24 14.7939 18.24ZM14.7939 16.664C13.1779 16.664 12.3379 15.496 12.3379 13.672C12.3379 11.912 13.1139 10.696 14.7939 10.696C16.4259 10.696 17.2579 11.864 17.2579 13.672C17.2579 15.44 16.4419 16.664 14.7939 16.664ZM23.6634 18L25.6874 11.744L27.7034 18H29.0474L31.6874 9.36H30.0394L28.2314 15.288L26.4074 9.36H24.9674L23.1434 15.288L21.3354 9.36L19.6794 9.352L22.3194 18H23.6634ZM40.5595 14.152C40.7355 11.056 39.1995 9.12 36.5595 9.12C34.0315 9.12 32.3275 10.92 32.3275 13.752C32.3275 16.424 34.0555 18.24 36.6395 18.24C38.3115 18.24 39.7755 17.352 40.4475 15.808L38.8075 15.288C38.3835 16.176 37.5995 16.664 36.5595 16.664C35.1035 16.664 34.2555 15.76 34.1195 14.152H40.5595ZM36.6235 10.6C37.9515 10.6 38.6715 11.32 38.8475 12.848H34.1595C34.3755 11.384 35.1995 10.6 36.6235 10.6ZM44.6424 9.848C44.3144 10.064 44.0424 10.376 43.8424 10.736V9.36H42.3544V18H44.0424V13.64C44.0424 12.624 44.3144 11.712 45.1304 11.192C45.7064 10.824 46.4584 10.776 47.0184 10.928V9.36C46.2424 9.216 45.2904 9.368 44.6424 9.848ZM56.1376 14.152C56.3136 11.056 54.7776 9.12 52.1376 9.12C49.6096 9.12 47.9056 10.92 47.9056 13.752C47.9056 16.424 49.6336 18.24 52.2176 18.24C53.8896 18.24 55.3536 17.352 56.0256 15.808L54.3856 15.288C53.9616 16.176 53.1776 16.664 52.1376 16.664C50.6816 16.664 49.8336 15.76 49.6976 14.152H56.1376ZM52.2016 10.6C53.5296 10.6 54.2496 11.32 54.4256 12.848H49.7376C49.9536 11.384 50.7776 10.6 52.2016 10.6ZM63.7485 9.952C63.1485 9.424 62.3645 9.12 61.3965 9.12C58.9645 9.12 57.4525 11.064 57.4525 13.672C57.4525 16.264 58.9565 18.24 61.3645 18.24C62.4525 18.24 63.3165 17.856 63.9405 17.208V18H65.4285V6.48H63.7485V9.952ZM61.5965 16.728C59.9885 16.728 59.2285 15.384 59.2285 13.672C59.2285 11.976 59.9885 10.632 61.6525 10.632C63.2285 10.632 63.9405 11.88 63.9405 13.672C63.9405 15.464 63.2445 16.728 61.5965 16.728ZM74.894 9.12C73.926 9.12 73.142 9.424 72.542 9.952V6.48H70.862V18H72.35V17.208C72.974 17.856 73.838 18.24 74.926 18.24C77.334 18.24 78.838 16.264 78.838 13.672C78.838 11.064 77.326 9.12 74.894 9.12ZM74.694 16.728C73.046 16.728 72.35 15.464 72.35 13.672C72.35 11.88 73.062 10.632 74.638 10.632C76.302 10.632 77.062 11.976 77.062 13.672C77.062 15.384 76.302 16.728 74.694 16.728ZM80.9131 9.36H79.1691L82.6651 17.96L81.2411 21.84H82.8331L87.6011 9.36H85.9051L83.4731 15.848L80.9131 9.36Z"
-                                fill="#A8A8A8"
-                              />
-                              <g clipPath="url(#clip0_4524_7561)">
-                                <path
-                                  d="M100.118 13.6444L102.699 4H104.716V16.7913H103.333L103.335 11.8404L103.464 6.55545L103.423 6.70227L100.718 16.6914H99.836L97.252 9.85493L97.3824 15.1151V19.9621H96V7.27391H97.6896L100.118 13.6452L100.118 13.6444Z"
-                                  fill="white"
-                                />
-                                <path
-                                  d="M112.588 13.7682C112.522 14.1262 112.428 14.4644 112.306 14.7828C111.648 16.4721 110.027 17.2995 108.335 16.7559C106.697 16.2049 106.043 14.3052 106.054 12.6554C106.066 11.9774 106.011 10.9224 106.149 10.2732C106.422 8.58059 107.546 7.08015 109.335 7.12551C111.603 7.09169 112.718 9.304 112.686 11.3992C112.671 12.0698 112.732 13.1264 112.588 13.7682V13.7682ZM111.109 10.6791C111.024 9.64797 110.488 8.42881 109.334 8.46015C108.182 8.43046 107.701 9.66446 107.624 10.6824C107.562 11.1435 107.598 12.1787 107.589 12.6554C107.574 13.8474 107.9 15.606 109.347 15.5945C111.329 15.5161 111.154 12.8559 111.15 11.386C111.146 11.1459 111.132 10.91 111.109 10.6791Z"
-                                  fill="white"
-                                />
-                                <path
-                                  d="M117.327 8.55833V16.7848H115.81V8.55833H112.979V7.25586H120.177V8.55833H117.326H117.327Z"
-                                  fill="white"
-                                />
-                                <path
-                                  d="M127.029 15.4897V16.7856H121.088V7.25586H122.617V15.4897H127.029Z"
-                                  fill="white"
-                                />
-                                <path
-                                  d="M129.745 12.5119V15.4897H134.207V16.7856H128.215V7.25586H134.175V8.55833H129.745V11.2416H133.565V12.5111H129.745V12.5119Z"
-                                  fill="white"
-                                />
-                                <path
-                                  d="M140.545 7.25586H142.246L139.351 13.3822L139.338 16.7856H137.846L137.84 13.3368L134.971 7.25668H136.666L138.608 11.8116L140.544 7.25668L140.545 7.25586Z"
-                                  fill="white"
-                                />
-                              </g>
-                              <defs>
-                                <clipPath id="clip0_4524_7561">
-                                  <rect
-                                    width="80"
-                                    height="16"
-                                    fill="white"
-                                    transform="translate(96 4)"
-                                  />
-                                </clipPath>
-                              </defs>
-                            </svg>
-                          </div>
-                        </div>
-                        <div className="flex flex-col justify-center gap-10 text-right text-white md:flex-row">
-                          <Link className="hover:underline" target="_blank" href={config.website}>
-                            About the DAO
-                          </Link>
-                          <Link className="hover:underline" href="#">
-                            Legal
-                          </Link>
-                        </div>
-                        <div className="flex  gap-6 text-[#A8A8A8] md:justify-end ">
-                          {/* Social media */}
-                          {config.socialMedia.twitter && (
-                            <Link
-                              target="_blank"
-                              rel="nofollow noreferrer"
-                              className="hover:text-white"
-                              href={config.socialMedia.twitter}
-                            >
-                              <Icon.Twitter />
-                            </Link>
-                          )}
-                          {config.socialMedia.discord && (
-                            <Link
-                              target="_blank"
-                              rel="nofollow noreferrer"
-                              className="hover:text-white"
-                              href={config.socialMedia.discord}
-                            >
-                              <Icon.Discord />
-                            </Link>
-                          )}
-
-                          {config.socialMedia.medium && (
-                            <Link
-                              target="_blank"
-                              rel="nofollow noreferrer"
-                              className="hover:text-white"
-                              href={config.socialMedia.medium}
-                            >
-                              <Icon.Medium />
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    </footer>
+                    <Footer links={links} />
                   </BulkListProvider>
                 </CurrencyProvider>
               </ViewerProvider>
@@ -763,3 +660,100 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
 }
 
 export default appWithTranslation(AppPage);
+
+interface FooterProps {
+  links: {
+    href: string;
+    title: string;
+    popout: boolean;
+  }[][];
+}
+
+function Footer({ links }: FooterProps) {
+  const socials = useCallback(() => {
+    return (
+      <div className={clsx('flex gap-6 text-[#A8A8A8] lg:justify-end')}>
+        {/* Social media */}
+        {config.socialMedia.twitter && (
+          <Link
+            target="_blank"
+            rel="nofollow noreferrer"
+            className="hover:text-white"
+            href={config.socialMedia.twitter}
+          >
+            <Icon.Twitter />
+          </Link>
+        )}
+        {config.socialMedia.discord && (
+          <Link
+            target="_blank"
+            rel="nofollow noreferrer"
+            className="hover:text-white"
+            href={config.socialMedia.discord}
+          >
+            <Icon.Discord />
+          </Link>
+        )}
+        {config.socialMedia.medium && (
+          <Link
+            target="_blank"
+            rel="nofollow noreferrer"
+            className="hover:text-white"
+            href={config.socialMedia.medium}
+          >
+            <Icon.Medium />
+          </Link>
+        )}
+      </div>
+    );
+  }, []);
+
+  return (
+    <footer className="mt-16 bg-gray-900 py-20 px-6 md:mt-28">
+      <div className={clsx(`flex h-full w-full items-stretch justify-around`)}>
+        <div className="flex flex-col justify-between lg:block">
+          <div>
+            <Link
+              className="flex flex-row gap-2 whitespace-nowrap pb-6 text-2xl font-bold"
+              href="/"
+            >
+              <img
+                src="/images/nightmarket-stacked-beta.svg"
+                className="h-8 w-auto object-fill md:h-20"
+                alt="night market logo"
+              />
+            </Link>
+            <div>
+              <Icon.Motley />
+            </div>
+          </div>
+          <div className="mt-8 block lg:hidden">{socials()}</div>
+        </div>
+        <div className="lg:flex lg:w-1/2 lg:items-center lg:justify-evenly">
+          {links.map((col, colKey) => {
+            return (
+              <div
+                className={`flex flex-col text-right text-white lg:text-center`}
+                key={`footer-col-${colKey}`}
+              >
+                {col.map((link, linkKey) => {
+                  return (
+                    <Link
+                      className="pb-2 hover:underline lg:pb-1"
+                      target={link.popout ? '_blank' : '_self'}
+                      href={link.href}
+                      key={`footer-col-${colKey}-${linkKey}`}
+                    >
+                      {link.title}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+        <div className="hidden items-center lg:flex">{socials()}</div>
+      </div>
+    </footer>
+  );
+}
