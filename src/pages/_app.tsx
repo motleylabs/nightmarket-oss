@@ -710,7 +710,7 @@ function Footer({ links }: FooterProps) {
 
   return (
     <footer className="mt-16 bg-gray-900 py-20 px-6 md:mt-28">
-      <div className={clsx(`flex h-full w-full items-stretch justify-between`)}>
+      <div className={clsx(`flex h-full w-full items-stretch justify-around`)}>
         <div className="flex flex-col justify-between lg:block">
           <div>
             <Link
@@ -752,7 +752,7 @@ function Footer({ links }: FooterProps) {
             );
           })}
         </div>
-        <div className="hidden items-end lg:flex">{socials()}</div>
+        <div className="hidden items-center lg:flex">{socials()}</div>
       </div>
     </footer>
   );
