@@ -718,7 +718,7 @@ function Footer({ links }: FooterProps) {
               href="/"
             >
               <img
-                src="/images/nightmarket-stacked.svg"
+                src="/images/nightmarket-stacked-beta.svg"
                 className="h-8 w-auto object-fill md:h-20"
                 alt="night market logo"
               />
