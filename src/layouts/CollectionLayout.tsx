@@ -79,7 +79,6 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         <title>{t('metadata.title', { name: collection.name })}</title>
         <meta name="description" content={collection.description} />
         <link rel="icon" href="/favicon.ico" />
-        <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <Overview>
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">

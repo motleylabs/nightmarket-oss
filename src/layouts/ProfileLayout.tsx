@@ -97,7 +97,6 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           content={t('metadata.description', { name: wallet.displayName })}
         />
         <link rel="icon" href="/favicon.ico" />
-        <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <section className="mx-4 my-8 flex flex-col">
         <div className="mb-8 flex  items-center justify-center gap-4  md:flex-row md:gap-6 ">
