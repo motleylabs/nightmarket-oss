@@ -564,19 +564,6 @@ export type EnrichedBondingChange = {
   supplyChange: Scalars['I64'];
 };
 
-export type FeedEvent = FollowEvent | ListingEvent | MintEvent | OfferEvent | PurchaseEvent;
-
-export type FollowEvent = {
-  __typename?: 'FollowEvent';
-  connection?: Maybe<GraphConnection>;
-  createdAt: Scalars['DateTimeUtc'];
-  feedEventId: Scalars['String'];
-  graphConnectionAddress: Scalars['PublicKey'];
-  profile?: Maybe<TwitterProfile>;
-  wallet: Wallet;
-  walletAddress: Scalars['PublicKey'];
-};
-
 export type GenoHabitat = {
   __typename?: 'GenoHabitat';
   active: Scalars['Boolean'];
@@ -791,18 +778,6 @@ export type Listing = {
   storefront?: Maybe<Storefront>;
 };
 
-export type ListingEvent = {
-  __typename?: 'ListingEvent';
-  createdAt: Scalars['DateTimeUtc'];
-  feedEventId: Scalars['String'];
-  lifecycle: Scalars['String'];
-  listing?: Maybe<AhListing>;
-  listingId: Scalars['Uuid'];
-  profile?: Maybe<TwitterProfile>;
-  wallet: Wallet;
-  walletAddress: Scalars['PublicKey'];
-};
-
 export type MarketStats = {
   __typename?: 'MarketStats';
   nfts?: Maybe<Scalars['U64']>;
@@ -832,17 +807,6 @@ export type MetadataJson = {
   image?: Maybe<Scalars['String']>;
   mintAddress: Scalars['String'];
   name: Scalars['String'];
-};
-
-export type MintEvent = {
-  __typename?: 'MintEvent';
-  createdAt: Scalars['DateTimeUtc'];
-  feedEventId: Scalars['String'];
-  metadataAddress: Scalars['PublicKey'];
-  nft?: Maybe<Nft>;
-  profile?: Maybe<TwitterProfile>;
-  wallet: Wallet;
-  walletAddress: Scalars['PublicKey'];
 };
 
 export enum MintMaxVoteWeightSource {
@@ -1041,18 +1005,6 @@ export type Offer = {
   tradeStateBump: Scalars['Int'];
 };
 
-export type OfferEvent = {
-  __typename?: 'OfferEvent';
-  createdAt: Scalars['DateTimeUtc'];
-  feedEventId: Scalars['String'];
-  lifecycle: Scalars['String'];
-  offer?: Maybe<Offer>;
-  offerId: Scalars['Uuid'];
-  profile?: Maybe<TwitterProfile>;
-  wallet: Wallet;
-  walletAddress: Scalars['PublicKey'];
-};
-
 /** Sorts results by price or listed at */
 export enum OfferType {
   OfferPlaced = 'OFFER_PLACED',
@@ -1200,17 +1152,6 @@ export type Purchase = {
   tokenSize: Scalars['Int'];
 };
 
-export type PurchaseEvent = {
-  __typename?: 'PurchaseEvent';
-  createdAt: Scalars['DateTimeUtc'];
-  feedEventId: Scalars['String'];
-  profile?: Maybe<TwitterProfile>;
-  purchase?: Maybe<Purchase>;
-  purchaseId: Scalars['Uuid'];
-  wallet: Wallet;
-  walletAddress: Scalars['PublicKey'];
-};
-
 export type QueryRoot = {
   __typename?: 'QueryRoot';
   activities: Array<NftActivity>;
@@ -1234,8 +1175,6 @@ export type QueryRoot = {
   denylist: Denylist;
   enrichedBondingChanges: Array<EnrichedBondingChange>;
   featuredListings: Array<AhListing>;
-  /** Returns events for the wallets the user is following using the graph_program. */
-  feedEvents: Array<FeedEvent>;
   /** Recommend wallets to follow. */
   followWallets: Array<Wallet>;
   /** Query up to one Genopets habitat by the public key of its on-chain data */
@@ -1245,8 +1184,6 @@ export type QueryRoot = {
   /** Query zero or more Genopets habitats */
   genoHabitatsCounted: GenoHabitatList;
   governances: Array<Governance>;
-  /** Returns the latest on chain events using the graph_program. */
-  latestFeedEvents: Array<FeedEvent>;
   listings: Array<Listing>;
   /** A marketplace */
   marketplace?: Maybe<Marketplace>;
@@ -1388,14 +1325,6 @@ export type QueryRootFeaturedListingsArgs = {
 };
 
 
-export type QueryRootFeedEventsArgs = {
-  excludeTypes?: InputMaybe<Array<Scalars['String']>>;
-  limit: Scalars['Int'];
-  offset: Scalars['Int'];
-  wallet: Scalars['PublicKey'];
-};
-
-
 export type QueryRootFollowWalletsArgs = {
   limit: Scalars['Int'];
   offset: Scalars['Int'];
@@ -1445,14 +1374,6 @@ export type QueryRootGenoHabitatsCountedArgs = {
 export type QueryRootGovernancesArgs = {
   addresses?: InputMaybe<Array<Scalars['PublicKey']>>;
   realms?: InputMaybe<Array<Scalars['PublicKey']>>;
-};
-
-
-export type QueryRootLatestFeedEventsArgs = {
-  cursor: Scalars['String'];
-  includeTypes?: InputMaybe<Array<Scalars['String']>>;
-  isForward: Scalars['Boolean'];
-  limit: Scalars['Int'];
 };
 
 

@@ -71,7 +71,8 @@ function ReportHeader({ reportQuery }: ReportHeaderVariables) {
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">24h volume</span>
-        {loading ? (
+        {loading ||
+        (!reportQuery.data?.auctionHouse.volume && reportQuery.data?.auctionHouse.volume !== 0) ? (
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
@@ -84,15 +85,19 @@ function ReportHeader({ reportQuery }: ReportHeaderVariables) {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL price</span>
-        {loading ? (
+        {loading ||
+        (!reportQuery.data?.solanaNetwork.price && reportQuery.data?.solanaNetwork.price !== 0) ? (
           <EmptyBox />
         ) : (
-          <span className="font-semibold text-white">{`$${reportQuery.data?.solanaNetwork.price}`}</span>
+          <span className="font-semibold text-white">{`$${reportQuery.data?.solanaNetwork.price?.toFixed(
+            2
+          )}`}</span>
         )}
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL TPS</span>
-        {loading ? (
+        {loading ||
+        (!reportQuery.data?.solanaNetwork.tps && reportQuery.data?.solanaNetwork.tps !== 0) ? (
           <EmptyBox />
         ) : (
           <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
