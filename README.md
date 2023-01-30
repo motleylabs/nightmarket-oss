@@ -6,10 +6,10 @@ A Solana NFT marketplace built by the people for the people using opensource sof
 
 | branch | platform | status | link to deployment |
 | --- | --- | --- | --- |
-| main | Kubernetes | [![Build, push and Deploy](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml/badge.svg?branch=main&event=deployment_status)](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml) | [prod.nightmarket.io](https://prod.nightmarket.io/) |
+| main | Kubernetes | [![Build, push and Deploy](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml) | [prod.nightmarket.io](https://prod.nightmarket.io/) |
 | beta | Kubernetes | [![Build, push and Deploy Beta](https://github.com/motleylabs/nightmarket/actions/workflows/beta.yaml/badge.svg?branch=beta)](https://github.com/motleylabs/nightmarket/actions/workflows/beta.yaml) | [beta.nightmarket.io](https://beta.nightmarket.io/) |
 | beta | Vercel | tbd | [beta-vercel.nightmarket.io](https://beta-vercel.nightmarket.io/) |
-| dev | Kubernetes | [![Build, push and Deploy](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml/badge.svg?branch=dev&event=deployment_status)](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml) | [dev.nightmarket.io](https://dev.nightmarket.io/) |
+| dev | Kubernetes | [![Build, push and Deploy](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml/badge.svg?branch=dev)](https://github.com/motleylabs/nightmarket/actions/workflows/main.yml) | [dev.nightmarket.io](https://dev.nightmarket.io/) |
 | dev | Vercel | tbd | [nightmarket.vercel.app](https://nightmarket.vercel.app/) |
 | upstream/main | Kubernetes | [![Kubernetes deployment](https://github.com/holaplex/dao-marketplace/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/holaplex/dao-marketplace/actions/workflows/main.yml) | [nightmarket.holaplex.dev](https://nightmarket.holaplex.dev/)
 
