@@ -196,7 +196,6 @@ const Home: NextPage = () => {
         <title>{t('metadata.title')}</title>
         <meta name="description" content={t('metadata.description')} />
         <link rel="icon" href="/favicon.ico" />
-        <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <main className="container mx-auto px-4 xl:px-24">
         <Hero>

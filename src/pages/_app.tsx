@@ -26,6 +26,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import Script from 'next/script';
 import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
 import { AuctionHouse, CollectionDocument, Nft, SolanaNetwork, Wallet } from '../graphql.types';
 import useGlobalSearch from '../hooks/globalsearch';
@@ -628,6 +629,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
 
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
+      <Script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></Script>
       <ApolloProvider client={client}>
         <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
