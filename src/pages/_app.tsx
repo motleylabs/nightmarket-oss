@@ -630,7 +630,8 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
 
   const links = [
     [{ href: config.website, title: 'About the DAO', popout: true }],
-    [{ href: '#', title: 'Legal', popout: true }],
+    [{ href: config.status, title: 'Status', popout: true }],
+    [{ href: '#', title: 'Terms of Service', popout: true }, { href: '#', title: 'Privacy Policy', popout: true }],
   ];
 
   return (
