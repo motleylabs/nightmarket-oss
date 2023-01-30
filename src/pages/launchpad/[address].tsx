@@ -27,7 +27,6 @@ export default function LaunchpadPage() {
           <title>{'Launchpad test'}</title>
           <meta name="description" content="Launchpad test description"></meta>
           <link rel="icon" href="/favicon.ico" />
-          <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
         </Head>
         <div className="align-self-start mb-10 flex w-full flex-col gap-10 lg:w-1/2">
           <img
