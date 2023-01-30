@@ -12,6 +12,9 @@ interface AppConfig {
     percentageListing: number;
   };
   website: string;
+  status: string;
+  tos: string;
+  privacyPolicy: string;
   auctionHouse: string;
   addressLookupTable: string;
 }
@@ -26,6 +29,9 @@ const config: AppConfig = {
     medium: 'https://medium.com/@Motleydao',
   },
   website: 'https://motleylabs.com',
+  status: 'https://motleylabs.cronitorstatus.com',
+  tos: '',
+  privacyPolicy: '',
   auctionHouse: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
   offerMinimums: {
     percentageFloor: 0.8,
