@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  useForm,
-  UseFormRegister,
-  UseFormHandleSubmit,
-  FormState,
-  useFormState,
-} from 'react-hook-form';
+import { useForm, UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
 import useLogin from './login';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
@@ -28,11 +22,9 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports } from '../modules/sol';
 import { useApolloClient } from '@apollo/client';
 import client from '../client';
-import Bugsnag from '@bugsnag/js';
 import { notifyInstructionError } from '../modules/bugsnag';
-import { rejects } from 'assert';
 import { reduceSettledPromise } from '../utils/promises';
-import { useBulkListContext } from '../providers/BulkListProvider';
+import { buildTransaction, queueTransactionSign } from '../utils/transactions';
 
 interface ListNftForm {
   amount: string;
@@ -160,11 +152,11 @@ export function useListNft(): ListNftContext {
       publicKey
     );
 
-    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+    const sellerATAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
     const tx = new Transaction();
 
-    if (!sellerAtAInfo) {
+    if (!sellerATAInfo) {
       tx.add(sellerATAInstruction);
     }
 
@@ -443,9 +435,9 @@ export function useBulkListing(): BulkListContext {
             publicKey,
             publicKey
           );
-          const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
+          const sellerATAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
-          if (!sellerAtAInfo) {
+          if (!sellerATAInfo) {
             //We should probably only do this once? but not sure where else to put it since it requires individual token information
             pendingTxInstructions.push(sellerATAInstruction);
           }
@@ -469,52 +461,22 @@ export function useBulkListing(): BulkListContext {
       settledNftInstructions = reduceSettledPromise(pendingNfts);
 
       //Batch up the listing instructions into transactions
-      const pendingTransactions: Transaction[] = [];
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      const { blockhash } = await connection.getLatestBlockhash();
 
-      const numTransactions = Math.ceil(pendingTxInstructions.length / LISTINGS_PER_TX);
-      for (let i = 0; i < numTransactions; i++) {
-        let bulkTransaction = new Transaction();
-        let lowerIndex = i * LISTINGS_PER_TX;
-        let upperIndex = (i + 1) * LISTINGS_PER_TX;
-        for (let j = lowerIndex; j < upperIndex; j++) {
-          if (pendingTxInstructions[j]) {
-            bulkTransaction.add(pendingTxInstructions[j]);
-          }
-          bulkTransaction.recentBlockhash = blockhash;
-          bulkTransaction.feePayer = publicKey;
-          pendingTransactions.push(bulkTransaction);
-        }
-      }
+      const pendingTransactions = await buildTransaction({
+        blockhash,
+        instructions: pendingTxInstructions,
+        instructionsPerTransactions: LISTINGS_PER_TX,
+        payer: publicKey,
+      });
 
-      //sign all txs
-      let signedTxs: Transaction[] = [];
-      if (signAllTransactions) {
-        signedTxs = await signAllTransactions(pendingTransactions);
-      } else {
-        //fallback to sign tx batches individually (if wallet doesn't support signAll)
-        const settledTxs = await Promise.allSettled(
-          pendingTransactions.map(async (tx) => {
-            const signedTx = await signTransaction(tx);
-            return signedTx;
-          })
-        );
-        const { fulfilled } = reduceSettledPromise(settledTxs);
-
-        signedTxs = fulfilled;
-      }
-
-      const pendingSigned = await Promise.allSettled(
-        signedTxs.map((tx, i, allTx) => {
-          //send all tx in intervals to avoid overloading the network
-          return new Promise<string>((resolve) => {
-            setTimeout(() => {
-              console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
-              connection.sendRawTransaction(tx.serialize()).then((txHash) => resolve(txHash));
-            }, i * TX_INTERVAL);
-          });
-        })
-      );
+      const pendingSigned = await queueTransactionSign({
+        transactions: pendingTransactions,
+        signTransaction,
+        signAllTransactions,
+        connection,
+        txInterval: TX_INTERVAL,
+      });
 
       //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
       settledSignedTxs = reduceSettledPromise(pendingSigned);
