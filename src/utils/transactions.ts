@@ -14,27 +14,31 @@ interface BuildTransactionProps {
   payer: PublicKey;
 }
 
+// https://decipher.dev/30-seconds-of-typescript/docs/chunk/
+const chunk = (arr: any[], size: number) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (_: any, i: number) =>
+    arr.slice(i * size, i * size + size)
+  );
+
 export async function buildTransaction({
   instructionsPerTransactions,
   blockhash,
   instructions,
   payer,
 }: BuildTransactionProps): Promise<Transaction[]> {
+  const ixChunks = chunk(instructions, instructionsPerTransactions);
+
   const pendingTransactions: Transaction[] = [];
-
-  const numTransactions = Math.ceil(instructions.length / instructionsPerTransactions);
-
-  for (let i = 0; i < numTransactions; i++) {
+  for (let i = 0; i < ixChunks.length; i++) {
     let bulkTransaction = new Transaction();
-    let lowerIndex = i * instructionsPerTransactions;
-    let upperIndex = (i + 1) * instructionsPerTransactions;
-    for (let j = lowerIndex; j < upperIndex; j++) {
-      if (instructions[j]) {
-        bulkTransaction.add(instructions[j]);
-      }
-    }
     bulkTransaction.recentBlockhash = blockhash;
     bulkTransaction.feePayer = payer;
+    for (let j = 0; j < ixChunks[i].length; j++) {
+      if (ixChunks[i][j]) {
+        bulkTransaction.add(ixChunks[i][j]);
+      }
+    }
+
     pendingTransactions.push(bulkTransaction);
   }
 
