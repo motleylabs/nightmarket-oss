@@ -1,4 +1,4 @@
-import { useReactiveVar } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { FormEventHandler } from 'react';
@@ -7,7 +7,7 @@ import React from 'react';
 import config from '../app.config';
 import { viewerVar } from '../cache';
 
-import { Nft, Maybe } from '../graphql.types';
+import { Nft, Maybe, AuctionHouse } from '../graphql.types';
 import useViewer from '../hooks/viewer';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 import Icon from './Icon';
@@ -15,11 +15,14 @@ import { Form } from './Form';
 import Img from './Image';
 import CheckBox from './CheckBox';
 import { useBulkListContext } from '../providers/BulkListProvider';
+import { useCloseListing } from '../hooks/list';
+import client from '../client';
 
 interface PreviewProps {
   nft: Nft;
   link: string;
   showCollectionThumbnail?: boolean;
+  auctionHouse: AuctionHouse;
   onMakeOffer: () => void;
   onBuy: () => void;
 }
@@ -28,11 +31,12 @@ export function Preview({
   nft,
   showCollectionThumbnail = true,
   link,
+  auctionHouse,
   onMakeOffer,
   onBuy,
 }: PreviewProps): JSX.Element {
-  const { t } = useTranslation(['offers', 'common']);
-  const {selected, setSelected} = useBulkListContext()
+  const { t } = useTranslation(['common', 'offerable']);
+  const { selected, setSelected } = useBulkListContext();
   const { data } = useViewer();
 
   const listing = nft.listings?.find((listing) => {
@@ -47,21 +51,27 @@ export function Preview({
 
   const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
 
+  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
+
+  const handleClosing = async () => {
+    await onCloseListing();
+  };
+
   const handleBulkSelect = () => {
-    setSelected(selectedList => {
-      const index = selectedList.findIndex(selected => selected.address === nft.address)
-      const copyList = [...selectedList] // don't mutate original
+    setSelected((selectedList) => {
+      const index = selectedList.findIndex((selected) => selected.address === nft.address);
+      const copyList = [...selectedList]; // don't mutate original
       if (index < 0) {
         //not found so add nft
-        copyList.push(nft)
+        copyList.push(nft);
       } else {
         //already selected, remove from selected list
-        copyList.splice(index, 1)
+        copyList.splice(index, 1);
       }
-      return copyList
-    })
-  }
-  const isBulkSelected = selected.includes(nft)
+      return copyList;
+    });
+  };
+  const isBulkSelected = selected.includes(nft);
 
   return (
     <>
@@ -105,14 +115,24 @@ export function Preview({
         <div className="relative flex h-[28px] flex-row items-center justify-between px-4">
           {isOwner ? (
             <>
-              {listing
-                ? (
-                  <span className="flex items-center justify-center gap-1 text-lg">
-                    <Icon.Sol /> {listing?.solPrice}
-                  </span>
-                )
-                : nft.lastSale?.price
-                  ? (
+              {
+                listing ? (
+                  <>
+                    <span className="flex items-center justify-center gap-1 text-lg">
+                      <Icon.Sol /> {listing?.solPrice}
+                    </span>
+                    <Button
+                      onClick={handleClosing}
+                      loading={closingListing}
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('cancel')}
+                    </Button>
+                  </>
+                ) : nft.lastSale?.price ? (
                   <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
                     {t('lastSale')}
                     <div className="flex flex-row items-center gap-1">
@@ -120,8 +140,7 @@ export function Preview({
                       {nft.lastSale?.solPrice}
                     </div>
                   </span>
-                  )
-                  : null //no last sale and not listed
+                ) : null //no last sale and not listed
               }
             </>
           ) : (
@@ -178,9 +197,8 @@ export function Preview({
           )}
         </div>
 
-        {isOwner && !listing
-          ? (
-            <div className='px-4'>
+        {isOwner && !listing ? (
+          <div className="px-4">
             <CheckBox
               label="Select for Bulk Listing"
               selected={isBulkSelected}
@@ -188,9 +206,7 @@ export function Preview({
               containerClass="justify-center my-2"
             />
           </div>
-          )
-          : null
-        }
+        ) : null}
       </div>
     </>
   );

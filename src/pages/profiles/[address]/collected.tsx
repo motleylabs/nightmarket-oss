@@ -85,7 +85,7 @@ interface ProfileCollectedPageProps {
 }
 export default function ProfileCollected({
   walletProfileClientQuery,
-  auctionHouse
+  auctionHouse,
 }: ProfileCollectedPageProps) {
   const { t } = useTranslation(['collection', 'common']);
 
@@ -94,7 +94,7 @@ export default function ProfileCollected({
       collections: [],
     },
   });
-  
+
   const { publicKey } = useWallet();
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
@@ -283,6 +283,7 @@ export default function ProfileCollected({
                           link={`/nfts/${nft.mintAddress}/details`}
                           onMakeOffer={() => makeOffer(nft.mintAddress)}
                           onBuy={() => buyNow(nft.mintAddress)}
+                          auctionHouse={auctionHouse}
                           nft={nft}
                         />
                       )}
