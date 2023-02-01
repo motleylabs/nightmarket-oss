@@ -31,7 +31,7 @@ export function Preview({
   onMakeOffer,
   onBuy,
 }: PreviewProps): JSX.Element {
-  const { t } = useTranslation(['common', 'offerable']);
+  const { t } = useTranslation(['offerable', 'common']);
   const {selected, setSelected} = useBulkListContext()
   const { data } = useViewer();
 

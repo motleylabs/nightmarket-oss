@@ -27,7 +27,7 @@ interface BuyableProps {
 }
 
 export function Buyable({ children, connected = false }: BuyableProps) {
-  const { t } = useTranslation(['common', 'nft']);
+  const { t } = useTranslation(['nft', 'common']);
   const [open, setOpen] = useState(false);
   const client = useApolloClient();
   const openBuyNow = (mintAddress: string) => {

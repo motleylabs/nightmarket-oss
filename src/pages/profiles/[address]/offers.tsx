@@ -80,7 +80,7 @@ interface ProfileOfferPageProps {
 }
 
 export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): JSX.Element {
-  const { t } = useTranslation(['common', 'profile']);
+  const { t } = useTranslation(['profile', 'common']);
   const { publicKey } = useWallet();
 
   const activityFilterOptions = [

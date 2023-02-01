@@ -87,7 +87,7 @@ export default function ProfileCollected({
   walletProfileClientQuery,
   auctionHouse
 }: ProfileCollectedPageProps) {
-  const { t } = useTranslation(['common', 'collection']);
+  const { t } = useTranslation(['collection', 'common']);
 
   const { watch, control, setValue } = useForm<CollectionNFTForm>({
     defaultValues: {

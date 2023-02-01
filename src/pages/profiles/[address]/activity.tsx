@@ -69,7 +69,7 @@ interface ProfileActivityForm {
 }
 
 export default function ProfileActivity(): JSX.Element {
-  const { t } = useTranslation(['common', 'profile']);
+  const { t } = useTranslation(['profile', 'common']);
 
   const activityFilterOptions = [
     { label: t('allActivity'), value: ActivityFilter.All },
