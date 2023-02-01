@@ -10,32 +10,32 @@
     "sellNfts": "Sell NFTs"
   },
   "trendingCollections": {
-    "title": "Trending collections"
+    "title": "Trending Collections"
   },
   "topVolume": {
-    "title": "Top volume"
+    "title": "Top Volume"
   },
   "drops": {
-    "title": "Upcoming drops",
+    "title": "Upcoming Drops",
     "launchButton": "Launch with us",
     "moreLaunchesTitle": "More launches coming soon",
     "moreLaunchesDescription": "If you're an upcoming collection looking for white-glove service and community support, we'd love to learn more about you! Please apply below.",
     "drops": "Drops",
     "price": "Price",
     "supply": "Supply",
-    "details": "Coming soon",
+    "details": "Coming Soon",
     "view": "View",
     "motley": "Motley Friends is the genesis NFT collection of Motley Labs, representing the global consortium of builders, creators, and degens who love SAUCE."
   },
   "topMarketCap": {
-    "title": "Top marketcap"
+    "title": "Top Marketcap"
   },
   "followWallets": {
-    "title": "Who to follow"
+    "title": "Who to Follow"
   },
   "report": {
     "sauceDistributedToUsers": "$SAUCE distributed to Night Market users.",
     "solDistributedToSauceHolders": "SOL distributed to $SAUCE holders. That's ${{sol}}!",
-    "learnMore": "Learn more"
+    "learnMore": "Learn More"
   }
 }

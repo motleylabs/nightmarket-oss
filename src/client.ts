@@ -334,6 +334,7 @@ const client = new ApolloClient({
         },
       },
       CollectionTrend: {
+        // Equivalent to options.mergeObjects(existing, incoming)
         merge: true,
         fields: {
           compactVolume1d: {
@@ -430,6 +431,7 @@ const client = new ApolloClient({
       },
       Collection: {
         keyFields: ['id'],
+        // Equivalent to options.mergeObjects(existing, incoming)
         merge: true,
         fields: {
           activities: offsetLimitPagination(['eventTypes']),
@@ -707,6 +709,7 @@ const client = new ApolloClient({
       },
       Offer: {
         keyFields: ['id'],
+        // Equivalent to options.mergeObjects(existing, incoming)
         merge: true,
         fields: {
           price: {

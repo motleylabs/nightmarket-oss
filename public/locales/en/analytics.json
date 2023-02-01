@@ -1,19 +1,19 @@
 {
   "collection": {
-    "floorPriceChartTitle": "Floor price",
-    "listedCountChartTitle": "Listed count",
+    "floorPriceChartTitle": "Floor Price",
+    "listedCountChartTitle": "Listed Count",
     "holderCountChartTitle": "Holder Count",
-    "priceDistributionChartTitle": "Price distribution",
-    "holdersVsTokensHeldChartTitle": "Holders vs Tokens held"
+    "priceDistributionChartTitle": "Price Distribution",
+    "holdersVsTokensHeldChartTitle": "Holders vs Tokens Held"
   },
   "oneDay": "One Day",
   "oneWeek": "One Week",
   "oneMonth": "One Month",
   "profile": {
-    "walletValueChartTitle": "Wallet value",
-    "totalAssetBreakdownChartTitle": "Total asset breakdown",
-    "listedCountChartTitle": "Listed count",
-    "nftsBoughtVsNftsSoldChartTitle": "NFTs bought vs NFTs sold "
+    "walletValueChartTitle": "Wallet Value",
+    "totalAssetBreakdownChartTitle": "Total Asset Breakdown",
+    "listedCountChartTitle": "Listed Count",
+    "nftsBoughtVsNftsSoldChartTitle": "NFTs Bought vs NFTs Sold "
   },
   "loading": "Loading...",
   "noData": "No Data"
