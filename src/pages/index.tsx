@@ -193,8 +193,8 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{t('metadata.title')}</title>
-        <meta name="description" content={t('metadata.description')} />
+        <title>{t('metadata.title', { ns: 'home' })}</title>
+        <meta name="description" content={t('metadata.description', { ns: 'home' })} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto px-4 xl:px-24">
@@ -272,13 +272,13 @@ const Home: NextPage = () => {
                 render={({ field: { onChange, value } }) => (
                   <ButtonGroup value={value} onChange={onChange}>
                     <ButtonGroup.Option value={CollectionInterval.OneDay}>
-                      {t('collection:timeInterval.day')}
+                      {t('timeInterval.day', { ns: 'collection' })}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.SevenDay}>
-                      {t('collection:timeInterval.week')}
+                      {t('timeInterval.week', { ns: 'collection' })}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
-                      {t('collection:timeInterval.month')}
+                      {t('timeInterval.month', { ns: 'collection' })}
                     </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
@@ -366,7 +366,7 @@ const Home: NextPage = () => {
                           <Collection.List.DataPoint
                             value={selectedTrend.floorPrice}
                             icon={<Icon.Sol />}
-                            name={t('collection:globalFloor')}
+                            name={t('globalFloor', { ns: 'collection' })}
                             status={
                               <Collection.List.DataPoint.Status
                                 value={selectedTrend.floorPriceChange}
@@ -385,7 +385,7 @@ const Home: NextPage = () => {
                           />
                           <Collection.List.DataPoint
                             value={selectedTrend.listedCount}
-                            name={t('collection:listings')}
+                            name={t('listings', { ns: 'collection' })}
                             status={
                               <Collection.List.DataPoint.Status
                                 value={selectedTrend.listedCountChange}
@@ -412,7 +412,7 @@ const Home: NextPage = () => {
             loading={loadingMoreTrends}
             disabled={loadingMoreTrends}
           >
-            {t('collection:showMoreCollections')}
+            {t('showMoreCollections', { ns: 'collection' })}
           </Button>
         </section>
       </main>

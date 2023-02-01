@@ -11,13 +11,13 @@
   "sort": {
     "priceHighToLow": "Price: High to Low",
     "priceLowToHigh": "Price: Low to High",
-    "recentlyListed": "Recently listed"
+    "recentlyListed": "Recently Listed"
   },
   "collection": "Collection",
-  "globalFloor": "Global floor",
-  "24hVolume": "24h volume",
-  "7dVolume": "7d volume",
-  "30dVolume": "30d volume",
+  "globalFloor": "Global Floor",
+  "24hVolume": "24 Hour Volume",
+  "7dVolume": "7 Day Volume",
+  "30dVolume": "30 Day Volume",
   "sauceEarned": "BONK earned",
   "timeInterval": {
     "day": "1 Day",
@@ -25,13 +25,14 @@
     "month": "1 Month"
   },
   "trendingCollectionsSort": {
-    "byVolumeTraded": "By volume traded",
-    "byFloorPrice": "By floor price",
-    "byListingsCount": "By listings count"
+    "byVolumeTraded": "By Volume Traded",
+    "byFloorPrice": "By Floor Price",
+    "byListingsCount": "By Listings Count"
   },
   "showMoreCollections": "Show more collections",
-  "floorPrice": "Floor price",
-  "estimatedValue": "Est. value",
+  "floorPrice": "Floor Price",
+  "estimatedValue": "Est. Value",
+  "estimatedMarketcap": "Est. Marketcap",
   "supply": "Supply",
   "all": "All",
   "listings": "Listings",

@@ -1,10 +1,10 @@
 {
-  "phaseTitle": "Mint phases",
-  "supply": "Total supply",
-  "mintDate": "Mint date",
+  "phaseTitle": "Mint Phases",
+  "supply": "Total Supply",
+  "mintDate": "Mint Date",
   "preview": "Preview",
   "phases": {
-    "mint": "Mint now",
+    "mint": "Mint Now",
     "notAllowed": "You are not on the allowlist",
     "allowed": "You are on the allowlist",
     "soldout": "Sold out",

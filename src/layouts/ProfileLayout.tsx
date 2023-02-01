@@ -91,10 +91,10 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { name: wallet.displayName })}</title>
+        <title>{t('metadata.title', { ns: 'profile', name: wallet.displayName })}</title>
         <meta
           name="description"
-          content={t('metadata.description', { name: wallet.displayName })}
+          content={t('metadata.description', { ns: 'profile', name: wallet.displayName })}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -161,17 +161,17 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       </section>
       <Overview.Tabs>
         <Overview.Tab
-          label="NFTs"
+          label={t("NFTs", { ns: 'profile' })}
           href={`/profiles/${router.query.address}/collected`}
           active={router.pathname === ProfilePath.Collected}
         />
         <Overview.Tab
-          label={t('activity')}
+          label={t('activity', { ns: 'profile' })}
           href={`/profiles/${router.query.address}/activity`}
           active={router.pathname === ProfilePath.Activity}
         />
         <Overview.Tab
-          label={t('offers')}
+          label={t('offers', { ns: 'profile' })}
           href={`/profiles/${router.query.address}/offers`}
           active={router.pathname === ProfilePath.Offers}
         />
