@@ -84,9 +84,9 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
   const { publicKey } = useWallet();
 
   const activityFilterOptions = [
-    { label: t('profile:offersFilter.allOffers'), value: OffersFilter.All },
-    { label: t('profile:offersFilter.offersReceived'), value: OffersFilter.Received },
-    { label: t('profile:offersFilter.offersPlaced'), value: OffersFilter.Placed },
+    { label: t('offersFilter.allOffers', { ns: 'profile' }), value: OffersFilter.All },
+    { label: t('offersFilter.offersReceived', { ns: 'profile' }), value: OffersFilter.Received },
+    { label: t('offersFilter.offersPlaced', { ns: 'profile' }), value: OffersFilter.Placed },
   ];
 
   const { watch, control } = useForm<ProfileOffersForm>({
