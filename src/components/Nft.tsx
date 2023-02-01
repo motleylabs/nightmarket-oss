@@ -31,7 +31,7 @@ export function Preview({
   onMakeOffer,
   onBuy,
 }: PreviewProps): JSX.Element {
-  const { t } = useTranslation(['offerable', 'common']);
+  const { t } = useTranslation(['offers', 'common']);
   const {selected, setSelected} = useBulkListContext()
   const { data } = useViewer();
 
@@ -152,7 +152,7 @@ export function Preview({
                     </span>
                   ) : nft.lastSale?.price ? (
                     <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('lastSale')}
+                      {t('offerable.lastSoldPrice', { ns: 'common' })}
                       <div className="flex flex-row items-center gap-1">
                         <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                         {nft.lastSale?.solPrice}
