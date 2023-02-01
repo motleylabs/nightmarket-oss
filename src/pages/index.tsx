@@ -193,8 +193,8 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{t('metadata.title')}</title>
-        <meta name="description" content={t('metadata.description')} />
+        <title>{t('metadata.title', { ns: 'home' })}</title>
+        <meta name="description" content={t('metadata.description', { ns: 'home' })} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto px-4 xl:px-24">
