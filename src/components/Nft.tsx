@@ -90,7 +90,8 @@ export function Preview({
           <div className="z-20 p-4">
             <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
               {nft.moonrankCollection?.image && showCollectionThumbnail && (
-                <img
+                <Img
+                  fallbackSrc="/images/moon.svg"
                   src={nft.moonrankCollection?.image}
                   alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
                   className="aspect-square w-4 rounded-sm object-cover"
@@ -112,13 +113,13 @@ export function Preview({
                 )
                 : nft.lastSale?.price
                   ? (
-                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('lastSale')}
-                      <div className="flex flex-row items-center gap-1">
-                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                        {nft.lastSale?.solPrice}
-                      </div>
-                    </span>
+                  <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                    {t('lastSale')}
+                    <div className="flex flex-row items-center gap-1">
+                      <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                      {nft.lastSale?.solPrice}
+                    </div>
+                  </span>
                   )
                   : null //no last sale and not listed
               }
@@ -180,13 +181,13 @@ export function Preview({
         {isOwner && !listing
           ? (
             <div className='px-4'>
-              <CheckBox
-                label="Select for Bulk Listing"
-                selected={isBulkSelected}
-                onClick={handleBulkSelect}
-                containerClass="justify-center my-2"
-              />
-            </div>
+            <CheckBox
+              label="Select for Bulk Listing"
+              selected={isBulkSelected}
+              onClick={handleBulkSelect}
+              containerClass="justify-center my-2"
+            />
+          </div>
           )
           : null
         }
