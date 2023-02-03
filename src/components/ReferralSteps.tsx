@@ -104,8 +104,13 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const viewerQueryResult = useViewer();
+  const [domain, setDomain] = useState('');
 
   const { creating, created, onCreateBuddy } = useCreateBuddy();
+
+  useEffect(() => {
+    setDomain(window.location.origin);
+  }, []);
 
   useEffect(() => {
     if (created) setSteps(3);
@@ -161,7 +166,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
           </>
         ) : (
           <>
-            <span className="text-gray-500">{`${config.baseUrl}/r/`}</span>
+            <span className="text-gray-500">{`${domain}/r/`}</span>
             <span className="text-white">{name ? name : '...'}</span>
           </>
         )}
@@ -196,9 +201,14 @@ interface SuccessProps {
 
 function Success({ name }: SuccessProps): JSX.Element {
   const { t } = useTranslation('referrals');
+  const [domain, setDomain] = useState('');
+
+  useEffect(() => {
+    setDomain(window.location.origin);
+  }, []);
 
   const url = useMemo(() => {
-    return `${config.baseUrl}/r/${name}`;
+    return `${domain}/r/${name}`;
   }, [name]);
 
   const [copied, setCopied] = useState(false);
@@ -225,7 +235,7 @@ function Success({ name }: SuccessProps): JSX.Element {
       </div>
       <div className="mt-8 flex w-full flex-row items-center justify-center font-medium">
         <div className="pr-4 ">
-          <span className="text-gray-500">{`${config.baseUrl}/r/`}</span>
+          <span className="text-gray-500">{`${domain}/r/`}</span>
           <span className="text-white">{name}</span>
         </div>
         <button

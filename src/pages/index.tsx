@@ -231,39 +231,9 @@ const Home: NextPage = () => {
             payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts}
           />
         </Hero>
-        <section className="mt-16 scroll-mt-20 md:mt-28">
-          <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
-            <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
-          </header>
-          <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
-            <Drop
-              launchDate={addDays(new Date(), 3)}
-              title="Motley Friends"
-              description={t('drops.motley')}
-              price={128}
-              supply={10000}
-              image={'/images/launchpad/motley-launchpad-nft.png'}
-              link={'/launchpad/test'}
-            />
-            <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle')}</h4>
-              <p>{t('drops.moreLaunchesDescription')}</p>
-              <a
-                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
-                target={'_blank'}
-                rel="noreferrer"
-              >
-                <Button
-                  background={ButtonBackground.Black}
-                  border={ButtonBorder.Gradient}
-                  size={ButtonSize.Large}
-                  color={ButtonColor.Gradient}
-                >
-                  {t('drops.launchButton')}
-                </Button>
-              </a>
-            </div>
-          </div>
+
+        <section>
+          <Banner />
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
           <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -418,8 +388,39 @@ const Home: NextPage = () => {
             {t('collection:showMoreCollections')}
           </Button>
         </section>
-        <section>
-          <Banner />
+        <section className="mt-16 scroll-mt-20 md:mt-28">
+          <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
+            <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
+          </header>
+          <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
+            <Drop
+              launchDate={addDays(new Date(), 3)}
+              title="Motley Friends"
+              description={t('drops.motley')}
+              price={128}
+              supply={10000}
+              image={'/images/launchpad/motley-launchpad-nft.png'}
+              link={'/launchpad/test'}
+            />
+            <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
+              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle')}</h4>
+              <p>{t('drops.moreLaunchesDescription')}</p>
+              <a
+                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
+                target={'_blank'}
+                rel="noreferrer"
+              >
+                <Button
+                  background={ButtonBackground.Black}
+                  border={ButtonBorder.Gradient}
+                  size={ButtonSize.Large}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('drops.launchButton')}
+                </Button>
+              </a>
+            </div>
+          </div>
         </section>
       </main>
       {/* Report Banner in Footer */}

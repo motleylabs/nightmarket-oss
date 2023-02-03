@@ -63,6 +63,7 @@ const INACTIVE_TAB = 'INACTIVE_TAB';
 export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps): JSX.Element {
   const { t } = useTranslation(['referrals', 'common']);
   const [visible, setVisible] = useState(false);
+  const [domain, setDomain] = useState('');
   const { onClaimBuddy } = useClaimBuddy();
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
@@ -76,6 +77,12 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
     wallet: wallet.address,
     organisation: config.buddylink.organizationName,
   });
+
+  //Values to get from API
+  const [claimedLastWeek] = useState(0);
+  const [volume] = useState(0);
+  const [volumeLastWeek] = useState(0);
+  const [usersLastWeek] = useState(0);
 
   const tabContent = useMemo(() => {
     switch (tab) {
@@ -91,8 +98,12 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
     }
   }, [tab]);
 
+  useEffect(() => {
+    setDomain(window.location.origin);
+  }, []);
+
   const url = useMemo(() => {
-    return `${config.baseUrl}/r/${buddy?.username}`;
+    return `${domain}/r/${buddy?.username}`;
   }, [buddy?.username]);
 
   const handleTabClick = useCallback(
@@ -144,11 +155,17 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                   </>
                 ) : (
                   <>
-                    <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
+                    <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
                       <div className="flex h-8 items-center justify-between">
                         <h4 className="font-semibold text-gray-300">{t('profile.available')}</h4>
+                      </div>
+                      <div className="mt-4 flex items-center">
+                        <Icon.Solana />
+                        <h2 className="ml-1 text-2xl font-bold">{buddy?.totalClaimable}</h2>
+                      </div>
+                      <div>
                         <Button
-                          className="ml-4 h-8 w-full md:w-auto"
+                          className="mt-7 h-8 w-full"
                           block
                           background={ButtonBackground.Slate}
                           border={ButtonBorder.Gradient}
@@ -164,18 +181,20 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                           {t('profile.claimRewards')}
                         </Button>
                       </div>
-                      <div className="mt-5 flex items-center">
-                        <Icon.Solana />
-                        <h2 className="ml-1 text-2xl font-bold">{buddy?.totalClaimable}</h2>
-                      </div>
                     </div>
-                    <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:min-w-[328px] xl:mb-0 xl:mr-4">
+                    <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:min-w-[328px] xl:mb-0 xl:mr-4">
                       <div className="flex h-8 items-center ">
                         <h4 className="text-gray-300">{t('profile.allTimeClaim')}</h4>
                       </div>
                       <div className="mt-4 flex items-center">
                         <Icon.Solana />
                         <h2 className="ml-1 text-2xl font-bold">{buddy?.totalEarned}</h2>
+                      </div>
+                      <div className="mt-[50px] text-sm">
+                        <span className=" font-bold text-gray-300">
+                          {claimedLastWeek} {t('profile.solClaimed')}
+                        </span>{' '}
+                        <span className="text-gray-500">{t('profile.lastWeek')}</span>
                       </div>
                     </div>
                   </>
@@ -189,24 +208,35 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                   </>
                 ) : (
                   <>
-                    <div className="mb-4 h-[150px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
+                    <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
                       <div className="flex h-8 items-center ">
                         <h4 className="text-gray-300">{t('profile.totalGeneratedRevenue')}</h4>
                       </div>
                       <div className="flex">
                         <div className="mt-4 flex w-full items-center">
                           <Icon.Solana />
-                          <h2 className="ml-1 text-2xl font-bold">
-                            0{/* need info from motley */}
-                          </h2>
+                          <h2 className="ml-1 text-2xl font-bold">{volume}</h2>
                         </div>
                         <div className="mt-4 flex w-full items-center">
                           <Icon.User />
                           <h2 className="ml-1 text-2xl font-bold">{buddy?.buddies.length}</h2>
                         </div>
                       </div>
+                      <div className="flex justify-between">
+                        <div className="mt-[50px] w-full text-sm">
+                          <span className=" font-bold text-gray-300">+{volumeLastWeek} SOL</span>{' '}
+                          <span className="text-gray-500">{t('profile.lastWeek')}</span>
+                        </div>
+
+                        <div className="mt-[50px] w-full text-sm">
+                          <span className=" font-bold text-gray-300">
+                            +{usersLastWeek} {t('profile.users')}
+                          </span>{' '}
+                          <span className="text-gray-500">{t('profile.lastWeek')}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="h-[150px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]">
+                    <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]">
                       <div className="flex justify-between">
                         <h4 className="font-semibold text-gray-300">
                           {t('profile.affiliateLink')}
@@ -226,7 +256,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                       >
                         {buddy?.username ? (
                           <p className="flex items-center text-gray-400">
-                            {config.baseUrl}/r/<span className="text-white">{buddy?.username}</span>
+                            {domain}/r/<span className="text-white">{buddy?.username}</span>
                             {copied ? (
                               <CheckIcon className="ml-2 h-4 w-4 text-gray-300" />
                             ) : (
@@ -401,7 +431,7 @@ function StatsSkeleton({ className = '' }: { className?: string }) {
     <div className="over flex animate-pulse rounded-md p-2 transition">
       <div
         className={clsx(
-          'mb-4 h-[150px] w-full rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0',
+          'mb-4 h-[180px] w-full rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0',
           className
         )}
       />

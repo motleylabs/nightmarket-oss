@@ -28,7 +28,10 @@
     "inactive": "Inactive",
     "generating": "Generating...",
     "noClaimHistory": "You do not have claim history.",
-    "noReferred": "You do not have referred accounts yet."
+    "noReferred": "You do not have referred accounts yet.",
+    "users": "users",
+    "lastWeek": "last week",
+    "solClaimed": "SOL Claimed"
   },
   "banner": {
     "upTo": "EARN UP TO",

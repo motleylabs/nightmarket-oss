@@ -39,6 +39,7 @@ export function useCreateBuddy(): CreateContext {
         config.buddylink.organizationName
       );
       const referrerName = referrer.toLowerCase();
+      const buddyName = name.toLowerCase();
 
       const referrerAccount = await buddyClient.getBuddy(referrerName);
 
@@ -47,7 +48,7 @@ export function useCreateBuddy(): CreateContext {
       }
 
       const arrayOfInstructions = await buddyClient.createBuddyInstructions(
-        name,
+        buddyName,
         config.buddylink.buddyBPS,
         referrerName
       );
@@ -125,7 +126,9 @@ export function useClaimBuddy() {
         config.buddylink.organizationName
       );
 
-      const arrayOfInstructions = await buddyClient.claimInstructions(name);
+      const buddyName = name.toLowerCase();
+
+      const arrayOfInstructions = await buddyClient.claimInstructions(buddyName);
 
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
