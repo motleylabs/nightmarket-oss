@@ -85,7 +85,7 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
   }, [steps]);
 
   return (
-    <main className="z-0 min-h-[calc(100vh_-_120px)]">
+    <main className="z-0 -mb-[64px] min-h-[calc(100vh_-_120px)] md:-mb-[120px]">
       <Head>
         <title>{t('referrals')}</title>
         <meta name="description" content={t('description')} />
@@ -93,7 +93,7 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
       </Head>
       <div className="relative min-h-[calc(100vh_-_8px)] overflow-hidden">
         <div className="-z-10">
-          {/* <Animation.Leaves steps={steps} /> */}
+          <Animation.Leaves steps={steps} />
         </div>
         <div className="z-10 flex flex-col items-center pt-20">
           <div className="relative flex h-6 w-60 flex-row justify-between xl:w-80">

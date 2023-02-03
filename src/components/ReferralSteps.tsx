@@ -119,7 +119,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const handleEnter = useCallback(async () => {
     if (name.length >= 3) {
       await onCreateBuddy(name, referrer);
-      commitName(name);
+      commitName(name.toLowerCase());
     } else setError(t('nameLengthError'));
   }, [name]);
 
@@ -167,7 +167,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
         ) : (
           <>
             <span className="text-gray-500">{`${domain}/r/`}</span>
-            <span className="text-white">{name ? name : '...'}</span>
+            <span className="text-white">{name ? name.toLowerCase() : '...'}</span>
           </>
         )}
       </div>
