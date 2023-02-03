@@ -69,12 +69,12 @@ interface ProfileActivityForm {
 }
 
 export default function ProfileActivity(): JSX.Element {
-  const { t } = useTranslation(['common', 'profile']);
+  const { t } = useTranslation(['profile', 'common']);
 
   const activityFilterOptions = [
-    { label: t('allActivity'), value: ActivityFilter.All },
-    { label: t('offers'), value: ActivityFilter.Offers },
-    { label: t('sales'), value: ActivityFilter.Sales },
+    { label: t('activityFilters.all'), value: ActivityFilter.All },
+    { label: t('activityFilters.offers'), value: ActivityFilter.Offers },
+    { label: t('activityFilters.sales'), value: ActivityFilter.Sales },
   ];
 
   const { watch, control } = useForm<ProfileActivityForm>({

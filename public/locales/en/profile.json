@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "{{ name }} | Profile",
+    "description": "Profile for {{ name }}"
+  },
   "collected": "Collected",
   "created": "Created",
   "activity": "Activity",
@@ -7,22 +11,19 @@
   "following": "Following",
   "portfolioValue": "Portfolio Value",
   "all": "All",
+  "NFTs": "NFTs",
   "listings": "Listings",
   "offers": "Offers",
   "affiliate": "Affiliate",
   "sales": "Sales",
   "activityFilters": {
-    "all": "All activity",
+    "all": "All Activity",
     "offers": "Offers",
     "sales": "Sales"
   },
-  "metadata": {
-    "description": "Profile for {{ name }}",
-    "title": "{{ name }} | Profile"
-  },
   "twitterShareText": "Check out this Profile",
   "offersFilter": {
-    "allOffers": "All offers",
+    "allOffers": "All Offers",
     "offersReceived": "Offers Received",
     "offersPlaced": "Offers Placed"
   },

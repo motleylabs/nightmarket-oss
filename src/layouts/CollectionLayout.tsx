@@ -76,10 +76,9 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { name: collection.name })}</title>
+        <title>{t('metadata.title', { ns: 'collection' , name: collection.name })}</title>
         <meta name="description" content={collection.description} />
         <link rel="icon" href="/favicon.ico" />
-        <script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></script>
       </Head>
       <Overview>
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
@@ -183,22 +182,22 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 collection?.compactPieces,
               ].every(Boolean)) && (
               <div className="grid h-40 w-full grid-cols-3 grid-rows-2 gap-4 rounded-2xl bg-gray-800 p-6 md:ml-auto md:w-80 xl:w-96">
-                <CollectionFigure label="Floor price" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('floorPrice', { ns: 'collection' })} loading={collectionQueryClient.loading}>
                   <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactFloor1d}
                 </CollectionFigure>
-                <CollectionFigure label="30 Day Volume" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('30dVolume', { ns: 'collection' })} loading={collectionQueryClient.loading}>
                   <Icon.Sol /> {collectionQueryClient.data?.collection.trends?.compactVolume30d}
                 </CollectionFigure>
-                <CollectionFigure label="Est. Marketcap" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('estimatedMarketcap', { ns: 'collection' })} loading={collectionQueryClient.loading}>
                   <Icon.Sol /> {collectionQueryClient.data?.collection.marketCap}
                 </CollectionFigure>
-                <CollectionFigure label="Listings" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('listings', { ns: 'collection' })} loading={collectionQueryClient.loading}>
                   {collectionQueryClient.data?.collection.trends?.compactListed1d}
                 </CollectionFigure>
-                <CollectionFigure label="Holders" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('holders', { ns: 'collection' })}loading={collectionQueryClient.loading}>
                   {collectionQueryClient.data?.collection.holderCount}
                 </CollectionFigure>
-                <CollectionFigure label="Supply" loading={collectionQueryClient.loading}>
+                <CollectionFigure label={t('supply', { ns: 'collection' })} loading={collectionQueryClient.loading}>
                   {collection?.compactPieces}
                 </CollectionFigure>
               </div>

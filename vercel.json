@@ -1,0 +1,11 @@
+{
+    "git": {
+        "deploymentEnabled": {
+          "holaplex-legacy": false
+        }
+    },
+    "github": {
+      "silent": true
+    },
+    "trailingSlash": false
+  }
