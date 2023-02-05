@@ -27,9 +27,10 @@ jobs:
         id: install-deps
         run: npm ci
 
-      - name: Lint the latest codebase
-        id: run-lint
-        run: npm run lint
+      ## Disabled until lint rules are properly reviewed
+      #- name: Lint the latest codebase
+      #  id: run-lint
+      #  run: npm run lint
 
       - name: build image
         id: build-image
