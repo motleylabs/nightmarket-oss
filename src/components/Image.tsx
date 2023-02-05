@@ -10,6 +10,7 @@ export enum ImgBackdrop {
 interface ImgProps
   extends DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement> {
   backdrop?: ImgBackdrop;
+  fallbackSrc?: string;
 }
 
 function Img({
@@ -17,10 +18,12 @@ function Img({
   className,
   alt,
   backdrop = ImgBackdrop.Gray,
+  fallbackSrc,
   ...props
 }: ImgProps): JSX.Element {
   const [hideImage, setHideImage] = useState(true);
   const [hasImageError, setImageError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src);
 
   useEffect(() => {
     const image = new Image();
@@ -31,7 +34,12 @@ function Img({
     };
 
     image.onerror = () => {
-      setImageError(true);
+      if (fallbackSrc) {
+        setCurrentSrc(fallbackSrc);
+        setHideImage(false);
+      } else {
+        setImageError(true);
+      }
     };
   }, [src]);
 
@@ -57,7 +65,7 @@ function Img({
       afterLeave={() => {}}
       show={true}
     >
-      <img alt={alt} src={src} {...props} className={className} />
+      <img alt={alt} src={currentSrc} {...props} className={className} />
     </Transition>
   );
 }

@@ -11,6 +11,7 @@ import { useQuery } from '@apollo/client';
 import Icon from '../components/Icon';
 import useClipboard from '../hooks/clipboard';
 import { useRouter } from 'next/router';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export interface WalletProfileData {
   wallet: Wallet;
@@ -33,6 +34,7 @@ enum ProfilePath {
   Collected = '/profiles/[address]/collected',
   Offers = '/profiles/[address]/offers',
   Activity = '/profiles/[address]/activity',
+  Affiliate = '/profiles/[address]/affiliate',
 }
 
 function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
@@ -52,6 +54,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
   const { t } = useTranslation(['profile', 'common']);
   const address = wallet.address;
   const router = useRouter();
+  const { publicKey } = useWallet();
 
   const { copied, copyText } = useClipboard(address);
 
@@ -159,23 +162,32 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           />
         </div>
       </section>
-      <Overview.Tabs>
-        <Overview.Tab
-          label={t("NFTs", { ns: 'profile' })}
-          href={`/profiles/${router.query.address}/collected`}
-          active={router.pathname === ProfilePath.Collected}
-        />
-        <Overview.Tab
-          label={t('activity', { ns: 'profile' })}
-          href={`/profiles/${router.query.address}/activity`}
-          active={router.pathname === ProfilePath.Activity}
-        />
-        <Overview.Tab
-          label={t('offers', { ns: 'profile' })}
-          href={`/profiles/${router.query.address}/offers`}
-          active={router.pathname === ProfilePath.Offers}
-        />
-      </Overview.Tabs>
+      <div className="w-full overflow-auto md:overflow-visible">
+        <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
+          <Overview.Tab
+            label="NFTs"
+            href={`/profiles/${router.query.address}/collected`}
+            active={router.pathname === ProfilePath.Collected}
+          />
+          <Overview.Tab
+            label={t('activity')}
+            href={`/profiles/${router.query.address}/activity`}
+            active={router.pathname === ProfilePath.Activity}
+          />
+          <Overview.Tab
+            label={t('offers')}
+            href={`/profiles/${router.query.address}/offers`}
+            active={router.pathname === ProfilePath.Offers}
+          />
+          {address === publicKey?.toString() ? (
+            <Overview.Tab
+              label={t('affiliate')}
+              href={`/profiles/${router.query.address}/affiliate`}
+              active={router.pathname === ProfilePath.Affiliate}
+            />
+          ) : null}
+        </Overview.Tabs>
+      </div>
       {cloneElement(children, { walletProfileClientQuery })}
     </>
   );

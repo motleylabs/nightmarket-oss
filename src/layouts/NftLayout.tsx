@@ -25,6 +25,7 @@ import Lightbox from '../components/Lightbox';
 import { RewardCenterProgram } from '../modules/reward-center';
 import Flex, { FlexAlign, FlexDirection, FlexJustify } from '../components/Flex';
 import { Row, Col } from '../components/Grid';
+import { NUMBER_REGEX } from '../components/BulkListing/BulkListModal';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -680,7 +681,10 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 icon={<Icon.Sol />}
                 autoFocus
                 error={offerFormState.errors.amount}
-                {...registerListNft('amount', { required: true })}
+                {...registerListNft('amount', {
+                  required: true,
+                  validate: (value) => Boolean(value.match(NUMBER_REGEX)?.length),
+                })}
               />
               <Form.Error message={listNftState.errors.amount?.message} />
             </Form.Label>
@@ -727,7 +731,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 icon={<Icon.Sol />}
                 error={updateListingState.errors.amount}
                 autoFocus
-                {...registerUpdateListing('amount', { required: true })}
+                {...registerUpdateListing('amount', { required: true,
+                  validate: (value) => Boolean(value.match(NUMBER_REGEX)?.length), })}
               />
               <Form.Error message={updateListingState.errors.amount?.message} />
             </Form.Label>

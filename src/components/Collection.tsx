@@ -12,6 +12,7 @@ import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import Image from './../components/Image';
 import config from '../app.config';
 import { asCompactNumber } from '../modules/number';
+import Img from './../components/Image';
 
 export function Collection() {
   return <div />;
@@ -77,7 +78,8 @@ interface CollectionAvatarProps {
 function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Element {
   return (
     <div className="relative flex aspect-square h-16 w-16">
-      <img
+      <Img
+        fallbackSrc="/images/moon.svg"
         src={src}
         className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
         alt="collection avatar"

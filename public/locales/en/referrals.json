@@ -1,0 +1,42 @@
+{
+  "referrals": "Referrals",
+  "description": "",
+  "generateLink": "To generate a referral link, connect your wallet",
+  "connectWallet": "Connect Wallet",
+  "welcomeMarket": "Welcome to the Night Market!",
+  "createUnique": "Now create a unique name for your referral link",
+  "placeholder": "placeholder",
+  "createLink": "Create link",
+  "creating": "Creating",
+  "fee": "Fee for the link generation",
+  "successCreate": "You successfully created your referral link",
+  "manage": "You can manage your benefits in Profile",
+  "goTo": "Go to Profile",
+  "share": "Share",
+  "and": "&",
+  "earn": "Earn",
+  "nameLengthError": "Your name must be at least 3 characters",
+  "noBuddy": "Create an affiliate account to join our referral program. Activity from your custom links will be displayed here.",
+  "profile": {
+    "available": "Available to Claim",
+    "claimRewards": "Claim Rewards",
+    "allTimeClaim": "Claimed (All Time)",
+    "totalGeneratedRevenue": "Total Generated Volume",
+    "affiliateLink": "Your Affiliate Link",
+    "claimHistory": "Claim History",
+    "referred": "Referred",
+    "inactive": "Inactive",
+    "generating": "Generating...",
+    "noClaimHistory": "You do not have claim history.",
+    "noReferred": "You do not have referred accounts yet.",
+    "users": "users",
+    "lastWeek": "last week",
+    "solClaimed": "SOL Claimed"
+  },
+  "banner": {
+    "upTo": "EARN UP TO",
+    "joinAffiliate": "Join our Affiliate Program and start earning now!",
+    "instruction": "Earn up to 100% of Night Market transaction fees by sharing an affiliate link with your network!",
+    "createReferral": "Create referral link"
+  }
+}
