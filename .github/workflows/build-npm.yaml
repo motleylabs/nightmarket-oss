@@ -1,0 +1,37 @@
+name: Validate Build - nextjs via npm
+
+on:
+  push:
+    branches: [dev, qa, beta, main, prod]
+
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  build:
+    name: Validating nextjs build via npm
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build with npm cache
+        id: prepare-npm
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install dependencies
+        id: install-deps
+        run: npm ci
+
+      ## Disabled until lint rules are properly reviewed
+      #- name: Lint the latest codebase
+      #  id: run-lint
+      #  run: npm run lint
+
+      - name: build image
+        id: build-image
+        run: npm run build
