@@ -91,15 +91,15 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
     switch (type) {
       case ActivityType.Purchase:
       case ActivityType.Sales:
-        return [t('purchase'), CurrencyDollarIcon];
+        return [t('purchase', { ns: 'common' }), CurrencyDollarIcon];
       case ActivityType.ListingCreated:
-        return [t('listing'), TagIcon];
+        return [t('listing', { ns: 'common' }), TagIcon];
       case ActivityType.OfferCreated:
-        return [t('offer'), HandRaisedIcon];
+        return [t('offer', { ns: 'common' }), HandRaisedIcon];
       case ActivityType.ListingCanceled:
-        return [t('cancelledListing'), NoSymbolIcon];
+        return [t('cancelledListing', { ns: 'common' }), NoSymbolIcon];
       case ActivityType.OfferCanceled:
-        return [t('cancelledOffer'), NoSymbolIcon];
+        return [t('cancelledOffer', { ns: 'common' }), NoSymbolIcon];
       default:
         return [];
     }

@@ -84,7 +84,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
         <>
           <div className="fixed top-0 z-50 flex w-full items-center justify-between bg-black py-4 pr-8 pl-2 text-white md:hidden">
             <div></div>
-            {t('filters')}
+            {t('filters', { ns: 'common' })}
             <XMarkIcon onClick={onChange} className="h-6 w-6 cursor-pointer" />
           </div>
           <div className="fixed bottom-8 left-4 right-4 z-50 md:hidden">
@@ -112,7 +112,7 @@ interface SidebarPillsProps {
 }
 
 function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps) {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation('common');
   return (
     <div className={clsx('mb-4 mt-4 flex flex-wrap gap-2 md:mb-2', className)}>
       <>
@@ -127,7 +127,7 @@ function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps
             size={ButtonSize.Tiny}
             onClick={onClear}
           >
-            {t('clear')}
+            {t('clear', { ns: 'common' })}
           </Button>
         )}
       </>

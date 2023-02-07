@@ -35,11 +35,11 @@ function Connect({ setSteps }: ConnectProps): JSX.Element {
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 520 }}>
       <div className="text-center text-2xl font-bold text-white  md:text-3xl">
-        {t('generateLink')}
+        {t('generateLink', { ns: 'referrals' })}
       </div>
 
       <Button onClick={onLogin} className="mt-10 inline-block  font-semibold">
-        {t('connectWallet')}
+        {t('connectWallet', { ns: 'referrals' })}
       </Button>
     </div>
   );
@@ -83,7 +83,7 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 320 }}>
       <div className="text-center text-2xl font-bold text-white  md:text-3xl">
-        {t('welcomeMarket')}
+        {t('welcomeMarket', { ns: 'referrals' })}
       </div>
     </div>
   );
@@ -228,7 +228,7 @@ function Success({ name }: SuccessProps): JSX.Element {
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
       <div className="text-center  text-2xl font-bold text-white md:text-3xl">
-        {t('successCreate')}
+        {t('successCreate', { ns: 'referrals' })}
       </div>
       <div className="mt-8 h-36 w-36  [&>svg]:h-36 [&>svg]:w-36">
         {url ? <QRCodeSVG value={url} fgColor={'white'} bgColor={'black'} /> : null}
@@ -255,7 +255,7 @@ function Success({ name }: SuccessProps): JSX.Element {
             className="absolute inset-0 m-auto h-10 w-10 text-center leading-3 text-white"
             style={{ paddingTop: 2, fontSize: 10 }}
           >
-            {t('share')} <br /> {t('and')} <br /> {t('earn')}
+            {t('share', { ns: 'referrals' })} <br /> {t('and', { ns: 'referrals' })} <br /> {t('earn', { ns: 'referrals' })}
           </div>
           <Icon.Stamp className="h-14" />
         </div>
@@ -278,7 +278,7 @@ function Success({ name }: SuccessProps): JSX.Element {
           <Icon.Twitter />
         </Link>
       </div>
-      <div className="mt-5 text-white xl:font-semibold">{t('manage')}</div>
+      <div className="mt-5 text-white xl:font-semibold">{t('manage', { ns: 'referrals' })}</div>
       <Button
         className="mt-6 w-32 text-sm xl:mt-3 xl:w-auto"
         block
@@ -287,7 +287,7 @@ function Success({ name }: SuccessProps): JSX.Element {
         color={ButtonColor.Gradient}
         onClick={navigateProfile}
       >
-        {t('goTo')}
+        {t('goTo', { ns: 'referrals' })}
       </Button>
     </div>
   );

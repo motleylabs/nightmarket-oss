@@ -84,7 +84,7 @@ export default function OfferUI({
                 disabled={closingOffer}
                 onClick={handleCancelOffer}
               >
-                {t('cancel')}
+                {t('cancel', { ns: 'common' })}
               </Button>
             )}
             {nft?.owner?.address === viewerAddress && (
@@ -96,7 +96,7 @@ export default function OfferUI({
                 onClick={handleAcceptOffer}
                 loading={acceptingOffer}
               >
-                {t('accept')}
+                {t('accept', { ns: 'common' })}
               </Button>
             )}
           </>

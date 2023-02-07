@@ -106,7 +106,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
         buyNow: openBuyNow,
         children,
       })}
-      <Modal title={t('buyable.buyNow')} open={open} setOpen={setOpen}>
+      <Modal title={t('buyable.buyNow', { ns: 'common' })} open={open} setOpen={setOpen}>
         <div className="mt-6 flex flex-col gap-6">
           {loading ? (
             <>
@@ -178,7 +178,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               <section id={'prices'} className="flex flex-col gap-2">
                 {data?.nft.moonrankCollection?.trends && (
                   <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice')}</p>
+                    <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice', { ns: 'common' })}</p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
                     </p>
@@ -186,7 +186,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 )}
                 {data?.nft.listings && data?.nft.listings.length > 0 && (
                   <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">{t('buyable.listPrice')}</p>
+                    <p className="text-base font-medium text-gray-300">{t('buyable.listPrice', { ns: 'common' })}</p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {data?.nft.listings[0].solPrice}
@@ -195,14 +195,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 )}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
-                    {t('buyable.marketplaceFee')}
+                    {t('buyable.marketplaceFee', { ns: 'common' })}
                   </p>
                   <p className="text-base font-medium text-gray-300">{data?.auctionHouse.fee}%</p>
                 </div>
                 {viewer && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
-                      {t('buyable.currentBalance')}
+                      {t('buyable.currentBalance', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {viewer?.solBalance}
@@ -220,7 +220,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       disabled={buying}
                       onClick={handleBuy}
                     >
-                      {t('buyable.buyNowButton')}
+                      {t('buyable.buyNowButton', { ns: 'common' })}
                     </Button>
                     <Button
                       className="font-semibold"
@@ -234,12 +234,12 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       border={ButtonBorder.Gradient}
                       color={ButtonColor.Gradient}
                     >
-                      {t('cancel')}
+                      {t('cancel', { ns: 'common' })}
                     </Button>
                   </>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">
-                    {t('buyable.connectToBuy')}
+                    {t('buyable.connectToBuy', { ns: 'common' })}
                   </Button>
                 )}
               </section>

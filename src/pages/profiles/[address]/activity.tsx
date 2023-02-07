@@ -72,9 +72,9 @@ export default function ProfileActivity(): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
 
   const activityFilterOptions = [
-    { label: t('activityFilters.all'), value: ActivityFilter.All },
-    { label: t('activityFilters.offers'), value: ActivityFilter.Offers },
-    { label: t('activityFilters.sales'), value: ActivityFilter.Sales },
+    { label: t('activityFilters.all', { ns: 'profile' }), value: ActivityFilter.All },
+    { label: t('activityFilters.offers', { ns: 'profile' }), value: ActivityFilter.Offers },
+    { label: t('activityFilters.sales', { ns: 'profile' }), value: ActivityFilter.Sales },
   ];
 
   const { watch, control } = useForm<ProfileActivityForm>({

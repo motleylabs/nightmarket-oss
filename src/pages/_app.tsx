@@ -238,7 +238,7 @@ function NavigationBar() {
                   enabled={searchTerm.length > 2}
                 >
                   <Search.Group<CollectionDocument[]>
-                    title={t('search.collection')}
+                    title={t('search.collection', { ns: 'common' })}
                     result={results?.collections as CollectionDocument[]}
                   >
                     {({ result }) => {
@@ -253,7 +253,7 @@ function NavigationBar() {
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet[]> title={t('search.profiles')} result={results?.profiles}>
+                  <Search.Group<Wallet[]> title={t('search.profiles', { ns: 'common' })} result={results?.profiles}>
                     {({ result }) => {
                       return result?.map((wallet, i) => (
                         <Search.Profile
@@ -267,7 +267,7 @@ function NavigationBar() {
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet> title={t('search.wallet')} result={results?.wallet}>
+                  <Search.Group<Wallet> title={t('search.wallet', { ns: 'common' })} result={results?.wallet}>
                     {({ result }) => {
                       if (!result) {
                         return null;
@@ -285,7 +285,7 @@ function NavigationBar() {
                       );
                     }}
                   </Search.Group>
-                  <Search.Group<Nft[]> title={t('search.nfts')} result={results?.nfts as Nft[]}>
+                  <Search.Group<Nft[]> title={t('search.nfts', { ns: 'common' })} result={results?.nfts as Nft[]}>
                     {({ result }) => {
                       return result?.map((nft, i) => (
                         <Search.MintAddress
@@ -325,7 +325,7 @@ function NavigationBar() {
             <ProfilePopover wallet={viewerQueryResult.data.wallet} />
           ) : (
             <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
-              {t('connect')}
+              {t('connect', { ns: 'common' })}
             </Button>
           )}
 
@@ -405,13 +405,13 @@ function ProfilePopover(props: { wallet: Wallet }) {
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
                   href={`/profiles/${props.wallet.address}/collected`}
                 >
-                  {t('profileMenu.collected')}
+                  {t('profileMenu.collected', { ns: 'common' })}
                 </Link>
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
                   href={`/profiles/${props.wallet.address}/activity`}
                 >
-                  {t('profileMenu.activity')}
+                  {t('profileMenu.activity', { ns: 'common' })}
                 </Link>
               </div>
               <div className="flex flex-col gap-4">
@@ -421,7 +421,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     href={`/profiles/${props.wallet.address}/collected`}
                   >
                     <Button onClick={() => close()} className="w-full">
-                      {t('viewProfile')}
+                      {t('viewProfile', { ns: 'common' })}
                     </Button>
                   </Link>
                 </div>
@@ -437,7 +437,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     color={ButtonColor.Gradient}
                     className="w-full"
                   >
-                    {t('switchWallet')}
+                    {t('switchWallet', { ns: 'common' })}
                   </Button>
                 </div>
                 <div className="flex w-full px-4">
@@ -451,7 +451,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                     background={ButtonBackground.Cell}
                     className="w-full"
                   >
-                    {t('disconnectWallet')}
+                    {t('disconnectWallet', { ns: 'common' })}
                   </Button>
                 </div>
               </div>
@@ -546,13 +546,13 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
-                  {t('profileMenu.collected')}
+                  {t('profileMenu.collected', { ns: 'common' })}
                 </Link>
                 <Link
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
                   className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                 >
-                  {t('profileMenu.activity')}
+                  {t('profileMenu.activity', { ns: 'common' })}
                 </Link>
               </section>
 
@@ -564,7 +564,7 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   className="flex w-full"
                 >
-                  <Button className="w-full font-semibold">{t('viewProfile')}</Button>
+                  <Button className="w-full font-semibold">{t('viewProfile', { ns: 'common' })}</Button>
                 </Link>
 
                 <Button
@@ -577,7 +577,7 @@ function MobileNavMenu({
                   color={ButtonColor.Gradient}
                   className="w-full font-semibold"
                 >
-                  {t('switchWallet')}
+                  {t('switchWallet', { ns: 'common' })}
                 </Button>
 
                 <Button
@@ -586,7 +586,7 @@ function MobileNavMenu({
                   color={ButtonColor.Gray}
                   className="w-full font-semibold"
                 >
-                  {t('disconnectWallet')}
+                  {t('disconnectWallet', { ns: 'common' })}
                 </Button>
               </section>
             </>
@@ -594,7 +594,7 @@ function MobileNavMenu({
             <>
               <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
                 <Button className="w-full font-semibold" onClick={onLogin}>
-                  {t('connect')}
+                  {t('connect', { ns: 'common' })}
                 </Button>
               </section>
             </>

@@ -137,7 +137,7 @@ function SearchInput({
         onFocus={onFocus}
         onBlur={onBlur}
         value={value}
-        placeholder={t('search.placeholder')}
+        placeholder={t('search.placeholder', { ns: 'common' })}
         onChange={onChange}
         inputRef={searchInputRef}
         element={Combobox.Input}
@@ -191,7 +191,7 @@ function SearchResults({
           <>
             {enabled ? (
               <div className="flex h-6 w-full items-center justify-center">
-                <p className="m-0 text-center text-base font-medium">{t('search.empty')}</p>
+                <p className="m-0 text-center text-base font-medium">{t('search.empty', { ns: 'common' })}</p>
               </div>
             ) : (
               <>

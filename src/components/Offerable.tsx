@@ -31,7 +31,7 @@ interface OfferableProps {
 }
 
 export function Offerable({ children, connected = false }: OfferableProps) {
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation('common');
   const viewer = useReactiveVar(viewerVar);
   const onLogin = useLogin();
 
@@ -183,7 +183,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 {myOffer && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
-                      {t('offerable.yourOffer')}
+                      {t('offerable.yourOffer', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center  gap-1 text-base font-medium text-gray-300">
                       <Icon.Sol /> {myOffer?.solPrice}
@@ -193,7 +193,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 {data?.nft.moonrankCollection?.trends && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
-                      {t('offerable.floorPrice')}
+                      {t('offerable.floorPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
                       <Icon.Sol /> {data?.nft.moonrankCollection?.trends.compactFloor1d}
@@ -203,7 +203,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 {data?.nft.listings && data?.nft.listings.length > 0 && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
-                      {t('offerable.listPrice')}
+                      {t('offerable.listPrice', { ns: 'common' })}
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
@@ -214,7 +214,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 {data?.nft.purchases && data?.nft.purchases.length > 0 && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
-                      {t('offerable.lastSoldPrice')}
+                      {t('offerable.lastSoldPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
                       <Icon.Sol /> {data.nft.purchases[0].solPrice}
@@ -223,7 +223,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                 )}
                 <div className="flex flex-row justify-between">
                   <p className="text-base font-medium text-gray-300">
-                    {t('offerable.currentBalance')}
+                    {t('offerable.currentBalance', { ns: 'common' })}
                   </p>
                   <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
                     <Icon.Sol /> {viewer?.solBalance}
@@ -233,7 +233,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
               {connected ? (
                 <>
                   <section>
-                    <Form.Label name={t('offerable.amount')}>
+                    <Form.Label name={t('offerable.amount', { ns: 'common' })}>
                       {/* Temporarily broke out of component to make it work*/}
                       <div
                         className={clsx(
@@ -263,7 +263,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       disabled={offerFormState.isSubmitting}
                       loading={offerFormState.isSubmitting}
                     >
-                      {t('offer')}
+                      {t('offer', { ns: 'common' })}
                     </Button>
                     <Button
                       className="font-semibold"
@@ -277,13 +277,13 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                       border={ButtonBorder.Gradient}
                       color={ButtonColor.Gradient}
                     >
-                      {t('cancel')}
+                      {t('cancel', { ns: 'common' })}
                     </Button>
                   </section>
                 </>
               ) : (
                 <Button onClick={onLogin} className="font-semibold">
-                  {t('offerable.connectToOffer')}
+                  {t('offerable.connectToOffer', { ns: 'common' })}
                 </Button>
               )}
             </Form>

@@ -71,7 +71,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
     <>
       {(nft.attributes || []).length > 0 && (
         <>
-          <h3 className="mb-4 text-xl">{t('attributes')}</h3>
+          <h3 className="mb-4 text-xl">{t('attributes', { ns: 'nft' })}</h3>
           <div className="mb-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
             {nft.attributes?.map((attribute) => (
               <div
@@ -85,10 +85,10 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           </div>
         </>
       )}
-      <h3 className="mb-4 text-xl text-white">{t('details')}</h3>
+      <h3 className="mb-4 text-xl text-white">{t('details', { ns: 'nft' })}</h3>
       <ul className="mb-6 grid grid-cols-1 gap-2 text-sm text-gray-300">
         <li className="flex items-center justify-between">
-          <div>{t('mintAddress')}</div>
+          <div>{t('mintAddress', { ns: 'nft' })}</div>
           <div className="flex flex-row items-center gap-1">
             <a
               target="_blank"
@@ -108,7 +108,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           </div>
         </li>
         <li className="flex items-center justify-between">
-          <div>{t('tokenAddress')}</div>
+          <div>{t('tokenAddress', { ns: 'nft' })}</div>
           <div className="flex flex-row items-center gap-1">
             <a
               target="_blank"
@@ -129,7 +129,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
         </li>
         {nftQuery.data?.nft.moonrankCollection?.verifiedCollectionAddress && (
           <li className="flex items-center justify-between">
-            <div>{t('collectionAddress')}</div>
+            <div>{t('collectionAddress', { ns: 'nft' })}</div>
             <div className="flex flex-row items-center gap-1">
               <a
                 target="_blank"
@@ -150,7 +150,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           </li>
         )}
         <li className="flex items-center justify-between">
-          <div>{t('owner')}</div>
+          <div>{t('owner', { ns: 'nft' })}</div>
           <Link
             className="flex flex-row items-center gap-1"
             href={`/profiles/${owner?.address}/collected`}
@@ -164,17 +164,17 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           </Link>
         </li>
         <li className="flex items-center justify-between">
-          <div>{t('royalties')}</div>
+          <div>{t('royalties', { ns: 'nft' })}</div>
           <div>{`${nft.royalties}%`}</div>
         </li>
         <li className="flex items-center justify-between">
-          <div>{t('fee')}</div>
+          <div>{t('fee', { ns: 'nft' })}</div>
           <div>{`${auctionHouse?.fee}%`}</div>
         </li>
       </ul>
       {nftQuery.data?.nft.moonrankCollection && (
         <>
-          <h3 className="mb-4 text-xl text-white">{t('collection')}</h3>
+          <h3 className="mb-4 text-xl text-white">{t('collection', { ns: 'nft' })}</h3>
           <p className="text-gray-300">{nftQuery.data?.nft?.moonrankCollection.description}</p>
         </>
       )}
