@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useCurrencies } from '../../hooks/currencies';
 import { BulkListNftForm, useBulkListing } from '../../hooks/list';
@@ -21,6 +22,7 @@ interface BulkListModalProps {
 }
 
 function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX.Element {
+  const { t } = useTranslation('profile');
   const { selected, setSelected } = useBulkListContext();
   const { solToUsdString } = useCurrencies();
   const [useGlobalPrice, setUseGlobalPrice] = useState(false);
@@ -125,8 +127,8 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
             onChange={(e) => setUseGlobalPrice(e.target.checked)}
           />
           <div className="peer h-7 w-12 rounded-full bg-black after:absolute after:top-[4px] after:left-[4px] after:h-5 after:w-5 after:rounded-full after:bg-gray-200  after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:bg-gradient-secondary"></div>
-          <span className="ml-3 text-gray-100">Global price</span>
-          <Tooltip content="Global Price allows you to set one price for each selected NFT for a Bulk listing">
+          <span className="ml-3 text-gray-100">{t('bulkListing.globalPrice', { ns: 'profile' })}</span>
+          <Tooltip content={t('bulkListing.globalPriceTooltip', { ns: 'profile' })}>
             <Icon.Info className="ml-2" />
           </Tooltip>
         </label>
@@ -161,17 +163,16 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
           placement="top"
           content={
             <>
-              <p>PnL stands for profit and loss, and it can be either realized or unrealized.</p>
+              <p>{t('bulkListing.pnlTooltip', { ns: 'profile' })}</p>
               <p className="mt-1 italic">
-                Note: if last sale price per NFT is not detected, the PnL value will not be
-                accurate.
+              {t('bulkListing.pnlExplanation', { ns: 'profile' })}
               </p>
             </>
           }
           className="max-w-[14rem]"
         >
           <div className="-mt-[2px] flex items-center gap-1">
-            <p className="text-sm text-gray-400">PnL</p>
+            <p className="text-sm text-gray-400">{t('bulkListing.pnl', { ns: 'profile' })}</p>
             <Icon.Info />
           </div>
           <div className="flex items-center gap-1">
@@ -185,7 +186,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
           placement="top"
           content={
             <>
-              <p>Estimated Network Fee</p>
+              <p>{t('bulkListing.estimatedNetworkFee', { ns: 'profile' })}</p>
               <div className="flex gap-2">
                 <p className="text-sm italic">
                   <Icon.Sol className="mb-1 inline-block h-3 w-3" />{' '}
@@ -197,9 +198,9 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
                 </p>
               </div>
               <br />
-              <p>Estimated Rent</p>
+              <p>{t('bulkListing.estimatedRent', { ns: 'profile' })}</p>
               <p className="text-sm italic text-gray-200">
-                This will be refunded when sold or de-listed
+                {t('bulkListing.estimatedRentDetail', { ns: 'profile' })}
               </p>
               <div className="flex gap-2">
                 <p className="text-sm italic">
@@ -236,18 +237,18 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
       </div>
       {listingBulk ? (
         <Button block loading background={ButtonBackground.Slate}>
-          Please Wait
+          {t('bulkListing.pleaseWait', { ns: 'profile' })}
         </Button>
       ) : (
         <Button block htmlType="submit">
-          List now ({selected.length})
+          {t('bulkListing.listNow', { ns: 'profile', tokenCount: selected.length })}
         </Button>
       )}
     </Form>
   );
 
   return (
-    <Modal title="Bulk Listing" open={open} setOpen={setOpen}>
+    <Modal title={t('bulkListing.title', { ns: 'profile' })} open={open} setOpen={setOpen}>
       {success ? (
         <img
           src="/images/moon success.svg"

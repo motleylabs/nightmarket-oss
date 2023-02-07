@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next';
 import { Nft } from '../../graphql.types';
 import { useCurrencies } from '../../hooks/currencies';
 import { Form } from '../Form';
@@ -21,6 +22,7 @@ export default function ListingItem({
   registerBulkListNft,
   bulkListNftState,
 }: ListingItemProps): JSX.Element {
+  const { t } = useTranslation('profile');
   const { solToUsdString } = useCurrencies();
   const lastSale = nft.lastSale;
   const collectionName = nft.moonrankCollection?.name;
@@ -30,7 +32,7 @@ export default function ListingItem({
       <Tooltip
         content={
           <div>
-            <p className="mb-1 text-xs font-bold text-gray-600">LAST SALE PRICE</p>
+            <p className="mb-1 text-xs font-bold text-gray-600">{t('bulkListing.lastSalePrice', { ns: 'profile' })}</p>
             <div className="flex gap-1">
               <Icon.Sol />
               <p>{lastSale.solPrice}</p>
