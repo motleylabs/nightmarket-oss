@@ -54,7 +54,7 @@ export function Preview({
   const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
 
   const handleClosing = async () => {
-    await onCloseListing();
+    if (!closingListing) await onCloseListing();
   };
 
   const handleBulkSelect = () => {
@@ -123,7 +123,6 @@ export function Preview({
                     </span>
                     <Button
                       onClick={handleClosing}
-                      loading={closingListing}
                       size={ButtonSize.Small}
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gradient}
