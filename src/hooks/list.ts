@@ -806,26 +806,30 @@ export function useCloseListing({
         'confirmed'
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
-
-          return {
-            nft: {
-              ...data.nft,
-              listings,
+      try {
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
             },
-          };
-        }
-      );
+          },
+          (data) => {
+            const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
+
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
+      } catch (e) {
+        console.error('optimistic rendering failed', e);
+      }
 
       toast('Listing canceled', { type: 'success' });
     } catch (err: any) {

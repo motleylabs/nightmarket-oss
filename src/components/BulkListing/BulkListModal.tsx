@@ -12,7 +12,8 @@ import ListingItem from './ListingItem';
 import { AuctionHouse } from '../../graphql.types';
 import clsx from 'clsx';
 
-export const NUMBER_REGEX = new RegExp(/^\d+(.\d{1,9})?$/);
+// NB. this regex accept values of 0 so need more validation than just this regex on inputs
+export const NUMBER_REGEX = new RegExp(/^\d*\.?\d{1,9}$/);
 
 interface BulkListModalProps {
   open: boolean;
@@ -137,7 +138,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
           {...registerBulkListNft('globalBulkPrice', {
             required: useGlobalPrice,
             validate: (value) =>
-              useGlobalPrice ? Boolean(value.match(NUMBER_REGEX)?.length) : true,
+              useGlobalPrice ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
           })}
           disabled={!useGlobalPrice}
         />
