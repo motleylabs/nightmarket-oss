@@ -86,7 +86,7 @@ function ActivityTag({ type }: ActivityTagProps): JSX.Element {
   const { t } = useTranslation('common');
 
   const [label, Icon] = useMemo<
-    [] | [string, (props: SVGProps<SVGSVGElement>) => JSX.Element]
+    [] | [string, any]
   >(() => {
     switch (type) {
       case ActivityType.Purchase:

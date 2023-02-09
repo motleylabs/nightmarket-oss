@@ -26,7 +26,7 @@ import {
   Token,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { Edition, Metadata, MetadataProgram } from '@metaplex-foundation/mpl-token-metadata';
+import { Edition, Metadata, PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { createAssociatedTokenAccountInstruction, getAtaForMint } from '../modules/candymachine';
 
 interface MintOptions {
@@ -49,6 +49,37 @@ interface LaunchpadContext {
     price: number;
   };
 }
+
+const getMetadataPDA = async (
+  mint: PublicKey,
+): Promise<PublicKey> => {
+  return (
+    await PublicKey.findProgramAddress(
+      [
+        Buffer.from('metadata'),
+        MPL_PROGRAM_ID.toBuffer(),
+        mint.toBuffer(),
+      ],
+      MPL_PROGRAM_ID,
+    )
+  )[0];
+};
+
+const getEditionPDA = async (
+  mint: PublicKey,
+): Promise<PublicKey> => {
+  return (
+    await PublicKey.findProgramAddress(
+      [
+        Buffer.from('metadata'),
+        MPL_PROGRAM_ID.toBuffer(),
+        mint.toBuffer(),
+        Buffer.from('edition'),
+      ],
+      MPL_PROGRAM_ID,
+    )
+  )[0];
+};
 
 export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
   const { connected, publicKey, signTransaction } = useWallet();
@@ -91,8 +122,8 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
       publicKey,
       false
     );
-    const metadataPDA = await Metadata.getPDA(mintKeypair.publicKey);
-    const editionPDA = await Edition.getPDA(mintKeypair.publicKey);
+    const metadataPDA = await getMetadataPDA(mintKeypair.publicKey);
+    const editionPDA = await getEditionPDA(mintKeypair.publicKey);
     const [candyMachineCreatorId, candyMachineCreatorIdBump] = await PublicKey.findProgramAddress(
       [Buffer.from('candy_machine'), candyMachinePubkey.toBuffer()],
       PROGRAM_ID
@@ -109,7 +140,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
         mintAuthority: publicKey,
         updateAuthority: publicKey,
         masterEdition: editionPDA,
-        tokenMetadataProgram: MetadataProgram.PUBKEY,
+        tokenMetadataProgram: MPL_PROGRAM_ID,
         clock: SYSVAR_CLOCK_PUBKEY,
         recentBlockhashes: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
         instructionSysvarAccount: SYSVAR_INSTRUCTIONS_PUBKEY,

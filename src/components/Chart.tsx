@@ -34,7 +34,7 @@ const tickGapDict = {
   [DateRangeOption.MONTH]: 90,
 };
 
-const CustomLineChartTooltip = ({ active, payload, label }: TooltipProps<number, string>): JSX.Element => {
+const CustomLineChartTooltip = ({ active, payload, label }: TooltipProps): JSX.Element => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
@@ -232,7 +232,7 @@ function StyledBarChart(props: {
           <Label fontSize="12px" fill="#8B8B8E" position="insideBottom" dy={15} />
         </XAxis>
         <CartesianGrid vertical={false} stroke="#A8A8A8" />
-        <Bar type="monotone" barSize={24} dataKey="y" fill="url(#lineColor)" />
+        <Bar barSize={24} dataKey="y" fill="url(#lineColor)" />
         {props.children}
       </BarChart>
     </ResponsiveContainer>
