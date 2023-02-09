@@ -33,6 +33,7 @@
   },
   "accept": "Accept",
   "update": "Update",
+  "portfolioDisclaimer": "This value is based on the collective floor prices of all collections.",
   "bulkListing": {
     "title": "Bulk Listing",
     "lastSalePrice": "Last Sale Price",

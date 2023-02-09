@@ -493,7 +493,7 @@ export function useBulkListing(): BulkListContext {
                 address: nft.mintAddress,
               },
             },
-            (data: any) => {
+            () => {
               const listing = {
                 __typename: 'AhListing',
                 id: `temp-id-listing-${listingAddress.toBase58()}`,
@@ -508,11 +508,11 @@ export function useBulkListing(): BulkListContext {
                 },
               };
 
-              const listings = [...(data.nft?.listings || []), listing];
+              const listings = [...(nft?.listings || []), listing];
 
               return {
                 nft: {
-                  ...data.nft,
+                  ...(nft || {}),
                   listings,
                 },
               };

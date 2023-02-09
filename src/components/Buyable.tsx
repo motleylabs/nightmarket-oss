@@ -184,12 +184,12 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     </p>
                   </div>
                 )}
-                {data?.nft.listings && data?.nft.listings.length > 0 && (
+                {listing && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">{t('buyable.listPrice', { ns: 'common' })}</p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {data?.nft.listings[0].solPrice}
+                      <Icon.Sol /> {listing.solPrice}
                     </p>
                   </div>
                 )}
