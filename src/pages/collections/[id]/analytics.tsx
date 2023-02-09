@@ -70,7 +70,7 @@ const FloorPriceChart = () => {
   return (
     <Chart.Timeseries
       className="h-96"
-      title={t('collection.floorPriceChartTitle')}
+      title={t('collection.floorPriceChartTitle', { ns: 'analytics' })}
       query={floorDataQuery}
       timeseries={floorDataQuery.data?.collection.timeseries.floorPrice}
     />
@@ -98,7 +98,7 @@ const ListedCountChart = () => {
   return (
     <Chart.Timeseries
       className="h-96"
-      title={t('collection.listedCountChartTitle')}
+      title={t('collection.listedCountChartTitle', { ns: 'analytics' })}
       query={listedCountQuery}
       timeseries={listedCountQuery.data?.collection.timeseries.listedCount}
     />
@@ -126,7 +126,7 @@ const HolderCountChart = () => {
   return (
     <Chart.Timeseries
       className="h-96"
-      title={t('collection.holderCountChartTitle')}
+      title={t('collection.holderCountChartTitle', { ns: 'analytics' })}
       query={holderCountQuery}
       timeseries={holderCountQuery.data?.collection.timeseries.ownersCount}
     />

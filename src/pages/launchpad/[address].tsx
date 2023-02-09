@@ -36,7 +36,7 @@ export default function LaunchpadPage() {
           />
         </div>
         <div className="top-20 mb-10 flex w-full flex-col gap-6 pt-0 lg:sticky lg:w-1/2 lg:pl-10">
-          <h6 className="font-serif text-2xl font-bold">{t('phaseTitle')}</h6>
+          <h6 className="font-serif text-2xl font-bold">{t('phaseTitle', { ns: 'launchpad' })}</h6>
           <Launchpad candyMachineId={'9ACm8nAqgzTExSRQpb8JxYnZeEMTgLzsHDpRv8TmQVBY'}>
             {({ onMint, launchpadState, isMinting }) => (
               <>
@@ -100,11 +100,11 @@ export default function LaunchpadPage() {
             </p>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-sm text-gray-300">{t('supply')}</p>
+                <p className="text-sm text-gray-300">{t('supply', { ns: 'launchpad' })}</p>
                 <h6 className="text-lg font-bold text-white">10,000</h6>
               </div>
               <div className="flex flex-col rounded-lg bg-gray-800 p-4">
-                <p className="text-sm text-gray-300">{t('mintDate')}</p>
+                <p className="text-sm text-gray-300">{t('mintDate', { ns: 'launchpad' })}</p>
                 <h6 className="text-lg font-bold text-white">10/24/2022</h6>
               </div>
             </div>

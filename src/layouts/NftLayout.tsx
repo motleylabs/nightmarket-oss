@@ -487,7 +487,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         <Overview.Title>{nft.name}</Overview.Title>
         {buy && (
           <div className="fixed bottom-0 left-0 right-0 z-30 mb-0 rounded-t-md bg-gray-800 md:relative md:z-0 md:mb-10 md:rounded-md">
-            <Overview.Form.Title>{t('buy')}</Overview.Form.Title>
+            <Overview.Form.Title>{t('buy', { ns: 'nft' })}</Overview.Form.Title>
             <Flex direction={FlexDirection.Col} className="mt-4 px-6 pt-8 pb-6 md:pt-0">
               <div>
                 <Flex
@@ -531,7 +531,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       disabled={buying}
                       onClick={handleBuy}
                     >
-                      {t('buy')}
+                      {t('buy', { ns: 'nft' })}
                     </Button>
                     <Button
                       block
@@ -543,12 +543,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       color={ButtonColor.Gray}
                       disabled={buying}
                     >
-                      {t('cancel', { ns: 'common' })}
+                      {t('cancel', { ns: 'nft' })}
                     </Button>
                   </>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">
-                    {t('connectToBuy')}
+                    {t('connectToBuy', { ns: 'nft' })}
                   </Button>
                 )}
               </Flex>
@@ -558,7 +558,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         {makeOffer && (
           <Overview.Form
             onSubmit={handleSubmitOffer(handleOffer)}
-            title={<Overview.Form.Title>{t('placeBid')}</Overview.Form.Title>}
+            title={<Overview.Form.Title>{t('placeBid', { ns: 'nft' })}</Overview.Form.Title>}
           >
             <Overview.Form.Preview
               name={nft.name}
@@ -567,18 +567,18 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             />
             <Overview.Form.Points>
               {data?.nft.moonrankCollection?.trends && (
-                <Overview.Form.Point label={t('currentFloor')}>
+                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
                   <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                 </Overview.Form.Point>
               )}
               {viewer && (
-                <Overview.Form.Point label={t('walletBalance')}>
+                <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
                   {viewer.solBalance}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
-            <Form.Label name={t('amount')}>
+            <Form.Label name={t('amount', { ns: 'nft' })}>
               <Form.Input
                 icon={<Icon.Sol />}
                 error={offerFormState.errors.amount}
@@ -593,7 +593,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               disabled={offerFormState.isSubmitting}
               loading={offerFormState.isSubmitting}
             >
-              {t('submitOffer')}
+              {t('submitOffer', { ns: 'nft' })}
             </Button>
             <Button
               background={ButtonBackground.Slate}
@@ -603,14 +603,14 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               disabled={offerFormState.isSubmitting}
               onClick={onCancelMakeOffer}
             >
-              {t('cancel', { ns: 'common' })}
+              {t('cancel', { ns: 'nft' })}
             </Button>
           </Overview.Form>
         )}
         {updateOffer && (
           <Overview.Form
             onSubmit={handleSubmitUpdateOffer(handleUpdateOffer)}
-            title={<Overview.Form.Title>{t('updateBid')}</Overview.Form.Title>}
+            title={<Overview.Form.Title>{t('updateBid', { ns: 'nft' })}</Overview.Form.Title>}
           >
             <Overview.Form.Preview
               name={nft.name}
@@ -619,18 +619,18 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             />
             <Overview.Form.Points>
               {data?.nft.moonrankCollection && (
-                <Overview.Form.Point label={t('currentFloor')}>
+                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
                   <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                 </Overview.Form.Point>
               )}
               {viewer && (
-                <Overview.Form.Point label={t('walletBalance')}>
+                <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
                   {viewer.solBalance}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
-            <Form.Label name={t('amount')}>
+            <Form.Label name={t('amount', { ns: 'nft' })}>
               <Form.Input
                 icon={<Icon.Sol />}
                 error={updateOfferFormState.errors.amount}
@@ -645,7 +645,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               loading={updateOfferFormState.isSubmitting}
               disabled={updateOfferFormState.isSubmitting}
             >
-              {t('update')}
+              {t('update', { ns: 'nft' })}
             </Button>
             <Button
               background={ButtonBackground.Slate}
@@ -655,14 +655,14 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               onClick={onCancelUpdateOffer}
               disabled={updateOfferFormState.isSubmitting}
             >
-              {t('cancel', { ns: 'common' })}
+              {t('cancel', { ns: 'nft' })}
             </Button>
           </Overview.Form>
         )}
         {listNft && (
           <Overview.Form
             onSubmit={handleSubmitListNft(handleList)}
-            title={<Overview.Form.Title>{t('listNft')}</Overview.Form.Title>}
+            title={<Overview.Form.Title>{t('listNft', { ns: 'nft' })}</Overview.Form.Title>}
           >
             <Overview.Form.Preview
               name={nft.name}
@@ -671,12 +671,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             />
             <Overview.Form.Points>
               {data?.nft.moonrankCollection?.trends && (
-                <Overview.Form.Point label={t('currentFloor')}>
+                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
                   <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
-            <Form.Label name={t('amount')}>
+            <Form.Label name={t('amount', { ns: 'nft' })}>
               <Form.Input
                 icon={<Icon.Sol />}
                 autoFocus
@@ -696,7 +696,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               loading={listNftState.isSubmitting}
               disabled={listNftState.isSubmitting}
             >
-              {t('listNft')}
+              {t('listNft', { ns: 'nft' })}
             </Button>
             <Button
               block
@@ -706,14 +706,14 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               onClick={onCancelListNftClick}
               disabled={listNftState.isSubmitting}
             >
-              {t('cancel', { ns: 'common' })}
+              {t('cancel', { ns: 'nft' })}
             </Button>
           </Overview.Form>
         )}
         {updateListing && (
           <Overview.Form
             onSubmit={handleSubmitUpdateListing(handleUpdateListing)}
-            title={<Overview.Form.Title>{t('updateListing')}</Overview.Form.Title>}
+            title={<Overview.Form.Title>{t('updateListing', { ns: 'nft' })}</Overview.Form.Title>}
           >
             <Overview.Form.Preview
               name={nft.name}
@@ -722,12 +722,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             />
             <Overview.Form.Points>
               {data?.nft.moonrankCollection?.trends && (
-                <Overview.Form.Point label={t('currentFloor')}>
+                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
                   <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
-            <Form.Label name={t('newPrice')}>
+            <Form.Label name={t('newPrice', { ns: 'nft' })}>
               <Form.Input
                 icon={<Icon.Sol />}
                 error={updateListingState.errors.amount}
@@ -747,7 +747,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               loading={updateListingState.isSubmitting}
               disabled={updateListingState.isSubmitting}
             >
-              {t('update')}
+              {t('update', { ns: 'nft' })}
             </Button>
             <Button
               block
@@ -757,7 +757,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
               disabled={updateListingState.isSubmitting}
               onClick={onCancelUpdateListing}
             >
-              {t('cancel', { ns: 'common' })}
+              {t('cancel', { ns: 'nft' })}
             </Button>
           </Overview.Form>
         )}
@@ -789,7 +789,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     />
                     <Flex gap={1}>
                       <Paragraph weight={FontWeight.Semibold}>
-                        {t(isOwner ? 'sellEarn' : 'buyEarn')}
+                        {t(isOwner ? 'sellEarn' : 'buyEarn', { ns: 'nft' })}
                       </Paragraph>
                       <Paragraph color={TextColor.Orange}>BONK</Paragraph>
                     </Flex>
@@ -800,7 +800,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     <Overview.Figures>
                       {listing && (
                         <Overview.Figure
-                          label={t('listed')}
+                          label={t('listed', { ns: 'nft' })}
                           amount={listing?.solPrice}
                           size={Overview.Figure.Size.Large}
                         />
@@ -808,12 +808,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {data?.nft.lastSale?.price ? (
                         <Overview.Figure
                           className="md:flex-row"
-                          label={t('lastSale')}
+                          label={t('lastSale', { ns: 'nft' })}
                           amount={data?.nft.lastSale?.solPrice}
                         />
                       ) : (
                         <Paragraph weight={FontWeight.Semibold} color={TextColor.Gray}>
-                          {t('noSales')}
+                          {t('noSales', { ns: 'nft' })}
                         </Paragraph>
                       )}
                     </Overview.Figures>
@@ -827,7 +827,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         listing ? (
                           <>
                             <Button block onClick={onUpdateListing}>
-                              {t('updateListing')}
+                              {t('updateListing', { ns: 'nft' })}
                             </Button>
                             <Button
                               block
@@ -836,18 +836,18 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                               color={ButtonColor.Gray}
                               onClick={onCloseListing}
                             >
-                              {t('cancelListing')}
+                              {t('cancelListing', { ns: 'nft' })}
                             </Button>
                           </>
                         ) : (
                           <Button block onClick={onListNftClick}>
-                            {t('listNft')}
+                            {t('listNft', { ns: 'nft' })}
                           </Button>
                         )
                       ) : (
                         listing && (
                           <Button block onClick={onOpenBuy}>
-                            {t('buy')}
+                            {t('buy', { ns: 'nft' })}
                           </Button>
                         )
                       )}
@@ -867,33 +867,33 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     <>
                       {highestOffer && (
                         <Overview.Figure
-                          label={t('highestOffer')}
+                          label={t('highestOffer', { ns: 'nft' })}
                           amount={highestOffer.solPrice}
                           size={Overview.Figure.Size.Large}
                         />
                       )}
                       {viewerOffer && (
                         <Overview.Figure
-                          label={t('viewerOffer')}
+                          label={t('viewerOffer', { ns: 'nft' })}
                           className="md:flex-row"
                           amount={viewerOffer.solPrice}
                         />
                       )}
                     </>
                   ) : (
-                    <Paragraph weight={FontWeight.Semibold}>{t('noOffers')}</Paragraph>
+                    <Paragraph weight={FontWeight.Semibold}>{t('noOffers', { ns: 'nft' })}</Paragraph>
                   )}
                 </Overview.Figures>
                 <Col span={6} direction={FlexDirection.Col} gap={4}>
                   {isOwner && highestOffer && (
                     <Button block loading={acceptingOffer} onClick={handleAcceptOffer}>
-                      {t('acceptOffer')}
+                      {t('acceptOffer', { ns: 'nft' })}
                     </Button>
                   )}
                   {notOwner &&
                     (viewerOffer ? (
                       <Button onClick={onOpenUpdateOffer} block>
-                        {t('updateOffer')}
+                        {t('updateOffer', { ns: 'nft' })}
                       </Button>
                     ) : (
                       <Button
@@ -903,7 +903,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         color={ButtonColor.Gradient}
                         block
                       >
-                        {t('bid')}
+                        {t('bid', { ns: 'nft' })}
                       </Button>
                     ))}
                   {viewerOffer && (
@@ -914,7 +914,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       color={ButtonColor.Gray}
                       onClick={handleCloseOffer}
                     >
-                      {t('cancelOffer')}
+                      {t('cancelOffer', { ns: 'nft' })}
                     </Button>
                   )}
                 </Col>
@@ -927,13 +927,13 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         <Overview.Tabs>
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
             <Link href={`/nfts/${nft.mintAddress}/details`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Details}>{t('details')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Details}>{t('details', { ns: 'nft' })}</ButtonGroup.Option>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/offers`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Offers}>{t('offers')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Offers}>{t('offers', { ns: 'nft' })}</ButtonGroup.Option>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/activity`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Activity}>{t('activity')}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Activity}>{t('activity', { ns: 'nft' })}</ButtonGroup.Option>
             </Link>
           </ButtonGroup>
         </Overview.Tabs>

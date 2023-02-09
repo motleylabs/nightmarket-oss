@@ -1,6 +1,8 @@
 {
-  "referrals": "Referrals",
-  "description": "",
+  "metadata": {
+    "title": "Referrals",
+    "description": "Join the Night Market referral program."
+  },
   "generateLink": "To generate a referral link, connect your wallet",
   "connectWallet": "Connect Wallet",
   "welcomeMarket": "Welcome to the Night Market!",

@@ -122,9 +122,9 @@ function StyledLineChart(props: {
   ) : (
     <div className="my-auto mx-auto pb-10 text-lg text-gray-300">
       {props.loading ? (
-        <TailSpin height="40px" width="40px" color="#ED9E09" ariaLabel={t('loading')} />
+        <TailSpin height="40px" width="40px" color="#ED9E09" ariaLabel={t('loading', { ns: 'analytics' })} />
       ) : (
-        t('noData')
+        t('noData', { ns: 'analytics' })
       )}
     </div>
   );
@@ -187,9 +187,9 @@ function TinyLineChart(props: {
   ) : (
     <div className="my-auto mx-auto text-sm text-gray-300">
       {props.loading ? (
-        <TailSpin height="20px" width="20px" color="#ED9E09" ariaLabel={t('loading')} />
+        <TailSpin height="20px" width="20px" color="#ED9E09" ariaLabel={t('loading', { ns: 'analytics' })} />
       ) : (
-        t('noData')
+        t('noData', { ns: 'analytics' })
       )}
     </div>
   );
@@ -260,11 +260,11 @@ function ChartTimeseries(props: {
   const selectedDateRange = useMemo(() => {
     switch (dateRange) {
       case DateRangeOption.DAY:
-        return t('oneDay');
+        return t('oneDay', { ns: 'analytics' });
       case DateRangeOption.WEEK:
-        return t('oneWeek');
+        return t('oneWeek', { ns: 'analytics' });
       case DateRangeOption.MONTH:
-        return t('oneMonth');
+        return t('oneMonth', { ns: 'analytics' });
     }
   }, [dateRange, t]);
 

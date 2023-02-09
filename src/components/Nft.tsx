@@ -35,8 +35,8 @@ export function Preview({
   onMakeOffer,
   onBuy,
 }: PreviewProps): JSX.Element {
-  const { t } = useTranslation(['common', 'offerable']);
-  const { selected, setSelected } = useBulkListContext();
+  const { t } = useTranslation('common');
+  const {selected, setSelected} = useBulkListContext()
   const { data } = useViewer();
 
   const listing = nft.listings?.find((listing) => {
@@ -133,7 +133,7 @@ export function Preview({
                   </>
                 ) : nft.lastSale?.price ? (
                   <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                    {t('lastSale')}
+                    {t('lastSale', { ns: "common" })}
                     <div className="flex flex-row items-center gap-1">
                       <Icon.Sol className="flex h-3 w-3 pt-0.5" />
                       {nft.lastSale?.solPrice}
@@ -156,14 +156,14 @@ export function Preview({
                     border={ButtonBorder.Gradient}
                     color={ButtonColor.Gradient}
                   >
-                    {t('buy')}
+                    {t('buy', { ns: 'common' })}
                   </Button>
                 </>
               ) : (
                 <div className="flex w-full items-center justify-between gap-1">
                   {myOffer ? (
                     <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('offerable.yourOffer')}
+                      {t('offerable.yourOffer', { ns: 'common' })}
                       <div className="flex flex-row items-center gap-1">
                         <Icon.Sol />
                         {myOffer.solPrice}
@@ -187,7 +187,7 @@ export function Preview({
                       color={ButtonColor.Gray}
                       size={ButtonSize.Small}
                     >
-                      {t('offer')}
+                      {t('offer', { ns: 'common' })}
                     </Button>
                   )}
                 </div>

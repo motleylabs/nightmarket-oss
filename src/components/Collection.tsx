@@ -56,7 +56,7 @@ function CollectionOption({
           <div className="flex items-end justify-between">
             {floorPrice && (
               <div className="-mb-1 flex flex-col">
-                <span className="text-[10px] text-gray-400">{t('floorPrice')}</span>
+                <span className="text-[10px] text-gray-400">{t('floorPrice', { ns: 'collection' })}</span>
                 <Price price={floorPrice} />
               </div>
             )}
@@ -180,14 +180,14 @@ export default function CollectionCard({
       <h1 className="z-20 px-4 text-3xl">{name}</h1>
       <div className="z-20 grid w-full grid-cols-2 gap-2 p-4 text-white">
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <span className="text-xs text-gray-300">{t('card.supply')}</span>
+          <span className="text-xs text-gray-300">{t('card.supply', { ns: 'collection' })}</span>
           <div className="flex items-center justify-center gap-1">
             <Icon.Sol />
             {nftCount}
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <span className="text-sm text-gray-300">{t('card.floor')}</span>
+          <span className="text-sm text-gray-300">{t('card.floor', { ns: 'collection'})}</span>
           <div className="flex flex-row items-center justify-center gap-1">
             <Icon.Sol />
             {floorPrice}

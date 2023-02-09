@@ -42,14 +42,14 @@ export default function Drop({
         <p className="mt-2 text-sm text-gray-300 md:text-base">{description}</p>
         <ul className="mt-2 flex flex-row flex-wrap items-center gap-6  sm:flex-nowrap md:mt-6 md:justify-start md:gap-8">
           <li className="flex    flex-col items-start ">
-            <p className="text-sm font-light text-gray-300">{t('drops.price')}</p>
+            <p className="text-sm font-light text-gray-300">{t('drops.price', { ns: 'home' })}</p>
             <p className="flex flex-row items-center gap-1 text-sm font-semibold md:text-base">
               <Icon.Sol />
               {price}
             </p>
           </li>
           <li className="flex    flex-col items-start ">
-            <p className="text-sm font-light text-gray-300">{t('drops.supply')}</p>
+            <p className="text-sm font-light text-gray-300">{t('drops.supply', { ns: 'home' })}</p>
             <p className="flex flex-row items-center text-sm  font-semibold md:text-base">
               {asCompactNumber(supply)}
             </p>
@@ -70,7 +70,7 @@ export default function Drop({
               border={ButtonBorder.Gradient}
               color={ButtonColor.Gradient}
             >
-              {t('drops.view')}
+              {t('drops.view', { ns: 'home' })}
             </Button>
           </li>
         </ul>
@@ -82,7 +82,7 @@ export default function Drop({
             color={ButtonColor.Gray}
             disabled={true}
           >
-            {t('drops.details')}
+            {t('drops.details', { ns: 'home' })}
           </Button>
         </div>
       </div>
