@@ -10,8 +10,12 @@
   "followers": "Followers",
   "following": "Following",
   "portfolioValue": "Portfolio Value",
+  "netWorth": "Net Worth",
+  "totalNFTs": "Total NFTs",
+  "listedNFTs": "Listed NFTs",
+  "sauceEarned": "BONK Earned",
   "all": "All",
-  "NFTs": "NFTs",
+  "nfts": "NFTs",
   "listings": "Listings",
   "offers": "Offers",
   "affiliate": "Affiliate",
@@ -28,5 +32,23 @@
     "offersPlaced": "Offers Placed"
   },
   "accept": "Accept",
-  "update": "Update"
+  "update": "Update",
+  "bulkListing": {
+    "title": "Bulk Listing",
+    "lastSalePrice": "Last Sale Price",
+    "selectUnlisted": "Select all unlisted ({{ tokenCount }})",
+    "listSelected": "List selected ({{ tokenCount }})",
+    "inCart": "In Cart",
+    "noTokensInCart": "No NFTs added to the cart yet",
+    "globalPrice": "Global Price",
+    "globalPriceTooltip": "Global Price allows you to set one price for each selected NFT for a Bulk listing",
+    "pnl": "PnL",
+    "pnlTooltip": "PnL stands for profit and loss, and it can be either realized or unrealized.",
+    "pnlExplanation": "Note: if last sale price per NFT is not detected, the PnL value will not be accurate.",
+    "estimatedNetworkFee": "Estimated Network Fee",
+    "estimatedRent": "Estimated Rent",
+    "estimatedRentDetail": "This will be refunded when sold or de-listed",
+    "pleaseWait": "Please Wait",
+    "listNow": "List now ({{ tokenCount }})"
+  }
 }

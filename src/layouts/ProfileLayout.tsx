@@ -139,19 +139,23 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
           </div>
         </div>
         <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
-          <ProfileFigure figure={portfolioValue} label="Net Worth" loading={loading} />
           <ProfileFigure
-            label="Total NFTs"
-            figure={walletProfileClientQuery.data?.wallet.nftCounts.owned}
+            label={t('netWorth', { ns: 'profile' })}
+            figure={portfolioValue}
             loading={loading}
           />
           <ProfileFigure
-            label="Listed NFTs"
+            label={t('totalNFTs', { ns: 'profile' })}
+            figure={walletProfileClientQuery.data?.wallet.nftCounts.owned || 0}
+            loading={loading}
+          />
+          <ProfileFigure
+            label={t('listedNFTs', { ns: 'profile' })}
             figure={walletProfileClientQuery.data?.wallet.nftCounts.listed || 0}
             loading={loading}
           />
           <ProfileFigure
-            label="BONK earned"
+            label={t('sauceEarned', { ns: 'profile' })}
             loading={loading}
             figure={
               <div className="flex items-center gap-2">
@@ -165,23 +169,23 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       <div className="w-full overflow-auto md:overflow-visible">
         <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
           <Overview.Tab
-            label="NFTs"
+            label={t('nfts', { ns: 'profile'})}
             href={`/profiles/${router.query.address}/collected`}
             active={router.pathname === ProfilePath.Collected}
           />
           <Overview.Tab
-            label={t('activity')}
+            label={t('activity', { ns: 'profile' })}
             href={`/profiles/${router.query.address}/activity`}
             active={router.pathname === ProfilePath.Activity}
           />
           <Overview.Tab
-            label={t('offers')}
+            label={t('offers', { ns: 'profile' })}
             href={`/profiles/${router.query.address}/offers`}
             active={router.pathname === ProfilePath.Offers}
           />
           {address === publicKey?.toString() ? (
             <Overview.Tab
-              label={t('affiliate')}
+              label={t('affiliate', { ns: 'profile' })}
               href={`/profiles/${router.query.address}/affiliate`}
               active={router.pathname === ProfilePath.Affiliate}
             />

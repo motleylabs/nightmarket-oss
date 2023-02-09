@@ -172,7 +172,7 @@ export default function ProfileCollected({
     <>
       <Toolbar>
         <Sidebar.Control
-          label={t('filters')}
+          label={t('filters', { ns: 'collection' })}
           open={open}
           onChange={toggleSidebar}
           disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}

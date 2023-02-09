@@ -98,13 +98,13 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
     <div className="flex flex-col">
       {called && data?.nftOffers?.offers?.length === 0 && (
         <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
-          <h3 className="text-gray-300">{t('noOffers')}</h3>
+          <h3 className="text-gray-300">{t('noOffers', { ns: 'offers' })}</h3>
         </div>
       )}
       <div className="flex flex-col gap-4">
         {yourOffers && yourOffers.length > 0 && (
           <>
-            <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours')}</h6>
+            <h6 className="m-0 mt-2 text-2xl font-medium  text-white">{t('yours', { ns: 'offers' })}</h6>
             {yourOffers.map((offer, i) => (
               <Offer
                 meta={
@@ -130,7 +130,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
         )}
         {remainingOffers && remainingOffers.length > 0 && (
           <>
-            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all')}</h6>
+            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('all', { ns: 'offers' })}</h6>
             {remainingOffers?.map((offer, i) => (
               <Offer
                 meta={

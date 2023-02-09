@@ -106,15 +106,15 @@ const Home: NextPage = () => {
     () => [
       {
         value: CollectionSort.Volume,
-        label: t('collection:trendingCollectionsSort.byVolumeTraded'),
+        label: t('trendingCollectionsSort.byVolumeTraded', { ns: 'collection' }),
       },
       {
         value: CollectionSort.Floor,
-        label: t('collection:trendingCollectionsSort.byFloorPrice'),
+        label: t('trendingCollectionsSort.byFloorPrice', { ns: 'collection' }),
       },
       {
         value: CollectionSort.NumberListed,
-        label: t('collection:trendingCollectionsSort.byListingsCount'),
+        label: t('trendingCollectionsSort.byListingsCount', { ns: 'collection' }),
       },
     ],
     [t]
@@ -202,8 +202,8 @@ const Home: NextPage = () => {
       <main className="container mx-auto px-4 xl:px-24">
         <Hero>
           <Hero.Main>
-            <Hero.Title>{t('hero.title')}</Hero.Title>
-            <Hero.SubTitle>{t('hero.subtitle')}</Hero.SubTitle>
+            <Hero.Title>{t('hero.title', { ns: 'home' })}</Hero.Title>
+            <Hero.SubTitle>{t('hero.subtitle', { ns: 'home' })}</Hero.SubTitle>
             <Hero.Actions>
               <Button
                 className="w-full md:w-auto"
@@ -211,7 +211,7 @@ const Home: NextPage = () => {
                 background={ButtonBackground.Gradient}
                 onClick={onExploreNftsClick}
               >
-                {t('hero.exploreNfts')}
+                {t('hero.exploreNfts', { ns: 'home' })}
               </Button>
               <Button
                 className="w-full md:w-auto"
@@ -221,7 +221,7 @@ const Home: NextPage = () => {
                 color={ButtonColor.Gradient}
                 onClick={onSellNftsClick}
               >
-                {t('hero.sellNfts')}
+                {t('hero.sellNfts', { ns: 'home' })}
               </Button>
             </Hero.Actions>
           </Hero.Main>
@@ -236,7 +236,7 @@ const Home: NextPage = () => {
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
           <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
-            <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title')}</h1>
+            <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title', { ns: 'home' })}</h1>
             <div className="flex flex-row items-center gap-4">
               <Controller
                 control={control}
@@ -291,7 +291,7 @@ const Home: NextPage = () => {
                       listedCount: trend.compactListed1d,
                       listedCountChange: trend.changeListed7d,
                     };
-                    volumeLabel = t('collection:24hVolume');
+                    volumeLabel = t('24hVolume', { ns: 'collection' });
                     break;
                   case CollectionInterval.SevenDay:
                     selectedTrend = {
@@ -302,7 +302,7 @@ const Home: NextPage = () => {
                       listedCount: trend.compactListed7d,
                       listedCountChange: trend.changeListed7d,
                     };
-                    volumeLabel = t('collection:7dVolume');
+                    volumeLabel = t('7dVolume', { ns: 'collection' });
                     break;
                   case CollectionInterval.ThirtyDay:
                     selectedTrend = {
@@ -313,7 +313,7 @@ const Home: NextPage = () => {
                       listedCount: trend.compactListed30d,
                       listedCountChange: trend.changeListed30d,
                     };
-                    volumeLabel = t('collection:30dVolume');
+                    volumeLabel = t('30dVolume', { ns: 'collection' });
                     break;
                 }
 
@@ -389,21 +389,21 @@ const Home: NextPage = () => {
         </section>
         <section className="mt-16 scroll-mt-20 md:mt-28">
           <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
-            <h1 className="m-0 font-serif text-2xl">{t('drops.title')}</h1>
+            <h1 className="m-0 font-serif text-2xl">{t('drops.title', { ns: 'home' })}</h1>
           </header>
           <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
             <Drop
               launchDate={addDays(new Date(), 3)}
               title="Motley Friends"
-              description={t('drops.motley')}
+              description={t('drops.motley', { ns: 'home' })}
               price={128}
               supply={10000}
               image={'/images/launchpad/motley-launchpad-nft.png'}
               link={'/launchpad/test'}
             />
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle')}</h4>
-              <p>{t('drops.moreLaunchesDescription')}</p>
+              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle', { ns: 'home' })}</h4>
+              <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
               <a
                 href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
                 target={'_blank'}
@@ -415,7 +415,7 @@ const Home: NextPage = () => {
                   size={ButtonSize.Large}
                   color={ButtonColor.Gradient}
                 >
-                  {t('drops.launchButton')}
+                  {t('drops.launchButton', { ns: 'home' })}
                 </Button>
               </a>
             </div>
@@ -427,16 +427,16 @@ const Home: NextPage = () => {
         <div className="flex items-center gap-4">
           <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
           <span className="w-52 text-sm text-white xl:text-base">
-            {t('report.sauceDistributedToUsers')}
+            {t('report.sauceDistributedToUsers', { ns: 'home' })}
           </span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
           <span className="w-52 text-sm text-white xl:text-base">
-            {t('report.solDistributedToSauceHolders', { sol: '124,023' })}
+            {t('report.solDistributedToSauceHolders', { ns: 'home', sol: '124,023' })}
           </span>
         </div>
-        <Button border={ButtonBorder.White}>{t('report.learnMore')}</Button>
+        <Button border={ButtonBorder.White}>{t('report.learnMore', { ns: 'home' })}</Button>
       </section> */}
     </>
   );

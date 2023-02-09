@@ -133,14 +133,14 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
         {!loadingBuddy && !buddy?.publicKey ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
-            <div className="mb-4 text-center text-lg text-white sm:w-[375px]">{t('noBuddy')}</div>
+            <div className="mb-4 text-center text-lg text-white sm:w-[375px]">{t('noBuddy', { ns: 'referrals' })}</div>
             <div className="">
               <Button
                 onClick={() => {
                   router.push('/referrals');
                 }}
               >
-                {t('createLink')}
+                {t('createLink', { ns: 'referrals' })}
               </Button>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                   <>
                     <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
                       <div className="flex h-8 items-center justify-between">
-                        <h4 className="font-semibold text-gray-300">{t('profile.available')}</h4>
+                        <h4 className="font-semibold text-gray-300">{t('profile.available', { ns: 'referrals' })}</h4>
                       </div>
                       <div className="mt-4 flex items-center">
                         <Icon.Solana />
@@ -178,13 +178,13 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                             }
                           }}
                         >
-                          {t('profile.claimRewards')}
+                          {t('profile.claimRewards', { ns: 'referrals' })}
                         </Button>
                       </div>
                     </div>
                     <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:min-w-[328px] xl:mb-0 xl:mr-4">
                       <div className="flex h-8 items-center ">
-                        <h4 className="text-gray-300">{t('profile.allTimeClaim')}</h4>
+                        <h4 className="text-gray-300">{t('profile.allTimeClaim', { ns: 'referrals' })}</h4>
                       </div>
                       <div className="mt-4 flex items-center">
                         <Icon.Solana />
@@ -192,9 +192,9 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                       </div>
                       <div className="mt-[50px] text-sm">
                         <span className=" font-bold text-gray-300">
-                          {claimedLastWeek} {t('profile.solClaimed')}
+                          {claimedLastWeek} {t('profile.solClaimed', { ns: 'referrals' })}
                         </span>{' '}
-                        <span className="text-gray-500">{t('profile.lastWeek')}</span>
+                        <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
                       </div>
                     </div>
                   </>
@@ -210,7 +210,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                   <>
                     <div className="mb-4 h-[180px] rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] xl:mb-0">
                       <div className="flex h-8 items-center ">
-                        <h4 className="text-gray-300">{t('profile.totalGeneratedRevenue')}</h4>
+                        <h4 className="text-gray-300">{t('profile.totalGeneratedRevenue', { ns: 'referrals' })}</h4>
                       </div>
                       <div className="flex">
                         <div className="mt-4 flex w-full items-center">
@@ -225,21 +225,21 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                       <div className="flex justify-between">
                         <div className="mt-[50px] w-full text-sm">
                           <span className=" font-bold text-gray-300">+{volumeLastWeek} SOL</span>{' '}
-                          <span className="text-gray-500">{t('profile.lastWeek')}</span>
+                          <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
                         </div>
 
                         <div className="mt-[50px] w-full text-sm">
                           <span className=" font-bold text-gray-300">
-                            +{usersLastWeek} {t('profile.users')}
+                            +{usersLastWeek} {t('profile.users', { ns: 'referrals' })}
                           </span>{' '}
-                          <span className="text-gray-500">{t('profile.lastWeek')}</span>
+                          <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
                         </div>
                       </div>
                     </div>
                     <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]">
                       <div className="flex justify-between">
                         <h4 className="font-semibold text-gray-300">
-                          {t('profile.affiliateLink')}
+                          {t('profile.affiliateLink', { ns: 'referrals' })}
                         </h4>
                         <div
                           className="flex h-6 w-6 cursor-pointer items-center justify-center rounded bg-gray-800 hover:bg-gray-700"
@@ -265,7 +265,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                           </p>
                         ) : (
                           <p className="flex items-center text-gray-400">
-                            {t('profile.generating')}
+                            {t('profile.generating', { ns: 'referrals' })}
                           </p>
                         )}
                       </div>
@@ -296,14 +296,14 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
               <div className="h-[56px] w-full min-w-[485px] max-w-[1500px]">
                 <Tabs>
                   <Tab
-                    label={t('profile.claimHistory')}
+                    label={t('profile.claimHistory', { ns: 'referrals' })}
                     active={tab === CLAIM_TAB}
                     onClick={() => {
                       handleTabClick(CLAIM_TAB);
                     }}
                   />
                   <Tab
-                    label={t('profile.referred')}
+                    label={t('profile.referred', { ns: 'referrals' })}
                     active={tab === REFERRED_TAB}
                     onClick={() => {
                       handleTabClick(REFERRED_TAB);
@@ -311,7 +311,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                   />
                   <Tab
                     disabled
-                    label={t('profile.inactive')}
+                    label={t('profile.inactive', { ns: 'referrals' })}
                     active={tab === INACTIVE_TAB}
                     onClick={() => {
                       // handleTabClick(INACTIVE_TAB);
@@ -410,7 +410,7 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
           />
           <div className="absolute -right-[25px] flex h-[50px] w-[50px] rotate-12 items-center justify-center md:-right-[30px] md:h-[60px] md:w-[60px] xl:-right-[50px] xl:h-[95px] xl:w-[95px]">
             <div className="leading-2 absolute inset-0 m-auto flex items-center justify-center text-center text-xs text-white md:h-[30px] md:w-[30px] md:text-sm md:leading-3 xl:h-[80px] xl:w-[80px] xl:text-xl xl:leading-5">
-              {t('share')} <br /> {t('and')} <br /> {t('earn')}
+              {t('share', { ns: 'referrals' })} <br /> {t('and', { ns: 'referrals' })} <br /> {t('earn', { ns: 'referrals' })}
             </div>
             <Icon.Stamp className="h-full w-full" />
           </div>

@@ -33,10 +33,10 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
         <h1 className="mt-6 text-xl">{wallet.displayName}</h1>
         <div className="mt-4 flex gap-2 text-white">
           <div className="flex flex-row gap-1">
-            {wallet.compactOwnedCount} <span className="text-gray-300">{t('collected')}</span>
+            {wallet.compactOwnedCount} <span className="text-gray-300">{t('collected', { ns: 'profile' })}</span>
           </div>
           <div className="flex flex-row gap-1">
-            {wallet.compactCreatedCount} <span className="text-gray-300">{t('created')}</span>
+            {wallet.compactCreatedCount} <span className="text-gray-300">{t('created', { ns: 'profile' })}</span>
           </div>
         </div>
       </div>

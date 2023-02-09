@@ -147,8 +147,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 collectionQueryClient.data?.collection.timeseries.floorPrice) && (
                 <Chart.Preview
                   className="h-40 w-full md:w-36 xl:w-40"
-                  title={t('floorPrice')}
-                  dateRange={t('timeInterval.day')}
+                  title={t('floorPrice', { ns: 'collection' })}
+                  dateRange={t('timeInterval.day', { ns: 'collection' })}
                   chart={
                     <Chart.TinyLineChart
                       data={collectionQueryClient.data?.collection.timeseries.floorPrice || []}
@@ -161,8 +161,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 collectionQueryClient.data?.collection.timeseries.listedCount) && (
                 <Chart.Preview
                   className="h-40 w-full md:w-36 xl:w-40"
-                  title={t('listings')}
-                  dateRange={t('timeInterval.day')}
+                  title={t('listings', { ns: 'collection' })}
+                  dateRange={t('timeInterval.day', { ns: 'collection' })}
                   chart={
                     <Chart.TinyLineChart
                       data={collectionQueryClient.data?.collection.timeseries.listedCount || []}
@@ -206,17 +206,17 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         </div>
         <Overview.Tabs>
           <Overview.Tab
-            label={t('nfts')}
+            label={t('nfts', { ns: 'collection' })}
             href={`/collections/${collection.id}/nfts`}
             active={router.pathname === CollectionPath.Nfts}
           />
           <Overview.Tab
-            label="Activity"
+            label={t('activity', { ns: 'collection' })}
             href={`/collections/${collection.id}/activity`}
             active={router.pathname === CollectionPath.Activity}
           />
           <Overview.Tab
-            label={t('analytics')}
+            label={t('analytics', { ns: 'collection' })}
             href={`/collections/${collection.id}/analytics`}
             active={router.pathname === CollectionPath.Analytics}
           />

@@ -72,10 +72,10 @@ interface CollectionActivityForm {
 export default function CollectionActivity(): JSX.Element {
   const { t } = useTranslation(['collection', 'common']);
   const activityFilterOptions = [
-    { label: t('all'), value: ActivityFilter.All },
-    { label: t('listings'), value: ActivityFilter.Listings },
-    { label: t('offers'), value: ActivityFilter.Offers },
-    { label: t('sales'), value: ActivityFilter.Sales },
+    { label: t('all', { ns: 'collection' }), value: ActivityFilter.All },
+    { label: t('listings', { ns: 'collection' }), value: ActivityFilter.Listings },
+    { label: t('offers', { ns: 'collection' }), value: ActivityFilter.Offers },
+    { label: t('sales', { ns: 'collection' }), value: ActivityFilter.Sales },
   ];
   const { watch, control } = useForm<CollectionActivityForm>({
     defaultValues: { type: activityFilterOptions[0].value },

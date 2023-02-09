@@ -1,4 +1,5 @@
 import clsx from "clsx"
+import { useTranslation } from 'next-i18next';
 import { useMemo, useState } from "react"
 import { AuctionHouse, Nft } from "../../graphql.types"
 import { useBulkListContext } from "../../providers/BulkListProvider"
@@ -13,6 +14,7 @@ interface BulkListBottomDrawerProps {
   openDrawer: boolean
 }
 function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkListBottomDrawerProps): JSX.Element {
+  const { t } = useTranslation('profile');
   const { selected, setSelected } = useBulkListContext()
   const [listingOpen, setListingOpen] = useState(false)
 
@@ -32,7 +34,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
         <div className="z-20 rounded-full bg-gray-900 p-2 flex justify-center items-center gap-3 relative top-10">
           <Button onClick={handleMassSelect} background={ButtonBackground.Gray} className="text-left">
             <CheckBox
-              label={`Select all unlisted (${unlistedNfts.length})`}
+              label={t('bulkListing.selectUnlisted', { ns: 'profile', tokenCount: unlistedNfts.length })}
               selected={selected.length >= unlistedNfts.length}
               onClick={handleMassSelect}
               />
@@ -41,7 +43,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
             onClick={() => setListingOpen(true)}
             className="text-sm"
           >
-            List selected ({selected.length})
+            {t('bulkListing.listSelected', { ns: 'profile' , tokenCount: selected.length})}
           </Button>
         </div>
       </div>
@@ -62,7 +64,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
             <div className="bg-gradient-to-l from-gray-700 to-transparent w-1/6 h-[1.5rem] absolute top-inherit right-0"/>
             </div>
             <div className="flex items-center justify-end gap-2 text-sm">
-              <p className="text-gray-500 font-bold w-full text-center">In Cart</p>
+              <p className="text-gray-500 font-bold w-full text-center">{t('bulkListing.inCart', { ns: 'profile' })}</p>
               <p className="bg-gradient-primary px-3 py-1 rounded-full">
                 {selected.length}
               </p>
@@ -71,7 +73,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
           )
           : (
             <>
-              <p className="text-gray-500 text-sm">No NFTs yet in our cart ;)</p>
+              <p className="text-gray-500 text-sm">{t('bulkListing.noTokensInCart', { ns: 'profile' })}</p>
               <img
                 src="/images/moon.svg"
                 className="w-[3rem] object-cover"
