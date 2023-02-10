@@ -116,7 +116,8 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
                 </button>
               </div>
 
-              <a
+              {/* Temporarily removed until we find a better and less confusing solution to do socials */}
+              {/* <a
                 href={`https://twitter.com/${wallet.displayName}`}
                 target="_blank"
                 rel="noreferrer"
@@ -131,7 +132,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
                     />
                   </svg>
                 </div>
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

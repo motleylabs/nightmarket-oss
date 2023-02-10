@@ -72,7 +72,8 @@ export default function ListingItem({
           error={bulkListNftState.errors.amounts?.[nft.address]}
           {...registerBulkListNft(`amounts.${nft.address}`, {
             required: !disabled,
-            validate: (value) => (!disabled ? Boolean(value.match(NUMBER_REGEX)?.length) : true),
+            validate: (value) =>
+              !disabled ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
           })}
           icon={<Icon.Sol defaultColor={!disabled ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           disabled={disabled}
