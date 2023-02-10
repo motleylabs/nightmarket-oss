@@ -65,7 +65,7 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   useEffect(() => {
     if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) setSteps(2);
     else if (timeEllapsed && !loadingBuddy && buddy?.publicKey) {
-      commitName(buddy.username);
+      commitName(buddy?.username!);
       setSteps(3);
     }
   }, [timeEllapsed, loadingBuddy, buddy]);
@@ -106,7 +106,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const viewerQueryResult = useViewer();
   const [domain, setDomain] = useState('');
 
-  const { creating, created, onCreateBuddy } = useCreateBuddy();
+  const { creating, created, onCreateBuddy, validateName } = useCreateBuddy();
 
   useEffect(() => {
     setDomain(window.location.origin);
@@ -116,12 +116,32 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
     if (created) setSteps(3);
   }, [created]);
 
-  const handleEnter = useCallback(async () => {
+  useEffect(() => {
+    let shouldUpdate = true;
     if (name.length >= 3) {
-      await onCreateBuddy(name, referrer);
-      commitName(name.toLowerCase());
-    } else setError(t('nameLengthError'));
+      validateName(name.toLowerCase()).then((isAvailable) => {
+        if (!shouldUpdate) return null;
+        if (!isAvailable) {
+          setError(t('usernameTaken'));
+        } else if (isAvailable && error) {
+          setError('');
+        }
+      });
+    }
+
+    return () => {
+      shouldUpdate = false;
+    };
   }, [name]);
+
+  const handleEnter = useCallback(async () => {
+    if (!error) {
+      if (name.length >= 3) {
+        await onCreateBuddy(name, referrer);
+        commitName(name.toLowerCase());
+      } else setError(t('nameLengthError'));
+    }
+  }, [name, error]);
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
@@ -221,9 +241,12 @@ function Success({ name }: SuccessProps): JSX.Element {
   }, [url]);
   const { publicKey } = useWallet();
 
-  const navigateProfile = useCallback(() => {
-    Router.push(`/profiles/${publicKey}`);
-  }, [publicKey]);
+  const navigateProfile = useCallback(
+    (tab: string) => {
+      Router.push(`/profiles/${publicKey}/${tab}`);
+    },
+    [publicKey]
+  );
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
@@ -285,7 +308,7 @@ function Success({ name }: SuccessProps): JSX.Element {
         background={ButtonBackground.Black}
         border={ButtonBorder.Gradient}
         color={ButtonColor.Gradient}
-        onClick={navigateProfile}
+        onClick={() => navigateProfile('affiliate')}
       >
         {t('goTo', { ns: 'referrals' })}
       </Button>

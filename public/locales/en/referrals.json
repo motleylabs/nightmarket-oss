@@ -7,7 +7,7 @@
   "connectWallet": "Connect Wallet",
   "welcomeMarket": "Welcome to the Night Market!",
   "createUnique": "Now create a unique name for your referral link",
-  "placeholder": "placeholder",
+  "placeholder": "username",
   "createLink": "Create link",
   "creating": "Creating",
   "fee": "Fee for the link generation",
@@ -18,10 +18,11 @@
   "and": "&",
   "earn": "Earn",
   "nameLengthError": "Your name must be at least 3 characters",
+  "usernameTaken": "This username is in use, please try another one.",
   "noBuddy": "Create an affiliate account to join our referral program. Activity from your custom links will be displayed here.",
   "profile": {
     "available": "Available to Claim",
-    "claimRewards": "Claim Rewards",
+    "claimRewards": "Claim Referral Fees",
     "allTimeClaim": "Claimed (All Time)",
     "totalGeneratedRevenue": "Total Generated Volume",
     "affiliateLink": "Your Affiliate Link",
@@ -39,6 +40,7 @@
     "upTo": "EARN UP TO",
     "joinAffiliate": "Join our Affiliate Program and start earning now!",
     "instruction": "Earn up to 100% of Night Market transaction fees by sharing an affiliate link with your network!",
-    "createReferral": "Create referral link"
+    "createReferral": "Create referral link",
+    "seeDashboard": "See my affiliate dashboard"
   }
 }

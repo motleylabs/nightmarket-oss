@@ -27,6 +27,10 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import useViewer from './viewer';
 import { notifyInstructionError } from '../modules/bugsnag';
 import config from '../app.config';
+import { useCachedBuddy } from './referrals';
+import { queueVersionedTransactionSign } from '../utils/transactions';
+import { TX_INTERVAL } from './list';
+import { reduceSettledPromise } from '../utils/promises';
 
 interface BuyForm {
   amount?: number;
@@ -56,11 +60,16 @@ interface BuyContext {
 
 export default function useBuyNow(): BuyContext {
   const wallet = useWallet();
-  const { connected, publicKey, signTransaction } = wallet;
+  const { connected, publicKey, signTransaction, signAllTransactions } = wallet;
   const { connection } = useConnection();
   const viewer = useViewer();
   const [buy, setBuy] = useState(false);
   const [buying, setBuying] = useState(false);
+
+  const { linkBuddy } = useCachedBuddy({
+    wallet: wallet.publicKey?.toString()!,
+    organisation: config.buddylink.organizationName,
+  });
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
     if (
@@ -240,32 +249,42 @@ export default function useBuyNow(): BuyContext {
       })
     );
 
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-    const messageV0 = new TransactionMessage({
-      payerKey: publicKey,
-      recentBlockhash: blockhash,
-      instructions: arrayOfInstructions,
-    }).compileToV0Message([lookupTableAccount!]);
-
-    const transactionV0 = new VersionedTransaction(messageV0);
+    const transactions: VersionedTransaction[] = [];
+    try {
+      const signedBuddyTx = await linkBuddy();
+      if (signedBuddyTx) transactions.push(signedBuddyTx);
+    } catch (e) {}
 
     try {
-      const signedTx = await signTransaction(transactionV0);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (!signature) {
-        return;
-      }
-      await connection.confirmTransaction(
-        {
-          blockhash,
-          lastValidBlockHeight,
-          signature,
-        },
-        'confirmed'
-      );
+      const { blockhash } = await connection.getLatestBlockhash();
 
-      toast('NFT purchased', { type: 'success' });
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: arrayOfInstructions,
+      }).compileToV0Message([lookupTableAccount!]);
+
+      const transactionV0 = new VersionedTransaction(messageV0);
+
+      transactions.push(transactionV0);
+
+      const pendingSigned = await queueVersionedTransactionSign({
+        transactions,
+        signAllTransactions,
+        signTransaction,
+        connection,
+        txInterval: TX_INTERVAL,
+      });
+
+      const settledSignedTxs = reduceSettledPromise(pendingSigned);
+
+      if (settledSignedTxs.rejected.length > 0) {
+        throw settledSignedTxs.rejected[0];
+      }
+
+      if (settledSignedTxs.fulfilled.length > 0) {
+        toast('NFT purchased', { type: 'success' });
+      }
 
       return { buyerReceiptTokenAccount };
     } catch (err: any) {

@@ -47,6 +47,8 @@ import ReportQuery from './../queries/report.graphql';
 import { DateRangeOption, getDateTimeRange } from '../modules/time';
 import BulkListProvider from '../providers/BulkListProvider';
 import CurrencyProvider from '../providers/CurrencyProvider';
+import { getCookie, setCookie } from '../utils/cookies';
+import { useRouter } from 'next/router';
 
 start();
 
@@ -613,6 +615,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
+export const COOKIE_REF = 'refId';
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet;
 
@@ -636,8 +639,22 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const links = [
     [{ href: config.website, title: 'About the DAO', popout: true }],
     [{ href: config.status, title: 'Status', popout: true }],
-    [{ href: '#', title: 'Terms of Service', popout: true }, { href: '#', title: 'Privacy Policy', popout: true }],
+    [
+      { href: '#', title: 'Terms of Service', popout: true },
+      { href: '#', title: 'Privacy Policy', popout: true },
+    ],
   ];
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query?.refId) {
+      const hasCookie = getCookie(COOKIE_REF);
+      if (!hasCookie) {
+        setCookie(COOKIE_REF, (router.query?.refId as string).toLowerCase(), 60);
+      }
+    }
+  }, [router.query?.refId]);
 
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>

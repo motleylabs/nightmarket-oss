@@ -47,10 +47,8 @@ export async function buildTransaction({
 
 interface QueueTransactionSignProps {
   transactions: Transaction[];
-  signTransaction: <T extends Transaction | VersionedTransaction>(transaction: T) => Promise<T>;
-  signAllTransactions:
-    | (<T extends Transaction | VersionedTransaction>(transactions: T[]) => Promise<T[]>)
-    | undefined;
+  signTransaction: <T extends Transaction>(transaction: T) => Promise<T>;
+  signAllTransactions: (<T extends Transaction>(transactions: T[]) => Promise<T[]>) | undefined;
   txInterval: number; //How long to wait between signing in milliseconds
   connection: Connection;
 }
@@ -85,6 +83,60 @@ export async function queueTransactionSign({
         setTimeout(() => {
           console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
           connection.sendRawTransaction(tx.serialize()).then((txHash) => resolve(txHash));
+        }, i * txInterval);
+      });
+    })
+  );
+
+  return pendingSigned;
+}
+
+interface QueueVersionedTransactionSignProps {
+  transactions: VersionedTransaction[];
+  signTransaction: <T extends VersionedTransaction>(transaction: T) => Promise<T>;
+  signAllTransactions:
+    | (<T extends VersionedTransaction>(transactions: T[]) => Promise<T[]>)
+    | undefined;
+  txInterval: number; //How long to wait between signing in milliseconds
+  connection: Connection;
+}
+
+export async function queueVersionedTransactionSign({
+  transactions,
+  signAllTransactions,
+  signTransaction,
+  txInterval,
+  connection,
+}: QueueVersionedTransactionSignProps) {
+  let signedTxs: VersionedTransaction[] = [];
+
+  if (signAllTransactions) {
+    signedTxs = await signAllTransactions(transactions);
+  } else {
+    //fallback to sign tx batches individually (if wallet doesn't support signAll)
+    const settledTxs = await Promise.allSettled(
+      transactions.map(async (tx) => {
+        const signedTx = await signTransaction(tx);
+        return signedTx;
+      })
+    );
+    const { fulfilled } = reduceSettledPromise(settledTxs);
+
+    signedTxs = fulfilled;
+  }
+
+  const pendingSigned = await Promise.allSettled(
+    signedTxs.map((tx, i, allTx) => {
+      //send all tx in intervals to avoid overloading the network
+      return new Promise<string>((resolve, reject) => {
+        setTimeout(() => {
+          console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
+          connection
+            .sendRawTransaction(tx.serialize())
+            .then((txHash) => resolve(txHash))
+            .catch((e) => {
+              reject(e);
+            });
         }, i * txInterval);
       });
     })
