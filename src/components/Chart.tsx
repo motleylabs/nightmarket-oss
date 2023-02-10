@@ -34,7 +34,7 @@ const tickGapDict = {
   [DateRangeOption.MONTH]: 90,
 };
 
-const CustomLineChartTooltip = ({ active, payload, label }: TooltipProps): JSX.Element => {
+const CustomLineChartTooltip = ({ active, payload, label }: TooltipProps<number, string>): JSX.Element => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
