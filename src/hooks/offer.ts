@@ -37,6 +37,10 @@ import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { notifyInstructionError } from '../modules/bugsnag';
 import config from '../app.config';
+import { useCachedBuddy } from './referrals';
+import { TX_INTERVAL } from './list';
+import { queueVersionedTransactionSign } from '../utils/transactions';
+import { reduceSettledPromise } from '../utils/promises';
 
 export interface OfferForm {
   amount: number;
@@ -70,11 +74,16 @@ interface MakeOfferContext {
 }
 
 export function useMakeOffer(nft?: Nft): MakeOfferContext {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
 
   const { connection } = useConnection();
   const login = useLogin();
   const [makeOffer, setMakeOffer] = useState(false);
+
+  const { linkBuddy } = useCachedBuddy({
+    wallet: publicKey?.toString()!,
+    organisation: config.buddylink.organizationName,
+  });
 
   const listing: AhListing | null = useMemo(() => {
     const listing = nft?.listings?.find((listing: AhListing) => {
@@ -194,7 +203,7 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
     };
 
     const instruction = createCreateOfferInstruction(accounts, args);
-    const tx = new Transaction();
+    const arrayOfInstructions = new Array<TransactionInstruction>();
 
     const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
       ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -215,30 +224,43 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
 
     if (!buyerAtAInfo) {
-      tx.add(buyerATAInstruction);
+      arrayOfInstructions.push(buyerATAInstruction);
     }
 
-    tx.add(instruction);
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+    arrayOfInstructions.push(instruction);
+
+    const transactions: VersionedTransaction[] = [];
+    try {
+      const signedBuddyTx = await linkBuddy();
+      if (signedBuddyTx) transactions.push(signedBuddyTx);
+    } catch (e) {}
+
+    const { blockhash } = await connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message();
+    const tx = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      transactions.push(tx);
+      const pendingSigned = await queueVersionedTransactionSign({
+        transactions,
+        signAllTransactions,
+        signTransaction,
+        connection,
+        txInterval: TX_INTERVAL,
+      });
 
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
+      const settledSignedTxs = reduceSettledPromise(pendingSigned);
+      if (settledSignedTxs.rejected.length > 0) {
+        throw settledSignedTxs.rejected[0];
       }
 
-      toast('Your offer is in', { type: 'success' });
+      if (settledSignedTxs.fulfilled.length > 0) {
+        toast('Your offer is in', { type: 'success' });
+      }
 
       return { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice };
     } catch (err: any) {
@@ -685,9 +707,13 @@ interface AcceptOfferContext {
 
 export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferContext {
   const [acceptingOffer, setAcceptingOffer] = useState(false);
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
   const router = useRouter();
+  const { linkBuddy } = useCachedBuddy({
+    wallet: publicKey?.toString()!,
+    organisation: config.buddylink.organizationName,
+  });
 
   const onAcceptOffer = async ({ auctionHouse, nft, listing }: AcceptOfferParams) => {
     if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
@@ -899,6 +925,12 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       })
     );
 
+    const transactions: VersionedTransaction[] = [];
+    try {
+      const signedBuddyTx = await linkBuddy();
+      if (signedBuddyTx) transactions.push(signedBuddyTx);
+    } catch (e) {}
+
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
     const messageV0 = new TransactionMessage({
@@ -910,21 +942,23 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
     const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(transactionV0);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (!signature) {
-        return;
-      }
-      await connection.confirmTransaction(
-        {
-          blockhash,
-          lastValidBlockHeight,
-          signature,
-        },
-        'confirmed'
-      );
+      transactions.push(transactionV0);
+      const pendingSigned = await queueVersionedTransactionSign({
+        transactions,
+        signAllTransactions,
+        signTransaction,
+        connection,
+        txInterval: TX_INTERVAL,
+      });
 
-      toast('Offer accepted', { type: 'success' });
+      const settledSignedTxs = reduceSettledPromise(pendingSigned);
+      if (settledSignedTxs.rejected.length > 0) {
+        throw settledSignedTxs.rejected[0];
+      }
+
+      if (settledSignedTxs.fulfilled.length > 0) {
+        toast('Offer accepted', { type: 'success' });
+      }
 
       return { buyerTradeState, metadata, buyerReceiptTokenAccount };
     } catch (err: any) {

@@ -683,7 +683,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 error={offerFormState.errors.amount}
                 {...registerListNft('amount', {
                   required: true,
-                  validate: (value) => Boolean(value.match(NUMBER_REGEX)?.length),
+                  validate: (value) =>
+                    Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length),
                 })}
               />
               <Form.Error message={listNftState.errors.amount?.message} />
@@ -731,8 +732,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                 icon={<Icon.Sol />}
                 error={updateListingState.errors.amount}
                 autoFocus
-                {...registerUpdateListing('amount', { required: true,
-                  validate: (value) => Boolean(value.match(NUMBER_REGEX)?.length), })}
+                {...registerUpdateListing('amount', {
+                  required: true,
+                  validate: (value) =>
+                    Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length),
+                })}
               />
               <Form.Error message={updateListingState.errors.amount?.message} />
             </Form.Label>

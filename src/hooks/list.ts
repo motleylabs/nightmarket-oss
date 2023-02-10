@@ -13,7 +13,13 @@ import {
   UpdateListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
 import { NftMarketInfoQuery } from './../queries/nft.graphql';
-import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js';
 import { AhListing, AuctionHouse, Nft, Maybe } from '../graphql.types';
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -24,7 +30,15 @@ import { useApolloClient } from '@apollo/client';
 import client from '../client';
 import { notifyInstructionError } from '../modules/bugsnag';
 import { reduceSettledPromise } from '../utils/promises';
-import { buildTransaction, queueTransactionSign } from '../utils/transactions';
+import {
+  buildTransaction,
+  queueTransactionSign,
+  queueVersionedTransactionSign,
+} from '../utils/transactions';
+import { useCachedBuddy } from './referrals';
+import config from '../app.config';
+
+export const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
 interface ListNftForm {
   amount: string;
@@ -45,7 +59,7 @@ interface ListNftContext {
 }
 
 export function useListNft(): ListNftContext {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, signTransaction, signAllTransactions } = useWallet();
   const login = useLogin();
   const { connection } = useConnection();
   const client = useApolloClient();
@@ -57,6 +71,11 @@ export function useListNft(): ListNftContext {
     reset,
     formState: listNftState,
   } = useForm<ListNftForm>();
+
+  const { linkBuddy } = useCachedBuddy({
+    wallet: publicKey?.toString()!,
+    organisation: config.buddylink.organizationName,
+  });
 
   const onSubmitListNft = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {
     if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
@@ -154,67 +173,82 @@ export function useListNft(): ListNftContext {
 
     const sellerATAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
 
-    const tx = new Transaction();
+    const arrayOfInstructions = new Array<TransactionInstruction>();
 
     if (!sellerATAInfo) {
-      tx.add(sellerATAInstruction);
+      arrayOfInstructions.push(sellerATAInstruction);
     }
 
-    tx.add(instruction);
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = publicKey;
+    arrayOfInstructions.push(instruction);
+
+    const transactions: VersionedTransaction[] = [];
+    try {
+      const signedBuddyTx = await linkBuddy();
+      if (signedBuddyTx) transactions.push(signedBuddyTx);
+    } catch (e) {}
+
+    const { blockhash } = await connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: blockhash,
+      instructions: arrayOfInstructions,
+    }).compileToV0Message();
+    const transactionV0 = new VersionedTransaction(messageV0);
 
     try {
-      const signedTx = await signTransaction(tx);
-      const signature = await connection.sendRawTransaction(signedTx.serialize());
-      if (signature) {
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
+      transactions.push(transactionV0);
+      const pendingSigned = await queueVersionedTransactionSign({
+        transactions,
+        signAllTransactions,
+        signTransaction,
+        connection,
+        txInterval: TX_INTERVAL,
+      });
+
+      const settledSignedTxs = reduceSettledPromise(pendingSigned);
+
+      if (settledSignedTxs.rejected.length > 0) {
+        throw settledSignedTxs.rejected[0];
       }
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
+      if (settledSignedTxs.fulfilled.length > 0) {
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
+            },
           },
-        },
-        (data) => {
-          const listing = {
-            __typename: 'AhListing',
-            id: `temp-id-listing-${listingAddress.toBase58()}`,
-            seller: publicKey.toBase58(),
-            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-            tradeState: sellerTradeState.toBase58(),
-            tradeStateBump: tradeStateBump,
-            price: buyerPrice.toString(),
-            auctionHouse: {
-              address: auctionHouse.address,
-              __typename: 'AuctionHouse',
-            },
-          };
+          (data) => {
+            const listing = {
+              __typename: 'AhListing',
+              id: `temp-id-listing-${listingAddress.toBase58()}`,
+              seller: publicKey.toBase58(),
+              marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
+              tradeState: sellerTradeState.toBase58(),
+              tradeStateBump: tradeStateBump,
+              price: buyerPrice.toString(),
+              auctionHouse: {
+                address: auctionHouse.address,
+                __typename: 'AuctionHouse',
+              },
+            };
 
-          const listings = [...data.nft.listings, listing];
+            const listings = [...data.nft.listings, listing];
 
-          return {
-            nft: {
-              ...data.nft,
-              listings,
-            },
-          };
-        }
-      );
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
 
-      toast('Listing posted', { type: 'success' });
+        toast('Listing posted', { type: 'success' });
+      }
     } catch (err: any) {
       notifyInstructionError(err, {
         operation: 'Listing created',
@@ -322,7 +356,6 @@ export function useBulkListing(): BulkListContext {
     setListingBulk(true);
 
     const LISTINGS_PER_TX = 3; // >3 is too large
-    const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const authority = new PublicKey(auctionHouse.authority);
@@ -493,7 +526,7 @@ export function useBulkListing(): BulkListContext {
                 address: nft.mintAddress,
               },
             },
-            (data: any) => {
+            () => {
               const listing = {
                 __typename: 'AhListing',
                 id: `temp-id-listing-${listingAddress.toBase58()}`,
@@ -508,11 +541,11 @@ export function useBulkListing(): BulkListContext {
                 },
               };
 
-              const listings = [...(data.nft?.listings || []), listing];
+              const listings = [...(nft?.listings || []), listing];
 
               return {
                 nft: {
-                  ...data.nft,
+                  ...(nft || {}),
                   listings,
                 },
               };
@@ -806,26 +839,30 @@ export function useCloseListing({
         'confirmed'
       );
 
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
-
-          return {
-            nft: {
-              ...data.nft,
-              listings,
+      try {
+        client.cache.updateQuery(
+          {
+            query: NftMarketInfoQuery,
+            broadcast: false,
+            overwrite: true,
+            variables: {
+              address: nft.mintAddress,
             },
-          };
-        }
-      );
+          },
+          (data) => {
+            const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
+
+            return {
+              nft: {
+                ...data.nft,
+                listings,
+              },
+            };
+          }
+        );
+      } catch (e) {
+        console.error('optimistic rendering failed', e);
+      }
 
       toast('Listing canceled', { type: 'success' });
     } catch (err: any) {

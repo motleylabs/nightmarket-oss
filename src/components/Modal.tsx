@@ -65,24 +65,26 @@ export default function Modal(props: ModalProps) {
               <Dialog.Panel
                 className={clsx(
                   'z-40 w-full max-w-md transform !overflow-visible rounded-2xl bg-gray-900  text-left align-middle transition-all',
-                  'scrollbar-thumb-rounded-full relative flex h-full max-h-screen w-full flex-col overflow-y-auto rounded-xl bg-gray-900  text-white shadow-md scrollbar-thin scrollbar-track-gray-900  sm:h-auto  sm:max-w-lg',
+                  'scrollbar-thumb-rounded-full relative flex h-full max-h-screen w-full flex-col overflow-y-auto bg-gray-900  text-white shadow-md scrollbar-thin scrollbar-track-gray-900  sm:h-auto  sm:max-w-2xl',
                   props.short ? 'sm:max-h-[30rem]' : 'sm:max-h-[50rem]',
                   props.scroll ? 'pt-6' : 'p-6'
                 )}
               >
-                <button
-                  type="button"
-                  onClick={() => props.setOpen(false)}
-                  className="absolute -top-2 -right-2 z-50 rounded-full bg-white p-1 hover:bg-gray-100 hover:text-gray-400"
-                >
-                  {/* <Close color={`#ffffff`} /> */}
-                  <XMarkIcon className="h-4 w-4 text-gray-900" />
-                </button>
-                {props.title && (
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-white">
-                    {props.title}
-                  </Dialog.Title>
-                )}
+                <div className="flex items-center justify-between">
+                  {props.title && (
+                    <Dialog.Title as="h3" className="text-[32px] font-medium text-white">
+                      {props.title}
+                    </Dialog.Title>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => props.setOpen(false)}
+                    className="z-50 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-gray-800 p-1 hover:bg-gray-700 hover:text-gray-100"
+                  >
+                    {/* <Close color={`#ffffff`} /> */}
+                    <XMarkIcon className="h-6 w-6 text-white" />
+                  </button>
+                </div>
 
                 {props.children}
               </Dialog.Panel>

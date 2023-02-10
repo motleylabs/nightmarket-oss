@@ -34,9 +34,9 @@ export function Table({ metadata }: TableProps): JSX.Element {
   // const [sorter, setSorter] = useState<Sorter>({});
 
   const labels = useMemo(() => {
-    return metadata.columns.map((col) => {
+    return metadata.columns.map((col, key) => {
       return (
-        <div>
+        <div key={`col-${key}`}>
           <div className="font-bold text-gray-500">{col.label}</div>
           {/* <div>add arrows once sorting is implemented</div> */}
         </div>
@@ -45,12 +45,12 @@ export function Table({ metadata }: TableProps): JSX.Element {
   }, [metadata.columns]);
 
   const items = useMemo(() => {
-    return metadata.data.map((item) => {
+    return metadata.data.map((item, itemKey) => {
       return (
-        <div className="grid grid-cols-auto rounded-xl bg-gray-800 p-4">
-          {metadata.columns.map((col) => {
+        <div className="grid grid-cols-auto rounded-xl bg-gray-800 p-4" key={`item-${itemKey}`}>
+          {metadata.columns.map((col, colKey) => {
             return (
-              <div className="font-bold text-gray-200">
+              <div className="font-bold text-gray-200" key={`item-${itemKey}-${colKey}`}>
                 {item[col.label] ? item[col.label] : null}
               </div>
             );
@@ -150,8 +150,16 @@ function ReferredList({ referred, loading }: ReferredListProps) {
         data: referred.map((ref) => ({
           Address: ellipsize(ref.userWallet),
           Date: format(new Date(ref.dateCreated * 1000), 'dd.MM.yy'),
+          ['Total Generated Volume']: (
+            <div className="flex items-center">
+              <div className="mr-1">
+                <Icon.Sol />
+              </div>
+              <div>{(ref.totalGeneratedFeeVolume || 0) / 1e9}</div>
+            </div>
+          ),
         })),
-        columns: [{ label: 'Address' }, { label: 'Date' }],
+        columns: [{ label: 'Address' }, { label: 'Date' }, { label: 'Total Generated Volume' }],
       });
     }
   }, [referred]);

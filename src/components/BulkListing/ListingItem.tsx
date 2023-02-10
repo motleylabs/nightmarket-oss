@@ -32,7 +32,9 @@ export default function ListingItem({
       <Tooltip
         content={
           <div>
-            <p className="mb-1 text-xs font-bold text-gray-600">{t('bulkListing.lastSalePrice', { ns: 'profile' })}</p>
+            <p className="mb-1 text-xs font-bold text-gray-600">
+              {t('bulkListing.lastSalePrice', { ns: 'profile' })}
+            </p>
             <div className="flex gap-1">
               <Icon.Sol />
               <p>{lastSale.solPrice}</p>
@@ -57,7 +59,7 @@ export default function ListingItem({
           className="h-14 w-14 rounded-lg border-2 border-solid border-gray-400/50 object-cover"
         />
         <div>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <p className="mb-1 max-w-[11rem] overflow-hidden text-ellipsis whitespace-nowrap">
               {nft.name}
             </p>
@@ -72,7 +74,8 @@ export default function ListingItem({
           error={bulkListNftState.errors.amounts?.[nft.address]}
           {...registerBulkListNft(`amounts.${nft.address}`, {
             required: !disabled,
-            validate: (value) => (!disabled ? Boolean(value.match(NUMBER_REGEX)?.length) : true),
+            validate: (value) =>
+              !disabled ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
           })}
           icon={<Icon.Sol defaultColor={!disabled ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           disabled={disabled}

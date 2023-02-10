@@ -3,7 +3,7 @@ import { AuctionHouse, SolanaNetwork, Wallet } from '../graphql.types';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { WalletProfileClientQuery } from './../queries/profile.graphql';
 import { SolanaNetworkQuery } from './../queries/solananetwork.graphql';
-
+import Tooltip from '../components/Tooltip';
 import { useTranslation } from 'next-i18next';
 import { Overview } from './../components/Overview';
 import Head from 'next/head';
@@ -37,7 +37,7 @@ enum ProfilePath {
   Affiliate = '/profiles/[address]/affiliate',
 }
 
-function ProfileFigure(props: { figure: ReactNode; label: string; loading: boolean }) {
+function ProfileFigure(props: { figure: ReactNode; label: string | ReactNode; loading: boolean }) {
   return (
     <div className="flex flex-col items-center">
       <div className="text-sm font-medium text-gray-300">{props.label}</div>
@@ -76,14 +76,11 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
       0
     );
 
-    const solanaPrice = solanaNetworkQuery.data?.solanaNetwork.price;
-
-    if (!total || !solanaPrice) {
+    if (!total) {
       return 0;
     }
 
-    const multiplier = Math.pow(10, 2);
-    return Math.round((total * multiplier) / multiplier) * solanaPrice;
+    return total.toFixed(2);
   }, [
     solanaNetworkQuery.data?.solanaNetwork.price,
     walletProfileClientQuery.data?.wallet.collectedCollections,
@@ -119,7 +116,8 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
                 </button>
               </div>
 
-              <a
+              {/* Temporarily removed until we find a better and less confusing solution to do socials */}
+              {/* <a
                 href={`https://twitter.com/${wallet.displayName}`}
                 target="_blank"
                 rel="noreferrer"
@@ -134,16 +132,36 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
                     />
                   </svg>
                 </div>
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
         <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
-          <ProfileFigure
-            label={t('netWorth', { ns: 'profile' })}
-            figure={portfolioValue}
-            loading={loading}
-          />
+          <Tooltip
+            placement="bottom"
+            content={
+              <>
+                <p>{t('portfolioDisclaimer', { ns: 'profile' })}</p>
+              </>
+            }
+            className="max-w-[14rem]"
+          >
+            <ProfileFigure
+              figure={
+                <div className="flex items-center">
+                  <Icon.Sol />
+                  <span className="ml-1">{portfolioValue}</span>
+                </div>
+              }
+              label={
+                <div className="relative flex items-center">
+                  <span>{t('portfolioValue', { ns: 'profile' })}</span>
+                  <Icon.Info className="absolute -right-5 ml-1 h-4" />
+                </div>
+              }
+              loading={loading}
+            />
+          </Tooltip>
           <ProfileFigure
             label={t('totalNFTs', { ns: 'profile' })}
             figure={walletProfileClientQuery.data?.wallet.nftCounts.owned || 0}

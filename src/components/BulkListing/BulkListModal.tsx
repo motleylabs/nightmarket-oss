@@ -13,7 +13,8 @@ import ListingItem from './ListingItem';
 import { AuctionHouse } from '../../graphql.types';
 import clsx from 'clsx';
 
-export const NUMBER_REGEX = new RegExp(/^\d+(.\d{1,9})?$/);
+// NB. this regex accept values of 0 so need more validation than just this regex on inputs
+export const NUMBER_REGEX = new RegExp(/^\d*\.?\d{1,9}$/);
 
 interface BulkListModalProps {
   open: boolean;
@@ -51,42 +52,6 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
         return acc + parseFloat(amounts[cur] || '0');
       }, 0);
 
-  const PnL = selected.reduce((acc, cur) => {
-    if (cur.lastSale?.solPrice) {
-      const listingPrice = parseFloat(amounts[cur.address] || '0');
-      const pnl: number = listingPrice - cur.lastSale.solPrice;
-      return acc + pnl;
-    }
-    return acc;
-  }, 0);
-
-  const pnlColor = PnL < 0 ? 'text-red-500' : 'text-white';
-
-  const txFees = useMemo(() => {
-    const numListing = selected.length;
-    const listingsPerTx = 6; //roughly 6 listings per tx
-
-    const baseTxFee = 0.00005; //SOL
-    const baseRent = 0.02; //SOL
-    const computeIncrease = 0.00001; //SOL
-
-    const numTx = Math.ceil(numListing / listingsPerTx);
-    const computeIncRate = 2; // every 2 Tx
-    const numIncreases = (numTx - 1) * computeIncRate;
-
-    const txFee = baseTxFee * numTx;
-    const computeFee = computeIncrease * numIncreases;
-    const rentFee = baseRent * numListing; //Will be refunded on sell/delist
-
-    const totalFee = txFee + computeFee;
-    return {
-      fee: totalFee,
-      feePercent: total ? (totalFee / total) * 100 : 0,
-      rent: rentFee,
-      rentPercent: total ? (rentFee / total) * 100 : 0,
-    };
-  }, [selected.length, total]);
-
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
@@ -117,7 +82,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
 
   const renderMainContent = () => (
     <Form onSubmit={handleSubmitBulkListNft(handleList)}>
-      <div className="my-6 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-gray-800 p-4 sm:p-2">
+      <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-800 p-4 sm:p-2">
         <label className="relative ml-3 inline-flex cursor-pointer items-center">
           <input
             type="checkbox"
@@ -127,26 +92,29 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
             onChange={(e) => setUseGlobalPrice(e.target.checked)}
           />
           <div className="peer h-7 w-12 rounded-full bg-black after:absolute after:top-[4px] after:left-[4px] after:h-5 after:w-5 after:rounded-full after:bg-gray-200  after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:bg-gradient-secondary"></div>
-          <span className="ml-3 text-gray-100">{t('bulkListing.globalPrice', { ns: 'profile' })}</span>
+          <span className="ml-3 text-base text-gray-100">
+            {t('bulkListing.globalPrice', { ns: 'profile' })}
+          </span>
           <Tooltip content={t('bulkListing.globalPriceTooltip', { ns: 'profile' })}>
             <Icon.Info className="ml-2" />
           </Tooltip>
         </label>
         <Form.Input
-          className={clsx('sm:w-1/2')}
+          font
+          className={clsx('h-12 sm:w-1/2')}
           icon={<Icon.Sol defaultColor={useGlobalPrice ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           error={bulkListNftState.errors.globalBulkPrice}
           {...registerBulkListNft('globalBulkPrice', {
             required: useGlobalPrice,
             validate: (value) =>
-              useGlobalPrice ? Boolean(value.match(NUMBER_REGEX)?.length) : true,
+              useGlobalPrice ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
           })}
           disabled={!useGlobalPrice}
         />
         <Form.Error message={bulkListNftState.errors.globalBulkPrice?.message} />
       </div>
 
-      <div className="overflow-auto">
+      <div className="max-h-[25rem] overflow-auto">
         {selected.map((nft) => (
           <ListingItem
             key={nft.address}
@@ -159,80 +127,15 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
       </div>
       <hr className="border-b-none relative -left-[5%] w-[110%] border-t-[0.5px] border-gray-700/75" />
       <div className="grid w-full grid-cols-3 gap-2 py-6">
-        <Tooltip
-          placement="top"
-          content={
-            <>
-              <p>{t('bulkListing.pnlTooltip', { ns: 'profile' })}</p>
-              <p className="mt-1 italic">
-              {t('bulkListing.pnlExplanation', { ns: 'profile' })}
-              </p>
-            </>
-          }
-          className="max-w-[14rem]"
-        >
-          <div className="-mt-[2px] flex items-center gap-1">
-            <p className="text-sm text-gray-400">{t('bulkListing.pnl', { ns: 'profile' })}</p>
-            <Icon.Info />
-          </div>
+        <div className="">
+          <p className="text-2xl text-gray-200">Total</p>
+        </div>
+        <div className="col-span-2 min-w-[4.5rem] justify-self-end">
           <div className="flex items-center gap-1">
-            <Icon.Sol />
-            <p className={pnlColor}>{roundToPrecision(PnL, 2)}</p>
+            <Icon.Sol className="h-auto w-6" />
+            <p className="text-2xl">{roundToPrecision(total, 2)}</p>
           </div>
-          <p className="ml-5 text-sm text-gray-600">{solToUsdString(PnL)}</p>
-        </Tooltip>
-
-        <Tooltip
-          placement="top"
-          content={
-            <>
-              <p>{t('bulkListing.estimatedNetworkFee', { ns: 'profile' })}</p>
-              <div className="flex gap-2">
-                <p className="text-sm italic">
-                  <Icon.Sol className="mb-1 inline-block h-3 w-3" />{' '}
-                  {roundToPrecision(txFees.fee, 6)}
-                </p>
-                <p className="text-sm italic text-gray-200">
-                  {' '}
-                  ({roundToPrecision(txFees.feePercent, 6)}%)
-                </p>
-              </div>
-              <br />
-              <p>{t('bulkListing.estimatedRent', { ns: 'profile' })}</p>
-              <p className="text-sm italic text-gray-200">
-                {t('bulkListing.estimatedRentDetail', { ns: 'profile' })}
-              </p>
-              <div className="flex gap-2">
-                <p className="text-sm italic">
-                  <Icon.Sol className="mb-1 inline-block h-3 w-3" />{' '}
-                  {roundToPrecision(txFees.rent, 6)}
-                </p>
-                <p className="text-sm italic text-gray-200">
-                  {' '}
-                  ({roundToPrecision(txFees.rentPercent, 6)}%)
-                </p>
-              </div>
-            </>
-          }
-          className="max-w-[18rem]"
-          wrapperClass="justify-self-center"
-        >
-          <div className="-mt-[2px] flex items-center gap-1">
-            <p className="text-sm text-gray-400">Tx Fee</p>
-            <Icon.Info />
-          </div>
-          <p className="text-gray-200">
-            ~{roundToPrecision(txFees.feePercent + txFees.rentPercent, 6)}%
-          </p>
-        </Tooltip>
-
-        <div className="min-w-[4rem] justify-self-end">
-          <p className="text-sm text-gray-400">Total</p>
-          <div className="flex items-center gap-1">
-            <Icon.Sol />
-            <p>{roundToPrecision(total, 2)}</p>
-          </div>
-          <p className="ml-5 text-sm text-gray-600">{solToUsdString(total)}</p>
+          <p className="ml-7 text-sm text-gray-400">{solToUsdString(total)}</p>
         </div>
       </div>
       {listingBulk ? (

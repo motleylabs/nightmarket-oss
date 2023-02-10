@@ -1,17 +1,22 @@
 import { createBuddyClient } from '@ladderlabs/buddylink';
 import { NodeWallet } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/create-buddy-client';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
-import { useCallback, useEffect, useState } from 'react';
+import { TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
+import { getCookie, setCookie } from '../utils/cookies';
+import { COOKIE_REF } from '../pages/_app';
+import { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
 
 interface CreateContext {
   created: boolean;
   creating: boolean;
   onCreateBuddy: (name: string, referrer: string) => Promise<void>;
+  createBuddyInstructions: (name: string, referrer: string) => Promise<TransactionInstruction[]>;
+  validateName: (name: string) => Promise<boolean>;
 }
 
 // Do we want to store this information anywhere?
@@ -19,16 +24,12 @@ interface CreateContext {
 export function useCreateBuddy(): CreateContext {
   const [created, setCreated] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [client, setClient] = useState<BuddyClient | null>(null);
   const { connection } = useConnection();
   const { connected, publicKey, signAllTransactions, signTransaction } = useWallet();
 
-  const onCreateBuddy = useCallback(
-    async (name: string, referrer: string) => {
-      if (!connected || !publicKey || !signTransaction) {
-        throw new Error('not all params provided');
-      }
-      setCreating(true);
-
+  useEffect(() => {
+    if (connection && publicKey && signTransaction) {
       const buddyClient = createBuddyClient(
         connection,
         {
@@ -38,20 +39,45 @@ export function useCreateBuddy(): CreateContext {
         } as NodeWallet,
         config.buddylink.organizationName
       );
-      const referrerName = referrer.toLowerCase();
-      const buddyName = name.toLowerCase();
 
-      const referrerAccount = await buddyClient.getBuddy(referrerName);
+      setClient(buddyClient);
+    }
+  }, [connection, publicKey, signAllTransactions, signTransaction]);
 
-      if (referrerAccount && referrerAccount.authority.toString() === publicKey.toString()) {
-        throw new Error('Buddy referred by the same wallet');
+  const createBuddyInstructions = useCallback(
+    async (name: string, referrer: string) => {
+      if (!connected || !publicKey || !signTransaction || !client) {
+        throw new Error('not all params provided');
       }
 
-      const arrayOfInstructions = await buddyClient.createBuddyInstructions(
+      const referrerName = referrer.toLowerCase();
+
+      const buddyName = name.toLowerCase();
+
+      const referrerAccount = await client.getBuddy(referrerName);
+
+      if (referrerAccount && referrerAccount.authority.toString() === publicKey.toString()) {
+        throw new Error('Error in constructing the instruction. Try again');
+      }
+
+      const arrayOfInstructions = await client.createBuddyInstructions(
         buddyName,
         config.buddylink.buddyBPS,
         referrerName
       );
+
+      return arrayOfInstructions;
+    },
+    [connected, publicKey, signTransaction, signAllTransactions, client]
+  );
+
+  const onCreateBuddy = useCallback(
+    async (name: string, referrer: string) => {
+      if (!connected || !publicKey || !signTransaction) {
+        throw new Error('not all params provided');
+      }
+      setCreating(true);
+      const arrayOfInstructions = await createBuddyInstructions(name, referrer);
 
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
@@ -93,13 +119,26 @@ export function useCreateBuddy(): CreateContext {
         setCreated(false);
       }
     },
-    [connected, publicKey, signTransaction, signAllTransactions]
+    [connected, publicKey, signTransaction, signAllTransactions, client]
+  );
+
+  const validateName = useCallback(
+    async (name: string) => {
+      if (!client) {
+        throw new Error('not all params provided');
+      }
+
+      return await client.validateName(name);
+    },
+    [client]
   );
 
   return {
     created,
     creating,
     onCreateBuddy,
+    createBuddyInstructions,
+    validateName,
   };
 }
 
@@ -249,19 +288,22 @@ export interface ReferredData {
   referrer: string;
   dateCreated: number;
   numberOfReferredUsers: number;
+  totalGeneratedFeeVolume: number;
 }
 
 interface BuddyStatsData {
-  username: string;
+  username: string | null;
   userWallet: string;
-  publicKey: string;
-  referrer: string;
+  totalGeneratedFeeVolumeByReferrals: number;
+  totalGeneratedFeeVolume: number;
+  publicKey: string | null;
+  referrer: string | null;
   totalEarned: number;
   totalClaimed: number;
   totalClaimable: number;
   recentSignatures: [];
   buddies: ReferredData[];
-  chestAddress: string;
+  chestAddress: string | null;
 }
 
 interface BuddyStatsProps {
@@ -274,8 +316,12 @@ export function useBuddyStats(params: BuddyStatsProps) {
   const [data, setData] = useState<BuddyStatsData | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
   const url = config.referralUrl;
-  const pathReferralUser = `${url}referral/user&wallet=${params.wallet}&organisation=${params.organisation}`;
   const key = config.referralKey;
+
+  const pathReferralUser = useMemo(
+    () => `${url}referral/user&wallet=${params.wallet}&organisation=${params.organisation}`,
+    [params]
+  );
 
   const fetchData = useCallback(async () => {
     try {
@@ -294,8 +340,70 @@ export function useBuddyStats(params: BuddyStatsProps) {
   }, [pathReferralUser, key]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (params.wallet) fetchData();
+  }, [params.wallet]);
 
   return { data, loading, error, refreshBuddy: fetchData };
+}
+
+interface CachedBuddyProps {
+  wallet: string;
+  organisation: string;
+}
+
+export function useCachedBuddy(props: CachedBuddyProps) {
+  const { data: buddy, loading } = useBuddyStats(props);
+
+  const { createBuddyInstructions, validateName } = useCreateBuddy();
+  const { connection } = useConnection();
+  const { connected, publicKey, signTransaction } = useWallet();
+
+  const linkBuddy = useCallback(async () => {
+    if (!connected || !publicKey || !signTransaction) {
+      throw new Error('not all params provided');
+    }
+    const refId = getCookie(COOKIE_REF);
+
+    if (loading || !refId) return null;
+    if (buddy?.username) {
+      setCookie(COOKIE_REF, '', 0);
+      return null;
+    }
+
+    const referrerExists = !(await validateName(refId.toLowerCase()));
+
+    if (!referrerExists) {
+      setCookie(COOKIE_REF, '', 0);
+      return null;
+    }
+
+    let transaction = null;
+    try {
+      const buddyInstructions =
+        (await createBuddyInstructions(publicKey?.toString().substring(0, 8)!, refId)) || [];
+
+      if (buddyInstructions.length === 0) {
+        setCookie(COOKIE_REF, '', 0);
+        return null;
+      }
+
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: buddyInstructions,
+      }).compileToV0Message();
+
+      transaction = new VersionedTransaction(messageV0);
+    } catch (e) {
+      console.error('failed buddy sign', e);
+    } finally {
+      setCookie(COOKIE_REF, '', 0);
+    }
+
+    return transaction;
+  }, [buddy, loading, publicKey]);
+
+  return { linkBuddy };
 }

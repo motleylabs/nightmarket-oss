@@ -1,10 +1,21 @@
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import config from '../app.config';
+import { useBuddyStats } from '../hooks/referrals';
 import Button, { ButtonBackground } from './Button';
 
 export default function Banner() {
   const { t } = useTranslation('referrals');
   const router = useRouter();
+
+  const { publicKey } = useWallet();
+
+  const { data, loading } = useBuddyStats({
+    wallet: publicKey?.toString()!,
+    organisation: config.buddylink.organizationName,
+  });
 
   return (
     <div className="relative mt-14 w-full overflow-hidden rounded-2xl bg-gradient-primary">
@@ -30,14 +41,25 @@ export default function Banner() {
             </div>
           </div>
           <div className="lg:auto mt-6 md:mt-0 md:flex md:w-1/3 md:items-end md:justify-center lg:mt-7 lg:w-auto lg:justify-start">
-            <Button
-              background={ButtonBackground.Black}
-              onClick={() => {
-                router.push('/referrals');
-              }}
-            >
-              {t('banner.createReferral', { ns: 'referrals' })}
-            </Button>
+            {!loading && data?.username ? (
+              <Button
+                background={ButtonBackground.Black}
+                onClick={() => {
+                  router.push(`/profiles/${publicKey?.toString()}/affiliate`);
+                }}
+              >
+                {t('banner.seeDashboard', { ns: 'referrals' })}
+              </Button>
+            ) : (
+              <Button
+                background={ButtonBackground.Black}
+                onClick={() => {
+                  router.push('/referrals');
+                }}
+              >
+                {t('banner.createReferral', { ns: 'referrals' })}
+              </Button>
+            )}
           </div>
         </div>
       </div>

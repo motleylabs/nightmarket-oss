@@ -78,11 +78,10 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
     organisation: config.buddylink.organizationName,
   });
 
-  //Values to get from API
-  const [claimedLastWeek] = useState(0);
-  const [volume] = useState(0);
-  const [volumeLastWeek] = useState(0);
-  const [usersLastWeek] = useState(0);
+  //TODO: Values to get from API
+  // const [claimedLastWeek] = useState(0);
+  // const [volumeLastWeek] = useState(0);
+  // const [usersLastWeek] = useState(0);
 
   const tabContent = useMemo(() => {
     switch (tab) {
@@ -173,7 +172,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                           size={ButtonSize.Small}
                           onClick={async () => {
                             if (buddy) {
-                              await onClaimBuddy(buddy?.username);
+                              await onClaimBuddy(buddy?.username!);
                               refreshBuddy();
                             }
                           }}
@@ -190,12 +189,12 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                         <Icon.Solana />
                         <h2 className="ml-1 text-2xl font-bold">{buddy?.totalEarned}</h2>
                       </div>
-                      <div className="mt-[50px] text-sm">
+                      {/* <div className="mt-[50px] text-sm">
                         <span className=" font-bold text-gray-300">
                           {claimedLastWeek} {t('profile.solClaimed', { ns: 'referrals' })}
                         </span>{' '}
                         <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
-                      </div>
+                      </div> */}
                     </div>
                   </>
                 )}
@@ -215,14 +214,16 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                       <div className="flex">
                         <div className="mt-4 flex w-full items-center">
                           <Icon.Solana />
-                          <h2 className="ml-1 text-2xl font-bold">{volume}</h2>
+                          <h2 className="ml-1 text-2xl font-bold">
+                            {(buddy?.totalGeneratedFeeVolumeByReferrals || 0) / 1e9}
+                          </h2>
                         </div>
                         <div className="mt-4 flex w-full items-center">
                           <Icon.User />
                           <h2 className="ml-1 text-2xl font-bold">{buddy?.buddies.length}</h2>
                         </div>
                       </div>
-                      <div className="flex justify-between">
+                      {/* <div className="flex justify-between">
                         <div className="mt-[50px] w-full text-sm">
                           <span className=" font-bold text-gray-300">+{volumeLastWeek} SOL</span>{' '}
                           <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
@@ -234,7 +235,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                           </span>{' '}
                           <span className="text-gray-500">{t('profile.lastWeek', { ns: 'referrals' })}</span>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]">
                       <div className="flex justify-between">
