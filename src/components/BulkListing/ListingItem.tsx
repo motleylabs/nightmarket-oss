@@ -32,7 +32,9 @@ export default function ListingItem({
       <Tooltip
         content={
           <div>
-            <p className="mb-1 text-xs font-bold text-gray-600">{t('bulkListing.lastSalePrice', { ns: 'profile' })}</p>
+            <p className="mb-1 text-xs font-bold text-gray-600">
+              {t('bulkListing.lastSalePrice', { ns: 'profile' })}
+            </p>
             <div className="flex gap-1">
               <Icon.Sol />
               <p>{lastSale.solPrice}</p>
@@ -57,7 +59,7 @@ export default function ListingItem({
           className="h-14 w-14 rounded-lg border-2 border-solid border-gray-400/50 object-cover"
         />
         <div>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <p className="mb-1 max-w-[11rem] overflow-hidden text-ellipsis whitespace-nowrap">
               {nft.name}
             </p>

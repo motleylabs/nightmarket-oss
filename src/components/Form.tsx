@@ -51,16 +51,17 @@ interface FormInputProps
   className?: string;
   icon?: JSX.Element;
   error?: FieldError;
+  font?: boolean;
 }
 
 const FormInput = forwardRef(function FormInput(
-  { className, icon, error, ...props }: FormInputProps,
+  { className, icon, error, font, ...props }: FormInputProps,
   ref
 ) {
   return (
     <div
       className={clsx(
-        'input flex w-full flex-row items-center justify-start rounded-md border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
+        'input flex w-full flex-row items-center justify-start rounded-lg border border-gray-800 bg-gray-800 p-2 text-white focus-within:border-white focus:ring-0 focus:ring-offset-0',
         { 'focus-within:border-red-500': error },
         className
       )}
@@ -69,7 +70,7 @@ const FormInput = forwardRef(function FormInput(
       <input
         {...props}
         ref={ref as LegacyRef<HTMLInputElement> | undefined}
-        className={clsx('w-full bg-transparent', { 'pl-2': icon })}
+        className={clsx('w-full bg-transparent', { 'pl-2': icon, 'text-base': font })}
       />
     </div>
   );
