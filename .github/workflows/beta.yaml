@@ -36,6 +36,7 @@ jobs:
           HOLAINDEXER_URL_DEV: ${{ secrets.HOLAINDEXER_URL_DEV }}
           HOLAINDEXER_URL_TEST: ${{ secrets.HOLAINDEXER_URL_TEST }}
           SOL_ENDPOINT: ${{ secrets.BETA_SOL_ENDPOINT }}
+          REFERRAL_KEY: ${{ secrets.REFERRAL_KEY }}
 
         run: |
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
@@ -51,6 +52,7 @@ jobs:
           --build-arg SOLANA_ENDPOINT=${solana_endpoint} \
           --build-arg AUCTION_HOUSE_ADDRESS=9R8XEEez1uKz9qhSXUUAk4msH6RZ1VRnzmSHeXb9C7cE \
           --build-arg ADDRESS_LOOKUP_TABLE=HwkMfUBwVt1hT9brnVH5WBz73gVP7YdJTYvy3kALwQ75 \
+          --build-arg REFERRAL_KEY=${REFERRAL_KEY} \
           --build-arg BUGSNAG_API_KEY=${BUGSNAG_API_KEY} \
           --build-arg NODE_ENV=$node_env \
           --build-arg MARKETPLACE_SUBDOMAIN=haus \
