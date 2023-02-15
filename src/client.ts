@@ -113,6 +113,14 @@ function asNFTImage(image: string, { readField }: { readField: ReadFieldFunction
   return image;
 }
 
+function asTokenStandard(tokenStandard: string, { readField }: { readField: ReadFieldFunction }): string {
+  if (!tokenStandard) {
+    return "NON_FUNGIBLE";
+  }
+
+  return tokenStandard;
+}
+
 function asActivityPrimaryWallet(
   _: void,
   { readField }: { readField: ReadFieldFunction }
@@ -559,6 +567,9 @@ const client = new ApolloClient({
           },
           image: {
             read: asNFTImage,
+          },
+          tokenStandard: {
+            read: asTokenStandard,
           },
           royalties: {
             read(_, { readField }): number {

@@ -164,6 +164,10 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           </Link>
         </li>
         <li className="flex items-center justify-between">
+          <div>{t('enforcement', { ns: 'nft' })}</div>
+          <div>{nft.tokenStandard === "PROGRAMMABLE_NON_FUNGIBLE" ? "Yes" : "No"}</div>
+        </li>
+        <li className="flex items-center justify-between">
           <div>{t('royalties', { ns: 'nft' })}</div>
           <div>{`${nft.royalties}%`}</div>
         </li>
