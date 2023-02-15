@@ -871,6 +871,7 @@ export type Nft = {
   shortAddress?: Maybe<Scalars['String']>;
   shortMintAddress?: Maybe<Scalars['String']>;
   tokenAccountAddress: Scalars['String'];
+  tokenStandard?: Maybe<TokenStandard>;
   updateAuthorityAddress: Scalars['String'];
 };
 
@@ -1639,6 +1640,19 @@ export type TokenOwnerRecord = {
   totalVotesCount: Scalars['I64'];
   unrelinquishedVotesCount: Scalars['I64'];
 };
+
+export enum TokenStandard {
+  /** A token with simple metadata */
+  Fungible = 'FUNGIBLE',
+  /** A token with metadata that can also have attributes, sometimes called Semi Fungible */
+  FungibleAsset = 'FUNGIBLE_ASSET',
+  /** This is a master edition */
+  NonFungible = 'NON_FUNGIBLE',
+  /** This is a limited edition */
+  NonFungibleEdition = 'NON_FUNGIBLE_EDITION',
+  /** PNFT */
+  ProgrammableNonFungible = 'PROGRAMMABLE_NON_FUNGIBLE'
+}
 
 export type TwitterProfile = {
   __typename?: 'TwitterProfile';
