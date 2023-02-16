@@ -7,6 +7,7 @@ import { CollectionQueryClient } from './../queries/collection.graphql';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import Icon from '../components/Icon';
+import Img from "../components/Image"
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
 import { subDays, format, startOfDay, endOfDay } from 'date-fns';
@@ -84,7 +85,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         <div className="mx-4 mb-12 flex flex-col items-center justify-center gap-10 text-white md:mx-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-start xl:gap-10">
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-800">
-              <img
+              <Img
+                fallbackSrc="/images/moon.svg"
                 src={collection.image}
                 className="inline-block aspect-square h-36 w-36 rounded-md object-cover shadow-xl md:h-36 md:w-36"
                 alt="overview avatar"

@@ -57,7 +57,11 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
           <>
             <div className="flex gap-1 items-center overflow-hidden w-[60%] relative">
               {selected.map(nft => (
-                <Img key={nft.address} src={nft.image} alt={nft.name} 
+                <Img
+                  key={nft.address}
+                  fallbackSrc="/images/moon.svg"
+                  src={nft.image}
+                  alt={nft.name} 
                   className="image-fit rounded-md h-[1.5rem] w-[1.5rem]"
                 />
               ))}
@@ -74,7 +78,7 @@ function BulkListBottomDrawer({ ownedNfts = [], auctionHouse, openDrawer}: BulkL
           : (
             <>
               <p className="text-gray-500 text-sm">{t('bulkListing.noTokensInCart', { ns: 'profile' })}</p>
-              <img
+              <Img
                 src="/images/moon.svg"
                 className="w-[3rem] object-cover"
                 alt="moon"

@@ -9,6 +9,7 @@ import NftLayout from '../../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
 import config from './../../../app.config';
 import Icon from './../../../components/Icon';
+import Img from "./../../../components/Image"
 import { useQuery } from '@apollo/client';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -155,7 +156,8 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
             className="flex flex-row items-center gap-1"
             href={`/profiles/${owner?.address}/collected`}
           >
-            <img
+            <Img
+              fallbackSrc="/images/placeholder.png"
               src={owner?.previewImage as string}
               className="h-6 w-6 rounded-full border border-gray-800 object-cover"
               alt="nft owner avatar image"

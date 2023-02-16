@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
+import Img from "./Image"
 import { Maybe } from './../graphql.types';
 
 interface OverviewProps {
@@ -49,7 +50,8 @@ interface OverviewAvatarProps {
 
 function Avatar({ src, circle }: OverviewAvatarProps): JSX.Element {
   return (
-    <img
+    <Img
+    fallbackSrc="/images/placeholder.png"
       src={src}
       className={clsx(
         'inline-block h-24 w-24 border-4 border-gray-900 shadow-xl md:h-36 md:w-36',

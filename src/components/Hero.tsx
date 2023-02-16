@@ -5,6 +5,7 @@ import { Transition } from '@headlessui/react';
 import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
 import Icon from './Icon';
 import Link from 'next/link';
+import Img from "./Image"
 
 interface HeroProps {
   children: React.ReactNode;
@@ -162,7 +163,8 @@ const HeroPreview = ({
     >
       <div className={clsx('realtive', className)}>
         <Link href={`/nfts/${payout?.nft?.mintAddress}`}>
-          <img
+          <Img
+            fallbackSrc="/images/moon.svg"
             className="aspect-square h-32 w-32 rounded-2xl object-cover lg:h-48 lg:w-48"
             alt="nft name"
             src={payout?.nft?.image}
@@ -187,7 +189,8 @@ const HeroPreview = ({
             </span>
             <div className="flex items-center justify-start gap-2 text-sm text-white">
               {payout?.nft?.moonrankCollection?.image && (
-                <img
+                <Img
+                  fallbackSrc="/images/moon.svg"
                   src={payout.nft.moonrankCollection?.image}
                   alt={`Collection NFT image ${payout.nft.moonrankCollection?.id}`}
                   className="aspect-square w-4 rounded-sm object-cover"

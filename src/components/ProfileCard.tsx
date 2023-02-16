@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { Wallet } from '../graphql.types';
+import Img from './Image';
 
 interface ProfileCardProps {
   wallet: Wallet;
@@ -24,7 +25,8 @@ export default function ProfileCard({ wallet, className }: ProfileCardProps): JS
       />
       <div className="p-4">
         <div className="flex flex-row items-center justify-between">
-          <img
+          <Img
+            fallbackSrc="/images/moon.svg"
             src={wallet.previewImage as string}
             alt={`profile avatar for ${wallet.address}`}
             className="relative z-20 -mt-12 h-24 w-24 rounded-full border-2 border-gray-800 bg-gray-800"

@@ -486,7 +486,12 @@ interface OverviewFormPreviewProps {
 function OverviewFormPreview({ name, image, collection }: OverviewFormPreviewProps) {
   return (
     <div className="flex flex-row justify-start gap-4 md:hidden">
-      <Img src={image} alt="nft image" className="h-12 w-12 rounded-md object-cover" />
+      <Img
+        fallbackSrc="/images/moon.svg"
+        src={image}
+        alt="nft image"
+        className="h-12 w-12 rounded-md object-cover"
+      />
       <div className="flex flex-col justify-between">
         <h6>{name}</h6>
         {collection && <h4>{collection}</h4>}

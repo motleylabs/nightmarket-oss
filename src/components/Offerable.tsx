@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { Form } from './Form';
 import { OfferForm, useMakeOffer } from '../hooks/offer';
 import Icon from './Icon';
+import Img from "./Image"
 import useLogin from '../hooks/login';
 import clsx from 'clsx';
 import { viewerVar } from '../cache';
@@ -167,7 +168,8 @@ export function Offerable({ children, connected = false }: OfferableProps) {
           ) : (
             <Form onSubmit={handleSubmitOffer(handleOffer)} className="flex flex-col gap-6">
               <section className="flex flex-row gap-4">
-                <img
+                <Img
+                  fallbackSrc="/images/moon.svg"
                   src={data?.nft.image}
                   alt={data?.nft.name}
                   className="h-12 w-12 rounded-md object-cover text-sm"

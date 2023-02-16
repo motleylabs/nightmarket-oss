@@ -5,6 +5,7 @@ import Link from 'next/link';
 import useCountdown from '../hooks/countdown';
 import { useTranslation } from 'next-i18next';
 import { asCompactNumber } from '../modules/number';
+import Img from "./Image"
 
 interface DropProps {
   title: string;
@@ -30,7 +31,8 @@ export default function Drop({
   return (
     <div className="w-full max-w-3xl flex-shrink-0 items-center  gap-6 rounded-2xl bg-gray-800 p-4 md:flex md:p-6">
       <div className="flex flex-shrink-0 flex-row items-center gap-4 md:inline-block md:items-start">
-        <img
+        <Img
+          fallbackSrc="/images/moon.svg"
           src={image}
           alt={`${title}-drop`}
           className="aspect-square max-h-12  rounded-lg object-cover md:max-h-80 "

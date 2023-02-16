@@ -10,6 +10,7 @@ import useBuyNow from '../hooks/buy';
 import Icon from './Icon';
 import { viewerVar } from '../cache';
 import config from './../app.config';
+import Img from "./Image"
 
 interface BuyableData {
   nft: Nft;
@@ -151,7 +152,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
           ) : (
             <div className="flex flex-col gap-6">
               <section className="flex flex-row gap-4">
-                <img
+                <Img
+                  fallbackSrc="/images/moon.svg"
                   src={data?.nft.image}
                   alt={data?.nft.name}
                   className="h-12 w-12 rounded-md object-cover text-sm"

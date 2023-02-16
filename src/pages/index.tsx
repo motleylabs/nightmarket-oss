@@ -19,6 +19,7 @@ import {
 import { useWallet } from '@solana/wallet-adapter-react';
 import Hero from '../components/Hero';
 import Icon from '../components/Icon';
+import Img from "../components/Image"
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
@@ -324,7 +325,8 @@ const Home: NextPage = () => {
                       href={`/collections/${trend.collection?.id}`}
                     >
                       <Collection.List.Col className="flex-none">
-                        <img
+                        <Img
+                          fallbackSrc="/images/moon.svg"
                           src={trend.collection?.image}
                           alt={trend.collection?.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-20"

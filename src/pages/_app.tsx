@@ -39,6 +39,7 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
+import Img from "../components/Image"
 import { ToastContainer } from 'react-toastify';
 import { viewerVar } from '../cache';
 import { BriceFont, HauoraFont } from '../fonts';
@@ -358,7 +359,8 @@ function ProfilePopover(props: { wallet: Wallet }) {
   return (
     <Popover className={'relative'}>
       <Popover.Button>
-        <img
+        <Img
+          fallbackSrc="/images/placeholder.png"
           className={clsx(
             'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
             'animate-draw-border border-2 border-primary-100 duration-100'
@@ -380,7 +382,8 @@ function ProfilePopover(props: { wallet: Wallet }) {
           {({ close }) => (
             <div className=" hidden overflow-hidden rounded-md bg-gray-900 pb-4 text-white shadow-lg shadow-black sm:w-96 md:inline-block">
               <div className="flex items-center p-4 ">
-                <img
+                <Img
+                  fallbackSrc="/images/placeholder.png"
                   className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
                   src={props.wallet.previewImage as string}
                   alt="profile image"
@@ -522,7 +525,8 @@ function MobileNavMenu({
             <>
               <section className="flex flex-col" id="wallet-profile-viewer-mobile">
                 <div className="flex items-center py-4 ">
-                  <img
+                  <Img
+                    fallbackSrc="/images/placeholder.png"
                     className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
                     src={viewerQueryResult.data.wallet.previewImage as string}
                     alt="profile image"

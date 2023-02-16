@@ -4,6 +4,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { DebounceInput } from 'react-debounce-input';
 import { MetadataJson, Nft, NftCreator, Wallet, Maybe, Collection } from '../graphql.types';
 import { useTranslation } from 'next-i18next';
+import Img from './Image';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import { GlobalSearchData } from '../hooks/globalsearch';
@@ -267,7 +268,8 @@ function CollectionSearchResult({
           )}
         >
           <div className="flex flex-row items-center gap-6">
-            <img
+            <Img
+              fallbackSrc="/images/moon.svg"
               src={image}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
@@ -313,7 +315,8 @@ function MintAddressSearchResult({
           )}
         >
           <div className="flex flex-row items-center gap-6">
-            <img
+            <Img
+              fallbackSrc="/images/moon.svg"
               src={image}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
@@ -364,7 +367,8 @@ function ProfileSearchResult({
         >
           <div className="flex flex-row items-center gap-6">
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
-              <img
+              <Img
+                fallbackSrc="/images/placeholder.png"
                 src={image}
                 alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
