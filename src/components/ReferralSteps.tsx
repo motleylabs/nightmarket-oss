@@ -201,7 +201,9 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
               </div>
             </Button>
           ) : (
-            <Button onClick={handleEnter}>{t('createLink')}</Button>
+            <Button disabled={!!error} onClick={handleEnter}>
+              {t('createLink')}
+            </Button>
           )}
         </div>
         <div className="mt-2 text-sm">
@@ -278,7 +280,8 @@ function Success({ name }: SuccessProps): JSX.Element {
             className="absolute inset-0 m-auto h-10 w-10 text-center leading-3 text-white"
             style={{ paddingTop: 2, fontSize: 10 }}
           >
-            {t('share', { ns: 'referrals' })} <br /> {t('and', { ns: 'referrals' })} <br /> {t('earn', { ns: 'referrals' })}
+            {t('share', { ns: 'referrals' })} <br /> {t('and', { ns: 'referrals' })} <br />{' '}
+            {t('earn', { ns: 'referrals' })}
           </div>
           <Icon.Stamp className="h-14" />
         </div>

@@ -25,7 +25,9 @@ export default function Banner() {
       <div className="p-6 md:p-11 lg:flex lg:flex-row-reverse lg:justify-between">
         <div className="faded-gradient-text md:flex md:flex-col md:items-center lg:ml-12 lg:w-full lg:justify-center">
           <div className="-mt-4 pt-4">
-            <div className="text-xl font-semibold md:text-2xl xl:text-2xl">{t('banner.upTo', { ns: 'referrals' })}</div>
+            <div className="text-xl font-semibold md:text-2xl xl:text-2xl">
+              {t('banner.upTo', { ns: 'referrals' })}
+            </div>
             <div className="text-[92px] font-bold leading-[76px] md:text-[164px] md:leading-[140px] xl:text-[140px]">
               100%
             </div>
@@ -41,25 +43,20 @@ export default function Banner() {
             </div>
           </div>
           <div className="lg:auto mt-6 md:mt-0 md:flex md:w-1/3 md:items-end md:justify-center lg:mt-7 lg:w-auto lg:justify-start">
-            {!loading && data?.username ? (
-              <Button
-                background={ButtonBackground.Black}
-                onClick={() => {
+            <Button
+              background={ButtonBackground.FullBlack}
+              onClick={() => {
+                if (!loading && data?.username) {
                   router.push(`/profiles/${publicKey?.toString()}/affiliate`);
-                }}
-              >
-                {t('banner.seeDashboard', { ns: 'referrals' })}
-              </Button>
-            ) : (
-              <Button
-                background={ButtonBackground.Black}
-                onClick={() => {
+                } else {
                   router.push('/referrals');
-                }}
-              >
-                {t('banner.createReferral', { ns: 'referrals' })}
-              </Button>
-            )}
+                }
+              }}
+            >
+              {!loading && data?.username
+                ? t('banner.seeDashboard', { ns: 'referrals' })
+                : t('banner.createReferral', { ns: 'referrals' })}
+            </Button>
           </div>
         </div>
       </div>
