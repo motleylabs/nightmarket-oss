@@ -3,6 +3,8 @@ name: Validate Build - nextjs via yarn
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+  push:
+    branches: [dev, beta, main]
 
 jobs:
   build:
