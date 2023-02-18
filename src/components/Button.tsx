@@ -5,9 +5,10 @@ import { useMemo } from 'react';
 export enum ButtonBackground {
   Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',
   Black = 'bg-black',
+  FullBlack = 'bg-black hover:bg-neutral-800 hover:text-[#ED9E09]',
   Slate = 'bg-gray-800',
   Cell = 'bg-gray-900',
-  Gray = 'bg-gray-700/75'
+  Gray = 'bg-gray-700/75',
 }
 
 export enum ButtonColor {
