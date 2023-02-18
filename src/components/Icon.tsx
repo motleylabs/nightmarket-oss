@@ -757,3 +757,26 @@ function MotleyIcon({ className = '' }: IconProps) {
 }
 
 Icon.Motley = MotleyIcon;
+
+function SimpleArrowIcon({ className = '' }: IconProps) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="#4C4C4C"
+    >
+      <path
+        d="M8.3335 13.3334L11.6668 10.0001L8.3335 6.66675"
+        stroke="inherit"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+Icon.SimpleArrow = SimpleArrowIcon;

@@ -55,6 +55,10 @@
     "buyNowButton": "Buy now and claim reward",
     "connectToBuy": "Connect to purchase"
   },
+  "pagination": {
+    "totalItems": "Total items",
+    "itemsPerPage": "Items per page"
+  },
   "copyLink": "Copy Link",
   "copied": "Copied",
   "shareTwitter": "Share to Twitter",

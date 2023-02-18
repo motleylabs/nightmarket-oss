@@ -33,6 +33,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        lside: '-11px 0px 27px -8px #000000',
+      },
       gridTemplateColumns: {
         auto: 'repeat(auto-fit, minmax(150px, 1fr))',
         'auto-85': 'repeat(auto-fit, minmax(85px, 1fr))',

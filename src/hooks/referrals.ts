@@ -282,28 +282,32 @@ export function useBuddyHistory(params: BuddyHistoryProps) {
 }
 
 export interface ReferredData {
-  username: string;
-  publicKey: string;
-  userWallet: string;
-  referrer: string;
   dateCreated: number;
   numberOfReferredUsers: number;
+  publicKey: string;
+  referrer: string;
   totalGeneratedFeeVolume: number;
+  totalGeneratedMarketplaceVolume: number;
+  userWallet: string;
+  username: string;
 }
 
 interface BuddyStatsData {
-  username: string | null;
-  userWallet: string;
-  totalGeneratedFeeVolumeByReferrals: number;
-  totalGeneratedFeeVolume: number;
-  publicKey: string | null;
-  referrer: string | null;
-  totalEarned: number;
-  totalClaimed: number;
-  totalClaimable: number;
-  recentSignatures: [];
   buddies: ReferredData[];
   chestAddress: string | null;
+  dateCreated: number;
+  publicKey: string | null;
+  recentSignatures: [];
+  referrer: string | null;
+  totalClaimable: number;
+  totalClaimed: number;
+  totalEarned: number;
+  totalGeneratedFeeVolume: number;
+  totalGeneratedFeeVolumeByReferrals: number;
+  totalGeneratedMarketplaceVolume: number;
+  totalGeneratedMarketplaceVolumeByReferrals: number;
+  userWallet: string;
+  username: string | null;
 }
 
 interface BuddyStatsProps {
