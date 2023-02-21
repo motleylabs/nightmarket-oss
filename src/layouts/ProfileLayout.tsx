@@ -136,7 +136,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-4 ">
+        <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-3">
           <Tooltip
             placement="bottom"
             content={
@@ -172,22 +172,12 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
             figure={walletProfileClientQuery.data?.wallet.nftCounts.listed || 0}
             loading={loading}
           />
-          <ProfileFigure
-            label={t('sauceEarned', { ns: 'profile' })}
-            loading={loading}
-            figure={
-              <div className="flex items-center gap-2">
-                <Icon.Sauce />
-                {walletProfileClientQuery.data?.wallet.totalRewards}
-              </div>
-            }
-          />
         </div>
       </section>
       <div className="w-full overflow-auto md:overflow-visible">
         <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
           <Overview.Tab
-            label={t('nfts', { ns: 'profile'})}
+            label={t('nfts', { ns: 'profile' })}
             href={`/profiles/${router.query.address}/collected`}
             active={router.pathname === ProfilePath.Collected}
           />

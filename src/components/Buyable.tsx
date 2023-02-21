@@ -10,7 +10,7 @@ import useBuyNow from '../hooks/buy';
 import Icon from './Icon';
 import { viewerVar } from '../cache';
 import config from './../app.config';
-import Img from "./Image"
+import Img from './Image';
 
 interface BuyableData {
   nft: Nft;
@@ -172,15 +172,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <p>
-                    {t('buyEarn', { ns: 'nft' })} <span className="text-primary-700">BONK</span>
-                  </p>
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
                 {data?.nft.moonrankCollection?.trends && (
                   <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">{t('buyable.floorPrice', { ns: 'common' })}</p>
+                    <p className="text-base font-medium text-gray-300">
+                      {t('buyable.floorPrice', { ns: 'common' })}
+                    </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
                     </p>
@@ -188,7 +187,9 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 )}
                 {listing && (
                   <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">{t('buyable.listPrice', { ns: 'common' })}</p>
+                    <p className="text-base font-medium text-gray-300">
+                      {t('buyable.listPrice', { ns: 'common' })}
+                    </p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
                       <Icon.Sol /> {listing.solPrice}

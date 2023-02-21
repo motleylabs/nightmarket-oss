@@ -52,7 +52,7 @@
     "listPrice": "Current Listed Price",
     "currentBalance": "Current Wallet Balance",
     "marketplaceFee": "Marketplace Fee",
-    "buyNowButton": "Buy now and claim reward",
+    "buyNowButton": "Buy now",
     "connectToBuy": "Connect to purchase"
   },
   "pagination": {

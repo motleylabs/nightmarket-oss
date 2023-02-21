@@ -500,7 +500,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                     className="h-5 w-auto object-fill"
                     alt="night market logo"
                   />
-                  <Paragraph color={TextColor.Orange}>BONK</Paragraph>
                 </Flex>
               </div>
               <Overview.Form.Points>
@@ -787,12 +786,6 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       className="h-5 w-auto object-fill"
                       alt="night market logo"
                     />
-                    <Flex gap={1}>
-                      <Paragraph weight={FontWeight.Semibold}>
-                        {t(isOwner ? 'sellEarn' : 'buyEarn', { ns: 'nft' })}
-                      </Paragraph>
-                      <Paragraph color={TextColor.Orange}>BONK</Paragraph>
-                    </Flex>
                   </Flex>
                 )}
                 <Flex block direction={FlexDirection.Col} gap={6} className="p-6">
@@ -881,7 +874,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       )}
                     </>
                   ) : (
-                    <Paragraph weight={FontWeight.Semibold}>{t('noOffers', { ns: 'nft' })}</Paragraph>
+                    <Paragraph weight={FontWeight.Semibold}>
+                      {t('noOffers', { ns: 'nft' })}
+                    </Paragraph>
                   )}
                 </Overview.Figures>
                 <Col span={6} direction={FlexDirection.Col} gap={4}>
@@ -927,13 +922,19 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         <Overview.Tabs>
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
             <Link href={`/nfts/${nft.mintAddress}/details`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Details}>{t('details', { ns: 'nft' })}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Details}>
+                {t('details', { ns: 'nft' })}
+              </ButtonGroup.Option>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/offers`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Offers}>{t('offers', { ns: 'nft' })}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Offers}>
+                {t('offers', { ns: 'nft' })}
+              </ButtonGroup.Option>
             </Link>
             <Link href={`/nfts/${nft.mintAddress}/activity`} scroll={false}>
-              <ButtonGroup.Option value={NftPage.Activity}>{t('activity', { ns: 'nft' })}</ButtonGroup.Option>
+              <ButtonGroup.Option value={NftPage.Activity}>
+                {t('activity', { ns: 'nft' })}
+              </ButtonGroup.Option>
             </Link>
           </ButtonGroup>
         </Overview.Tabs>

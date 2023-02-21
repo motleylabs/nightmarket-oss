@@ -5,7 +5,7 @@ import { Transition } from '@headlessui/react';
 import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
 import Icon from './Icon';
 import Link from 'next/link';
-import Img from "./Image"
+import Img from './Image';
 
 interface HeroProps {
   children: React.ReactNode;
@@ -180,12 +180,8 @@ const HeroPreview = ({
               }
             )}
           >
-            <span className="flex items-center  text-white">
+            <span className="mb-1 flex items-center text-white">
               Sold for <Icon.Sol className="mx-1 h-4 w-4" /> {payout?.purchase?.solPrice}
-            </span>
-            <span className=" truncate text-gray-500">
-              <span className="text-sm text-orange-600">+BONK </span>
-              to buyer and seller
             </span>
             <div className="flex items-center justify-start gap-2 text-sm text-white">
               {payout?.nft?.moonrankCollection?.image && (
