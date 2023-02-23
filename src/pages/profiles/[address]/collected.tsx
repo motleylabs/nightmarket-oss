@@ -298,7 +298,9 @@ export default function ProfileCollected({
       <BulkListBottomDrawer
         ownedNfts={nftsQuery.data?.wallet.nfts}
         auctionHouse={auctionHouse}
-        openDrawer={Boolean(collections?.length)} //open bulk drawer if one or more collections are selected
+        openDrawer={
+          Boolean(collections?.length) && publicKey?.toString() === nftsQuery.data?.wallet.address
+        } //open bulk drawer if one or more collections are selected
       />
     </>
   );

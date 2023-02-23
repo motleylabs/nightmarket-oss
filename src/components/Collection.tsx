@@ -56,7 +56,9 @@ function CollectionOption({
           <div className="flex items-end justify-between">
             {floorPrice && (
               <div className="-mb-1 flex flex-col">
-                <span className="text-[10px] text-gray-400">{t('floorPrice', { ns: 'collection' })}</span>
+                <span className="text-[10px] text-gray-400">
+                  {t('floorPrice', { ns: 'collection' })}
+                </span>
                 <Price price={floorPrice} />
               </div>
             )}
@@ -188,7 +190,7 @@ export default function CollectionCard({
           </div>
         </div>
         <div className=" flex flex-col justify-center rounded-md bg-gray-800 bg-opacity-50 p-2 text-center text-sm backdrop-blur-md xl:text-base">
-          <span className="text-sm text-gray-300">{t('card.floor', { ns: 'collection'})}</span>
+          <span className="text-sm text-gray-300">{t('card.floor', { ns: 'collection' })}</span>
           <div className="flex flex-row items-center justify-center gap-1">
             <Icon.Sol />
             {floorPrice}
@@ -216,7 +218,7 @@ interface CollectionListProps {
 }
 function CollectionList({ children }: CollectionListProps) {
   return (
-    <div className="scrollbar-thumb-rounded-full overflow-x-hidden pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900 lg:pb-0">
+    <div className="scrollbar-thumb-rounded-full pb-6 overflow-x-hidden scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-300 lg:pb-0">
       <div className="w-full">{children}</div>
     </div>
   );
@@ -429,7 +431,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   });
 
   return (
-    <Link href={`/nfts/${nft.mintAddress}`}>
+    <Link href={`/nfts/[address]/details`} as={`/nfts/${nft.mintAddress}/details`}>
       <div className="flex w-16 flex-col items-center">
         <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
           <Image

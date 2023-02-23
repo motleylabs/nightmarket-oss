@@ -139,12 +139,8 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
         <div className="grid grid-cols-2 justify-center gap-10 rounded-lg bg-gray-800 py-4 px-6 text-white md:mx-auto md:mb-10 md:grid-cols-3">
           <Tooltip
             placement="bottom"
-            content={
-              <>
-                <p>{t('portfolioDisclaimer', { ns: 'profile' })}</p>
-              </>
-            }
-            className="max-w-[14rem]"
+            content={<p>{t('portfolioDisclaimer', { ns: 'profile' })}</p>}
+            className="max-w-[12rem] text-center"
           >
             <ProfileFigure
               figure={

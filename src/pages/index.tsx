@@ -19,7 +19,7 @@ import {
 import { useWallet } from '@solana/wallet-adapter-react';
 import Hero from '../components/Hero';
 import Icon from '../components/Icon';
-import Img from "../components/Image"
+import Img from '../components/Image';
 import { Controller, useForm } from 'react-hook-form';
 import { ButtonGroup } from '../components/ButtonGroup';
 import Select from '../components/Select';
@@ -237,7 +237,9 @@ const Home: NextPage = () => {
         </section>
         <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
           <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
-            <h1 className="m-0 font-serif text-2xl">{t('trendingCollections.title', { ns: 'home' })}</h1>
+            <h1 className="m-0 font-serif text-2xl">
+              {t('trendingCollections.title', { ns: 'home' })}
+            </h1>
             <div className="flex flex-row items-center gap-4">
               <Controller
                 control={control}
@@ -322,7 +324,8 @@ const Home: NextPage = () => {
                   <Collection.List.Row key={trend.collection?.id}>
                     <Link
                       className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
-                      href={`/collections/${trend.collection?.id}`}
+                      href={`/collections/[id]/nfts`}
+                      as={`/collections/${trend.collection?.id}/nfts`}
                     >
                       <Collection.List.Col className="flex-none">
                         <Img
@@ -404,10 +407,12 @@ const Home: NextPage = () => {
               link={'/launchpad/test'}
             />
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              <h4 className="text-xl font-semibold">{t('drops.moreLaunchesTitle', { ns: 'home' })}</h4>
+              <h4 className="text-xl font-semibold">
+                {t('drops.moreLaunchesTitle', { ns: 'home' })}
+              </h4>
               <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
               <a
-                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
+                href="https://share.hsforms.com/18ted9lQUTVS2kHj8HtuZswe31d7"
                 target={'_blank'}
                 rel="noreferrer"
               >

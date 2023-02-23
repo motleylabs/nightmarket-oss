@@ -32,7 +32,7 @@
   },
   "accept": "Accept",
   "update": "Update",
-  "portfolioDisclaimer": "This value is based on the collective floor prices of all collections.",
+  "portfolioDisclaimer": "This value is the sum of the floor prices of the held collections, displayed in SOL.",
   "bulkListing": {
     "title": "Bulk Listing",
     "lastSalePrice": "Last Sale Price",

@@ -162,7 +162,7 @@ const HeroPreview = ({
       leaveTo="transform opacity-0 scale-95"
     >
       <div className={clsx('realtive', className)}>
-        <Link href={`/nfts/${payout?.nft?.mintAddress}`}>
+        <Link href={`/nfts/[address]/details`} as={`/nfts/${payout?.nft?.mintAddress}/details`}>
           <Img
             fallbackSrc="/images/moon.svg"
             className="aspect-square h-32 w-32 rounded-2xl object-cover lg:h-48 lg:w-48"
