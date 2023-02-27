@@ -1303,10 +1303,10 @@
     bs58 "^5.0.0"
     uuid "^8.3.2"
 
-"@ladderlabs/buddylink@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@ladderlabs/buddylink/-/buddylink-0.1.5.tgz#34c3bf98be5a98a08f5329fbd4af49e0f71c8787"
-  integrity sha512-HDgVP+FDkm6H8d4pjQcRMaxYnRifRbaxqK/nWiZ2ohtNtyvoMk/T7qBPIbnpWtRG1q+32gHtWiq6HnU9HOqdow==
+"@ladderlabs/buddylink@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@ladderlabs/buddylink/-/buddylink-0.1.6.tgz#2d110654f39c281e3e1ad5c3f2bcd94e7e926d81"
+  integrity sha512-5CF8NgRcSHpwm4LWvzyZIv3dCTh0BHvu8kqObmVHDMoNIJRYd0b6aoZCI+niHSm4zKXMEE9DRxArTjgDnJwUOw==
   dependencies:
     "@project-serum/anchor" "^0.26.0"
     "@solana/spl-token" "^0.1.8"

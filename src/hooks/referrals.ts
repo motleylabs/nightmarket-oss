@@ -106,6 +106,7 @@ export function useCreateBuddy(): CreateContext {
         setCreating(false);
         setCreated(true);
       } catch (err: any) {
+        const parsedError = await client?.parseError(err.message);
         notifyInstructionError(err, {
           operation: 'Create Buddy',
           metadata: {
@@ -114,7 +115,7 @@ export function useCreateBuddy(): CreateContext {
             nft: null,
           },
         });
-        toast(err.message, { type: 'error' });
+        toast(parsedError, { type: 'error' });
         setCreating(false);
         setCreated(false);
       }
