@@ -38,7 +38,7 @@
     "lastSalePrice": "Last Sale Price",
     "selectUnlisted": "Select all unlisted ({{ tokenCount }})",
     "listSelected": "List selected ({{ tokenCount }})",
-    "inCart": "In Cart",
+    "inCart": "Listing Cart",
     "noTokensInCart": "No NFTs added to the cart yet",
     "globalPrice": "Global Price",
     "globalPriceTooltip": "Global Price allows you to set one price for each selected NFT for a Bulk listing",
