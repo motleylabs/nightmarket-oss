@@ -644,8 +644,8 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
     [{ href: config.website, title: 'About the DAO', popout: true }],
     [{ href: config.status, title: 'Status', popout: true }],
     [
-      { href: '#', title: 'Terms of Service', popout: true },
-      { href: '#', title: 'Privacy Policy', popout: true },
+      { href: '/legal/motley_dao-terms_of_service.pdf', title: 'Terms of Service', popout: true },
+      { href: '/legal/motley_dao-privacy_policy.pdf', title: 'Privacy Policy', popout: true },
     ],
   ];
 
