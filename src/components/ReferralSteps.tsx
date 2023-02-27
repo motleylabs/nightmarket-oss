@@ -287,22 +287,22 @@ function Success({ name }: SuccessProps): JSX.Element {
         </div>
       </div>
       <div className="mt-8 flex items-center justify-center">
-        <Link
+        <a
           target="_blank"
           rel="nofollow noreferrer"
           className="text-white"
           href={`https://t.me/share/url?url=${url}`}
         >
           <Icon.Telegram />
-        </Link>
-        <Link
+        </a>
+        <a
           target="_blank"
           rel="nofollow noreferrer"
           className="mx-4 text-white"
           href={`https://twitter.com/share?url=${url}`}
         >
           <Icon.Twitter />
-        </Link>
+        </a>
       </div>
       <div className="mt-5 text-white xl:font-semibold">{t('manage', { ns: 'referrals' })}</div>
       <Button

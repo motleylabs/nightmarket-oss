@@ -39,7 +39,7 @@ import useViewer from '../hooks/viewer';
 import Search from '../components/Search';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
-import Img from "../components/Image"
+import Img from '../components/Image';
 import { ToastContainer } from 'react-toastify';
 import { viewerVar } from '../cache';
 import { BriceFont, HauoraFont } from '../fonts';
@@ -256,7 +256,10 @@ function NavigationBar() {
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet[]> title={t('search.profiles', { ns: 'common' })} result={results?.profiles}>
+                  <Search.Group<Wallet[]>
+                    title={t('search.profiles', { ns: 'common' })}
+                    result={results?.profiles}
+                  >
                     {({ result }) => {
                       return result?.map((wallet, i) => (
                         <Search.Profile
@@ -270,7 +273,10 @@ function NavigationBar() {
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet> title={t('search.wallet', { ns: 'common' })} result={results?.wallet}>
+                  <Search.Group<Wallet>
+                    title={t('search.wallet', { ns: 'common' })}
+                    result={results?.wallet}
+                  >
                     {({ result }) => {
                       if (!result) {
                         return null;
@@ -288,7 +294,10 @@ function NavigationBar() {
                       );
                     }}
                   </Search.Group>
-                  <Search.Group<Nft[]> title={t('search.nfts', { ns: 'common' })} result={results?.nfts as Nft[]}>
+                  <Search.Group<Nft[]>
+                    title={t('search.nfts', { ns: 'common' })}
+                    result={results?.nfts as Nft[]}
+                  >
                     {({ result }) => {
                       return result?.map((nft, i) => (
                         <Search.MintAddress
@@ -570,7 +579,9 @@ function MobileNavMenu({
                   href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
                   className="flex w-full"
                 >
-                  <Button className="w-full font-semibold">{t('viewProfile', { ns: 'common' })}</Button>
+                  <Button className="w-full font-semibold">
+                    {t('viewProfile', { ns: 'common' })}
+                  </Button>
                 </Link>
 
                 <Button
@@ -705,34 +716,34 @@ function Footer({ links }: FooterProps) {
       <div className={clsx('flex gap-6 text-[#A8A8A8] lg:justify-end')}>
         {/* Social media */}
         {config.socialMedia.twitter && (
-          <Link
+          <a
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.twitter}
           >
             <Icon.Twitter />
-          </Link>
+          </a>
         )}
         {config.socialMedia.discord && (
-          <Link
+          <a
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.discord}
           >
             <Icon.Discord />
-          </Link>
+          </a>
         )}
         {config.socialMedia.medium && (
-          <Link
+          <a
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.medium}
           >
             <Icon.Medium />
-          </Link>
+          </a>
         )}
       </div>
     );
@@ -768,14 +779,14 @@ function Footer({ links }: FooterProps) {
               >
                 {col.map((link, linkKey) => {
                   return (
-                    <Link
+                    <a
                       className="pb-2 hover:underline lg:pb-1"
                       target={link.popout ? '_blank' : '_self'}
                       href={link.href}
                       key={`footer-col-${colKey}-${linkKey}`}
                     >
                       {link.title}
-                    </Link>
+                    </a>
                   );
                 })}
               </div>

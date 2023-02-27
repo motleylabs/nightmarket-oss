@@ -122,27 +122,23 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
 
   useEffect(() => {
     if (connected && wallet.address !== adapterWallet?.toString()) {
-      router.push(`/profiles/${wallet.address}`);
+      router.push(`/profiles/${wallet.address}/collected`);
     }
   }, [wallet.address, adapterWallet?.toString(), connecting, connected]);
 
   return (
     <>
-      <div className="">
+      <div>
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
         {!loadingBuddy && !buddy?.publicKey ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
             <div className="mb-4 text-center text-lg text-white sm:w-[375px]">
               {t('noBuddy', { ns: 'referrals' })}
             </div>
-            <div className="">
-              <Button
-                onClick={() => {
-                  router.push('/referrals');
-                }}
-              >
-                {t('createLink', { ns: 'referrals' })}
-              </Button>
+            <div>
+              <Link href="/referrals">
+                <Button>{t('createLink', { ns: 'referrals' })}</Button>
+              </Link>
             </div>
           </div>
         ) : (
@@ -284,22 +280,22 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
                       )}
                     </div>
                     <div className="mt-3 flex items-center justify-center">
-                      <Link
+                      <a
                         target="_blank"
                         rel="nofollow noreferrer"
                         className="text-white opacity-50"
                         href={`https://t.me/share/url?url=${url}`}
                       >
                         <Icon.Telegram className="h-4 w-auto" />
-                      </Link>
-                      <Link
+                      </a>
+                      <a
                         target="_blank"
                         rel="nofollow noreferrer"
                         className="mx-4 text-white opacity-50"
                         href={`https://twitter.com/share?url=${url}`}
                       >
                         <Icon.Twitter className="h-5 w-auto" />
-                      </Link>
+                      </a>
                     </div>
                   </div>
                 )}
