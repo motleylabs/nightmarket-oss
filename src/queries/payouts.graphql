@@ -17,7 +17,7 @@ query PayoutsQuery($address: String!, $limit: Int!, $offset: Int!) @cached(ttl: 
           moonrankCollection {
             name
             id
-            image(width: 100)
+            image(width: 400)
           }
         }
         purchase {

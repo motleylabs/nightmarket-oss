@@ -23,7 +23,7 @@ query BuyableQuery($address: String!, $auctionHouse: String!) {
     address
     mintAddress
     name
-    image(width: 100)
+    image(width: 400)
     creators {
       verified
       address

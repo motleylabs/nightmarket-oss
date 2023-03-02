@@ -41,7 +41,7 @@ query WalletProfileClientQuery($address: PublicKey!, $rewardCenter: PublicKey!) 
     collectedCollections {
       collection {
         name
-        image(width: 100)
+        image(width: 400)
         id
         trends {
           floor1d
@@ -109,7 +109,7 @@ query ProfileActivitiesQuery(
         address
         name
         mintAddress
-        image(width: 100)
+        image(width: 400)
       }
     }
   }
@@ -150,7 +150,7 @@ query ProfileOffersQuery(
         listings {
           ...ListingInfo
         }
-        image(width: 100)
+        image(width: 400)
         moonrankCollection {
           id
         }
