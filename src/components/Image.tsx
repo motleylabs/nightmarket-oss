@@ -37,10 +37,14 @@ function Img({
       if (fallbackSrc) {
         setCurrentSrc(fallbackSrc);
         setHideImage(false);
+        setImageError(false);
       } else {
         setImageError(true);
       }
     };
+    if (image.complete) {
+      setHideImage(false);
+    }
   }, [src]);
 
   if (hasImageError || hideImage) {
