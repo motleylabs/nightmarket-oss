@@ -124,6 +124,14 @@ interface ReportQueryVariables {
 function NavigationBar() {
   const [showNav, setShowNav] = useNavigation();
 
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.overflow = showNav ? "hidden" : "";
+    return (): void => {
+      html.style.overflow = "";
+    };
+  }, [showNav]);
+
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
 
   const expandedSearchRef = useRef<HTMLDivElement>(null!);
@@ -159,189 +167,191 @@ function NavigationBar() {
   return (
     <>
       <ReportHeader reportQuery={reportQuery} />
-      <header
-        className={clsx(
-          'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
-          'grid grid-cols-4',
-          'h-14 md:h-20',
-          'bg-black bg-opacity-90'
-        )}
-      >
-        {/* Night Market logo */}
+      <header>
         <div
-          className={clsx('flex items-center justify-start ', {
-            hidden: searchExpanded,
-          })}
+          className={clsx(
+            'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
+            'grid grid-cols-4',
+            'h-14 md:h-20',
+            'bg-black bg-opacity-90'
+          )}
         >
-          <Link
-            href="/"
-            passHref
-            className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
+          {/* Night Market logo */}
+          <div
+            className={clsx('flex items-center justify-start ', {
+              hidden: searchExpanded,
+            })}
           >
-            <img
-              src="/images/nightmarket-stacked-beta.svg"
-              className="h-8 w-auto object-fill md:h-11"
-              alt="night market logo"
-            />
-          </Link>
-        </div>
-        {/* Search */}
-        <div className="col-span-2 flex justify-center">
-          <button
-            className={clsx(
-              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden ',
-              {
-                hidden: searchExpanded,
-              }
-            )}
-            onClick={() => {
-              setSearchExpanded(true);
-            }}
-          >
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
-          </button>
-          <Search>
-            <div
-              ref={expandedSearchRef}
-              className={clsx(
-                'fixed w-full md:relative',
-                searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
-              )}
+            <Link
+              href="/"
+              passHref
+              className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold"
             >
-              <Search.Input
-                onChange={(e) => {
-                  updateSearch(e);
-                }}
-                value={searchTerm}
-                className="mx-auto hidden w-full max-w-4xl md:block"
-                autofocus={false}
+              <img
+                src="/images/nightmarket-stacked-beta.svg"
+                className="h-8 w-auto object-fill md:h-11"
+                alt="night market logo"
               />
-
-              {searchExpanded && (
+            </Link>
+          </div>
+          {/* Search */}
+          <div className="col-span-2 flex justify-center">
+            <button
+              className={clsx(
+                'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden ',
+                {
+                  hidden: searchExpanded,
+                }
+              )}
+              onClick={() => {
+                setSearchExpanded(true);
+              }}
+            >
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
+            </button>
+            <Search>
+              <div
+                ref={expandedSearchRef}
+                className={clsx(
+                  'fixed w-full md:relative',
+                  searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
+                )}
+              >
                 <Search.Input
                   onChange={(e) => {
                     updateSearch(e);
                   }}
                   value={searchTerm}
-                  autofocus={true}
-                  className="md:hidden"
+                  className="mx-auto hidden w-full max-w-4xl md:block"
+                  autofocus={false}
                 />
-              )}
 
-              <div
-                ref={mobileSearchRef}
-                className={clsx(
-                  'fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto  block max-w-4xl ',
-                  searching || results ? 'block' : 'hidden'
+                {searchExpanded && (
+                  <Search.Input
+                    onChange={(e) => {
+                      updateSearch(e);
+                    }}
+                    value={searchTerm}
+                    autofocus={true}
+                    className="md:hidden"
+                  />
                 )}
-              >
-                <Search.Results
-                  searching={searching}
-                  hasResults={Boolean(previousResults) || hasResults}
-                  enabled={searchTerm.length > 2}
+
+                <div
+                  ref={mobileSearchRef}
+                  className={clsx(
+                    'fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto  block max-w-4xl ',
+                    searching || results ? 'block' : 'hidden'
+                  )}
                 >
-                  <Search.Group<CollectionDocument[]>
-                    title={t('search.collection', { ns: 'common' })}
-                    result={results?.collections as CollectionDocument[]}
+                  <Search.Results
+                    searching={searching}
+                    hasResults={Boolean(previousResults) || hasResults}
+                    enabled={searchTerm.length > 2}
                   >
-                    {({ result }) => {
-                      return result?.map((collection, i) => (
-                        <Search.Collection
-                          value={collection}
-                          key={`search-collection-${collection.id}-${i}`}
-                          image={collection.image || '/images/placeholder.png'}
-                          name={collection.name}
-                          slug={collection.id}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<Wallet[]>
-                    title={t('search.profiles', { ns: 'common' })}
-                    result={results?.profiles}
-                  >
-                    {({ result }) => {
-                      return result?.map((wallet, i) => (
-                        <Search.Profile
-                          value={wallet}
-                          profile={wallet}
-                          key={`search-profile-${wallet.address}-${i}`}
-                          image={wallet.previewImage || '/images/placeholder.png'}
-                          name={wallet.displayName}
-                          slug={wallet.address}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<Wallet>
-                    title={t('search.wallet', { ns: 'common' })}
-                    result={results?.wallet}
-                  >
-                    {({ result }) => {
-                      if (!result) {
-                        return null;
-                      }
+                    <Search.Group<CollectionDocument[]>
+                      title={t('search.collection', { ns: 'common' })}
+                      result={results?.collections as CollectionDocument[]}
+                    >
+                      {({ result }) => {
+                        return result?.map((collection, i) => (
+                          <Search.Collection
+                            value={collection}
+                            key={`search-collection-${collection.id}-${i}`}
+                            image={collection.image || '/images/placeholder.png'}
+                            name={collection.name}
+                            slug={collection.id}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                    <Search.Group<Wallet[]>
+                      title={t('search.profiles', { ns: 'common' })}
+                      result={results?.profiles}
+                    >
+                      {({ result }) => {
+                        return result?.map((wallet, i) => (
+                          <Search.Profile
+                            value={wallet}
+                            profile={wallet}
+                            key={`search-profile-${wallet.address}-${i}`}
+                            image={wallet.previewImage || '/images/placeholder.png'}
+                            name={wallet.displayName}
+                            slug={wallet.address}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                    <Search.Group<Wallet>
+                      title={t('search.wallet', { ns: 'common' })}
+                      result={results?.wallet}
+                    >
+                      {({ result }) => {
+                        if (!result) {
+                          return null;
+                        }
 
-                      return (
-                        <Search.Profile
-                          value={result}
-                          profile={result}
-                          key={`search-wallet-${result?.address}`}
-                          image={result.previewImage || '/images/placeholder.png'}
-                          name={result.displayName}
-                          slug={result.address}
-                        />
-                      );
-                    }}
-                  </Search.Group>
-                  <Search.Group<Nft[]>
-                    title={t('search.nfts', { ns: 'common' })}
-                    result={results?.nfts as Nft[]}
-                  >
-                    {({ result }) => {
-                      return result?.map((nft, i) => (
-                        <Search.MintAddress
-                          value={nft}
-                          nft={nft}
-                          key={`search-mintAddress-${nft.address}-${i}`}
-                          image={nft.image}
-                          slug={nft.mintAddress}
-                          name={nft.name}
-                          creator={nft.creators[0]}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                </Search.Results>
+                        return (
+                          <Search.Profile
+                            value={result}
+                            profile={result}
+                            key={`search-wallet-${result?.address}`}
+                            image={result.previewImage || '/images/placeholder.png'}
+                            name={result.displayName}
+                            slug={result.address}
+                          />
+                        );
+                      }}
+                    </Search.Group>
+                    <Search.Group<Nft[]>
+                      title={t('search.nfts', { ns: 'common' })}
+                      result={results?.nfts as Nft[]}
+                    >
+                      {({ result }) => {
+                        return result?.map((nft, i) => (
+                          <Search.MintAddress
+                            value={nft}
+                            nft={nft}
+                            key={`search-mintAddress-${nft.address}-${i}`}
+                            image={nft.image}
+                            slug={nft.mintAddress}
+                            name={nft.name}
+                            creator={nft.creators[0]}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                  </Search.Results>
+                </div>
               </div>
-            </div>
-          </Search>
-        </div>
-        {/* Connect and Mobile Menu */}
-        <div className="flex items-center justify-end space-x-6">
-          <button
-            className={clsx(
-              'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
-              searchExpanded && 'hidden'
+            </Search>
+          </div>
+          {/* Connect and Mobile Menu */}
+          <div className="flex items-center justify-end space-x-6">
+            <button
+              className={clsx(
+                'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
+                searchExpanded && 'hidden'
+              )}
+              onClick={useCallback(() => {
+                setShowNav(true);
+              }, [setShowNav])}
+            >
+              <Bars3Icon color="#fff" width={20} height={20} />
+            </button>
+
+            {loading ? (
+              <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
+            ) : viewerQueryResult.data ? (
+              <ProfilePopover wallet={viewerQueryResult.data.wallet} />
+            ) : (
+              <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
+                {t('connect', { ns: 'common' })}
+              </Button>
             )}
-            onClick={useCallback(() => {
-              setShowNav(true);
-            }, [setShowNav])}
-          >
-            <Bars3Icon color="#fff" width={20} height={20} />
-          </button>
 
-          {loading ? (
-            <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-          ) : viewerQueryResult.data ? (
-            <ProfilePopover wallet={viewerQueryResult.data.wallet} />
-          ) : (
-            <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
-              {t('connect', { ns: 'common' })}
-            </Button>
-          )}
-
-          {/* mobile nav */}
+            {/* mobile nav */}
+          </div>
         </div>
         <MobileNavMenu showNav={showNav} setShowNav={setShowNav} />
       </header>
@@ -503,122 +513,129 @@ function MobileNavMenu({
   }, [publicKey]);
 
   return (
-    <div
-      className={clsx(
-        'fixed inset-0 z-50 bg-gray-900 py-2 md:hidden',
-        showNav ? 'block' : 'hidden'
-      )}
-    >
-      <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
-        <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
-          <img
-            src="/images/nightmarket-stacked-beta.svg"
-            className="h-8 w-auto object-fill"
-            alt="night market logo"
-          />
-        </Link>
-        <button
-          className="rounded-full bg-white p-3 transition hover:bg-gray-100"
-          onClick={useCallback(() => {
-            setShowNav(false);
-          }, [setShowNav])}
-        >
-          <XMarkIcon color="#171717" width={20} height={20} />
-        </button>
-      </div>
-      <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
-        <div className="flex h-[calc(100vh-58px)] flex-col gap-4 px-6 text-white">
-          {loading ? (
-            <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-          ) : viewerQueryResult.data ? (
-            <>
-              <section className="flex flex-col" id="wallet-profile-viewer-mobile">
-                <div className="flex items-center py-4 ">
-                  <Img
-                    fallbackSrc="/images/placeholder.png"
-                    className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
-                    src={viewerQueryResult.data.wallet.previewImage as string}
-                    alt="profile image"
-                  />
-                  <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
-
-                  <button
-                    onClick={copyWallet}
-                    className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
-                  >
-                    {copied ? (
-                      <CheckIcon className="h-4 w-4 text-gray-300" />
-                    ) : (
-                      <Icon.Copy className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex flex-row items-center gap-2 py-4">
-                  <Icon.Sol className="h-4 w-4" />
-                  {viewer?.solBalance}
-                </div>
-                <Link
-                  href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
-                >
-                  {t('profileMenu.collected', { ns: 'common' })}
-                </Link>
-                <Link
-                  href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
-                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
-                >
-                  {t('profileMenu.activity', { ns: 'common' })}
-                </Link>
-              </section>
-
-              <section
-                className="mt-auto mb-4 flex flex-col justify-end gap-4"
-                id="wallet-action-buttons-mobile"
-              >
-                <Link
-                  href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
-                  className="flex w-full"
-                >
-                  <Button className="w-full font-semibold">
-                    {t('viewProfile', { ns: 'common' })}
-                  </Button>
-                </Link>
-
-                <Button
-                  onClick={async () => {
-                    await disconnect();
-                    setVisible(true);
-                  }}
-                  background={ButtonBackground.Slate}
-                  border={ButtonBorder.Gradient}
-                  color={ButtonColor.Gradient}
-                  className="w-full font-semibold"
-                >
-                  {t('switchWallet', { ns: 'common' })}
-                </Button>
-
-                <Button
-                  onClick={disconnect}
-                  border={ButtonBorder.Gray}
-                  color={ButtonColor.Gray}
-                  className="w-full font-semibold"
-                >
-                  {t('disconnectWallet', { ns: 'common' })}
-                </Button>
-              </section>
-            </>
-          ) : (
-            <>
-              <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
-                <Button className="w-full font-semibold" onClick={onLogin}>
-                  {t('connect', { ns: 'common' })}
-                </Button>
-              </section>
-            </>
-          )}
+    <>
+      <div
+        className={clsx(
+          'fixed inset-0 z-40 bg-gray-900 py-2 md:hidden',
+          showNav ? 'block' : 'hidden'
+        )}
+      >
+        <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
+          <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
+            <img
+              src="/images/nightmarket-stacked-beta.svg"
+              className="h-8 w-auto object-fill"
+              alt="night market logo"
+            />
+          </Link>
+          <button
+            className="rounded-full bg-white p-3 transition hover:bg-gray-100"
+            onClick={useCallback(() => {
+              setShowNav(false);
+            }, [setShowNav])}
+          >
+            <XMarkIcon color="#171717" width={20} height={20} />
+          </button>
         </div>
-      </nav>
-    </div>
+        <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
+          <div className="flex h-[calc(100vh-58px)] flex-col gap-4 px-6 text-white">
+            {loading ? (
+              <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
+            ) : viewerQueryResult.data ? (
+              <>
+                <section className="flex flex-col" id="wallet-profile-viewer-mobile">
+                  <div className="flex items-center py-4 ">
+                    <Img
+                      fallbackSrc="/images/placeholder.png"
+                      className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
+                      src={viewerQueryResult.data.wallet.previewImage as string}
+                      alt="profile image"
+                    />
+                    <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
+
+                    <button
+                      onClick={copyWallet}
+                      className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
+                    >
+                      {copied ? (
+                        <CheckIcon className="h-4 w-4 text-gray-300" />
+                      ) : (
+                        <Icon.Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <div className="flex flex-row items-center gap-2 py-4">
+                    <Icon.Sol className="h-4 w-4" />
+                    {viewer?.solBalance}
+                  </div>
+                  <Link
+                    href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                    className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
+                  >
+                    {t('profileMenu.collected', { ns: 'common' })}
+                  </Link>
+                  <Link
+                    href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
+                    className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
+                  >
+                    {t('profileMenu.activity', { ns: 'common' })}
+                  </Link>
+                </section>
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
+        </nav>
+      </div>
+      <div className={clsx('fixed bottom-0 z-40 w-full px-4', showNav ? 'block' : 'hidden')}>
+        {!loading ? (
+          viewerQueryResult.data ? (
+            <section
+              className="mt-auto mb-4 flex flex-col justify-end gap-4"
+              id="wallet-action-buttons-mobile"
+            >
+              <Link
+                href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                className="flex w-full"
+              >
+                <Button className="w-full font-semibold">
+                  {t('viewProfile', { ns: 'common' })}
+                </Button>
+              </Link>
+
+              <Button
+                onClick={async () => {
+                  await disconnect();
+                  setVisible(true);
+                }}
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+                className="w-full font-semibold"
+              >
+                {t('switchWallet', { ns: 'common' })}
+              </Button>
+
+              <Button
+                onClick={disconnect}
+                border={ButtonBorder.Gray}
+                color={ButtonColor.Gray}
+                className="w-full !bg-black font-semibold"
+              >
+                {t('disconnectWallet', { ns: 'common' })}
+              </Button>
+            </section>
+          ) : (
+            <section className="mt-auto flex py-4" id="wallet-connect-action-mobile">
+              <Button className="w-full font-semibold" onClick={onLogin}>
+                {t('connect', { ns: 'common' })}
+              </Button>
+            </section>
+          )
+        ) : null}
+      </div>
+    </>
   );
 }
 

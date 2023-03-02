@@ -437,7 +437,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
           <Image
             src={nft.image}
             alt={`${nft.name} preview`}
-            className="h-16 w-16 rounded-lg object-cover"
+            className="relative aspect-square w-16 rounded-lg object-cover"
           />
         </div>
         {listing?.solPrice && (
