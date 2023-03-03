@@ -69,10 +69,11 @@ export default function Drop({
               size={ButtonSize.Small}
               className="w-full font-semibold"
               background={ButtonBackground.Slate}
-              border={ButtonBorder.Gradient}
-              color={ButtonColor.Gradient}
+              border={ButtonBorder.Gray}
+              color={ButtonColor.Gray}
+              disabled={true}
             >
-              {t('drops.view', { ns: 'home' })}
+              {t('drops.details', { ns: 'home' })}
             </Button>
           </li>
         </ul>
