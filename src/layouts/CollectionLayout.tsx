@@ -77,7 +77,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { ns: 'collection', name: collection.name })}</title>
+        <title>{`${t('metadata.title', { ns: 'collection', name: collection.name })} | ${t('header.title', { ns: 'common' })}`}</title>
         <meta name="description" content={collection.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>

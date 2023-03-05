@@ -48,7 +48,7 @@ enum NftPage {
 }
 
 export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProps) {
-  const { t } = useTranslation('nft');
+  const { t } = useTranslation(['nft', 'common']);
   const router = useRouter();
   const onLogin = useLogin();
   const { publicKey, connected } = useWallet();
@@ -439,7 +439,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   return (
     <Overview>
       <Head>
-        <title>{nft.name}</title>
+        {data?.nft.moonrankCollection ? (
+          <title>{`${nft.name} | ${data?.nft.moonrankCollection.name} | ${t('header.title', { ns: 'common' })}`}</title>
+        ) : (
+          <title>{nft.name}</title>
+        )}
         <meta name="description" content={nft.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>

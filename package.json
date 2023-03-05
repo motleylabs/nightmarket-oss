@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "graphql-codegen --config codegen.yml",
+    "format": "prettier --write ./src/**/*.{ts,tsx}"
   },
   "lint-staged": {
     "*.ts": "prettier --write",
@@ -19,7 +20,7 @@
     "@bugsnag/js": "^7.20.0",
     "@bugsnag/plugin-react": "^7.19.0",
     "@cardinal/mpl-candy-machine-utils": "^4.5.0",
-    "@headlessui/react": "^1.7.12",
+    "@headlessui/react": "^1.7.13",
     "@heroicons/react": "^2.0.16",
     "@holaplex/hpl-reward-center": "^0.2.4",
     "@holaplex/mpl-auction-house": "^0.0.7",
@@ -37,7 +38,7 @@
     "autoprefixer": "^10.4.13",
     "bn.js": "^5.2.1",
     "clsx": "^1.2.1",
-    "coingecko-api-v3": "^0.0.20",
+    "coingecko-api-v3": "^0.0.22",
     "date-fns": "^2.29.3",
     "graphql": "^16.6.0",
     "i18next": "^22.4.10",
@@ -48,7 +49,7 @@
     "react": "^18.2.0",
     "react-debounce-input": "^3.3.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.43.3",
+    "react-hook-form": "^7.43.4",
     "react-i18next": "^12.2.0",
     "react-intersection-observer": "^9.4.3",
     "react-loader-spinner": "^5.3.4",
@@ -58,7 +59,7 @@
     "recharts": "^2.4.3",
     "swiper": "^9.1.0",
     "tailwind-scrollbar": "^2.1.0",
-    "zod": "^3.20.6"
+    "zod": "^3.21.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "3.2.1",
@@ -67,7 +68,7 @@
     "@graphql-codegen/typescript-document-nodes": "3.0.1",
     "@graphql-codegen/typescript-graphql-files-modules": "2.2.1",
     "@types/luxon": "^3.2.0",
-    "@types/node": "18.14.4",
+    "@types/node": "18.14.6",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "@types/recharts": "^1.8.24",

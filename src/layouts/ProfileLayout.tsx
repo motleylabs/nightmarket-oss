@@ -91,7 +91,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
   return (
     <>
       <Head>
-        <title>{t('metadata.title', { ns: 'profile', name: wallet.displayName })}</title>
+        <title>{`${t('metadata.title', { ns: 'profile', name: wallet.displayName })} | ${t('header.title', { ns: 'common' })}`}</title>
         <meta
           name="description"
           content={t('metadata.description', { ns: 'profile', name: wallet.displayName })}
