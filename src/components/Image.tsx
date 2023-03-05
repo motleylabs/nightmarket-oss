@@ -27,8 +27,6 @@ function Img({
 
   useEffect(() => {
     const image = new Image();
-    image.src = src as string;
-
     image.onload = () => {
       setHideImage(false);
     };
@@ -42,7 +40,9 @@ function Img({
         setImageError(true);
       }
     };
-    if (image.complete) {
+
+    image.src = src as string;
+    if (image.complete && image.naturalWidth !== 0) {
       setHideImage(false);
     }
   }, [src]);
