@@ -110,7 +110,7 @@ export function List<T>({
             [...Array(activeGridSize)].map((_, index) => {
               if (index === 0) {
                 return (
-                  <InView onChange={onLoadMore} key={index}>
+                  <InView rootMargin="200px 0px" onChange={onLoadMore} key={index}>
                     <Skeleton />
                   </InView>
                 );

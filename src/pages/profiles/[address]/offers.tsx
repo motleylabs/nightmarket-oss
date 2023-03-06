@@ -250,6 +250,7 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
             {hasMore && (
               <>
                 <InView
+                  rootMargin="200px 0px"
                   onChange={async (inView) => {
                     if (!inView) {
                       return;

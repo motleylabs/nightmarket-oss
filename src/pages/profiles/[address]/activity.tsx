@@ -180,6 +180,7 @@ export default function ProfileActivity(): JSX.Element {
             {hasMore && (
               <>
                 <InView
+                  rootMargin="200px 0px"
                   onChange={async (inView) => {
                     if (!inView) {
                       return;
