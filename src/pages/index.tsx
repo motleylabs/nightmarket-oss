@@ -324,8 +324,8 @@ const Home: NextPage = () => {
                   <Collection.List.Row key={trend.collection?.id}>
                     <Link
                       className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
-                      href={`/collections/[id]/nfts`}
-                      as={`/collections/${trend.collection?.id}/nfts`}
+                      href={`/collections/[id]`}
+                      as={`/collections/${trend.collection?.id}`}
                     >
                       <Collection.List.Col className="flex-none">
                         <Img

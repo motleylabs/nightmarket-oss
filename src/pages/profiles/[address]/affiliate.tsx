@@ -122,7 +122,7 @@ export default function ProfileAffiliate({ wallet }: ProfileAffiliatePageProps):
 
   useEffect(() => {
     if (connected && wallet.address !== adapterWallet?.toString()) {
-      router.push(`/profiles/${wallet.address}/collected`);
+      router.push(`/profiles/${wallet.address}`);
     }
   }, [wallet.address, adapterWallet?.toString(), connecting, connected]);
 

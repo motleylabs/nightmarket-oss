@@ -4,27 +4,27 @@ import {
   CollectionQuery,
   CollectionNFTsQuery,
   CollectionAttributeGroupsQuery,
-} from './../../../queries/collection.graphql';
+} from './../../queries/collection.graphql';
 import { useForm, Controller } from 'react-hook-form';
-import CollectionLayout from '../../../layouts/CollectionLayout';
-import client from './../../../client';
+import CollectionLayout from '../../layouts/CollectionLayout';
+import client from './../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../../graphql.types';
-import { Toolbar } from '../../../components/Toolbar';
-import { PillItem, Sidebar } from '../../../components/Sidebar';
+import { AttributeFilter, Collection, OrderDirection, NftSort } from '../../graphql.types';
+import { Toolbar } from '../../components/Toolbar';
+import { PillItem, Sidebar } from '../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
-import useSidebar from '../../../hooks/sidebar';
+import useSidebar from '../../hooks/sidebar';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { Preview } from '../../../components/Nft';
-import { List, ListGridSize } from '../../../components/List';
+import { Preview } from '../../components/Nft';
+import { List, ListGridSize } from '../../components/List';
 import { Disclosure } from '@headlessui/react';
-import { Attribute } from '../../../components/Attribute';
-import { Offerable } from '../../../components/Offerable';
+import { Attribute } from '../../components/Attribute';
+import { Offerable } from '../../components/Offerable';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Buyable } from '../../../components/Buyable';
-import Select from '../../../components/Select';
-import config from '../../../app.config';
+import { Buyable } from '../../components/Buyable';
+import Select from '../../components/Select';
+import config from '../../app.config';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -316,7 +316,7 @@ export default function CollectionNfts() {
                       render={(nft, i) => (
                         <Preview
                           key={`${nft.mintAddress}-${i}`}
-                          link={`/nfts/${nft.mintAddress}/details`}
+                          link={`/nfts/${nft.mintAddress}`}
                           onMakeOffer={() => makeOffer(nft.mintAddress)}
                           onBuy={() => buyNow(nft.mintAddress)}
                           nft={nft}

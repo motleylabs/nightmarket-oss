@@ -85,7 +85,7 @@ export default function NftActivity() {
                 avatar={
                   <Link
                     className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/profiles/${activity.primaryWallet?.address}/collected`}
+                    href={`/profiles/${activity.primaryWallet?.address}`}
                   >
                     <Avatar
                       circle

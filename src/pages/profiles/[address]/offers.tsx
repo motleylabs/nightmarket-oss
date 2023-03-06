@@ -169,7 +169,7 @@ export default function ProfileOffers({ auctionHouse }: ProfileOfferPageProps): 
                   avatar={
                     <Link
                       className="cursor-pointer transition hover:scale-[1.02]"
-                      href={`/nfts/${offer.nft?.mintAddress}/details`}
+                      href={`/nfts/${offer.nft?.mintAddress}`}
                     >
                       <Avatar src={offer.nft?.image as string} size={AvatarSize.Standard} />
                     </Link>

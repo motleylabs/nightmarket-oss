@@ -31,7 +31,7 @@ interface ProfileLayout {
 }
 
 enum ProfilePath {
-  Collected = '/profiles/[address]/collected',
+  Collected = '/profiles/[address]',
   Offers = '/profiles/[address]/offers',
   Activity = '/profiles/[address]/activity',
   Affiliate = '/profiles/[address]/affiliate',
@@ -174,7 +174,7 @@ function ProfileLayout({ children, wallet, auctionHouse }: ProfileLayout): JSX.E
         <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
           <Overview.Tab
             label={t('nfts', { ns: 'profile' })}
-            href={`/profiles/${router.query.address}/collected`}
+            href={`/profiles/${router.query.address}`}
             active={router.pathname === ProfilePath.Collected}
           />
           <Overview.Tab

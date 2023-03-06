@@ -431,7 +431,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   });
 
   return (
-    <Link href={`/nfts/[address]/details`} as={`/nfts/${nft.mintAddress}/details`}>
+    <Link href={`/nfts/[address]`} as={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
         <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
           <Image

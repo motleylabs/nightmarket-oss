@@ -427,7 +427,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
-                  href={`/profiles/${props.wallet.address}/collected`}
+                  href={`/profiles/${props.wallet.address}`}
                 >
                   {t('profileMenu.collected', { ns: 'common' })}
                 </Link>
@@ -442,7 +442,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
                 <div className="flex px-4">
                   <Link
                     className="flex w-full"
-                    href={`/profiles/${props.wallet.address}/collected`}
+                    href={`/profiles/${props.wallet.address}`}
                   >
                     <Button onClick={() => close()} className="w-full">
                       {t('viewProfile', { ns: 'common' })}
@@ -569,13 +569,13 @@ function MobileNavMenu({
                     {viewer?.solBalance}
                   </div>
                   <Link
-                    href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                    href={`/profiles/${viewerQueryResult.data.wallet.address}`}
                     className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                   >
                     {t('profileMenu.collected', { ns: 'common' })}
                   </Link>
                   <Link
-                    href={'/profiles/' + viewerQueryResult.data.wallet.address + '/activity'}
+                    href={`/profiles/${viewerQueryResult.data.wallet.address}/activity`}
                     className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
                   >
                     {t('profileMenu.activity', { ns: 'common' })}
@@ -596,7 +596,7 @@ function MobileNavMenu({
               id="wallet-action-buttons-mobile"
             >
               <Link
-                href={'/profiles/' + viewerQueryResult.data.wallet.address + '/collected'}
+                href={`/profiles/${viewerQueryResult.data.wallet.address}`}
                 className="flex w-full"
               >
                 <Button className="w-full font-semibold">

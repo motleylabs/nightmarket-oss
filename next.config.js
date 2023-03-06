@@ -14,18 +14,18 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/collections/:id',
-        destination: '/collections/:id/nfts',
+        source: '/collections/:id/nfts',
+        destination: '/collections/:id',
         permanent: true,
       },
       {
-        source: '/profiles/:address',
-        destination: '/profiles/:address/collected',
+        source: '/profiles/:address/collected',
+        destination: '/profiles/:address',
         permanent: true,
       },
       {
-        source: '/nfts/:address',
-        destination: '/nfts/:address/details',
+        source: '/nfts/:address/details',
+        destination: '/nfts/:address',
         permanent: true,
       },
     ];

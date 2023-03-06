@@ -42,7 +42,7 @@ interface NftMarketVariables {
 }
 
 enum NftPage {
-  Details = '/nfts/[address]/details',
+  Details = '/nfts/[address]',
   Offers = '/nfts/[address]/offers',
   Activity = '/nfts/[address]/activity',
 }
@@ -202,7 +202,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
 
       const { buyerReceiptTokenAccount } = response;
 
-      if (router.pathname === '/nfts/[address]/details') {
+      if (router.pathname === '/nfts/[address]') {
         client.cache.updateQuery(
           {
             query: NftDetailsQuery,
@@ -475,7 +475,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           data?.nft.moonrankCollection && (
             <Link
               className="group mb-4 flex flex-row items-center gap-2 transition"
-              href={`/collections/${data?.nft.moonrankCollection.id}/nfts`}
+              href={`/collections/${data?.nft.moonrankCollection.id}`}
             >
               <Image
                 src={data?.nft.moonrankCollection.image}
@@ -925,7 +925,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <Overview.Content>
         <Overview.Tabs>
           <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
-            <Link href={`/nfts/${nft.mintAddress}/details`} scroll={false}>
+            <Link href={`/nfts/${nft.mintAddress}`} scroll={false}>
               <ButtonGroup.Option value={NftPage.Details}>
                 {t('details', { ns: 'nft' })}
               </ButtonGroup.Option>

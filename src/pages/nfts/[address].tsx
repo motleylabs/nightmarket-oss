@@ -1,15 +1,15 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import client from './../../../client';
-import { NftQuery, NftDetailsQuery } from './../../../queries/nft.graphql';
-import { Nft, AuctionHouse, NftOwner, Maybe } from './../../../graphql.types';
+import client from './../../client';
+import { NftQuery, NftDetailsQuery } from './../../queries/nft.graphql';
+import { Nft, AuctionHouse, NftOwner, Maybe } from './../../graphql.types';
 import { ReactNode, useMemo } from 'react';
-import NftLayout from '../../../layouts/NftLayout';
+import NftLayout from '../../layouts/NftLayout';
 import { useTranslation } from 'next-i18next';
-import config from './../../../app.config';
-import Icon from './../../../components/Icon';
-import Img from "./../../../components/Image"
+import config from './../../app.config';
+import Icon from './../../components/Icon';
+import Img from "./../../components/Image"
 import { useQuery } from '@apollo/client';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
@@ -154,7 +154,7 @@ export default function NftDetails({ nft, auctionHouse }: NftDetailPageProps) {
           <div>{t('owner', { ns: 'nft' })}</div>
           <Link
             className="flex flex-row items-center gap-1"
-            href={`/profiles/${owner?.address}/collected`}
+            href={`/profiles/${owner?.address}`}
           >
             <Img
               fallbackSrc="/images/placeholder.png"

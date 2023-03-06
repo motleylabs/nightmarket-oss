@@ -143,7 +143,7 @@ interface ActivityWalletProps {
 function ActivityWallet({ wallet }: ActivityWalletProps): JSX.Element {
   return (
     <Link
-      href={`/profiles/${wallet?.address}/collected`}
+      href={`/profiles/${wallet?.address}`}
       className="flex items-center gap-1 text-[10px] transition hover:scale-[1.02]"
     >
       <Img

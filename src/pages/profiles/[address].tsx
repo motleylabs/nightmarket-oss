@@ -1,31 +1,31 @@
 import type { GetServerSidePropsContext } from 'next';
-import { WalletProfileQuery, CollectedNFTsQuery } from './../../../queries/profile.graphql';
+import { WalletProfileQuery, CollectedNFTsQuery } from './../../queries/profile.graphql';
 import ProfileLayout, {
   WalletProfileData,
   WalletProfileVariables,
-} from '../../../layouts/ProfileLayout';
-import client from './../../../client';
+} from '../../layouts/ProfileLayout';
+import client from './../../client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AuctionHouse, Wallet } from '../../../graphql.types';
+import { AuctionHouse, Wallet } from '../../graphql.types';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Toolbar } from '../../../components/Toolbar';
-import { PillItem, Sidebar } from '../../../components/Sidebar';
+import { Toolbar } from '../../components/Toolbar';
+import { PillItem, Sidebar } from '../../components/Sidebar';
 import { useTranslation } from 'next-i18next';
-import useSidebar from '../../../hooks/sidebar';
+import useSidebar from '../../hooks/sidebar';
 import { QueryResult, useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { Preview } from '../../../components/Nft';
-import { List, ListGridSize } from './../../../components/List';
-import { Collection } from './../../../components/Collection';
+import { Preview } from '../../components/Nft';
+import { List, ListGridSize } from './../../components/List';
+import { Collection } from './../../components/Collection';
 import { Listbox } from '@headlessui/react';
-import { Offerable } from '../../../components/Offerable';
-import { Buyable } from '../../../components/Buyable';
+import { Offerable } from '../../components/Offerable';
+import { Buyable } from '../../components/Buyable';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import config from '../../../app.config';
-import BulkListBottomDrawer from '../../../components/BulkListing/BottomDrawer';
+import config from '../../app.config';
+import BulkListBottomDrawer from '../../components/BulkListing/BottomDrawer';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -207,7 +207,7 @@ export default function ProfileCollected({
                               avatar={
                                 <Link
                                   className="group relative"
-                                  href={`/collections/${cc.collection?.id}/nfts`}
+                                  href={`/collections/${cc.collection?.id}`}
                                 >
                                   <Collection.Option.Avatar
                                     src={cc.collection?.image as string}
@@ -280,7 +280,7 @@ export default function ProfileCollected({
                       render={(nft, i) => (
                         <Preview
                           key={`${nft.mintAddress}-${i}`}
-                          link={`/nfts/${nft.mintAddress}/details`}
+                          link={`/nfts/${nft.mintAddress}`}
                           onMakeOffer={() => makeOffer(nft.mintAddress)}
                           onBuy={() => buyNow(nft.mintAddress)}
                           auctionHouse={auctionHouse}

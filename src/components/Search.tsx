@@ -257,7 +257,7 @@ function CollectionSearchResult({
       key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${slug}/nfts`);
+        router.push(`/collections/${slug}`);
       }, [router, slug])}
     >
       {({ active }) => (
@@ -355,7 +355,7 @@ function ProfileSearchResult({
       key={`profile-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/profiles/${slug}/collected`);
+        router.push(`/profiles/${slug}`);
       }, [router, slug])}
     >
       {({ active }) => (

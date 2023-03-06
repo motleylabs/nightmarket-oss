@@ -49,7 +49,7 @@ interface CollectionVariables {
 }
 
 enum CollectionPath {
-  Nfts = '/collections/[id]/nfts',
+  Nfts = '/collections/[id]',
   Analytics = '/collections/[id]/analytics',
   Activity = '/collections/[id]/activity',
 }
@@ -227,7 +227,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
         <Overview.Tabs>
           <Overview.Tab
             label={t('nfts', { ns: 'collection' })}
-            href={`/collections/${collection.id}/nfts`}
+            href={`/collections/${collection.id}`}
             active={router.pathname === CollectionPath.Nfts}
           />
           <Overview.Tab

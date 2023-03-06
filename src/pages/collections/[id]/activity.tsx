@@ -160,7 +160,7 @@ export default function CollectionActivity(): JSX.Element {
                 avatar={
                   <Link
                     className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/nfts/${activity.nft?.mintAddress}/details`}
+                    href={`/nfts/${activity.nft?.mintAddress}`}
                   >
                     <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
                   </Link>
