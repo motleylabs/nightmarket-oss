@@ -55,13 +55,13 @@ The list of required environment variables for the application. To be set throug
 First, install dependencies
 
 ```bash
-npm install
+yarn install
 ```
 
 Then, run the development server:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 You might also want to setup a .env.local file to override some ENV variables like RPC provider, don't forget to restart the server if you do.
@@ -70,17 +70,17 @@ You might also want to setup a .env.local file to override some ENV variables li
 NEXT_PUBLIC_SOLANA_RPC_URL="https://holaplex-main-9e4a.mainnet.rpcpool.com/[...api_key]"
 ```
 
-It is requires to run `npm run codegen` after the following activities:
+It is requires to run `yarn codegen` after the following activities:
 
 - Updating the Holaplex NFT API
-- Adjusting the [`local.graphql`](https://github.com/holaplex/dao-marketplace/blob/main/local.graphql)
-- Adding or updating graphql queries in [`src/queries`](https://github.com/holaplex/dao-marketplace/blob/main/src/queries) directory
+- Adjusting the [`local.graphql`](https://github.com/motleylabs/nightmarket/blob/main/local.graphql)
+- Adding or updating graphql queries in [`src/queries`](https://github.com/motleylabs/nightmarket/blob/main/src/queries) directory
 
 The codegen command will autogenerate type definitions for the application's queries and the API server graphql objects.
 
 ## Deploy
 
 ```bash
-npm run build
-npm run start
+yarn build
+yarn start
 ```
