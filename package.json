@@ -16,7 +16,7 @@
     "*.graphql": "prettier --write"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.9",
+    "@apollo/client": "^3.7.10",
     "@bugsnag/js": "^7.20.0",
     "@bugsnag/plugin-react": "^7.19.0",
     "@cardinal/mpl-candy-machine-utils": "^4.5.0",
@@ -26,7 +26,7 @@
     "@holaplex/mpl-auction-house": "^0.0.7",
     "@hookform/resolvers": "^2.9.11",
     "@ladderlabs/buddylink": "^0.1.6",
-    "@metaplex-foundation/mpl-token-metadata": "^2.8.6",
+    "@metaplex-foundation/mpl-token-metadata": "^2.9.0",
     "@react-hook/window-size": "^3.1.1",
     "@solana/wallet-adapter-base": "^0.9.22",
     "@solana/wallet-adapter-react": "^0.15.30",
@@ -41,7 +41,7 @@
     "coingecko-api-v3": "^0.0.22",
     "date-fns": "^2.29.3",
     "graphql": "^16.6.0",
-    "i18next": "^22.4.10",
+    "i18next": "^22.4.11",
     "next": "^13.2.3",
     "next-i18next": "^13.2.1",
     "next-plugin-graphql": "^0.0.2",
@@ -49,7 +49,7 @@
     "react": "^18.2.0",
     "react-debounce-input": "^3.3.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.43.4",
+    "react-hook-form": "^7.43.5",
     "react-i18next": "^12.2.0",
     "react-intersection-observer": "^9.4.3",
     "react-loader-spinner": "^5.3.4",
@@ -59,13 +59,13 @@
     "recharts": "^2.4.3",
     "swiper": "^9.1.0",
     "tailwind-scrollbar": "^2.1.0",
-    "zod": "^3.21.0"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "3.2.1",
+    "@graphql-codegen/cli": "3.2.2",
     "@graphql-codegen/introspection": "3.0.1",
-    "@graphql-codegen/typescript": "3.0.1",
-    "@graphql-codegen/typescript-document-nodes": "3.0.1",
+    "@graphql-codegen/typescript": "3.0.2",
+    "@graphql-codegen/typescript-document-nodes": "3.0.2",
     "@graphql-codegen/typescript-graphql-files-modules": "2.2.1",
     "@types/luxon": "^3.2.0",
     "@types/node": "18.14.6",
