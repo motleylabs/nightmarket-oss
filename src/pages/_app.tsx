@@ -126,9 +126,9 @@ function NavigationBar() {
 
   useEffect(() => {
     const html = document.documentElement;
-    html.style.overflow = showNav ? "hidden" : "";
+    html.style.overflow = showNav ? 'hidden' : '';
     return (): void => {
-      html.style.overflow = "";
+      html.style.overflow = '';
     };
   }, [showNav]);
 
@@ -440,10 +440,7 @@ function ProfilePopover(props: { wallet: Wallet }) {
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex px-4">
-                  <Link
-                    className="flex w-full"
-                    href={`/profiles/${props.wallet.address}`}
-                  >
+                  <Link className="flex w-full" href={`/profiles/${props.wallet.address}`}>
                     <Button onClick={() => close()} className="w-full">
                       {t('viewProfile', { ns: 'common' })}
                     </Button>
@@ -669,8 +666,10 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const PageLayout = Component.getLayout ?? ((props: { children: ReactElement }) => props.children);
 
   const links = [
-    [{ href: config.website, title: 'About the DAO', popout: true }],
-    [{ href: config.status, title: 'Status', popout: true }],
+    [
+      { href: config.website, title: 'About the DAO', popout: true },
+      { href: config.status, title: 'Status', popout: true },
+    ],
     [
       { href: '/legal/motley_dao-terms_of_service.pdf', title: 'Terms of Service', popout: true },
       { href: '/legal/motley_dao-privacy_policy.pdf', title: 'Privacy Policy', popout: true },
