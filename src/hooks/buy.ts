@@ -231,6 +231,13 @@ export default function useBuyNow(): BuyContext {
 
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
 
+    // patch metadata account to writable for AH / RWD
+    for (let i = 0; i < buyListingIx.keys.length; i++) {
+      if (buyListingIx.keys[i].pubkey.equals(metadata)) {
+        buyListingIx.keys[i].isWritable = true;
+      }
+    }
+
     const keys = buyListingIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });

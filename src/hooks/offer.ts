@@ -872,6 +872,13 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
       remainingAccounts = [...remainingAccounts, creatorAccount];
     }
 
+    // patch metadata account to writable for AH / RWD
+    for (let i = 0; i < acceptOfferIx.keys.length; i++) {
+      if (acceptOfferIx.keys[i].pubkey.equals(metadata)) {
+        acceptOfferIx.keys[i].isWritable = true;
+      }
+    }
+
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
