@@ -133,7 +133,7 @@ function SearchInput({
         debounceTimeout={300}
         autoComplete="off"
         autoCorrect="off"
-        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all hover:border-white focus:border-white focus:placeholder-gray-400 focus:outline-none md:py-2"
+        className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all focus:border-white focus:placeholder-gray-400 focus:outline-none hover:border-white md:py-2"
         type="search"
         onFocus={onFocus}
         onBlur={onBlur}
@@ -178,32 +178,38 @@ function SearchResults({
       leaveTo="opacity-0"
       afterLeave={() => {}}
     >
-      <Combobox.Options className="scrollbar-thumb-rounded-full absolute top-4 z-50 h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800 md:top-10 md:max-h-96">
-        {searching ? (
-          <>
-            <SearchLoadingItem />
-            <SearchLoadingItem variant="circle" />
-            <SearchLoadingItem />
-            <SearchLoadingItem variant="circle" />
-          </>
-        ) : hasResults ? (
-          children
-        ) : (
-          <>
-            {enabled ? (
-              <div className="flex h-6 w-full items-center justify-center">
-                <p className="m-0 text-center text-base font-medium">{t('search.empty', { ns: 'common' })}</p>
-              </div>
-            ) : (
-              <>
-                <SearchLoadingItem />
-                <SearchLoadingItem variant="circle" />
-                <SearchLoadingItem />
-                <SearchLoadingItem variant="circle" />
-              </>
-            )}
-          </>
-        )}
+      <Combobox.Options
+        className={clsx('fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto block max-w-4xl')}
+      >
+        <div className="scrollbar-thumb-rounded-full absolute top-4 z-50 h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-700 md:top-10 md:max-h-96">
+          {searching ? (
+            <>
+              <SearchLoadingItem />
+              <SearchLoadingItem variant="circle" />
+              <SearchLoadingItem />
+              <SearchLoadingItem variant="circle" />
+            </>
+          ) : hasResults ? (
+            children
+          ) : (
+            <>
+              {enabled ? (
+                <div className="flex h-6 w-full items-center justify-center">
+                  <p className="m-0 text-center text-base font-medium">
+                    {t('search.empty', { ns: 'common' })}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <SearchLoadingItem />
+                  <SearchLoadingItem variant="circle" />
+                  <SearchLoadingItem />
+                  <SearchLoadingItem variant="circle" />
+                </>
+              )}
+            </>
+          )}
+        </div>
       </Combobox.Options>
     </Transition>
   );

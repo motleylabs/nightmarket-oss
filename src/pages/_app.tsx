@@ -236,93 +236,84 @@ function NavigationBar() {
                     className="md:hidden"
                   />
                 )}
-
-                <div
-                  ref={mobileSearchRef}
-                  className={clsx(
-                    'fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto  block max-w-4xl ',
-                    searching || results ? 'block' : 'hidden'
-                  )}
+                <Search.Results
+                  searching={searching}
+                  hasResults={Boolean(previousResults) || hasResults}
+                  enabled={searchTerm.length > 2}
                 >
-                  <Search.Results
-                    searching={searching}
-                    hasResults={Boolean(previousResults) || hasResults}
-                    enabled={searchTerm.length > 2}
+                  <Search.Group<CollectionDocument[]>
+                    title={t('search.collection', { ns: 'common' })}
+                    result={results?.collections as CollectionDocument[]}
                   >
-                    <Search.Group<CollectionDocument[]>
-                      title={t('search.collection', { ns: 'common' })}
-                      result={results?.collections as CollectionDocument[]}
-                    >
-                      {({ result }) => {
-                        return result?.map((collection, i) => (
-                          <Search.Collection
-                            value={collection}
-                            key={`search-collection-${collection.id}-${i}`}
-                            image={collection.image || '/images/placeholder.png'}
-                            name={collection.name}
-                            slug={collection.id}
-                          />
-                        ));
-                      }}
-                    </Search.Group>
-                    <Search.Group<Wallet[]>
-                      title={t('search.profiles', { ns: 'common' })}
-                      result={results?.profiles}
-                    >
-                      {({ result }) => {
-                        return result?.map((wallet, i) => (
-                          <Search.Profile
-                            value={wallet}
-                            profile={wallet}
-                            key={`search-profile-${wallet.address}-${i}`}
-                            image={wallet.previewImage || '/images/placeholder.png'}
-                            name={wallet.displayName}
-                            slug={wallet.address}
-                          />
-                        ));
-                      }}
-                    </Search.Group>
-                    <Search.Group<Wallet>
-                      title={t('search.wallet', { ns: 'common' })}
-                      result={results?.wallet}
-                    >
-                      {({ result }) => {
-                        if (!result) {
-                          return null;
-                        }
+                    {({ result }) => {
+                      return result?.map((collection, i) => (
+                        <Search.Collection
+                          value={collection}
+                          key={`search-collection-${collection.id}-${i}`}
+                          image={collection.image || '/images/placeholder.png'}
+                          name={collection.name}
+                          slug={collection.id}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                  <Search.Group<Wallet[]>
+                    title={t('search.profiles', { ns: 'common' })}
+                    result={results?.profiles}
+                  >
+                    {({ result }) => {
+                      return result?.map((wallet, i) => (
+                        <Search.Profile
+                          value={wallet}
+                          profile={wallet}
+                          key={`search-profile-${wallet.address}-${i}`}
+                          image={wallet.previewImage || '/images/placeholder.png'}
+                          name={wallet.displayName}
+                          slug={wallet.address}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                  <Search.Group<Wallet>
+                    title={t('search.wallet', { ns: 'common' })}
+                    result={results?.wallet}
+                  >
+                    {({ result }) => {
+                      if (!result) {
+                        return null;
+                      }
 
-                        return (
-                          <Search.Profile
-                            value={result}
-                            profile={result}
-                            key={`search-wallet-${result?.address}`}
-                            image={result.previewImage || '/images/placeholder.png'}
-                            name={result.displayName}
-                            slug={result.address}
-                          />
-                        );
-                      }}
-                    </Search.Group>
-                    <Search.Group<Nft[]>
-                      title={t('search.nfts', { ns: 'common' })}
-                      result={results?.nfts as Nft[]}
-                    >
-                      {({ result }) => {
-                        return result?.map((nft, i) => (
-                          <Search.MintAddress
-                            value={nft}
-                            nft={nft}
-                            key={`search-mintAddress-${nft.address}-${i}`}
-                            image={nft.image}
-                            slug={nft.mintAddress}
-                            name={nft.name}
-                            creator={nft.creators[0]}
-                          />
-                        ));
-                      }}
-                    </Search.Group>
-                  </Search.Results>
-                </div>
+                      return (
+                        <Search.Profile
+                          value={result}
+                          profile={result}
+                          key={`search-wallet-${result?.address}`}
+                          image={result.previewImage || '/images/placeholder.png'}
+                          name={result.displayName}
+                          slug={result.address}
+                        />
+                      );
+                    }}
+                  </Search.Group>
+                  <Search.Group<Nft[]>
+                    title={t('search.nfts', { ns: 'common' })}
+                    result={results?.nfts as Nft[]}
+                  >
+                    {({ result }) => {
+                      return result?.map((nft, i) => (
+                        <Search.MintAddress
+                          value={nft}
+                          nft={nft}
+                          key={`search-mintAddress-${nft.address}-${i}`}
+                          image={nft.image}
+                          slug={nft.mintAddress}
+                          name={nft.name}
+                          creator={nft.creators[0]}
+                        />
+                      ));
+                    }}
+                  </Search.Group>
+                </Search.Results>
               </div>
             </Search>
           </div>
@@ -780,9 +771,9 @@ function Footer({ links }: FooterProps) {
                 alt="night market logo"
               />
             </Link>
-            <div>
+            <a target="_blank" rel="nofollow noreferrer" href={`https://motleydao.com/`}>
               <Icon.Motley />
-            </div>
+            </a>
           </div>
           <div className="mt-8 block lg:hidden">{socials()}</div>
         </div>
