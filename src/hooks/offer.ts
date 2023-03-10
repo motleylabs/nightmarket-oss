@@ -82,7 +82,6 @@ export function useMakeOffer(nft?: Nft): MakeOfferContext {
 
   const { linkBuddy } = useCachedBuddy({
     wallet: publicKey?.toString()!,
-    organisation: config.buddylink.organizationName,
   });
 
   const listing: AhListing | null = useMemo(() => {
@@ -712,7 +711,6 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
   const router = useRouter();
   const { linkBuddy } = useCachedBuddy({
     wallet: publicKey?.toString()!,
-    organisation: config.buddylink.organizationName,
   });
 
   const onAcceptOffer = async ({ auctionHouse, nft, listing }: AcceptOfferParams) => {

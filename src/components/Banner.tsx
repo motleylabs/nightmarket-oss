@@ -1,7 +1,6 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import config from '../app.config';
 import { useBuddyStats } from '../hooks/referrals';
 import Button, { ButtonBackground } from './Button';
 
@@ -12,7 +11,6 @@ export default function Banner() {
 
   const { data, loading } = useBuddyStats({
     wallet: publicKey?.toString()!,
-    organisation: config.buddylink.organizationName,
   });
 
   return (

@@ -68,7 +68,6 @@ export default function useBuyNow(): BuyContext {
 
   const { linkBuddy } = useCachedBuddy({
     wallet: wallet.publicKey?.toString()!,
-    organisation: config.buddylink.organizationName,
   });
 
   const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {

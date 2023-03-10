@@ -10,6 +10,7 @@ import { notifyInstructionError } from '../modules/bugsnag';
 import { getCookie, setCookie } from '../utils/cookies';
 import { COOKIE_REF } from '../pages/_app';
 import { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
+import { getBuddyStats } from '../utils/axios';
 
 interface CreateContext {
   created: boolean;
@@ -37,7 +38,7 @@ export function useCreateBuddy(): CreateContext {
           signAllTransactions,
           signTransaction,
         } as NodeWallet,
-        config.buddylink.organizationName
+        config.referralOrg
       );
 
       setClient(buddyClient);
@@ -163,7 +164,7 @@ export function useClaimBuddy() {
           signAllTransactions,
           signTransaction,
         } as NodeWallet,
-        config.buddylink.organizationName
+        config.referralOrg
       );
 
       const buddyName = name.toLowerCase();
@@ -293,7 +294,7 @@ export interface ReferredData {
   username: string;
 }
 
-interface BuddyStatsData {
+export interface BuddyStatsData {
   buddies: ReferredData[];
   chestAddress: string | null;
   dateCreated: number;
@@ -313,47 +314,42 @@ interface BuddyStatsData {
 
 interface BuddyStatsProps {
   wallet: string;
-  organisation: string;
 }
 
 export function useBuddyStats(params: BuddyStatsProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BuddyStatsData | null>(null);
   const [error, setError] = useState<AxiosError | null>(null);
-  const url = config.referralUrl;
   const key = config.referralKey;
 
-  const pathReferralUser = useMemo(
-    () => `${url}referral/user&wallet=${params.wallet}&organisation=${params.organisation}`,
-    [params]
+  const fetchData = useCallback(
+    async (invalidate = false) => {
+      try {
+        setLoading(true);
+        const response = await getBuddyStats(params.wallet, invalidate);
+        setData(response);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [key, params]
   );
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(pathReferralUser, {
-        headers: {
-          Authorization: key,
-        },
-      });
-      setData(response.data);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [pathReferralUser, key]);
+  const refreshBuddy = useCallback(() => {
+    fetchData(true);
+  }, [key, params]);
 
   useEffect(() => {
     if (params.wallet) fetchData();
   }, [params.wallet]);
 
-  return { data, loading, error, refreshBuddy: fetchData };
+  return { data, loading, error, refreshBuddy };
 }
 
 interface CachedBuddyProps {
   wallet: string;
-  organisation: string;
 }
 
 export function useCachedBuddy(props: CachedBuddyProps) {

@@ -118,7 +118,7 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
   });
   const { data, loading } = useBuddyHistory({
     wallet: wallet.address,
-    organisation: config.buddylink.organizationName,
+    organisation: config.referralOrg,
   });
 
   useEffect(() => {
@@ -162,10 +162,10 @@ Table.ClaimHistory = ClaimHistory;
 
 interface ReferredListProps {
   referred?: ReferredData[];
-  loading: boolean;
+  loading?: boolean;
 }
 
-function ReferredList({ referred, loading }: ReferredListProps) {
+function ReferredList({ referred, loading = false }: ReferredListProps) {
   const { t } = useTranslation('referrals');
   const [metadata, setMetadata] = useState<TableMetadata>({
     data: [],

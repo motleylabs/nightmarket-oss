@@ -4,6 +4,7 @@ interface AppConfig {
   solanaRPCUrl: string;
   referralUrl: string;
   referralKey: string;
+  referralOrg: string;
   socialMedia: {
     twitter?: string;
     discord?: string;
@@ -14,7 +15,6 @@ interface AppConfig {
     percentageListing: number;
   };
   buddylink: {
-    organizationName: string;
     buddyBPS: number;
   };
   website: string;
@@ -31,6 +31,7 @@ const config: AppConfig = {
   solanaRPCUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL as string,
   referralUrl: process.env.NEXT_PUBLIC_REFERRAL_URL as string,
   referralKey: process.env.NEXT_PUBLIC_REFERRAL_KEY as string,
+  referralOrg: process.env.NEXT_PUBLIC_ORGANIZATION_NAME as string,
   socialMedia: {
     twitter: 'https://twitter.com/nightmarketio',
     discord: 'https://discord.gg/bn5z4A794E',
@@ -46,7 +47,6 @@ const config: AppConfig = {
     percentageListing: 0.8,
   },
   buddylink: {
-    organizationName: 'a24nzg60',
     buddyBPS: 0,
   },
   addressLookupTable: process.env.NEXT_PUBLIC_ADDRESS_LOOKUP_TABLE as string,

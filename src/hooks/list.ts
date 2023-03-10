@@ -36,7 +36,6 @@ import {
   queueVersionedTransactionSign,
 } from '../utils/transactions';
 import { useCachedBuddy } from './referrals';
-import config from '../app.config';
 
 export const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
@@ -74,7 +73,6 @@ export function useListNft(): ListNftContext {
 
   const { linkBuddy } = useCachedBuddy({
     wallet: publicKey?.toString()!,
-    organisation: config.buddylink.organizationName,
   });
 
   const onSubmitListNft = async ({ amount, nft, auctionHouse }: ListingDetailsForm) => {

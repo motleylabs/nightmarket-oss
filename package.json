@@ -36,6 +36,7 @@
     "@tailwindcss/line-clamp": "^0.4.2",
     "@types/react-transition-group": "^4.4.5",
     "autoprefixer": "^10.4.13",
+    "axios-cache-adapter": "^2.7.3",
     "bn.js": "^5.2.1",
     "clsx": "^1.2.1",
     "coingecko-api-v3": "^0.0.22",

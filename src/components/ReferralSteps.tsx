@@ -5,7 +5,6 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import Router from 'next/router';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import config from '../app.config';
 import useLogin from '../hooks/login';
 import { useBuddyStats, useCreateBuddy } from '../hooks/referrals';
 import useViewer from '../hooks/viewer';
@@ -59,7 +58,6 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
 
   const { loading: loadingBuddy, data: buddy } = useBuddyStats({
     wallet: wallet,
-    organisation: config.buddylink.organizationName,
   });
 
   useEffect(() => {
