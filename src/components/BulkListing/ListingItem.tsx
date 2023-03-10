@@ -15,12 +15,16 @@ interface ListingItemProps {
   disabled: boolean;
   registerBulkListNft: UseFormRegister<BulkListNftForm>;
   bulkListNftState: FormState<BulkListNftForm>;
+  success: boolean;
+  failed: boolean;
 }
 export default function ListingItem({
   nft,
   disabled,
   registerBulkListNft,
   bulkListNftState,
+  success,
+  failed,
 }: ListingItemProps): JSX.Element {
   const { t } = useTranslation('profile');
   const { solToUsdString } = useCurrencies();
@@ -53,11 +57,23 @@ export default function ListingItem({
   return (
     <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-800 p-4">
       <div className="flex items-center gap-5">
-        <Image
-          src={nft.image}
-          alt="nft image"
-          className="h-14 w-14 rounded-lg border-2 border-solid border-gray-400/50 object-cover"
-        />
+        <div className="relative">
+          <Image
+            src={nft.image}
+            alt="nft image"
+            className="h-14 w-14 rounded-lg border-2 border-solid border-gray-400/50 object-cover"
+          />
+          {success && (
+            <div className="absolute -top-2 -right-2 rounded-full bg-white">
+              <Icon.Success />
+            </div>
+          )}
+          {failed && (
+            <div className="absolute -top-2 -right-2 rounded-full bg-black">
+              <Icon.Failed />
+            </div>
+          )}
+        </div>
         <div>
           <div className="flex items-center gap-1">
             <p className="mb-1 max-w-[11rem] overflow-hidden text-ellipsis whitespace-nowrap">

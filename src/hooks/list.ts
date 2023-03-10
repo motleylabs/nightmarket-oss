@@ -303,6 +303,7 @@ interface BulkListPending {
     sellerTradeState: PublicKey;
     tradeStateBump: number;
     buyerPrice: number;
+    arrayPosition: number;
   };
 }
 interface BulkListContext {
@@ -362,7 +363,11 @@ export function useBulkListing(): BulkListContext {
 
     //create instruction list (and listed nfts with associated data for the cache)
     const pendingTxInstructions: TransactionInstruction[] = [];
-    let settledSignedTxs: { rejected: string[]; fulfilled: string[] } = {
+    const updateListing: BulkListPending[] = [];
+    let settledSignedTxs: {
+      rejected: string[];
+      fulfilled: { tx: string; id: number }[];
+    } = {
       rejected: [],
       fulfilled: [],
     };
@@ -482,6 +487,7 @@ export function useBulkListing(): BulkListContext {
               sellerTradeState,
               tradeStateBump,
               buyerPrice,
+              arrayPosition: pendingTxInstructions.length - 1,
             },
           };
         })
@@ -512,7 +518,17 @@ export function useBulkListing(): BulkListContext {
       //.fullfiled is tx Hashes / signatures -> use these if you want to confirm the txs before updating the cache
       settledSignedTxs = reduceSettledPromise(pendingSigned);
 
-      settledNftInstructions.fulfilled.map(({ nft, instructionData }) => {
+      for (const instruction of settledNftInstructions.fulfilled) {
+        const transactionId = Math.floor(
+          instruction.instructionData.arrayPosition / LISTINGS_PER_TX
+        );
+
+        if (settledSignedTxs.fulfilled.find((tx) => tx.id === transactionId)) {
+          updateListing.push(instruction);
+        }
+      }
+
+      updateListing.map(({ nft, instructionData }) => {
         const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
         try {
           client.cache.updateQuery(
@@ -561,7 +577,7 @@ export function useBulkListing(): BulkListContext {
     }
 
     if (settledSignedTxs.fulfilled.length > 0) {
-      const fulfilledNfts = settledNftInstructions.fulfilled.map(({ nft }) => nft);
+      const fulfilledNfts = updateListing.map(({ nft }) => nft);
       toast(`Listings posted: ${fulfilledNfts.map((nft) => nft.name).join(', ')}`, {
         type: 'success',
       });

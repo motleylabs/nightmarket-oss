@@ -79,10 +79,15 @@ export async function queueTransactionSign({
   const pendingSigned = await Promise.allSettled(
     signedTxs.map((tx, i, allTx) => {
       //send all tx in intervals to avoid overloading the network
-      return new Promise<string>((resolve) => {
+      return new Promise<{ tx: string; id: number }>((resolve, reject) => {
         setTimeout(() => {
           console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
-          connection.sendRawTransaction(tx.serialize()).then((txHash) => resolve(txHash));
+          connection
+            .sendRawTransaction(tx.serialize())
+            .then((txHash) => resolve({ tx: txHash, id: i }))
+            .catch((e) => {
+              reject(e);
+            });
         }, i * txInterval);
       });
     })

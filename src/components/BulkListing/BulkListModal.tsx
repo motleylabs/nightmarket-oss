@@ -10,7 +10,7 @@ import Icon from '../Icon';
 import Modal from '../Modal';
 import Tooltip from '../Tooltip';
 import ListingItem from './ListingItem';
-import { AuctionHouse } from '../../graphql.types';
+import { AuctionHouse, Nft } from '../../graphql.types';
 import clsx from 'clsx';
 
 // NB. this regex accept values of 0 so need more validation than just this regex on inputs
@@ -27,7 +27,8 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
   const { selected, setSelected } = useBulkListContext();
   const { solToUsdString } = useCurrencies();
   const [useGlobalPrice, setUseGlobalPrice] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<Nft[]>([]);
+  const [failed, setFailed] = useState<Nft[]>([]);
 
   const {
     listingBulk,
@@ -54,9 +55,9 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
 
   useEffect(() => {
     if (!open) {
-      setTimeout(() => {
-        setSuccess(false);
-      }, 1000);
+      setSuccess([]);
+      setFailed([]);
+      setSelected([]);
     }
   }, [open]);
 
@@ -69,12 +70,9 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
         auctionHouse: auctionHouse,
       });
       if (fulfilled.length) {
-        setSuccess(true);
-        setSelected((prev) => {
-          const copy = [...prev];
-          return copy.filter((nft) => !fulfilled.includes(nft));
-        });
+        setSuccess(fulfilled);
       }
+      setFailed(selected.filter((nft) => !fulfilled.includes(nft)));
     } catch (e) {
       console.log(e);
     }
@@ -122,6 +120,8 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
             disabled={useGlobalPrice}
             bulkListNftState={bulkListNftState}
             registerBulkListNft={registerBulkListNft}
+            success={success.includes(nft)}
+            failed={failed.includes(nft)}
           />
         ))}
       </div>
@@ -143,7 +143,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
           {t('bulkListing.pleaseWait', { ns: 'profile' })}
         </Button>
       ) : (
-        <Button block htmlType="submit">
+        <Button disabled={success.length === selected.length} block htmlType="submit">
           {t('bulkListing.listNow', { ns: 'profile', tokenCount: selected.length })}
         </Button>
       )}
@@ -152,15 +152,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
 
   return (
     <Modal title={t('bulkListing.title', { ns: 'profile' })} open={open} setOpen={setOpen}>
-      {success ? (
-        <img
-          src="/images/moon success.svg"
-          className="w-auto object-fill px-5 py-32"
-          alt="success"
-        />
-      ) : (
-        renderMainContent()
-      )}
+      {renderMainContent()}
     </Modal>
   );
 }
