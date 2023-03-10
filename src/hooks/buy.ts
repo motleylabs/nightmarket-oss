@@ -234,7 +234,7 @@ export default function useBuyNow(): BuyContext {
 
     const keys = buyListingIx.keys.concat(remainingAccounts);
 
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
     arrayOfInstructions.push(ix);
 
     if (!buyerAtAInfo) {

@@ -876,7 +876,7 @@ export function useAcceptOffer(offer: Maybe<Offer> | undefined): AcceptOfferCont
 
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 400000 });
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
 
     const arrayOfInstructions = new Array<TransactionInstruction>();
 
