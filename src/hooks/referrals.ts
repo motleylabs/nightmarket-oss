@@ -187,17 +187,21 @@ export function useClaimBuddy() {
         if (!signature) {
           return;
         }
-        await connection.confirmTransaction(
-          {
-            blockhash,
-            lastValidBlockHeight,
-            signature,
-          },
-          'confirmed'
-        );
+
+        // TODO: investigate why confirmation stalls for this transaction
+        // await connection.confirmTransaction(
+        //   {
+        //     blockhash,
+        //     lastValidBlockHeight,
+        //     signature,
+        //   },
+        //   'confirmed'
+        // );
         setClaiming(false);
         setClaimed(true);
+        toast('Claimed Rewards', { type: 'success' });
       } catch (err: any) {
+        const parsedError = await buddyClient?.parseError(err.message);
         notifyInstructionError(err, {
           operation: 'Claim Buddy',
           metadata: {
@@ -206,7 +210,7 @@ export function useClaimBuddy() {
             nft: null,
           },
         });
-        toast(err.message, { type: 'error' });
+        toast(parsedError, { type: 'error' });
         setClaiming(false);
         setClaimed(false);
       }

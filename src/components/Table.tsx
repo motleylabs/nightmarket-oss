@@ -144,7 +144,7 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
   }, [data]);
 
   return loading ? (
-    <div className="mt-11  px-6">
+    <div className="mt-11 px-6 lg:px-0">
       <Table.Skeleton />
       <Table.Skeleton />
       <Table.Skeleton />
@@ -154,7 +154,7 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
   ) : metadata.data.length > 0 ? (
     <Table metadata={metadata} />
   ) : (
-    <p className="text-gray-300">{t('profile.noClaimHistory', { ns: 'referrals' })}</p>
+    <p className="mt-11 px-8 text-gray-300">{t('profile.noClaimHistory', { ns: 'referrals' })}</p>
   );
 }
 
@@ -219,7 +219,7 @@ function ReferredList({ referred, loading = false }: ReferredListProps) {
   ) : metadata.data.length > 0 ? (
     <Table metadata={metadata} />
   ) : (
-    <p className="text-gray-300">{t('profile.noReferred', { ns: 'referrals' })}</p>
+    <p className="mt-11 px-8 text-gray-300">{t('profile.noReferred', { ns: 'referrals' })}</p>
   );
 }
 

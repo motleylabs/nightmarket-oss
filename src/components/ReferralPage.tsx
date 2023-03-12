@@ -87,12 +87,13 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
   return (
     <main className="z-0 -mb-[64px] min-h-[calc(100vh_-_120px)] md:-mb-[120px]">
       <Head>
-        <title>{`${t('metadata.title', { ns: 'referrals' })} | ${t('header.title', { ns: 'common' })}`}</title>
+        <title>{`${t('metadata.title', { ns: 'referrals' })} | ${t('header.title', {
+          ns: 'common',
+        })}`}</title>
         <meta name="description" content={t('metadata.description', { ns: 'referrals' })} />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="relative min-h-[calc(100vh_-_8px)] overflow-hidden">
-        <div className="-z-10">
+        <div className="-z-10 flex justify-center">
           <Animation.Leaves steps={steps} />
         </div>
         <div className="z-10 flex flex-col items-center pt-20">

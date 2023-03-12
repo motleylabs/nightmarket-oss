@@ -77,7 +77,7 @@ export default function ProfileAffiliate({
   const { t } = useTranslation(['referrals', 'common']);
   const [visible, setVisible] = useState(false);
   const [domain, setDomain] = useState('');
-  const { onClaimBuddy } = useClaimBuddy();
+  const { onClaimBuddy, claiming } = useClaimBuddy();
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
   const router = useRouter();
@@ -151,8 +151,8 @@ export default function ProfileAffiliate({
           </div>
         ) : (
           <>
-            <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] xl:w-full xl:flex-row">
-              <div className="w-full md:flex md:items-center md:justify-center  xl:w-auto">
+            <div className="mx-6 mt-10 flex flex-col flex-wrap items-center justify-center xl:mx-0 xl:mt-14 xl:min-h-[150px] xl:w-full xl:flex-row">
+              <div className="w-full md:flex md:items-center md:justify-center xl:mb-4 xl:w-auto">
                 <PillStat
                   title={t('profile.available', { ns: 'referrals' })}
                   className="md:mr-4 md:min-w-[328px] xl:mb-0"
@@ -170,6 +170,8 @@ export default function ProfileAffiliate({
                         border={ButtonBorder.Gradient}
                         color={ButtonColor.Gradient}
                         size={ButtonSize.Small}
+                        loading={claiming}
+                        disabled={!buddy?.totalClaimable}
                         onClick={async () => {
                           if (buddy) {
                             await onClaimBuddy(buddy?.username!);
@@ -194,7 +196,7 @@ export default function ProfileAffiliate({
                   </div>
                 </PillStat>
               </div>
-              <div className="w-full md:flex md:items-center md:justify-center xl:w-auto">
+              <div className="w-full md:flex md:items-center md:justify-center xl:mb-4 xl:w-auto">
                 <PillStat
                   title={t('profile.allTimeClaim', { ns: 'referrals' })}
                   className="md:mr-4 md:min-w-[328px] xl:mb-0"
@@ -222,7 +224,7 @@ export default function ProfileAffiliate({
                   </div>
                 </PillStat>
               </div>
-              <div className="w-full md:flex md:items-center md:justify-center lg:justify-start xl:w-auto">
+              <div className="w-full md:flex md:items-center md:justify-center lg:justify-start xl:mb-4 xl:w-auto">
                 <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]  lg:w-1/2 xl:w-auto xl:min-w-[259px]">
                   <div className="flex justify-between">
                     <h4 className="text-gray-300">

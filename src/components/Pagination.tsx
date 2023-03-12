@@ -52,16 +52,20 @@ export function Pagination({
           </span>
         </ArrowStyle>
         <div className="mx-5 flex">
-          {pageArray.map((page) => {
+          {pageArray.map((page, key) => {
             if (isNaN(+page))
               return (
-                <div className="mx-4 mb-1 flex h-10 w-10 items-end justify-end text-gray-600 md:h-8 md:w-8">
+                <div
+                  key={`page-noclick-${key}`}
+                  className="mx-4 mb-1 flex h-10 w-10 items-end justify-end text-gray-600 md:h-8 md:w-8"
+                >
                   {page}
                 </div>
               );
 
             return (
               <button
+                key={`page-${key}`}
                 onClick={() => {
                   if (page !== currentPage) handlePageClick(+page);
                 }}

@@ -61,8 +61,9 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   });
 
   useEffect(() => {
-    if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) setSteps(2);
-    else if (timeEllapsed && !loadingBuddy && buddy?.publicKey) {
+    if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) {
+      setSteps(2);
+    } else if (timeEllapsed && !loadingBuddy && buddy?.publicKey) {
       commitName(buddy?.username!);
       setSteps(3);
     }
@@ -222,6 +223,7 @@ interface SuccessProps {
 function Success({ name }: SuccessProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [domain, setDomain] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setDomain(window.location.origin);
@@ -231,7 +233,6 @@ function Success({ name }: SuccessProps): JSX.Element {
     return `${domain}/r/${name}`;
   }, [name]);
 
-  const [copied, setCopied] = useState(false);
   const copyWallet = useCallback(async () => {
     if (url) {
       await navigator.clipboard.writeText(url);
@@ -239,14 +240,8 @@ function Success({ name }: SuccessProps): JSX.Element {
       setTimeout(() => setCopied(false), 2000);
     }
   }, [url]);
-  const { publicKey } = useWallet();
 
-  const navigateProfile = useCallback(
-    (tab: string) => {
-      Router.push(`/profiles/${publicKey}/${tab}`);
-    },
-    [publicKey]
-  );
+  const { publicKey } = useWallet();
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
@@ -303,16 +298,17 @@ function Success({ name }: SuccessProps): JSX.Element {
         </a>
       </div>
       <div className="mt-5 text-white xl:font-semibold">{t('manage', { ns: 'referrals' })}</div>
-      <Button
-        className="mt-6 w-32 text-sm xl:mt-3 xl:w-auto"
-        block
-        background={ButtonBackground.Black}
-        border={ButtonBorder.Gradient}
-        color={ButtonColor.Gradient}
-        onClick={() => navigateProfile('affiliate')}
-      >
-        {t('goTo', { ns: 'referrals' })}
-      </Button>
+      <Link href={`/profiles/${publicKey}/affiliate`}>
+        <Button
+          className="mt-6 w-32 text-sm sm:w-auto xl:mt-3"
+          block
+          background={ButtonBackground.Black}
+          border={ButtonBorder.Gradient}
+          color={ButtonColor.Gradient}
+        >
+          {t('goTo', { ns: 'referrals' })}
+        </Button>
+      </Link>
     </div>
   );
 }
