@@ -20,6 +20,7 @@
   "nameLengthError": "Your name must be at least 3 characters",
   "usernameTaken": "This username is in use, please try another one.",
   "noBuddy": "Create an affiliate account to join our referral program. Activity from your custom links will be displayed here.",
+  "comingSoon": "Coming Soon.",
   "profile": {
     "available": "Available to Claim",
     "claimRewards": "Claim Referral Fees",
@@ -42,7 +43,8 @@
     "joinAffiliate": "Join our Affiliate Program and start earning now!",
     "instruction": "Earn up to 100% of Night Market transaction fees by sharing an affiliate link with your network!",
     "createReferral": "Create referral link",
-    "seeDashboard": "See my affiliate dashboard"
+    "seeDashboard": "See my affiliate dashboard",
+    "comingSoon": "COMING SOON"
   },
   "table": {
     "address": "Address",

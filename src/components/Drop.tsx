@@ -5,12 +5,12 @@ import Link from 'next/link';
 import useCountdown from '../hooks/countdown';
 import { useTranslation } from 'next-i18next';
 import { asCompactNumber } from '../modules/number';
-import Img from "./Image"
+import Img from './Image';
 
 interface DropProps {
   title: string;
   description: string;
-  price: number;
+  price: number | string;
   supply: number;
   image: string;
   link: string;

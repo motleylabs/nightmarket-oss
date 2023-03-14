@@ -138,7 +138,14 @@ export default function ProfileAffiliate({
     <>
       <div>
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
-        {!buddy?.publicKey ? (
+
+        {process.env.NEXT_PUBLIC_BLOCK_REFERRALS === 'true' ? (
+          <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
+            <div className="mb-4 text-center text-lg text-white sm:w-[375px]">
+              {t('comingSoon', { ns: 'referrals' })}
+            </div>
+          </div>
+        ) : !buddy?.publicKey ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
             <div className="mb-4 text-center text-lg text-white sm:w-[375px]">
               {t('noBuddy', { ns: 'referrals' })}

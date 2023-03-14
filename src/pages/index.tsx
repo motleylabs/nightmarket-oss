@@ -401,7 +401,7 @@ const Home: NextPage = () => {
               launchDate={addDays(new Date(), 3)}
               title="Motley Friends"
               description={t('drops.motley', { ns: 'home' })}
-              price={128}
+              price={'TBD'}
               supply={10000}
               image={'/images/launchpad/motley-launchpad-nft.png'}
               link={'/launchpad/test'}

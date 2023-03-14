@@ -39,19 +39,25 @@ export default function Banner() {
             </div>
           </div>
           <div className="lg:auto mt-6 md:mt-0 md:flex md:w-1/3 md:items-end md:justify-center lg:mt-7 lg:w-auto lg:justify-start">
-            <Link
-              href={
-                !loading && data?.username
-                  ? `/profiles/${publicKey?.toString()}/affiliate`
-                  : '/referrals'
-              }
-            >
+            {process.env.NEXT_PUBLIC_BLOCK_REFERRALS === 'true' ? (
               <Button background={ButtonBackground.FullBlack}>
-                {!loading && data?.username
-                  ? t('banner.seeDashboard', { ns: 'referrals' })
-                  : t('banner.createReferral', { ns: 'referrals' })}
+                {t('banner.comingSoon', { ns: 'referrals' })}
               </Button>
-            </Link>
+            ) : (
+              <Link
+                href={
+                  !loading && data?.username
+                    ? `/profiles/${publicKey?.toString()}/affiliate`
+                    : '/referrals'
+                }
+              >
+                <Button background={ButtonBackground.FullBlack}>
+                  {!loading && data?.username
+                    ? t('banner.seeDashboard', { ns: 'referrals' })
+                    : t('banner.createReferral', { ns: 'referrals' })}
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
