@@ -8,6 +8,13 @@
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
+    "auctionHouseAddress": "6hW2rVdPUD5qn1amEvN3K9zkvgsCA34LqCvTPcpamQHc",
+    "name": "Night Market",
+    "link": "https://nightmarket.io/nfts/{}",
+    "logo": "/images/nightmarket-beta.svg"
+  },
+  {
+    "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "9R8XEEez1uKz9qhSXUUAk4msH6RZ1VRnzmSHeXb9C7cE",
     "name": "Night Market (Beta)",
     "link": "https://beta.nightmarket.io/nfts/{}",
