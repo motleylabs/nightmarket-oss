@@ -412,7 +412,7 @@ const Home: NextPage = () => {
               </h4>
               <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
               <a
-                href="https://share.hsforms.com/18ted9lQUTVS2kHj8HtuZswe31d7"
+                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
                 target={'_blank'}
                 rel="noreferrer"
               >

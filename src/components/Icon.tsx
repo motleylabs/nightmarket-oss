@@ -844,10 +844,10 @@ Icon.Verified = VerifiedIcon;
 function EnforcedIcon({ className = '' }: IconProps) {
   return (
     <svg
-      className="className"
+      className={className}
       xmlns="http://www.w3.org/2000/svg"
-      width={'100%'}
-      height={20}
+      height={'100%'}
+      width={18}
       viewBox="0 0 19 22"
       fill="none"
     >
