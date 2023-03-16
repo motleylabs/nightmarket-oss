@@ -26,7 +26,7 @@ import {
   Token,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { Edition, Metadata, PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import { PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { createAssociatedTokenAccountInstruction, getAtaForMint } from '../modules/candymachine';
 
 interface MintOptions {
@@ -50,33 +50,20 @@ interface LaunchpadContext {
   };
 }
 
-const getMetadataPDA = async (
-  mint: PublicKey,
-): Promise<PublicKey> => {
+export const getMetadataPDA = async (mint: PublicKey): Promise<PublicKey> => {
   return (
     await PublicKey.findProgramAddress(
-      [
-        Buffer.from('metadata'),
-        MPL_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-      ],
-      MPL_PROGRAM_ID,
+      [Buffer.from('metadata'), MPL_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+      MPL_PROGRAM_ID
     )
   )[0];
 };
 
-const getEditionPDA = async (
-  mint: PublicKey,
-): Promise<PublicKey> => {
+const getEditionPDA = async (mint: PublicKey): Promise<PublicKey> => {
   return (
     await PublicKey.findProgramAddress(
-      [
-        Buffer.from('metadata'),
-        MPL_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-        Buffer.from('edition'),
-      ],
-      MPL_PROGRAM_ID,
+      [Buffer.from('metadata'), MPL_PROGRAM_ID.toBuffer(), mint.toBuffer(), Buffer.from('edition')],
+      MPL_PROGRAM_ID
     )
   )[0];
 };

@@ -59,6 +59,10 @@
     "totalItems": "Total items",
     "itemsPerPage": "Items per page"
   },
+  "collection": {
+    "verified": "Verified Collection.",
+    "enforced": "Royalties are enforced."
+  },
   "copyLink": "Copy Link",
   "copied": "Copied",
   "shareTwitter": "Share to Twitter",

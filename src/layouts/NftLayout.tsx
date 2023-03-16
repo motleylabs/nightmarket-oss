@@ -26,6 +26,7 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import Flex, { FlexAlign, FlexDirection, FlexJustify } from '../components/Flex';
 import { Row, Col } from '../components/Grid';
 import { NUMBER_REGEX } from '../components/BulkListing/BulkListModal';
+import { VerifiedBadge } from './CollectionLayout';
 
 interface NftLayoutProps {
   children: ReactNode;
@@ -440,7 +441,9 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     <Overview>
       <Head>
         {data?.nft.moonrankCollection ? (
-          <title>{`${nft.name} | ${data?.nft.moonrankCollection.name} | ${t('header.title', { ns: 'common' })}`}</title>
+          <title>{`${nft.name} | ${data?.nft.moonrankCollection.name} | ${t('header.title', {
+            ns: 'common',
+          })}`}</title>
         ) : (
           <title>{nft.name}</title>
         )}
@@ -473,19 +476,22 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           </div>
         ) : (
           data?.nft.moonrankCollection && (
-            <Link
-              className="group mb-4 flex flex-row items-center gap-2 transition"
-              href={`/collections/${data?.nft.moonrankCollection.id}`}
-            >
-              <Image
-                src={data?.nft.moonrankCollection.image}
-                className="aspect-square w-10 rounded-md object-cover"
-                alt="collection image"
-              />
-              <h2 className="text-2xl transition group-hover:opacity-80">
-                {data?.nft.moonrankCollection.name}
-              </h2>
-            </Link>
+            <div className="flex ">
+              <Link
+                className="group mb-4 flex flex-row items-center gap-2 transition"
+                href={`/collections/${data?.nft.moonrankCollection.id}`}
+              >
+                <Image
+                  src={data?.nft.moonrankCollection.image}
+                  className="aspect-square w-10 rounded-md object-cover"
+                  alt="collection image"
+                />
+                <h2 className="text-2xl transition group-hover:opacity-80">
+                  {data?.nft.moonrankCollection.name}
+                </h2>
+              </Link>
+              <VerifiedBadge isVerified={!!data?.nft.moonrankCollection} className="ml-0  mb-4" />
+            </div>
           )
         )}
         <Overview.Title>{nft.name}</Overview.Title>

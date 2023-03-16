@@ -11,7 +11,51 @@ import Img from '../components/Image';
 import { Chart } from '../components/Chart';
 import { useQuery } from '@apollo/client';
 import { subDays, format, startOfDay, endOfDay } from 'date-fns';
-import Link from 'next/link';
+import Tooltip from '../components/Tooltip';
+import useMetaplex from '../hooks/metaplex';
+
+interface VerifiedBadgeProps {
+  isVerified: boolean;
+  className?: string;
+}
+
+export function VerifiedBadge({ isVerified, className = '' }: VerifiedBadgeProps) {
+  const { t } = useTranslation(['common']);
+
+  if (!isVerified) return null;
+
+  return (
+    <Tooltip
+      placement="top"
+      content={<p>{t('collection.verified', { ns: 'common' })}</p>}
+      className="max-w-[12rem] text-center"
+      wrapperClass={clsx('flex items-center ml-1', className)}
+    >
+      <Icon.Verified />
+    </Tooltip>
+  );
+}
+
+interface EnforcedBadgeProps {
+  isEnforced: boolean;
+}
+
+function EnforcedBadge({ isEnforced }: EnforcedBadgeProps) {
+  const { t } = useTranslation(['common']);
+
+  if (!isEnforced) return null;
+
+  return (
+    <Tooltip
+      placement="top"
+      content={<p>{t('collection.enforced', { ns: 'common' })}</p>}
+      className="max-w-[12rem] text-center"
+    >
+      <Icon.Enforced />
+    </Tooltip>
+  );
+}
+
 interface CollectionLayoutProps {
   children: ReactElement;
   collection: Collection;
@@ -62,6 +106,9 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
     "yyyy-MM-dd'T'hh:mm:ssxxx"
   ) as string;
   const endTime = format(endOfDay(new Date()), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+  const { metadata } = useMetaplex({
+    verifiedCollectionAddress: collection?.verifiedCollectionAddress!,
+  });
 
   const collectionQueryClient = useQuery<CollectionData, CollectionVariables>(
     CollectionQueryClient,
@@ -77,7 +124,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
   return (
     <>
       <Head>
-        <title>{`${t('metadata.title', { ns: 'collection', name: collection.name })} | ${t('header.title', { ns: 'common' })}`}</title>
+        <title>{`${t('metadata.title', { ns: 'collection', name: collection.name })} | ${t(
+          'header.title',
+          { ns: 'common' }
+        )}`}</title>
         <meta name="description" content={collection.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -93,16 +143,19 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               />
             </div>
             <div className="space-y-4 md:mt-2">
-              <Overview.Title>{collection.name}</Overview.Title>
+              <div className="flex w-full justify-center md:justify-start">
+                <Overview.Title>{collection.name}</Overview.Title>
+                <VerifiedBadge isVerified={true} />
+              </div>
               {[collection.twitterUrl, collection.websiteUrl, collection.discordUrl].some(
                 Boolean
               ) && (
-                <div className="flex justify-center gap-4 text-gray-300 md:justify-start">
+                <div className="flex justify-center text-gray-300 md:justify-start">
                   {collection.twitterUrl && (
                     <a
                       target="_blank"
                       rel="nofollow noreferrer"
-                      className="hover:text-white"
+                      className="mr-[16px] hover:text-white"
                       href={collection.twitterUrl}
                     >
                       <Icon.Twitter className="h-5 w-auto" />
@@ -112,7 +165,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                     <a
                       target="_blank"
                       rel="nofollow noreferrer"
-                      className="hover:text-white"
+                      className="mr-[16px] hover:text-white"
                       href={collection.websiteUrl}
                     >
                       <Icon.Web className="h-5 w-auto" />
@@ -122,12 +175,13 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                     <a
                       target="_blank"
                       rel="nofollow noreferrer"
-                      className="hover:text-white"
+                      className="mr-[16px] hover:text-white"
                       href={collection.discordUrl}
                     >
                       <Icon.Discord className="h-5 w-auto" />
                     </a>
                   )}
+                  <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
                 </div>
               )}
 

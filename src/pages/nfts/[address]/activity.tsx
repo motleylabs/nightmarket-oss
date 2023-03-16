@@ -25,7 +25,7 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       auctionHouse: config.auctionHouse,
     },
   });
-  
+
   if (nft === null) {
     return {
       notFound: true,
