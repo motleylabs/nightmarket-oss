@@ -4,7 +4,7 @@ import config from '../app.config';
 const api = setup({
   baseURL: config.referralUrl,
   cache: {
-    maxAge: 2 * 60 * 1000,
+    maxAge: 60 * 1000,
     invalidate: async (config, request) => {
       if (request.clearCacheEntry && config.store) {
         //@ts-ignore
