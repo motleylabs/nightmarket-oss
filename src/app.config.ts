@@ -37,7 +37,7 @@ const config: AppConfig = {
     discord: 'https://discord.gg/bn5z4A794E',
     medium: 'https://medium.com/@Motleydao',
   },
-  website: 'https://motleylabs.com',
+  website: 'https://motleydao.com',
   status: 'https://motleylabs.cronitorstatus.com',
   tos: '',
   privacyPolicy: '',
