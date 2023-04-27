@@ -29,7 +29,9 @@ import { OrderDirection } from '../../typings/index.d';
 
 const PAGE_LIMIT = 24;
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params, req, res }: GetServerSidePropsContext) {
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
+
   const i18n = await serverSideTranslations(locale as string, [
     'common',
     'collection',
