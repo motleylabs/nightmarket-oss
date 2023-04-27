@@ -135,7 +135,7 @@ export function Preview({
             {nft?.image && showCollectionThumbnail && (
               <Img
                 fallbackSrc="/images/moon.svg"
-                src={getAssetURL(nft.image, AssetSize.Tiny)}
+                src={getAssetURL(nft.image, AssetSize.XSmall)}
                 alt={`Collection NFT image ${nft.name}`}
                 className="aspect-square w-4 rounded-sm object-cover"
               />

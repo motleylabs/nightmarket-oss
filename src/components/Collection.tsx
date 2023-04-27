@@ -88,7 +88,7 @@ function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Ele
     <div className="relative flex aspect-square h-16 w-16">
       <Img
         fallbackSrc="/images/moon.svg"
-        src={getAssetURL(src, AssetSize.Tiny)}
+        src={getAssetURL(src, AssetSize.XSmall)}
         className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
         alt="collection avatar"
       />

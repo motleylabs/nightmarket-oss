@@ -264,7 +264,7 @@ function CollectionSearchResult({ name, image, value, slug }: SearchResultProps)
           <div className="flex flex-row items-center gap-6">
             <Img
               fallbackSrc="/images/moon.svg"
-              src={getAssetURL(image, AssetSize.Tiny)}
+              src={getAssetURL(image, AssetSize.XSmall)}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
@@ -307,7 +307,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <Img
               fallbackSrc="/images/moon.svg"
-              src={getAssetURL(image, AssetSize.Tiny)}
+              src={getAssetURL(image, AssetSize.XSmall)}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
@@ -352,7 +352,7 @@ function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultPr
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <Img
                 fallbackSrc="/images/placeholder.png"
-                src={getAssetURL(image, AssetSize.Tiny)}
+                src={getAssetURL(image, AssetSize.XSmall)}
                 alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />

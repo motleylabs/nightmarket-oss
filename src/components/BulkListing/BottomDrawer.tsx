@@ -70,7 +70,7 @@ function BulkListBottomDrawer({ ownedNfts = [], openDrawer }: BulkListBottomDraw
                 <Img
                   key={nft.mintAddress}
                   fallbackSrc="/images/moon.svg"
-                  src={getAssetURL(nft.image, AssetSize.Tiny)}
+                  src={getAssetURL(nft.image, AssetSize.XSmall)}
                   alt={nft.name}
                   className="image-fit h-[1.5rem] w-[1.5rem] rounded-md"
                 />

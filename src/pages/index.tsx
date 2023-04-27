@@ -244,7 +244,7 @@ const Home: NextPage = () => {
                       <Collection.List.Col className="flex-none">
                         <Img
                           fallbackSrc="/images/moon.svg"
-                          src={getAssetURL(trend.collection?.image, AssetSize.Tiny)}
+                          src={getAssetURL(trend.collection?.image, AssetSize.XSmall)}
                           alt={trend.collection?.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
                         />
