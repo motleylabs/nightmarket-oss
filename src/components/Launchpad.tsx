@@ -1,9 +1,10 @@
-import React, { FC, ReactNode } from 'react';
-import Button, { ButtonBackground, ButtonColor } from './Button';
 import clsx from 'clsx';
 import { millisecondsToMinutes, formatDistance } from 'date-fns';
 import { useTranslation } from 'next-i18next';
+import React, { FC, ReactNode } from 'react';
+
 import useLaunchpad, { LaunchpadState } from '../hooks/launchpad';
+import Button, { ButtonBackground, ButtonColor } from './Button';
 import Icon from './Icon';
 
 type Active = FC;
@@ -75,7 +76,9 @@ function LaunchpadActive({
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (
-            <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic', { ns: 'launchpad' })}</p>
+            <p className="text-sm font-semibold text-gray-300">
+              {t('phases.dynamic', { ns: 'launchpad' })}
+            </p>
           )}
           {!isPublic && (
             <div className="flex flex-row items-center gap-2">
@@ -86,7 +89,9 @@ function LaunchpadActive({
                 )}
               />
               <p className="text-sm font-semibold text-gray-300">
-                {hasAccess ? t('phases.allowed', { ns: 'launchpad' }) : t('phases.notAllowed', { ns: 'launchpad' })}
+                {hasAccess
+                  ? t('phases.allowed', { ns: 'launchpad' })
+                  : t('phases.notAllowed', { ns: 'launchpad' })}
               </p>
             </div>
           )}
@@ -96,7 +101,9 @@ function LaunchpadActive({
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
             <span className="text-sm font-normal text-gray-300">
-              {mintType === MintOption.Dynamic ? t('phases.startingPrice', { ns: 'launchpad' }) : t('phases.price', { ns: 'launchpad' })}
+              {mintType === MintOption.Dynamic
+                ? t('phases.startingPrice', { ns: 'launchpad' })
+                : t('phases.price', { ns: 'launchpad' })}
             </span>{' '}
             <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
@@ -106,7 +113,9 @@ function LaunchpadActive({
         {/* TODO: add graph for dynamic pricing */}
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-normal text-gray-300">{t('phases.minting', { ns: 'launchpad' })}</p>
+            <p className="text-sm font-normal text-gray-300">
+              {t('phases.minting', { ns: 'launchpad' })}
+            </p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
@@ -156,13 +165,17 @@ function LaunchpadFinished({
     <div className="flex flex-col justify-between rounded-lg bg-gray-800 p-4 opacity-75">
       <div className="flex flex-col gap-4">
         {mintType === MintOption.Dynamic && (
-          <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic', { ns: 'launchpad' })}</p>
+          <p className="text-sm font-semibold text-gray-300">
+            {t('phases.dynamic', { ns: 'launchpad' })}
+          </p>
         )}
         <div className="flex flex-row justify-between text-xl font-bold text-white">
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
             <span className="text-sm font-normal text-gray-300">
-              {mintType === MintOption.Dynamic ? t('phases.finishedPrice', { ns: 'launchpad' }) : t('phases.price', { ns: 'launchpad' })}
+              {mintType === MintOption.Dynamic
+                ? t('phases.finishedPrice', { ns: 'launchpad' })
+                : t('phases.price', { ns: 'launchpad' })}
             </span>{' '}
             <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
@@ -171,7 +184,9 @@ function LaunchpadFinished({
         </div>
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-normal text-gray-300">{t('phases.minted', { ns: 'launchpad' })}</p>
+            <p className="text-sm font-normal text-gray-300">
+              {t('phases.minted', { ns: 'launchpad' })}
+            </p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{`${minted}/${supply}`}</p>
               <div className="flex h-2 w-32 rounded-full bg-gray-700">
@@ -186,7 +201,9 @@ function LaunchpadFinished({
           <h6 className="rounded-full bg-black p-4 font-bold text-gray-500">
             {soldOut
               ? soldOutTimeMilliseconds
-                ? `${t('phases.soldoutTime', { ns: 'launchpad' })} ${millisecondsToMinutes(soldOutTimeMilliseconds)} min`
+                ? `${t('phases.soldoutTime', { ns: 'launchpad' })} ${millisecondsToMinutes(
+                    soldOutTimeMilliseconds
+                  )} min`
                 : t('phases.soldout', { ns: 'launchpad' })
               : t('phases.finished', { ns: 'launchpad' })}
           </h6>
@@ -218,7 +235,9 @@ function LaunchpadUpcoming({
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           {mintType === MintOption.Dynamic && (
-            <p className="text-sm font-semibold text-gray-300">{t('phases.dynamic', { ns: 'launchpad' })}</p>
+            <p className="text-sm font-semibold text-gray-300">
+              {t('phases.dynamic', { ns: 'launchpad' })}
+            </p>
           )}
           {!isPublic && (
             <div className="flex flex-row items-center gap-2">
@@ -229,7 +248,9 @@ function LaunchpadUpcoming({
                 )}
               />
               <p className="text-sm font-semibold text-gray-300">
-                {hasAccess ? t('phases.allowed', { ns: 'launchpad' }) : t('phases.notAllowed', { ns: 'launchpad' })}
+                {hasAccess
+                  ? t('phases.allowed', { ns: 'launchpad' })
+                  : t('phases.notAllowed', { ns: 'launchpad' })}
               </p>
             </div>
           )}
@@ -239,7 +260,9 @@ function LaunchpadUpcoming({
           <h6>{title}</h6>
           <p className="flex items-center gap-2">
             <span className="text-sm font-normal text-gray-300">
-              {mintType === MintOption.Dynamic ? t('phases.dynamic', { ns: 'launchpad' }) : t('phases.price', { ns: 'launchpad' })}
+              {mintType === MintOption.Dynamic
+                ? t('phases.dynamic', { ns: 'launchpad' })
+                : t('phases.price', { ns: 'launchpad' })}
             </span>{' '}
             <span className="flex items-center gap-1">
               <Icon.Sol /> {price}
@@ -249,7 +272,9 @@ function LaunchpadUpcoming({
         {/* TODO: add graph for dynamic pricing */}
         <div className="flex flex-row items-center justify-between pt-2">
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-normal text-gray-300">{t('phases.supply', { ns: 'launchpad' })}</p>
+            <p className="text-sm font-normal text-gray-300">
+              {t('phases.supply', { ns: 'launchpad' })}
+            </p>
             <div className="flex flex-row items-center gap-2">
               <p className="text-base font-bold">{supply}</p>
             </div>

@@ -1,6 +1,8 @@
-import { DetailedHTMLProps, ImgHTMLAttributes, useEffect, useState, Fragment } from 'react';
-import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
+
+import clsx from 'clsx';
+import type { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 
 export enum ImgBackdrop {
   Gray = 'bg-gray-700',
@@ -45,7 +47,7 @@ function Img({
     if (image.complete && image.naturalWidth !== 0) {
       setHideImage(false);
     }
-  }, [src]);
+  }, [src, fallbackSrc]);
 
   if (hasImageError || hideImage) {
     return (
@@ -66,7 +68,7 @@ function Img({
       leave="transition-opacity duration-150"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
-      afterLeave={() => {}}
+      afterLeave={() => null}
       show={true}
     >
       <img alt={alt} src={currentSrc} {...props} className={className} />

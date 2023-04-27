@@ -1,5 +1,6 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+
 import { useMemo } from 'react';
 
 type OnLoginFn = () => Promise<void>;

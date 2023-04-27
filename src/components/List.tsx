@@ -1,4 +1,5 @@
 import { useWindowWidth } from '@react-hook/window-size';
+
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useState } from 'react';
 import { InView } from 'react-intersection-observer';
@@ -31,7 +32,8 @@ interface ListProps<T> {
   expanded?: boolean;
   hasMore: boolean;
   render: (item: T, index: number) => JSX.Element;
-  onLoadMore: (inView: boolean) => Promise<void>;
+  onLoadMore?: (inView: boolean) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   skeleton: (props: any) => JSX.Element;
   className?: string;
 }

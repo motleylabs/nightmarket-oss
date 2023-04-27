@@ -6,9 +6,16 @@ import {
   remainingAccountsForLockup,
   WhitelistMintMode,
 } from '@cardinal/mpl-candy-machine-utils';
+import { PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  createInitializeMintInstruction,
+  createMintToInstruction,
+  getAssociatedTokenAddressSync,
+  MintLayout,
+  TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
-  AccountMeta,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -18,20 +25,12 @@ import {
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
   Transaction,
 } from '@solana/web3.js';
-import { BN } from 'bn.js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  MintLayout,
-  Token,
-  TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
-import { PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
-import { createAssociatedTokenAccountInstruction, getAtaForMint } from '../modules/candymachine';
+import type { AccountMeta } from '@solana/web3.js';
 
-interface MintOptions {
-  type: 'Standard' | 'Dynamic';
-}
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { createAssociatedTokenAccountInstruction, getAtaForMint } from '../modules/candymachine';
+import { getMetadataAccount } from '../utils/metaplex';
 
 export interface LaunchpadState {
   supply: number;
@@ -49,15 +48,6 @@ interface LaunchpadContext {
     price: number;
   };
 }
-
-export const getMetadataPDA = async (mint: PublicKey): Promise<PublicKey> => {
-  return (
-    await PublicKey.findProgramAddress(
-      [Buffer.from('metadata'), MPL_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-      MPL_PROGRAM_ID
-    )
-  )[0];
-};
 
 const getEditionPDA = async (mint: PublicKey): Promise<PublicKey> => {
   return (
@@ -102,14 +92,8 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
     setIsMinting(true);
     const mintKeypair = Keypair.generate();
 
-    const tokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      mintKeypair.publicKey,
-      publicKey,
-      false
-    );
-    const metadataPDA = await getMetadataPDA(mintKeypair.publicKey);
+    const tokenAccount = getAssociatedTokenAddressSync(mintKeypair.publicKey, publicKey, false);
+    const metadataPDA = getMetadataAccount(mintKeypair.publicKey);
     const editionPDA = await getEditionPDA(mintKeypair.publicKey);
     const [candyMachineCreatorId, candyMachineCreatorIdBump] = await PublicKey.findProgramAddress(
       [Buffer.from('candy_machine'), candyMachinePubkey.toBuffer()],
@@ -144,10 +128,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
     }
     if (cm.data.whitelistMintSettings) {
       const whitelistMint = cm.data.whitelistMintSettings.mint;
-      const [whitelistTokenAccount, whitelistTokenAccountBump] = await getAtaForMint(
-        whitelistMint,
-        publicKey
-      );
+      const [whitelistTokenAccount] = await getAtaForMint(whitelistMint, publicKey);
       remainingAccs.push({
         pubkey: whitelistTokenAccount,
         isWritable: false,
@@ -189,27 +170,14 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
         lamports: await connection.getMinimumBalanceForRentExemption(MintLayout.span),
         programId: TOKEN_PROGRAM_ID,
       }),
-      Token.createInitMintInstruction(
-        TOKEN_PROGRAM_ID,
-        mintKeypair.publicKey,
-        0,
-        publicKey,
-        publicKey
-      ),
+      createInitializeMintInstruction(mintKeypair.publicKey, 0, publicKey, publicKey),
       createAssociatedTokenAccountInstruction(
         tokenAccount,
         publicKey,
         publicKey,
         mintKeypair.publicKey
       ),
-      Token.createMintToInstruction(
-        TOKEN_PROGRAM_ID,
-        mintKeypair.publicKey,
-        tokenAccount,
-        publicKey,
-        [],
-        1
-      ),
+      createMintToInstruction(mintKeypair.publicKey, tokenAccount, publicKey, 1, []),
       {
         ...mintInstruction,
         keys: [...mintInstruction.keys, ...remainingAccs],
@@ -237,6 +205,7 @@ export default function useLaunchpad(candyMachineId: string): LaunchpadContext {
         );
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Error whilst minting', err);
     } finally {
       await fetchCandyMachine();

@@ -15,10 +15,12 @@
   },
   "collection": "Collection",
   "globalFloor": "Global Floor",
+  "1hVolume": "1 Hour Volume",
   "24hVolume": "24 Hour Volume",
   "7dVolume": "7 Day Volume",
   "30dVolume": "30 Day Volume",
   "timeInterval": {
+    "hour": "1 Hour",
     "day": "1 Day",
     "week": "1 Week",
     "month": "1 Month"

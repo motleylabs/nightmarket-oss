@@ -1,12 +1,15 @@
 import { useTranslation } from 'next-i18next';
-import { Nft } from '../../graphql.types';
+import type { FormState, UseFormRegister } from 'react-hook-form';
+
 import { useCurrencies } from '../../hooks/currencies';
+import type { BulkListNftForm } from '../../hooks/list';
+import type { Nft } from '../../typings';
+import { getAssetURL, AssetSize } from '../../utils/assets';
+import { getSolFromLamports } from '../../utils/price';
 import { Form } from '../Form';
 import Icon from '../Icon';
 import Image from '../Image';
 import Tooltip from '../Tooltip';
-import { FormState, UseFormRegister } from 'react-hook-form';
-import { BulkListNftForm } from '../../hooks/list';
 import { NUMBER_REGEX } from './BulkListModal';
 
 interface ListingItemProps {
@@ -29,10 +32,10 @@ export default function ListingItem({
   const { t } = useTranslation('profile');
   const { solToUsdString } = useCurrencies();
   const lastSale = nft.lastSale;
-  const collectionName = nft.moonrankCollection?.name;
+  const collectionName = nft.name;
 
   const renderInfoTooltip = () =>
-    lastSale?.solPrice ? (
+    !!lastSale ? (
       <Tooltip
         content={
           <div>
@@ -41,10 +44,10 @@ export default function ListingItem({
             </p>
             <div className="flex gap-1">
               <Icon.Sol />
-              <p>{lastSale.solPrice}</p>
+              <p>{getSolFromLamports(lastSale.price, 0, 3)}</p>
             </div>
             <p className="ml-5 text-xs font-bold text-gray-600">
-              {solToUsdString(lastSale.solPrice)}
+              {solToUsdString(getSolFromLamports(lastSale.price))}
             </p>
           </div>
         }
@@ -59,7 +62,7 @@ export default function ListingItem({
       <div className="flex items-center gap-5">
         <div className="relative">
           <Image
-            src={nft.image}
+            src={getAssetURL(nft.image, AssetSize.XSmall)}
             alt="nft image"
             className="h-14 w-14 rounded-lg border-2 border-solid border-gray-400/50 object-cover"
           />
@@ -87,8 +90,8 @@ export default function ListingItem({
 
       <div className="w-full sm:w-36">
         <Form.Input
-          error={bulkListNftState.errors.amounts?.[nft.address]}
-          {...registerBulkListNft(`amounts.${nft.address}`, {
+          error={bulkListNftState.errors.amounts?.[nft.mintAddress]}
+          {...registerBulkListNft(`amounts.${nft.mintAddress}`, {
             required: !disabled,
             validate: (value) =>
               !disabled ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
@@ -96,7 +99,7 @@ export default function ListingItem({
           icon={<Icon.Sol defaultColor={!disabled ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           disabled={disabled}
         />
-        <Form.Error message={bulkListNftState.errors.amounts?.[nft.address]?.message} />
+        <Form.Error message={bulkListNftState.errors.amounts?.[nft.mintAddress]?.message} />
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
-interface AppConfig {
+export interface AppConfig {
   baseUrl: string;
-  graphqlUrl: string;
   solanaRPCUrl: string;
   referralUrl: string;
   referralKey: string;
@@ -22,12 +21,12 @@ interface AppConfig {
   tos: string;
   privacyPolicy: string;
   auctionHouse: string;
+  auctionHouseProgram?: string;
   addressLookupTable: string;
 }
 
 const config: AppConfig = {
   baseUrl: 'https://nightmarket.io', // could also be an ENV variable
-  graphqlUrl: process.env.NEXT_PUBLIC_GRAPHQL_URL as string,
   solanaRPCUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL as string,
   referralUrl: process.env.NEXT_PUBLIC_REFERRAL_URL as string,
   referralKey: process.env.NEXT_PUBLIC_REFERRAL_KEY as string,
@@ -42,6 +41,7 @@ const config: AppConfig = {
   tos: '',
   privacyPolicy: '',
   auctionHouse: process.env.NEXT_PUBLIC_AUCTION_HOUSE_ADDRESS as string,
+  auctionHouseProgram: process.env.NEXT_PUBLIC_AUCTION_HOUSE_PROGRAM_ADDRESS,
   offerMinimums: {
     percentageFloor: 0.8,
     percentageListing: 0.8,

@@ -1,17 +1,18 @@
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import { useBuddyStats } from '../hooks/referrals';
+import { useWalletContext } from '../providers/WalletContextProvider';
 import Button, { ButtonBackground } from './Button';
+import { useRequest } from 'ahooks';
+import { getBuddyStats } from '../utils/referral';
 
 export default function Banner() {
   const { t } = useTranslation('referrals');
-
-  const { publicKey } = useWallet();
-
-  const { data, loading } = useBuddyStats({
-    wallet: publicKey?.toString()!,
-  });
+  const { address } = useWalletContext();
+  const { data, loading } = useRequest(getBuddyStats, {
+    ready: !!address,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    defaultParams: [address!]
+  })
 
   return (
     <div className="relative mt-14 w-full overflow-hidden rounded-2xl bg-gradient-primary">
@@ -45,11 +46,7 @@ export default function Banner() {
               </Button>
             ) : (
               <Link
-                href={
-                  !loading && data?.username
-                    ? `/profiles/${publicKey?.toString()}/affiliate`
-                    : '/referrals'
-                }
+                href={!loading && data?.username ? `/profiles/${address}/affiliate` : '/referrals'}
               >
                 <Button background={ButtonBackground.FullBlack}>
                   {!loading && data?.username

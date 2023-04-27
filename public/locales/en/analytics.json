@@ -6,6 +6,7 @@
     "priceDistributionChartTitle": "Price Distribution",
     "holdersVsTokensHeldChartTitle": "Holders vs Tokens Held"
   },
+  "oneHour": "One Hour",
   "oneDay": "One Day",
   "oneWeek": "One Week",
   "oneMonth": "One Month",

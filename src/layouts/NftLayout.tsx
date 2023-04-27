@@ -1,45 +1,42 @@
+import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { ReactNode, useState, useMemo } from 'react';
-import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
-import clsx from 'clsx';
-import { AuctionHouse, Nft, Offer, AhListing, CollectionTrend } from '../graphql.types';
-import { Overview } from './../components/Nft';
-import { ButtonGroup } from './../components/ButtonGroup';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
-import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
-import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
-import { Form } from '../components/Form';
-import Head from 'next/head';
-import { viewerVar } from './../cache';
-import { Paragraph, TextColor, FontWeight } from '../components/Typography';
-import Icon from '../components/Icon';
-import { useWallet } from '@solana/wallet-adapter-react';
-import useBuyNow from '../hooks/buy';
-import useLogin from '../hooks/login';
+import type { ReactNode } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+
 import config from '../app.config';
-import Image, { ImgBackdrop } from './../components/Image';
-import Lightbox from '../components/Lightbox';
-import { RewardCenterProgram } from '../modules/reward-center';
-import Flex, { FlexAlign, FlexDirection, FlexJustify } from '../components/Flex';
-import { Row, Col } from '../components/Grid';
 import { NUMBER_REGEX } from '../components/BulkListing/BulkListModal';
+import Flex, { FlexAlign, FlexDirection, FlexJustify } from '../components/Flex';
+import { Form } from '../components/Form';
+import { Row, Col } from '../components/Grid';
+import Icon from '../components/Icon';
+import Lightbox from '../components/Lightbox';
+import { Paragraph, TextColor, FontWeight } from '../components/Typography';
+import useBuyNow from '../hooks/buy';
+import { useDetail } from '../hooks/collection/useDetail';
+import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
+import useLogin from '../hooks/login';
+import { useOffers } from '../hooks/nft';
+import { useMakeOffer, useUpdateOffer, useCloseOffer, useAcceptOffer } from '../hooks/offer';
+import { useAction } from '../hooks/useAction';
+import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { ActionInfo, ActivityEvent, Nft, Offer, OfferEvent } from '../typings';
+import { getAssetURL, AssetSize } from '../utils/assets';
+import { getMarketplace } from '../utils/marketplaces';
+import type { Marketplace } from '../utils/marketplaces';
+import { getSolFromLamports } from '../utils/price';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
+import { ButtonGroup } from './../components/ButtonGroup';
+import Image, { ImgBackdrop } from './../components/Image';
+import { Overview } from './../components/Nft';
 import { VerifiedBadge } from './CollectionLayout';
 
 interface NftLayoutProps {
   children: ReactNode;
   nft: Nft;
-  auctionHouse: AuctionHouse;
-}
-
-interface NftMarketData {
-  nft: Nft;
-}
-
-interface NftMarketVariables {
-  address: string;
 }
 
 enum NftPage {
@@ -48,53 +45,92 @@ enum NftPage {
   Activity = '/nfts/[address]/activity',
 }
 
-export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProps) {
+export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) {
   const { t } = useTranslation(['nft', 'common']);
   const router = useRouter();
   const onLogin = useLogin();
-  const { publicKey, connected } = useWallet();
-  const client = useApolloClient();
-  const viewer = useReactiveVar(viewerVar);
+  const { publicKey, connected, balance } = useWalletContext();
   const [expanded, setExpanded] = useState(false);
+  const [nft, setNft] = useState<Nft>(serverNft);
+  const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
+  const { isLoading: collectionLoading, data: collection } = useDetail(nft.symbol);
+  const { data: offers, isLoading, isValidating, mutate } = useOffers(nft.mintAddress);
+  const { on, off, trigger } = useAction();
 
-  const { data, loading } = useQuery<NftMarketData, NftMarketVariables>(NftMarketInfoQuery, {
-    variables: {
-      address: router.query.address as string,
-    },
+  const addOffer = (event: Event) => {
+    const newOfferEvent: OfferEvent = (event as CustomEvent).detail;
+
+    if (newOfferEvent.mint === nft.mintAddress) {
+      if (!isLoading && !isValidating && !!offers) {
+        const offerIndex = offers.findIndex((offer) => offer.buyer === newOfferEvent.offer.buyer);
+        if (offerIndex > -1) {
+          offers.splice(offerIndex, 1);
+        }
+
+        if (newOfferEvent.offer.activityType.toLowerCase() !== 'cancelbid') {
+          mutate([newOfferEvent.offer, ...offers], { revalidate: false });
+        } else {
+          mutate([...offers], { revalidate: false });
+        }
+      }
+    }
+  };
+
+  const clearOffers = () => {
+    mutate([], { revalidate: false });
+  };
+
+  useEffect(() => {
+    on('offer-add', addOffer);
+    on('offer-clear', clearOffers);
+
+    return () => {
+      off('offer-add', addOffer);
+      off('offer-clear', clearOffers);
+    };
   });
 
-  const isOwner = viewer?.address === data?.nft.owner?.address;
+  const isOwner = publicKey?.toBase58() === nft.owner;
 
   const notOwner = !isOwner;
 
-  const listing: AhListing | null = useMemo(() => {
-    const listing = data?.nft.listings?.find((listing: AhListing) => {
-      return listing.auctionHouse?.address === config.auctionHouse;
-    });
+  const marketplace: Marketplace | undefined = useMemo(() => {
+    return getMarketplace(nft.latestListing?.auctionHouseProgram);
+  }, [nft.latestListing]);
 
-    return listing || null;
-  }, [data?.nft.listings]);
+  const isOwnMarket: boolean = useMemo(() => {
+    return nft.latestListing?.auctionHouseAddress === config.auctionHouse;
+  }, [nft.latestListing]);
+
+  const listing: ActionInfo | null = useMemo(() => {
+    if (nft.latestListing) {
+      return nft.latestListing;
+    }
+    return null;
+  }, [nft.latestListing]);
+
   const highestOffer: Offer | null = useMemo(() => {
-    const offers = data?.nft.offers
-      .filter((offer: Offer) => offer.auctionHouse?.address === config.auctionHouse)
+    const sorted = offers
+      ?.filter((offer: Offer) => offer.auctionHouseAddress === config.auctionHouse)
       .sort((a: Offer, b: Offer) => {
-        return (b.solPrice as number) - (a.solPrice as number);
+        return getSolFromLamports(b.price) - getSolFromLamports(a.price);
       });
 
-    if (!offers) {
+    if (!sorted) {
       return null;
     }
 
-    return offers[0] || null;
-  }, [data?.nft.offers]);
+    return sorted[0] || null;
+  }, [offers]);
+
   const viewerOffer: Offer | null = useMemo(() => {
-    const offer = data?.nft.offers.find(
+    const offer = offers?.find(
       (offer: Offer) =>
-        offer.buyer === publicKey?.toBase58() && offer.auctionHouse?.address === config.auctionHouse
+        offer.buyer === publicKey?.toBase58() && offer.auctionHouseAddress === config.auctionHouse
     );
 
     return offer || null;
-  }, [data?.nft.offers, publicKey]);
+  }, [offers, publicKey]);
 
   const {
     makeOffer,
@@ -104,10 +140,10 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     onOpenOffer,
     offerFormState,
     onCancelMakeOffer,
-  } = useMakeOffer(data?.nft);
+  } = useMakeOffer(listing, collection?.statistics.floor1d);
 
-  const handleOffer: any = async ({ amount }: { amount: string }) => {
-    if (!amount || !nft || !auctionHouse) {
+  const handleOffer = async ({ amount }: { amount: number }) => {
+    if (!amount || !nft || !auctionHouse || !auctionHouse.rewardCenter) {
       return;
     }
 
@@ -118,69 +154,28 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         return;
       }
 
-      const { buyerTradeState, metadata, buyerTradeStateBump, associatedTokenAccount, buyerPrice } =
-        response;
-
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
+      trigger('offer-add', {
+        mint: nft.mintAddress,
+        offer: {
+          activityType: 'BID',
+          buyer: publicKey?.toBase58() ?? '',
+          blockTimestamp: Math.floor(new Date().getTime() / 1000),
+          martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+          auctionHouseAddress: auctionHouse.address,
+          price: `${response.buyerPrice}`,
+          seller: null,
+          signature: response.signature,
         },
-        (data) => {
-          const offer: Offer = {
-            __typename: 'Offer',
-            id: `temp-id-${buyerTradeState.toBase58()}`,
-            tradeState: buyerTradeState.toBase58(),
-            tradeStateBump: buyerTradeStateBump,
-            buyer: publicKey?.toBase58(),
-            metadata: metadata.toBase58(),
-            marketplaceProgramAddress: RewardCenterProgram.PUBKEY.toBase58(),
-            tokenAccount: associatedTokenAccount.toBase58(),
-            // @ts-ignore
-            auctionHouse: {
-              address: auctionHouse.address,
-              __typename: 'AuctionHouse',
-            },
-            createdAt: new Date().toISOString(),
-            // @ts-ignore
-            price: buyerPrice.toString(),
-            // @ts-ignore
-            nft: {
-              __typename: 'Nft',
-              address: nft.address,
-              mintAddress: nft.mintAddress,
-              name: nft.name,
-              image: nft.image,
-              owner: {
-                __typename: 'NftOwner',
-                address: nft.owner?.address as string,
-                associatedTokenAccountAddress: associatedTokenAccount.toBase58(),
-              },
-            },
-            // @ts-ignore
-            buyerWallet: {
-              __typename: 'Wallet',
-              address: publicKey?.toBase58(),
-              twitterHandle: null,
-              profile: null,
-            },
-          };
+      } as OfferEvent);
+    } catch (e: unknown) {}
+  };
 
-          const offers = [...data.nft.offers, offer];
+  const onViewExternalListing = async () => {
+    if (!nft || !marketplace) {
+      return;
+    }
 
-          return {
-            nft: {
-              ...data.nft,
-              offers,
-            },
-          };
-        }
-      );
-    } catch (e: any) {}
+    window.open(marketplace.link.replace('{}', nft.mintAddress), '_blank', 'noopener,noreferrer');
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
@@ -194,74 +189,36 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       const response = await onBuyNow({
         nft,
         auctionHouse,
-        ahListing: listing,
+        listing,
       });
 
       if (!response) {
         return;
       }
 
-      const { buyerReceiptTokenAccount } = response;
+      setNft((oldNft) => ({
+        ...oldNft,
+        owner: response.buyAction ? response.buyAction.userAddress : oldNft.owner,
+        lastSale: response.buyAction,
+        latestListing: null,
+      }));
 
-      if (router.pathname === '/nfts/[address]') {
-        client.cache.updateQuery(
-          {
-            query: NftDetailsQuery,
-            broadcast: false,
-            overwrite: true,
-            variables: {
-              address: nft.mintAddress,
-            },
+      if (!!response.buyAction) {
+        trigger('activity', {
+          mint: nft.mintAddress,
+          activity: {
+            activityType: 'TRANSACTION',
+            buyer: response.buyAction.userAddress,
+            blockTimestamp: response.buyAction.blockTimestamp,
+            martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+            auctionHouseAddress: auctionHouse.address,
+            price: response.buyAction.price,
+            seller: publicKey?.toBase58() ?? '',
+            signature: response.buyAction.signature,
           },
-          (data) => {
-            return {
-              nft: {
-                ...data.nft,
-                owner: {
-                  __typename: 'NftOwner',
-                  address: publicKey?.toBase58(),
-                  associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-                  profile: null,
-                },
-              },
-            };
-          }
-        );
+        } as ActivityEvent);
       }
-
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const listings = data.nft.listings.filter((l: AhListing) => l.id !== listing.id);
-
-          const nft = {
-            ...data.nft,
-            listings,
-            lastSale: {
-              __typename: 'LastSale',
-              price: listing.price.toString(),
-            },
-            owner: {
-              __typename: 'NftOwner',
-              address: publicKey?.toBase58(),
-              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-              profile: null,
-            },
-          };
-
-          return {
-            nft,
-          };
-        }
-      );
-    } catch (e: any) {}
+    } catch (e: unknown) {}
   };
 
   const {
@@ -278,10 +235,56 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     if (!amount || !nft || !auctionHouse) {
       return;
     }
-    await onSubmitListNft({ amount, nft, auctionHouse });
+
+    const newListing = await onSubmitListNft({ amount, nft, auctionHouse });
+
+    if (!!newListing) {
+      setNft((oldNft) => ({ ...oldNft, latestListing: newListing }));
+
+      trigger('activity', {
+        mint: nft.mintAddress,
+        activity: {
+          activityType: 'LISTING',
+          buyer: null,
+          blockTimestamp: newListing.blockTimestamp,
+          martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+          auctionHouseAddress: auctionHouse.address,
+          price: newListing.price,
+          seller: publicKey?.toBase58() ?? '',
+          signature: newListing.signature,
+        },
+      } as ActivityEvent);
+    }
   };
 
-  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
+  const { onCloseListing, closingListing } = useCloseListing({
+    listing,
+    nft,
+    auctionHouse,
+    setNft,
+  });
+
+  const handleCloseListing = async () => {
+    const sig = await onCloseListing();
+
+    if (!!sig && !!auctionHouse) {
+      setNft((oldNft) => ({ ...oldNft, latestListing: null }));
+
+      trigger('activity', {
+        mint: nft.mintAddress,
+        activity: {
+          activityType: 'DELISTING',
+          buyer: null,
+          blockTimestamp: Math.floor(new Date().getTime() / 1000),
+          martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+          auctionHouseAddress: auctionHouse.address,
+          price: '0',
+          seller: publicKey?.toBase58() ?? '',
+          signature: sig,
+        },
+      } as ActivityEvent);
+    }
+  };
 
   const {
     updateListing,
@@ -297,7 +300,26 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     if (!amount || !nft || !auctionHouse) {
       return;
     }
-    await onSubmitUpdateListing({ amount, nft, auctionHouse });
+
+    const newListing = await onSubmitUpdateListing({ amount, nft, auctionHouse, setNft });
+
+    if (!!newListing) {
+      setNft((oldNft) => ({ ...oldNft, latestListing: newListing }));
+
+      trigger('activity', {
+        mint: nft.mintAddress,
+        activity: {
+          activityType: 'LISTING',
+          buyer: null,
+          blockTimestamp: newListing?.blockTimestamp,
+          martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+          auctionHouseAddress: auctionHouse.address,
+          price: newListing.price,
+          seller: publicKey?.toBase58() ?? '',
+          signature: newListing.signature,
+        },
+      } as ActivityEvent);
+    }
   };
 
   const { onCloseOffer, closingOffer } = useCloseOffer(viewerOffer);
@@ -308,18 +330,30 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     }
 
     try {
-      await onCloseOffer({ nft, auctionHouse });
+      const sig = await onCloseOffer({ nft, auctionHouse });
 
-      client.cache.evict({
-        id: client.cache.identify(viewerOffer),
-      });
-    } catch (e: any) {}
+      if (!!sig && !!auctionHouse) {
+        trigger('offer-add', {
+          mint: nft.mintAddress,
+          offer: {
+            activityType: 'CANCELBID',
+            buyer: publicKey?.toBase58() ?? '',
+            blockTimestamp: Math.floor(new Date().getTime() / 1000),
+            martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+            auctionHouseAddress: auctionHouse.address,
+            price: '0',
+            seller: null,
+            signature: sig,
+          },
+        } as OfferEvent);
+      }
+    } catch (e: unknown) {}
   };
 
   const { onAcceptOffer, acceptingOffer } = useAcceptOffer(highestOffer);
 
   const handleAcceptOffer = async () => {
-    if (!auctionHouse || !nft || !highestOffer) {
+    if (!auctionHouse || !auctionHouse.rewardCenter || !nft || !highestOffer) {
       return;
     }
 
@@ -330,91 +364,30 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
         return;
       }
 
-      const { buyerReceiptTokenAccount } = response;
+      setNft((oldNft) => ({
+        ...oldNft,
+        owner: response.acceptAction ? response.acceptAction.userAddress : oldNft.owner,
+        lastSale: response.acceptAction,
+        latestListing: null,
+      }));
 
-      client.cache.modify({
-        id: client.cache.identify({
-          __typename: 'Wallet',
-          address: data?.nft?.owner?.address as string,
-        }),
-        fields: {
-          collectedCollections(collectedCollections, { readField }) {
-            return collectedCollections.reduce((memo: any[], cc: any) => {
-              const id = readField('id', cc.collection);
-              if (id === data?.nft?.moonrankCollection?.id) {
-                const trends: Readonly<CollectionTrend> | undefined = readField(
-                  'trends',
-                  cc.collection
-                );
-
-                const estimatedValue = (
-                  parseFloat(cc.estimatedValue) - parseFloat(trends?.floor1d)
-                ).toString();
-
-                const update = {
-                  ...cc,
-                  estimatedValue,
-                  nftsOwned: cc.nftsOwned - 1,
-                };
-
-                if (update.nftsOwned === 0) {
-                  return memo;
-                }
-
-                return [...memo, update];
-              }
-
-              return [...memo, cc];
-            }, []);
+      if (!!response.acceptAction) {
+        trigger('activity', {
+          mint: nft.mintAddress,
+          activity: {
+            activityType: 'TRANSACTION',
+            buyer: response.acceptAction.userAddress,
+            blockTimestamp: response.acceptAction.blockTimestamp,
+            martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+            auctionHouseAddress: auctionHouse.address,
+            price: response.acceptAction.price,
+            seller: publicKey?.toBase58() ?? '',
+            signature: response.acceptAction.signature,
           },
-          nftCounts(counts, { readField }) {
-            let owned: number | undefined = readField('owned', counts);
-
-            if (!owned) {
-              return counts;
-            }
-
-            return {
-              ...counts,
-              owned: owned - 1,
-            };
-          },
-        },
-      });
-
-      client.cache.updateQuery(
-        {
-          query: NftMarketInfoQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: nft.mintAddress,
-          },
-        },
-        (data) => {
-          const offers = data.nft.offers.filter((o: Offer) => o.id !== highestOffer.id);
-
-          const nft = {
-            ...data.nft,
-            offers,
-            lastSale: {
-              __typename: 'LastSale',
-              price: highestOffer.price.toString(),
-            },
-            owner: {
-              __typename: 'NftOwner',
-              address: highestOffer.buyer,
-              associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-              profile: null,
-            },
-          };
-
-          return {
-            nft,
-          };
-        }
-      );
-    } catch (er: any) {}
+        } as ActivityEvent);
+        trigger('offer-clear');
+      }
+    } catch (er: unknown) {}
   };
 
   const {
@@ -425,14 +398,30 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
     updateOfferFormState,
     handleSubmitUpdateOffer,
     updateOffer,
-  } = useUpdateOffer(viewerOffer, data?.nft);
+  } = useUpdateOffer(viewerOffer, listing, nft, collection);
 
-  const handleUpdateOffer: any = async ({ amount }: { amount: string }) => {
+  const handleUpdateOffer = async ({ amount }: { amount: number }) => {
     if (!amount || !nft || !auctionHouse) {
       return;
     }
 
-    await onUpdateOffer({ amount: Number(amount), nft, auctionHouse });
+    const sig = await onUpdateOffer({ amount: Number(amount), nft, auctionHouse });
+
+    if (!!sig) {
+      trigger('offer-add', {
+        mint: nft.mintAddress,
+        offer: {
+          activityType: 'BID',
+          buyer: publicKey?.toBase58() ?? '',
+          blockTimestamp: Math.floor(new Date().getTime() / 1000),
+          martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+          auctionHouseAddress: auctionHouse.address,
+          price: `${amount}`,
+          seller: null,
+          signature: sig,
+        },
+      } as OfferEvent);
+    }
   };
 
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
@@ -440,8 +429,8 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
   return (
     <Overview>
       <Head>
-        {data?.nft.moonrankCollection ? (
-          <title>{`${nft.name} | ${data?.nft.moonrankCollection.name} | ${t('header.title', {
+        {!!collection ? (
+          <title>{`${nft.name} | ${collection.name} | ${t('header.title', {
             ns: 'common',
           })}`}</title>
         ) : (
@@ -453,7 +442,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       <Overview.Media>
         <Lightbox.Container>
           <Image
-            src={nft.image}
+            src={getAssetURL(nft.image, AssetSize.Large)}
             alt="nft image"
             className="w-full rounded-lg object-cover"
             backdrop={ImgBackdrop.Cell}
@@ -463,34 +452,32 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       </Overview.Media>
       <Lightbox show={expanded} onDismiss={() => setExpanded(false)}>
         <Image
-          src={nft.image}
+          src={getAssetURL(nft.image, AssetSize.Large)}
           className="aspect-auto h-full w-full rounded-lg"
           alt={`${nft.name} image`}
         />
       </Lightbox>
       <Overview.Aside>
-        {loading ? (
+        {collectionLoading ? (
           <div className="mb-4 flex animate-pulse flex-row items-center gap-2 transition">
             <div className="aspect-square w-10 rounded-md bg-gray-800" />
             <div className="h-6 w-40 rounded-md bg-gray-800" />
           </div>
         ) : (
-          data?.nft.moonrankCollection && (
+          !!collection && (
             <div className="flex ">
               <Link
                 className="group mb-4 flex flex-row items-center gap-2 transition"
-                href={`/collections/${data?.nft.moonrankCollection.id}`}
+                href={`/collections/${collection.slug}`}
               >
                 <Image
-                  src={data?.nft.moonrankCollection.image}
+                  src={collection.image}
                   className="aspect-square w-10 rounded-md object-cover"
                   alt="collection image"
                 />
-                <h2 className="text-2xl transition group-hover:opacity-80">
-                  {data?.nft.moonrankCollection.name}
-                </h2>
+                <h2 className="text-2xl transition group-hover:opacity-80">{collection.name}</h2>
               </Link>
-              <VerifiedBadge isVerified={!!data?.nft.moonrankCollection} className="ml-0  mb-4" />
+              <VerifiedBadge isVerified={collection.isVerified} className="ml-0  mb-4" />
             </div>
           )
         )}
@@ -506,40 +493,36 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   className="rounded-md bg-primary-600 p-4"
                 >
                   <img
-                    src="/images/nightmarket-beta.svg"
+                    src={marketplace?.logo}
                     className="h-5 w-auto object-fill"
-                    alt="night market logo"
+                    alt={t('logo', { ns: 'nft', market: marketplace?.name })}
                   />
                 </Flex>
               </div>
               <Overview.Form.Points>
-                {data?.nft.moonrankCollection?.trends && (
+                {collection && (
                   <Overview.Form.Point label={t('buyable.floorPrice', { ns: 'common' })}>
-                    <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
+                    <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
                   </Overview.Form.Point>
                 )}
                 {listing && (
                   <Overview.Form.Point label={t('buyable.listPrice', { ns: 'common' })}>
-                    <Icon.Sol /> {listing.solPrice}
+                    <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
                   </Overview.Form.Point>
                 )}
-                <Overview.Form.Point label={t('buyable.marketplaceFee', { ns: 'common' })}>
-                  {auctionHouse.fee}%
-                </Overview.Form.Point>
+                {auctionHouse && (
+                  <Overview.Form.Point label={t('buyable.marketplaceFee', { ns: 'common' })}>
+                    {auctionHouse.sellerFeeBasisPoints / 100}%
+                  </Overview.Form.Point>
+                )}
                 <Overview.Form.Point label={t('buyable.currentBalance', { ns: 'common' })}>
-                  <Icon.Sol /> {viewer?.solBalance}
+                  <Icon.Sol /> {balance ?? 0}
                 </Overview.Form.Point>
               </Overview.Form.Points>
               <Flex direction={FlexDirection.Col} gap={4}>
                 {connected ? (
                   <>
-                    <Button
-                      block
-                      htmlType="submit"
-                      loading={buying}
-                      disabled={buying}
-                      onClick={handleBuy}
-                    >
+                    <Button block loading={buying} disabled={buying} onClick={handleBuy}>
                       {t('buy', { ns: 'nft' })}
                     </Button>
                     <Button
@@ -571,19 +554,24 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           >
             <Overview.Form.Preview
               name={nft.name}
-              image={nft.image}
-              collection={data?.nft.moonrankCollection?.name}
+              image={getAssetURL(nft.image, AssetSize.Large)}
+              collection={collection?.name}
             />
             <Overview.Form.Points>
-              {data?.nft.moonrankCollection?.trends && (
-                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
-                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+              {listing && (
+                <Overview.Form.Point label={t('listingPrice', { ns: 'nft' })}>
+                  <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
                 </Overview.Form.Point>
               )}
-              {viewer && (
+              {collection && (
+                <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
+                  <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
+                </Overview.Form.Point>
+              )}
+              {publicKey && (
                 <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
-                  {viewer.solBalance}
+                  {balance ?? 0}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
@@ -623,19 +611,19 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           >
             <Overview.Form.Preview
               name={nft.name}
-              image={nft.image}
-              collection={data?.nft.moonrankCollection?.name}
+              image={getAssetURL(nft.image, AssetSize.Large)}
+              collection={collection?.name}
             />
             <Overview.Form.Points>
-              {data?.nft.moonrankCollection && (
+              {collection && (
                 <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
-                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                  <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
                 </Overview.Form.Point>
               )}
-              {viewer && (
+              {publicKey && (
                 <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
-                  {viewer.solBalance}
+                  {balance ?? 0}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
@@ -675,13 +663,13 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           >
             <Overview.Form.Preview
               name={nft.name}
-              image={nft.image}
-              collection={data?.nft.moonrankCollection?.name}
+              image={getAssetURL(nft.image, AssetSize.Large)}
+              collection={collection?.name}
             />
             <Overview.Form.Points>
-              {data?.nft.moonrankCollection?.trends && (
+              {collection && (
                 <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
-                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                  <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
@@ -726,13 +714,13 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
           >
             <Overview.Form.Preview
               name={nft.name}
-              image={nft.image}
-              collection={data?.nft.moonrankCollection?.name}
+              image={getAssetURL(nft.image, AssetSize.Large)}
+              collection={collection?.name}
             />
             <Overview.Form.Points>
-              {data?.nft.moonrankCollection?.trends && (
+              {collection && (
                 <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
-                  <Icon.Sol /> {data?.nft.moonrankCollection.trends?.compactFloor1d}
+                  <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
@@ -770,7 +758,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             </Button>
           </Overview.Form>
         )}
-        {loading ? (
+        {auctionHouseLoading ? (
           <Overview.Aside.Skeleton />
         ) : (
           <>
@@ -788,14 +776,16 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                   <Flex
                     block
                     align={FlexAlign.Center}
-                    justify={FlexJustify.Between}
+                    justify={FlexJustify.Start}
+                    gap={2}
                     className="border-b-[1px] border-b-gray-900 py-4 px-6"
                   >
                     <img
-                      src="/images/nightmarket-beta.svg"
+                      src={marketplace?.logo}
                       className="h-5 w-auto object-fill"
-                      alt="night market logo"
+                      alt={t('logo', { ns: 'nft', market: marketplace?.name })}
                     />
+                    {!isOwnMarket && <h2>{marketplace?.name}</h2>}
                   </Flex>
                 )}
                 <Flex block direction={FlexDirection.Col} gap={6} className="p-6">
@@ -804,15 +794,15 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                       {listing && (
                         <Overview.Figure
                           label={t('listed', { ns: 'nft' })}
-                          amount={listing?.solPrice}
+                          amount={getSolFromLamports(listing.price, 0, 3)}
                           size={Overview.Figure.Size.Large}
                         />
                       )}
-                      {data?.nft.lastSale?.price ? (
+                      {!!nft.lastSale ? (
                         <Overview.Figure
                           className="md:flex-row"
-                          label={t('lastSale', { ns: 'nft' })}
-                          amount={data?.nft.lastSale?.solPrice}
+                          label={t('lastSale', { ns: 'common' })}
+                          amount={getSolFromLamports(nft.lastSale.price, 0, 3)}
                         />
                       ) : (
                         <Paragraph weight={FontWeight.Semibold} color={TextColor.Gray}>
@@ -837,7 +827,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                               loading={closingListing}
                               border={ButtonBorder.Gray}
                               color={ButtonColor.Gray}
-                              onClick={onCloseListing}
+                              onClick={handleCloseListing}
                             >
                               {t('cancelListing', { ns: 'nft' })}
                             </Button>
@@ -849,8 +839,11 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         )
                       ) : (
                         listing && (
-                          <Button block onClick={onOpenBuy}>
-                            {t('buy', { ns: 'nft' })}
+                          <Button block onClick={isOwnMarket ? onOpenBuy : onViewExternalListing}>
+                            {t(isOwnMarket ? 'buy' : 'view', {
+                              ns: 'nft',
+                              market: marketplace?.name,
+                            })}
                           </Button>
                         )
                       )}
@@ -866,12 +859,12 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
             >
               <Row block align={FlexAlign.Center} justify={FlexJustify.Start} className="p-6">
                 <Overview.Figures>
-                  {highestOffer || viewerOffer ? (
+                  {!!highestOffer || !!viewerOffer ? (
                     <>
                       {highestOffer && (
                         <Overview.Figure
                           label={t('highestOffer', { ns: 'nft' })}
-                          amount={highestOffer.solPrice}
+                          amount={getSolFromLamports(highestOffer.price, 0, 3)}
                           size={Overview.Figure.Size.Large}
                         />
                       )}
@@ -879,7 +872,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
                         <Overview.Figure
                           label={t('viewerOffer', { ns: 'nft' })}
                           className="md:flex-row"
-                          amount={viewerOffer.solPrice}
+                          amount={getSolFromLamports(viewerOffer.price, 0, 3)}
                         />
                       )}
                     </>
@@ -930,7 +923,7 @@ export default function NftLayout({ children, nft, auctionHouse }: NftLayoutProp
       </Overview.Aside>
       <Overview.Content>
         <Overview.Tabs>
-          <ButtonGroup value={router.pathname as NftPage} onChange={() => {}}>
+          <ButtonGroup value={router.pathname as NftPage} onChange={() => null}>
             <Link href={`/nfts/${nft.mintAddress}`} scroll={false}>
               <ButtonGroup.Option value={NftPage.Details}>
                 {t('details', { ns: 'nft' })}

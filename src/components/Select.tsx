@@ -1,11 +1,12 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
+
 import clsx from 'clsx';
 import React, { Fragment } from 'react';
 
 export default function Select<T>(props: {
   value: T;
-  onChange: any;
+  onChange(value: T): void;
   options: { label: string; value: T }[];
   className?: string;
 }) {

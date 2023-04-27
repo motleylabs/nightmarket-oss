@@ -8,6 +8,7 @@
   "connect": "Connect",
   "filters": "Filters",
   "buy": "Buy",
+  "View": "View",
   "all": "Show All",
   "listed": "Listed",
   "unlisted": "Unlisted",
@@ -21,7 +22,7 @@
     "profiles": "Profiles",
     "wallet": "Wallet",
     "nfts": "NFTs",
-    "placeholder": "Search for collections, NFTs or wallets...",
+    "placeholder": "Search for collections, NFTs or profiles...",
     "empty": "No results found"
   },
   "profileMenu": {

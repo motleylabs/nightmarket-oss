@@ -1,11 +1,9 @@
-import React, { useMemo, ReactElement, useEffect } from 'react';
-import { appWithTranslation } from 'next-i18next';
-import nextI18NextConfig from '../../next-i18next.config.js';
-import type { AppProps } from 'next/app';
-import { NextPage } from 'next';
+import { Popover, Transition } from '@headlessui/react';
+import { Bars3Icon, CheckIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import {
   GlowWalletAdapter,
   PhantomWalletAdapter,
@@ -15,43 +13,50 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { useReactiveVar, ApolloProvider, QueryResult, useQuery } from '@apollo/client';
-import ViewerProvider from '../providers/ViewerProvider';
-import client from './../client';
-import './../../styles/globals.css';
-import config from './../app.config';
-import { Popover, Transition } from '@headlessui/react';
-import { Bars3Icon, CheckIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+
 import clsx from 'clsx';
+import type { NextPage } from 'next';
+import { appWithTranslation } from 'next-i18next';
 import { useTranslation } from 'next-i18next';
+import type { AppProps } from 'next/app';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Script from 'next/script';
-import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
-import { AuctionHouse, CollectionDocument, Nft, SolanaNetwork, Wallet } from '../graphql.types';
+import type { ReactElement } from 'react';
+import React, { useMemo, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { Fragment, useCallback, useRef, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+import { SWRConfig, useSWRConfig } from 'swr';
+import useSWR from 'swr';
+
+import nextI18NextConfig from '../../next-i18next.config.js';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
+import Icon from '../components/Icon';
+import Img from '../components/Image';
+import Search from '../components/Search';
+import { BriceFont, HauoraFont } from '../fonts';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
 import useMobileSearch from '../hooks/mobilesearch';
 import useNavigation from '../hooks/nav';
 import { useOutsideAlert } from '../hooks/outsidealert';
-import useViewer from '../hooks/viewer';
-import Search from '../components/Search';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
-import Icon from '../components/Icon';
-import Img from '../components/Image';
-import { ToastContainer } from 'react-toastify';
-import { viewerVar } from '../cache';
-import { BriceFont, HauoraFont } from '../fonts';
+import { fetcher } from '../infrastructure/api/fetcher';
 import { start } from '../modules/bugsnag';
-import ReportQuery from './../queries/report.graphql';
-import { DateRangeOption, getDateTimeRange } from '../modules/time';
+import { AuctionHouseContextProvider } from '../providers/AuctionHouseProvider';
 import BulkListProvider from '../providers/BulkListProvider';
 import CurrencyProvider from '../providers/CurrencyProvider';
+import { WalletContextProvider, useWalletContext } from '../providers/WalletContextProvider';
+import type { Nft, OverallStat, RPCReport, StatSearch } from '../typings/index.js';
+import { getAssetURL, AssetSize } from '../utils/assets';
 import { getCookie, setCookie } from '../utils/cookies';
-import { useRouter } from 'next/router';
+import { hideTokenDetails } from '../utils/tokens';
+import './../../styles/globals.css';
+import config from './../app.config';
 
 start();
+
+const DEFAULT_IMAGE = '/images/placeholder.png';
 
 function clusterApiUrl(network: WalletAdapterNetwork) {
   if (network == WalletAdapterNetwork.Mainnet) {
@@ -61,64 +66,80 @@ function clusterApiUrl(network: WalletAdapterNetwork) {
   throw new Error(`The ${network} is not supported`);
 }
 
-interface ReportHeaderVariables {
-  reportQuery: QueryResult<ReportQueryData, ReportQueryVariables>;
-}
-
 const EmptyBox = () => <div className="h-6 w-14 animate-pulse rounded-md bg-white transition" />;
 
-function ReportHeader({ reportQuery }: ReportHeaderVariables) {
-  const loading = reportQuery.loading;
+function ReportHeader() {
+  const {
+    data: rpcReport,
+    isLoading: isReportLoading,
+    isValidating: isReportValidating,
+  } = useSWR<RPCReport>(`/rpc/report?address=${config.auctionHouse}`, {
+    revalidateOnFocus: false,
+  });
+
+  const {
+    data: overallStat,
+    isLoading: isStatLoading,
+    isValidating: isStatValidating,
+  } = useSWR<OverallStat>(`/stat/overall`, {
+    revalidateOnFocus: false,
+  });
+
+  const loading = useMemo(
+    () => isReportLoading || isReportValidating || isStatLoading || isStatValidating,
+    [isReportLoading, isReportValidating, isStatLoading, isStatValidating]
+  );
 
   return (
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       <div className="flex items-center gap-2">
-        <span className="text-sm text-white">24h volume</span>
-        {loading ||
-        (!reportQuery.data?.auctionHouse.volume && reportQuery.data?.auctionHouse.volume !== 0) ? (
+        <span className="text-sm text-white">Market cap</span>
+        {loading || !rpcReport || !overallStat ? (
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
             <Icon.Sol defaultColor="#FFFFFF" />
-            <span className="font-semibold text-white">
-              {reportQuery.data?.auctionHouse.volume}
-            </span>
+            <span className="font-semibold text-white">{`$${(
+              overallStat.marketCap / 1000000
+            ).toFixed(2)}M`}</span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-white">24h volume</span>
+        {loading || !rpcReport || !overallStat ? (
+          <EmptyBox />
+        ) : (
+          <div className="flex items-center gap-2">
+            <Icon.Sol defaultColor="#FFFFFF" />
+            <span className="font-semibold text-white">{`${(
+              overallStat.volume1d /
+              rpcReport.solPrice /
+              1000
+            ).toFixed(2)}K SOL`}</span>
           </div>
         )}
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL price</span>
-        {loading ||
-        (!reportQuery.data?.solanaNetwork.price && reportQuery.data?.solanaNetwork.price !== 0) ? (
+        {loading || !rpcReport ? (
           <EmptyBox />
         ) : (
-          <span className="font-semibold text-white">{`$${reportQuery.data?.solanaNetwork.price?.toFixed(
-            2
-          )}`}</span>
+          <span className="font-semibold text-white">${`${rpcReport.solPrice?.toFixed(2)}`}</span>
         )}
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL TPS</span>
-        {loading ||
-        (!reportQuery.data?.solanaNetwork.tps && reportQuery.data?.solanaNetwork.tps !== 0) ? (
+        {loading || !rpcReport ? (
           <EmptyBox />
         ) : (
-          <span className="font-semibold text-white">{reportQuery.data?.solanaNetwork.tps}</span>
+          <span className="font-semibold text-white">
+            {`${rpcReport.tps}`.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+          </span>
         )}
       </div>
     </div>
   );
-}
-
-interface ReportQueryData {
-  auctionHouse: AuctionHouse;
-  solanaNetwork: SolanaNetwork;
-}
-
-interface ReportQueryVariables {
-  address: string;
-  startDate: string;
-  endDate: string;
 }
 
 function NavigationBar() {
@@ -134,8 +155,7 @@ function NavigationBar() {
 
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
 
-  const expandedSearchRef = useRef<HTMLDivElement>(null!);
-  const mobileSearchRef = useRef<HTMLDivElement>(null!);
+  const expandedSearchRef = useRef<HTMLDivElement | null>(null);
   useOutsideAlert(
     expandedSearchRef,
     useCallback(() => {
@@ -145,28 +165,15 @@ function NavigationBar() {
 
   const onLogin = useLogin();
 
-  const { connecting } = useWallet();
-  const viewerQueryResult = useViewer();
+  const { publicKey, connecting } = useWalletContext();
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults, previousResults } =
-    useGlobalSearch();
-  const oneDayRange = getDateTimeRange(DateRangeOption.DAY);
-
-  const reportQuery = useQuery<ReportQueryData, ReportQueryVariables>(ReportQuery, {
-    variables: {
-      address: config.auctionHouse,
-      startDate: oneDayRange.startTime,
-      endDate: oneDayRange.endTime,
-    },
-  });
-
-  const loading = viewerQueryResult.loading || connecting;
+  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
 
   return (
     <>
-      <ReportHeader reportQuery={reportQuery} />
+      <ReportHeader />
       <header>
         <div
           className={clsx(
@@ -197,6 +204,7 @@ function NavigationBar() {
           {/* Search */}
           <div className="col-span-2 flex justify-center">
             <button
+              type="button"
               className={clsx(
                 'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden ',
                 {
@@ -238,79 +246,61 @@ function NavigationBar() {
                 )}
                 <Search.Results
                   searching={searching}
-                  hasResults={Boolean(previousResults) || hasResults}
+                  hasResults={hasResults}
                   enabled={searchTerm.length > 2}
                 >
-                  <Search.Group<CollectionDocument[]>
+                  <Search.Group<StatSearch[]>
                     title={t('search.collection', { ns: 'common' })}
-                    result={results?.collections as CollectionDocument[]}
+                    result={results.collections}
                   >
                     {({ result }) => {
-                      return result?.map((collection, i) => (
+                      if (!result) return null;
+
+                      return result.map((collection, i) => (
                         <Search.Collection
                           value={collection}
-                          key={`search-collection-${collection.id}-${i}`}
-                          image={collection.image || '/images/placeholder.png'}
+                          key={`search-collection-${collection.slug}-${i}`}
+                          image={collection.imgURL || DEFAULT_IMAGE}
                           name={collection.name}
-                          slug={collection.id}
+                          slug={collection.slug}
                         />
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet[]>
+                  <Search.Group<StatSearch[]>
                     title={t('search.profiles', { ns: 'common' })}
-                    result={results?.profiles}
+                    result={results.profiles}
                   >
                     {({ result }) => {
-                      return result?.map((wallet, i) => (
+                      if (!result) return null;
+
+                      return result.map((profile, i) => (
                         <Search.Profile
-                          value={wallet}
-                          profile={wallet}
-                          key={`search-profile-${wallet.address}-${i}`}
-                          image={wallet.previewImage || '/images/placeholder.png'}
-                          name={wallet.displayName}
-                          slug={wallet.address}
+                          value={profile}
+                          key={`search-profile-${profile.slug}-${i}`}
+                          image={profile.imgURL || DEFAULT_IMAGE}
+                          name={profile.name as string}
+                          slug={profile.slug}
                         />
                       ));
                     }}
                   </Search.Group>
-                  <Search.Group<Wallet>
-                    title={t('search.wallet', { ns: 'common' })}
-                    result={results?.wallet}
+                  <Search.Group<Nft>
+                    title={t('search.nfts', { ns: 'common' })}
+                    result={results?.nft}
                   >
-                    {({ result }) => {
-                      if (!result) {
-                        return null;
-                      }
+                    {({ result: nft }) => {
+                      if (!nft) return null;
 
                       return (
-                        <Search.Profile
-                          value={result}
-                          profile={result}
-                          key={`search-wallet-${result?.address}`}
-                          image={result.previewImage || '/images/placeholder.png'}
-                          name={result.displayName}
-                          slug={result.address}
-                        />
-                      );
-                    }}
-                  </Search.Group>
-                  <Search.Group<Nft[]>
-                    title={t('search.nfts', { ns: 'common' })}
-                    result={results?.nfts as Nft[]}
-                  >
-                    {({ result }) => {
-                      return result?.map((nft, i) => (
                         <Search.MintAddress
                           value={nft}
-                          nft={nft}
-                          key={`search-mintAddress-${nft.address}-${i}`}
-                          image={nft.image}
+                          image={getAssetURL(nft.image, AssetSize.XSmall)}
                           slug={nft.mintAddress}
                           name={nft.name}
-                          creator={nft.creators[0]}
+                          creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
                         />
-                      ));
+                      );
                     }}
                   </Search.Group>
                 </Search.Results>
@@ -320,6 +310,7 @@ function NavigationBar() {
           {/* Connect and Mobile Menu */}
           <div className="flex items-center justify-end space-x-6">
             <button
+              type="button"
               className={clsx(
                 'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
                 searchExpanded && 'hidden'
@@ -331,10 +322,10 @@ function NavigationBar() {
               <Bars3Icon color="#fff" width={20} height={20} />
             </button>
 
-            {loading ? (
+            {connecting ? (
               <div className="hidden h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-            ) : viewerQueryResult.data ? (
-              <ProfilePopover wallet={viewerQueryResult.data.wallet} />
+            ) : publicKey ? (
+              <ProfilePopover />
             ) : (
               <Button onClick={onLogin} className="hidden font-semibold md:inline-block">
                 {t('connect', { ns: 'common' })}
@@ -350,32 +341,33 @@ function NavigationBar() {
   );
 }
 
-function ProfilePopover(props: { wallet: Wallet }) {
-  const { disconnect, publicKey } = useWallet();
-  const viewer = useReactiveVar(viewerVar);
+function ProfilePopover() {
+  const { disconnect, address, balance } = useWalletContext();
+
   const { t } = useTranslation('common');
 
   const [copied, setCopied] = useState(false);
   const copyWallet = useCallback(async () => {
-    if (publicKey) {
-      await navigator.clipboard.writeText(publicKey.toBase58());
+    if (address) {
+      await navigator.clipboard.writeText(address);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [publicKey]);
+  }, [address]);
 
   const { setVisible } = useWalletModal();
+
+  if (!address) return null;
 
   return (
     <Popover className={'relative'}>
       <Popover.Button>
         <Img
-          fallbackSrc="/images/placeholder.png"
+          src={DEFAULT_IMAGE}
           className={clsx(
             'hidden h-10 w-10 cursor-pointer rounded-full transition md:inline-block',
             'animate-draw-border border-2 border-primary-100 duration-100'
           )}
-          src={props.wallet.previewImage as string}
           alt="profile image"
         />
       </Popover.Button>
@@ -393,14 +385,14 @@ function ProfilePopover(props: { wallet: Wallet }) {
             <div className=" hidden overflow-hidden rounded-md bg-gray-900 pb-4 text-white shadow-lg shadow-black sm:w-96 md:inline-block">
               <div className="flex items-center p-4 ">
                 <Img
-                  fallbackSrc="/images/placeholder.png"
+                  src={DEFAULT_IMAGE}
                   className="hidden h-6 w-6 cursor-pointer rounded-full transition md:inline-block"
-                  src={props.wallet.previewImage as string}
                   alt="profile image"
                 />
-                <span className="ml-2">{props.wallet.displayName}</span>
+                <span className="ml-2">{hideTokenDetails(address)}</span>
 
                 <button
+                  type="button"
                   onClick={copyWallet}
                   className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
                 >
@@ -413,25 +405,25 @@ function ProfilePopover(props: { wallet: Wallet }) {
               </div>
               <div className="flex flex-row items-center gap-2 p-4">
                 <Icon.Sol className="h-4 w-4" />
-                {viewer?.solBalance}
+                {balance}
               </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
-                  href={`/profiles/${props.wallet.address}`}
+                  href={`/profiles/${address}`}
                 >
                   {t('profileMenu.collected', { ns: 'common' })}
                 </Link>
                 <Link
                   className="flex cursor-pointer px-4 py-2 text-sm hover:bg-gray-800"
-                  href={`/profiles/${props.wallet.address}/activity`}
+                  href={`/profiles/${address}/activity`}
                 >
                   {t('profileMenu.activity', { ns: 'common' })}
                 </Link>
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex px-4">
-                  <Link className="flex w-full" href={`/profiles/${props.wallet.address}`}>
+                  <Link className="flex w-full" href={`/profiles/${address}`}>
                     <Button onClick={() => close()} className="w-full">
                       {t('viewProfile', { ns: 'common' })}
                     </Button>
@@ -482,23 +474,20 @@ function MobileNavMenu({
   showNav: boolean;
   setShowNav: Dispatch<SetStateAction<boolean>>;
 }) {
-  const { connecting, disconnect, publicKey } = useWallet();
-  const viewerQueryResult = useViewer();
-  const viewer = useReactiveVar(viewerVar);
+  const { connecting, disconnect, address, balance } = useWalletContext();
   const { setVisible } = useWalletModal();
   const onLogin = useLogin();
 
   const { t } = useTranslation('common');
-  const loading = viewerQueryResult.loading || connecting;
 
   const [copied, setCopied] = useState(false);
   const copyWallet = useCallback(async () => {
-    if (publicKey) {
-      await navigator.clipboard.writeText(publicKey.toBase58());
+    if (address) {
+      await navigator.clipboard.writeText(address);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [publicKey]);
+  }, [address]);
 
   return (
     <>
@@ -517,77 +506,72 @@ function MobileNavMenu({
             />
           </Link>
           <button
+            type="button"
             className="rounded-full bg-white p-3 transition hover:bg-gray-100"
-            onClick={useCallback(() => {
-              setShowNav(false);
-            }, [setShowNav])}
+            onClick={() => setShowNav(false)}
           >
             <XMarkIcon color="#171717" width={20} height={20} />
           </button>
         </div>
         <nav className="flex flex-col bg-gray-900 py-2 md:p-2">
           <div className="flex h-[calc(100vh-58px)] flex-col gap-4 px-6 text-white">
-            {loading ? (
+            {connecting ? (
               <div className="h-10 w-10 rounded-full bg-gray-900 md:inline-block" />
-            ) : viewerQueryResult.data ? (
-              <>
-                <section className="flex flex-col" id="wallet-profile-viewer-mobile">
-                  <div className="flex items-center py-4 ">
-                    <Img
-                      fallbackSrc="/images/placeholder.png"
-                      className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
-                      src={viewerQueryResult.data.wallet.previewImage as string}
-                      alt="profile image"
-                    />
-                    <span className="ml-2">{viewerQueryResult.data.wallet.displayName}</span>
+            ) : address ? (
+              <section className="flex flex-col" id="wallet-profile-viewer-mobile">
+                <div className="flex items-center py-4 ">
+                  <Img
+                    src={DEFAULT_IMAGE}
+                    className="inline-block h-8 w-8 rounded-full border-2 border-primary-100 transition"
+                    alt="profile image"
+                  />
+                  <span className="ml-2">{hideTokenDetails(address)}</span>
 
-                    <button
-                      onClick={copyWallet}
-                      className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
-                    >
-                      {copied ? (
-                        <CheckIcon className="h-4 w-4 text-gray-300" />
-                      ) : (
-                        <Icon.Copy className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex flex-row items-center gap-2 py-4">
-                    <Icon.Sol className="h-4 w-4" />
-                    {viewer?.solBalance}
-                  </div>
-                  <Link
-                    href={`/profiles/${viewerQueryResult.data.wallet.address}`}
-                    className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
+                  <button
+                    type="button"
+                    onClick={copyWallet}
+                    className="ml-auto flex cursor-pointer items-center text-base duration-200 ease-in-out hover:scale-110 "
                   >
-                    {t('profileMenu.collected', { ns: 'common' })}
-                  </Link>
-                  <Link
-                    href={`/profiles/${viewerQueryResult.data.wallet.address}/activity`}
-                    className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
-                  >
-                    {t('profileMenu.activity', { ns: 'common' })}
-                  </Link>
-                </section>
-              </>
+                    {copied ? (
+                      <CheckIcon className="h-4 w-4 text-gray-300" />
+                    ) : (
+                      <Icon.Copy className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                <div className="flex flex-row items-center gap-2 py-4">
+                  <Icon.Sol className="h-4 w-4" />
+                  {balance}
+                </div>
+                <Link
+                  href={`/profiles/${address}`}
+                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
+                >
+                  {t('profileMenu.collected', { ns: 'common' })}
+                </Link>
+                <Link
+                  href={`/profiles/${address}/activity`}
+                  className="flex cursor-pointer py-2 text-sm hover:bg-gray-800"
+                >
+                  {t('profileMenu.activity', { ns: 'common' })}
+                </Link>
+              </section>
             ) : (
+              // eslint-disable-next-line react/jsx-no-useless-fragment
               <></>
             )}
           </div>
         </nav>
       </div>
       <div className={clsx('fixed bottom-0 z-40 w-full px-4', showNav ? 'block' : 'hidden')}>
-        {!loading ? (
-          viewerQueryResult.data ? (
+        {!connecting ? (
+          address ? (
             <section
               className="mt-auto mb-4 flex flex-col justify-end gap-4"
               id="wallet-action-buttons-mobile"
             >
-              <Link
-                href={`/profiles/${viewerQueryResult.data.wallet.address}`}
-                className="flex w-full"
-              >
-                <Button className="w-full font-semibold">
+              <Link href={`/profiles/${address}`} className="flex w-full">
+                <Button className="w-full font-semibold" onClick={() => setShowNav(false)}>
                   {t('viewProfile', { ns: 'common' })}
                 </Button>
               </Link>
@@ -678,31 +662,40 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
     }
   }, [router.query?.refId]);
 
+  const { cache } = useSWRConfig();
+
+  // Clean cache for every request on server
+  if (typeof window === 'undefined') {
+    cache.clear();
+  }
+
   return (
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <Script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></Script>
-      <ApolloProvider client={client}>
+      <SWRConfig value={{ fetcher }}>
         <ToastContainer theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider
               className={`${BriceFont.variable} ${HauoraFont.variable} wallet-modal-theme font-sans`}
             >
-              <ViewerProvider>
+              <WalletContextProvider>
                 <CurrencyProvider>
                   <BulkListProvider>
-                    <NavigationBar />
-                    <PageLayout {...pageProps}>
-                      <Component {...pageProps} />
-                    </PageLayout>
-                    <Footer links={links} />
+                    <AuctionHouseContextProvider>
+                      <NavigationBar />
+                      <PageLayout {...pageProps}>
+                        <Component {...pageProps} />
+                      </PageLayout>
+                      <Footer links={links} />
+                    </AuctionHouseContextProvider>
                   </BulkListProvider>
                 </CurrencyProvider>
-              </ViewerProvider>
+              </WalletContextProvider>
             </WalletModalProvider>
           </WalletProvider>
         </ConnectionProvider>
-      </ApolloProvider>
+      </SWRConfig>
     </div>
   );
 }
@@ -723,34 +716,34 @@ function Footer({ links }: FooterProps) {
       <div className={clsx('flex gap-6 text-[#A8A8A8] lg:justify-end')}>
         {/* Social media */}
         {config.socialMedia.twitter && (
-          <a
+          <Link
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.twitter}
           >
             <Icon.Twitter />
-          </a>
+          </Link>
         )}
         {config.socialMedia.discord && (
-          <a
+          <Link
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.discord}
           >
             <Icon.Discord />
-          </a>
+          </Link>
         )}
         {config.socialMedia.medium && (
-          <a
+          <Link
             target="_blank"
             rel="nofollow noreferrer"
             className="hover:text-white"
             href={config.socialMedia.medium}
           >
             <Icon.Medium />
-          </a>
+          </Link>
         )}
       </div>
     );
@@ -771,9 +764,9 @@ function Footer({ links }: FooterProps) {
                 alt="night market logo"
               />
             </Link>
-            <a target="_blank" rel="nofollow noreferrer" href={`https://motleydao.com/`}>
+            <Link target="_blank" rel="nofollow noreferrer" href={`https://motleydao.com/`}>
               <Icon.Motley />
-            </a>
+            </Link>
           </div>
           <div className="mt-8 block lg:hidden">{socials()}</div>
         </div>
@@ -786,14 +779,14 @@ function Footer({ links }: FooterProps) {
               >
                 {col.map((link, linkKey) => {
                   return (
-                    <a
+                    <Link
                       className="pb-2 hover:underline lg:pb-1"
                       target={link.popout ? '_blank' : '_self'}
                       href={link.href}
                       key={`footer-col-${colKey}-${linkKey}`}
                     >
                       {link.title}
-                    </a>
+                    </Link>
                   );
                 })}
               </div>

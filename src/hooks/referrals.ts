@@ -1,16 +1,23 @@
 import { createBuddyClient } from '@ladderlabs/buddylink';
-import { NodeWallet } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/create-buddy-client';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { TransactionInstruction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
+import type { NodeWallet } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/create-buddy-client';
+import { useConnection } from '@solana/wallet-adapter-react';
+import type { TransactionInstruction } from '@solana/web3.js';
+import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
+
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import axios, { AxiosError } from 'axios';
+
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
-import { getCookie, setCookie } from '../utils/cookies';
 import { COOKIE_REF } from '../pages/_app';
-import { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
-import { getBuddyStats } from '../utils/axios';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { ErrorWithLogs } from '../typings';
+import { getCookie, setCookie } from '../utils/cookies';
+import { useRequest } from 'ahooks';
+import { getBuddyStats } from '../utils/referral';
 
 interface CreateContext {
   created: boolean;
@@ -20,14 +27,12 @@ interface CreateContext {
   validateName: (name: string) => Promise<boolean>;
 }
 
-// Do we want to store this information anywhere?
-
 export function useCreateBuddy(): CreateContext {
   const [created, setCreated] = useState(false);
   const [creating, setCreating] = useState(false);
   const [client, setClient] = useState<BuddyClient | null>(null);
   const { connection } = useConnection();
-  const { connected, publicKey, signAllTransactions, signTransaction } = useWallet();
+  const { connected, publicKey, signAllTransactions, signTransaction } = useWalletContext();
 
   useEffect(() => {
     if (connection && publicKey && signTransaction) {
@@ -69,7 +74,7 @@ export function useCreateBuddy(): CreateContext {
 
       return arrayOfInstructions;
     },
-    [connected, publicKey, signTransaction, signAllTransactions, client]
+    [connected, publicKey, signTransaction, client]
   );
 
   const onCreateBuddy = useCallback(
@@ -106,13 +111,15 @@ export function useCreateBuddy(): CreateContext {
         );
         setCreating(false);
         setCreated(true);
-      } catch (err: any) {
-        const parsedError = await client?.parseError(err.message);
-        notifyInstructionError(err, {
+      } catch (err: unknown) {
+        const error = err as ErrorWithLogs;
+
+        const parsedError = await client?.parseError(error.message);
+        notifyInstructionError(error, {
           operation: 'Create Buddy',
           metadata: {
             userPubkey: publicKey.toBase58(),
-            programLogs: err.logs,
+            programLogs: error.logs,
             nft: null,
           },
         });
@@ -121,7 +128,7 @@ export function useCreateBuddy(): CreateContext {
         setCreated(false);
       }
     },
-    [connected, publicKey, signTransaction, signAllTransactions, client]
+    [connected, publicKey, signTransaction, createBuddyInstructions, connection, client]
   );
 
   const validateName = useCallback(
@@ -148,7 +155,7 @@ export function useClaimBuddy() {
   const [claimed, setClaimed] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const { connection } = useConnection();
-  const { connected, publicKey, signAllTransactions, signTransaction } = useWallet();
+  const { connected, publicKey, signAllTransactions, signTransaction } = useWalletContext();
 
   const onClaimBuddy = useCallback(
     async (name: string) => {
@@ -171,7 +178,7 @@ export function useClaimBuddy() {
 
       const arrayOfInstructions = await buddyClient.claimInstructions(buddyName);
 
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      const { blockhash } = await connection.getLatestBlockhash();
 
       const messageV0 = new TransactionMessage({
         payerKey: publicKey,
@@ -188,25 +195,18 @@ export function useClaimBuddy() {
           return;
         }
 
-        // TODO: investigate why confirmation stalls for this transaction
-        // await connection.confirmTransaction(
-        //   {
-        //     blockhash,
-        //     lastValidBlockHeight,
-        //     signature,
-        //   },
-        //   'confirmed'
-        // );
         setClaiming(false);
         setClaimed(true);
         toast('Claimed Rewards', { type: 'success' });
-      } catch (err: any) {
-        const parsedError = await buddyClient?.parseError(err.message);
-        notifyInstructionError(err, {
+      } catch (err: unknown) {
+        const error = err as ErrorWithLogs;
+
+        const parsedError = await buddyClient?.parseError(error.message);
+        notifyInstructionError(error, {
           operation: 'Claim Buddy',
           metadata: {
             userPubkey: publicKey.toBase58(),
-            programLogs: err.logs,
+            programLogs: error.logs,
             nft: null,
           },
         });
@@ -215,7 +215,7 @@ export function useClaimBuddy() {
         setClaimed(false);
       }
     },
-    [connected, publicKey, signTransaction, signAllTransactions]
+    [connected, publicKey, connection, signTransaction, signAllTransactions]
   );
 
   return {
@@ -228,15 +228,15 @@ export function useClaimBuddy() {
 interface Transfer {
   from: string;
   to:
-    | {
-        pubkey: string;
-        amount: number;
-      }
-    | {
-        pubkey: string;
-        amount: number;
-      }[]
-    | boolean;
+  | {
+    pubkey: string;
+    amount: number;
+  }
+  | {
+    pubkey: string;
+    amount: number;
+  }[]
+  | boolean;
 }
 
 interface TransactionHistory {
@@ -273,8 +273,8 @@ export function useBuddyHistory(params: BuddyHistoryProps) {
         },
       });
       setData(response.data);
-    } catch (err: any) {
-      setError(err);
+    } catch (err: unknown) {
+      setError(err as AxiosError);
     } finally {
       setLoading(false);
     }
@@ -316,52 +316,20 @@ export interface BuddyStatsData {
   username: string | null;
 }
 
-interface BuddyStatsProps {
-  wallet: string;
-}
-
-export function useBuddyStats(params: BuddyStatsProps) {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<BuddyStatsData | null>(null);
-  const [error, setError] = useState<AxiosError | null>(null);
-  const key = config.referralKey;
-
-  const fetchData = useCallback(
-    async (invalidate = false) => {
-      try {
-        setLoading(true);
-        const response = await getBuddyStats(params.wallet, invalidate);
-        setData(response);
-      } catch (err: any) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [key, params]
-  );
-
-  const refreshBuddy = useCallback(() => {
-    fetchData(true);
-  }, [key, params]);
-
-  useEffect(() => {
-    if (params.wallet) fetchData();
-  }, [params.wallet]);
-
-  return { data, loading, error, refreshBuddy };
-}
-
 interface CachedBuddyProps {
   wallet: string;
 }
 
 export function useCachedBuddy(props: CachedBuddyProps) {
-  const { data: buddy, loading } = useBuddyStats(props);
+  const { data: buddy, loading } = useRequest(getBuddyStats, {
+    ready: !!props.wallet,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    defaultParams: [props.wallet]
+  })
 
   const { createBuddyInstructions, validateName } = useCreateBuddy();
   const { connection } = useConnection();
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, signTransaction } = useWalletContext();
 
   const linkBuddy = useCallback(async () => {
     if (!connected || !publicKey || !signTransaction) {
@@ -385,7 +353,7 @@ export function useCachedBuddy(props: CachedBuddyProps) {
     let transaction = null;
     try {
       const buddyInstructions =
-        (await createBuddyInstructions(publicKey?.toString().substring(0, 8)!, refId)) || [];
+        (await createBuddyInstructions(publicKey?.toString().substring(0, 8), refId)) || [];
 
       if (buddyInstructions.length === 0) {
         setCookie(COOKIE_REF, '', 0);
@@ -402,13 +370,23 @@ export function useCachedBuddy(props: CachedBuddyProps) {
 
       transaction = new VersionedTransaction(messageV0);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('failed buddy sign', e);
     } finally {
       setCookie(COOKIE_REF, '', 0);
     }
 
     return transaction;
-  }, [buddy, loading, publicKey]);
+  }, [
+    buddy?.username,
+    connected,
+    connection,
+    createBuddyInstructions,
+    loading,
+    publicKey,
+    signTransaction,
+    validateName,
+  ]);
 
   return { linkBuddy };
 }

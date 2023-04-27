@@ -1,45 +1,32 @@
+import { useWallet } from '@solana/wallet-adapter-react';
+
+import { addDays } from 'date-fns';
 import type { NextPage, GetStaticPropsContext } from 'next';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
-import TrendingCollectionQuery from './../queries/trending.graphql';
-import PayoutsQuery from './../queries/payouts.graphql';
-import { useQuery } from '@apollo/client';
-import { Collection } from '../components/Collection';
-import {
-  CollectionInterval,
-  CollectionSort,
-  CollectionTrend,
-  OrderDirection,
-  Maybe,
-  AuctionHouse,
-  Nft,
-} from '../graphql.types';
-import { useWallet } from '@solana/wallet-adapter-react';
-import Hero from '../components/Hero';
-import Icon from '../components/Icon';
-import Img from '../components/Image';
+import Link from 'next/link';
+import Router from 'next/router';
+import { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ButtonGroup } from '../components/ButtonGroup';
-import Select from '../components/Select';
+import useSWRInfinite from 'swr/infinite';
+
+import Banner from '../components/Banner';
 import Button, {
   ButtonBackground,
   ButtonBorder,
   ButtonColor,
   ButtonSize,
 } from '../components/Button';
-import useLogin from '../hooks/login';
-import Router from 'next/router';
+import { ButtonGroup } from '../components/ButtonGroup';
+import { Collection } from '../components/Collection';
 import Drop from '../components/Drop';
-import { addDays } from 'date-fns';
-import Link from 'next/link';
-import config from '../app.config';
-import Banner from '../components/Banner';
-
-interface TrendingCollectionsData {
-  collectionTrends: CollectionTrend[];
-}
+import Hero from '../components/Hero';
+import Img from '../components/Image';
+import useLogin from '../hooks/login';
+import type { CollectionsTrendsData, CollectionTrend, SelectedTrend } from '../typings/index.d';
+import { CollectionInterval, CollectionSort, OrderDirection } from '../typings/index.d';
+import { AssetSize, getAssetURL } from '../utils/assets';
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
   const i18n = await serverSideTranslations(locale as string, [
@@ -63,108 +50,42 @@ interface TrendingCollectionForm {
   sort: CollectionSort;
 }
 
-interface TrendingCollectionsVariables {
-  sortBy: CollectionSort;
-  timeFrame: CollectionInterval;
-  orderDirection: OrderDirection;
-  offset: number;
-}
-
-interface PayoutsData {
-  auctionHouse: AuctionHouse;
-}
-
-interface PayoutsVariables {
-  address: String;
-  limit: number;
-  offset: number;
-}
-
-interface SelectedTrend {
-  listedCount: Maybe<string> | undefined;
-  listedCountChange: Maybe<number> | undefined;
-  volume: Maybe<string> | undefined;
-  volumeChange: Maybe<number> | undefined;
-  floorPrice: Maybe<string> | undefined;
-  floorPriceChange: Maybe<number> | undefined;
-}
-
-interface SortOption {
-  label: string;
-  value: CollectionSort;
-}
-
 const DEFAULT_TIME_FRAME: CollectionInterval = CollectionInterval.OneDay;
 const DEFAULT_SORT: CollectionSort = CollectionSort.Volume;
 const DEFAULT_ORDER: OrderDirection = OrderDirection.Desc;
+const PAGE_LIMIT = 10;
 
 const Home: NextPage = () => {
-  const [loadingMoreTrends, setLoadingMoreTrends] = useState(false);
   const { t } = useTranslation(['home', 'collection']);
-  const [hasMoreTrends, setHasMoreTrends] = useState(true);
+  const [selectedTimeFrame, setSelectedTimeFrame] =
+    useState<`${CollectionInterval}`>(DEFAULT_TIME_FRAME);
 
-  const sortOptions: SortOption[] = useMemo(
-    () => [
-      {
-        value: CollectionSort.Volume,
-        label: t('trendingCollectionsSort.byVolumeTraded', { ns: 'collection' }),
-      },
-      {
-        value: CollectionSort.Floor,
-        label: t('trendingCollectionsSort.byFloorPrice', { ns: 'collection' }),
-      },
-      {
-        value: CollectionSort.NumberListed,
-        label: t('trendingCollectionsSort.byListingsCount', { ns: 'collection' }),
-      },
-    ],
-    [t]
-  );
+  const getKey = (pageIndex: number, previousPageData: CollectionsTrendsData) => {
+    if (previousPageData && !previousPageData.hasNextPage) return null;
+
+    const query = `period=${selectedTimeFrame}&sort_by=${DEFAULT_SORT}&order=${DEFAULT_ORDER}&limit=${PAGE_LIMIT}&offset=${
+      pageIndex * PAGE_LIMIT
+    }`;
+
+    return `/collections/trend?${query}`;
+  };
+
+  const { data, size, setSize, isValidating } = useSWRInfinite<CollectionsTrendsData>(getKey, {
+    revalidateOnFocus: false,
+  });
+
+  const isLoading = !data && isValidating;
 
   const { publicKey, connected } = useWallet();
   const trendingCollectionsRef = useRef<null | HTMLDivElement>(null);
   const onLogin = useLogin();
 
-  const { watch, control } = useForm<TrendingCollectionForm>({
+  const { control } = useForm<TrendingCollectionForm>({
     defaultValues: { filter: DEFAULT_TIME_FRAME, sort: DEFAULT_SORT },
   });
 
-  const timeFrame = watch('filter');
-
-  const payoutsQuery = useQuery<PayoutsData, PayoutsVariables>(PayoutsQuery, {
-    variables: {
-      address: config.auctionHouse as string,
-      limit: 3,
-      offset: 0,
-    },
-  });
-
-  payoutsQuery.startPolling(10_000);
-
-  const trendingCollectionsQuery = useQuery<TrendingCollectionsData, TrendingCollectionsVariables>(
-    TrendingCollectionQuery,
-    {
-      variables: {
-        sortBy: DEFAULT_SORT,
-        timeFrame: DEFAULT_TIME_FRAME,
-        orderDirection: DEFAULT_ORDER,
-        offset: 0,
-      },
-    }
-  );
-
-  const onShowMoreTrends = async () => {
-    if (!hasMoreTrends) return;
-    setLoadingMoreTrends(true);
-    const {
-      data: { collectionTrends },
-    } = await trendingCollectionsQuery.fetchMore({
-      variables: {
-        offset: trendingCollectionsQuery.data?.collectionTrends.length ?? 0,
-      },
-    });
-    setLoadingMoreTrends(false);
-    setHasMoreTrends(collectionTrends && collectionTrends.length >= 0);
+  const onShowMoreTrends = () => {
+    setSize(size + 1);
   };
 
   const onExploreNftsClick = () => {
@@ -179,19 +100,17 @@ const Home: NextPage = () => {
     }
   };
 
-  useEffect(() => {
-    const subscription = watch(({ filter, sort }) => {
-      let variables: TrendingCollectionsVariables = {
-        sortBy: sort ?? DEFAULT_SORT,
-        timeFrame: filter ?? DEFAULT_TIME_FRAME,
-        orderDirection: DEFAULT_ORDER,
-        offset: 0,
-      };
+  const handleFiltersChange = (value: `${CollectionInterval}`) => {
+    setSelectedTimeFrame(value);
+    if (size > 1) {
+      setSize(1);
+    }
+  };
 
-      trendingCollectionsQuery.refetch(variables);
-    });
-    return subscription.unsubscribe;
-  }, [timeFrame, trendingCollectionsQuery, watch]);
+  const trends: CollectionTrend[] = useMemo(
+    () => (data ? data.flatMap((pageData) => pageData.trends) : []),
+    [data]
+  );
 
   return (
     <>
@@ -226,10 +145,6 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
-          <Hero.Aside
-            loading={payoutsQuery.loading}
-            payouts={payoutsQuery.data?.auctionHouse.rewardCenter?.payouts}
-          />
         </Hero>
 
         <section>
@@ -244,33 +159,24 @@ const Home: NextPage = () => {
               <Controller
                 control={control}
                 name="filter"
-                render={({ field: { onChange, value } }) => (
-                  <ButtonGroup value={value} onChange={onChange}>
+                render={() => (
+                  <ButtonGroup value={selectedTimeFrame} onChange={handleFiltersChange}>
+                    <ButtonGroup.Option value={CollectionInterval.OneHour}>
+                      {t('timeInterval.hour', { ns: 'collection' })}
+                    </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.OneDay}>
                       {t('timeInterval.day', { ns: 'collection' })}
                     </ButtonGroup.Option>
                     <ButtonGroup.Option value={CollectionInterval.SevenDay}>
                       {t('timeInterval.week', { ns: 'collection' })}
                     </ButtonGroup.Option>
-                    <ButtonGroup.Option value={CollectionInterval.ThirtyDay}>
-                      {t('timeInterval.month', { ns: 'collection' })}
-                    </ButtonGroup.Option>
                   </ButtonGroup>
                 )}
               />
-              <div className="hidden sm:w-48 lg:block">
-                <Controller
-                  control={control}
-                  name="sort"
-                  render={({ field: { onChange, value } }) => (
-                    <Select value={value} onChange={onChange} options={sortOptions} />
-                  )}
-                />
-              </div>
             </div>
           </header>
           <Collection.List>
-            {trendingCollectionsQuery.loading ? (
+            {isLoading ? (
               <>
                 <Collection.List.Loading />
                 <Collection.List.Loading />
@@ -280,101 +186,82 @@ const Home: NextPage = () => {
                 <Collection.List.Loading />
               </>
             ) : (
-              trendingCollectionsQuery.data?.collectionTrends.map((trend, i) => {
-                let selectedTrend: SelectedTrend;
-                let volumeLabel: string;
+              trends.map((trend) => {
+                let selectedTrend: SelectedTrend = {
+                  listedCount: undefined,
+                  listedCountChange: undefined,
+                  volume: undefined,
+                  volumeChange: undefined,
+                  floorPrice: undefined,
+                  floorPriceChange: undefined,
+                };
 
-                switch (timeFrame) {
+                let volumeLabel = '';
+
+                switch (selectedTimeFrame) {
                   case CollectionInterval.OneDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor1d,
+                      floorPrice: trend.floor1d,
                       floorPriceChange: trend.changeFloor1d,
-                      volume: trend.compactVolume1d,
+                      volume: trend.volume1d,
                       volumeChange: trend.changeVolume1d,
-                      listedCount: trend.compactListed1d,
-                      listedCountChange: trend.changeListed7d,
+                      listedCount: trend.listed1d,
+                      listedCountChange: trend.changeListed1d,
                     };
                     volumeLabel = t('24hVolume', { ns: 'collection' });
                     break;
                   case CollectionInterval.SevenDay:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor7d,
-                      floorPriceChange: trend.changeFloor7d,
-                      volume: trend.compactVolume7d,
+                      floorPrice: trend.floor1d,
+                      floorPriceChange: trend.changeFloor1d,
+                      volume: trend.volume7d,
                       volumeChange: trend.changeVolume7d,
-                      listedCount: trend.compactListed7d,
-                      listedCountChange: trend.changeListed7d,
+                      listedCount: trend.listed1d,
+                      listedCountChange: trend.changeListed1d,
                     };
                     volumeLabel = t('7dVolume', { ns: 'collection' });
                     break;
-                  case CollectionInterval.ThirtyDay:
+                  case CollectionInterval.OneHour:
                     selectedTrend = {
-                      floorPrice: trend.compactFloor30d,
-                      floorPriceChange: trend.changeFloor30d,
-                      volume: trend.compactVolume30d,
-                      volumeChange: trend.changeVolume30d,
-                      listedCount: trend.compactListed30d,
-                      listedCountChange: trend.changeListed30d,
+                      floorPrice: trend.floor1d,
+                      floorPriceChange: trend.changeFloor1d,
+                      volume: trend.volume1h,
+                      volumeChange: trend.changeVolume1h,
+                      listedCount: trend.listed1d,
+                      listedCountChange: trend.changeListed1d,
                     };
-                    volumeLabel = t('30dVolume', { ns: 'collection' });
+                    volumeLabel = t('1hVolume', { ns: 'collection' });
                     break;
                 }
 
                 return (
-                  <Collection.List.Row key={trend.collection?.id}>
+                  <Collection.List.Row key={trend.collection?.slug}>
                     <Link
                       className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
-                      href={`/collections/[id]`}
-                      as={`/collections/${trend.collection?.id}`}
+                      href={`/collections/[slug]`}
+                      as={`/collections/${trend.collection?.slug}`}
                     >
                       <Collection.List.Col className="flex-none">
                         <Img
                           fallbackSrc="/images/moon.svg"
-                          src={trend.collection?.image}
+                          src={getAssetURL(trend.collection?.image, AssetSize.Tiny)}
                           alt={trend.collection?.name}
                           className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
                         />
                       </Collection.List.Col>
-                      <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center xl:gap-8">
-                        <div className="w-full line-clamp-2 md:w-24 xl:w-36">
-                          {trend.collection?.name}
-                        </div>
-                        <div className="flex gap-1  lg:justify-start lg:gap-4">
-                          <Collection.List.DataPoint
-                            value={selectedTrend.floorPrice}
-                            icon={<Icon.Sol />}
-                            name={t('globalFloor', { ns: 'collection' })}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.floorPriceChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.volume}
-                            icon={<Icon.Sol />}
-                            name={volumeLabel}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.volumeChange}
-                              />
-                            }
-                          />
-                          <Collection.List.DataPoint
-                            value={selectedTrend.listedCount}
-                            name={t('listings', { ns: 'collection' })}
-                            status={
-                              <Collection.List.DataPoint.Status
-                                value={selectedTrend.listedCountChange}
-                              />
-                            }
-                          />
-                        </div>
-                      </Collection.List.Col>
+                      <Collection.List.Stats
+                        name={trend.collection.name}
+                        slug={trend.collection.slug}
+                        trend={selectedTrend}
+                        volumeLabel={volumeLabel}
+                        period={selectedTimeFrame}
+                      />
                     </Link>
-                    <Collection.List.Col className="flex w-full gap-2 md:w-auto lg:gap-4">
-                      <Collection.List.NftPreview collection={trend.collection?.id} />
-                    </Collection.List.Col>
+                    {trend.collection.id && (
+                      <Collection.List.Col className="flex w-full gap-2 md:w-auto lg:gap-4">
+                        <Collection.List.NftPreview collectionSlug={trend.collection.slug} />
+                      </Collection.List.Col>
+                    )}
                   </Collection.List.Row>
                 );
               })
@@ -386,8 +273,8 @@ const Home: NextPage = () => {
             background={ButtonBackground.Black}
             border={ButtonBorder.Gradient}
             color={ButtonColor.Gradient}
-            loading={loadingMoreTrends}
-            disabled={loadingMoreTrends}
+            loading={isValidating}
+            disabled={isValidating}
           >
             {t('showMoreCollections', { ns: 'collection' })}
           </Button>
@@ -411,7 +298,7 @@ const Home: NextPage = () => {
                 {t('drops.moreLaunchesTitle', { ns: 'home' })}
               </h4>
               <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
-              <a
+              <Link
                 href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
                 target={'_blank'}
                 rel="noreferrer"
@@ -424,27 +311,11 @@ const Home: NextPage = () => {
                 >
                   {t('drops.launchButton', { ns: 'home' })}
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         </section>
       </main>
-      {/* Report Banner in Footer */}
-      {/* <section className="mx-6 mb-28 hidden items-center justify-around gap-2 rounded-2xl bg-gradient-primary py-12 px-4 lg:mx-10 lg:flex lg:px-16">
-        <div className="flex items-center gap-4">
-          <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
-          <span className="w-52 text-sm text-white xl:text-base">
-            {t('report.sauceDistributedToUsers', { ns: 'home' })}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-4xl text-white xl:text-6xl">{'47,241'}</span>
-          <span className="w-52 text-sm text-white xl:text-base">
-            {t('report.solDistributedToSauceHolders', { ns: 'home', sol: '124,023' })}
-          </span>
-        </div>
-        <Button border={ButtonBorder.White}>{t('report.learnMore', { ns: 'home' })}</Button>
-      </section> */}
     </>
   );
 };

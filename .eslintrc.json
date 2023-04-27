@@ -1,6 +1,49 @@
 {
-  "extends": ["next", "next/core-web-vitals"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "next",
+    "next/core-web-vitals"
+  ],
   "rules": {
+    "no-console": "error",
+    "no-debugger": "error",
+    "react/button-has-type": "error",
+    "react/jsx-no-useless-fragment": "error",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description",
+        "ts-ignore": false,
+        "ts-nocheck": false,
+        "ts-check": false,
+        "minimumDescriptionLength": 10
+      }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-explicit-any": [
+      "error",
+      {
+        "ignoreRestArgs": true
+      }
+    ],
+    "@typescript-eslint/consistent-type-imports": "error",
     "@next/next/no-img-element": "off"
-  }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "unused-imports"
+  ]
 }

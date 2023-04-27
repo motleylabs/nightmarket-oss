@@ -1,8 +1,10 @@
-import { Metadata, PROGRAM_ID as MPL_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
+
 import { useCallback, useEffect, useState } from 'react';
-import { getMetadataPDA } from './launchpad';
+
+import { getMetadataAccount } from '../utils/metaplex';
 
 interface MetaplexProps {
   verifiedCollectionAddress: string | undefined;
@@ -14,15 +16,17 @@ export default function useMetaplex({ verifiedCollectionAddress }: MetaplexProps
   const { connection } = useConnection();
 
   const fetchAccountInfo = useCallback(async () => {
-    const accountPDA = await getMetadataPDA(new PublicKey(verifiedCollectionAddress!));
+    if (verifiedCollectionAddress) {
+      const accountPDA = getMetadataAccount(new PublicKey(verifiedCollectionAddress));
 
-    setAccount(await Metadata.fromAccountAddress(connection, accountPDA));
-    setLoading(false);
+      setAccount(await Metadata.fromAccountAddress(connection, accountPDA));
+      setLoading(false);
+    }
   }, [connection, verifiedCollectionAddress]);
 
   useEffect(() => {
     if (verifiedCollectionAddress) fetchAccountInfo();
-  }, [verifiedCollectionAddress, connection]);
+  }, [verifiedCollectionAddress, connection, fetchAccountInfo]);
 
   return { loading, metadata: account };
 }

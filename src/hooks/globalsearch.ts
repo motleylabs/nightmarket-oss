@@ -1,72 +1,86 @@
-import { useLazyQuery, OperationVariables, ApolloQueryResult } from '@apollo/client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { isPublicKey } from './../modules/address';
-import GlobalSearchQuery from './../queries/search.graphql';
-import { Wallet, Nft, MetadataJson, CollectionDocument } from './../graphql.types';
+import type React from 'react';
+import { useState, useCallback } from 'react';
+import useSWR from 'swr';
 
-export interface GlobalSearchData {
-  profiles: Wallet[];
-  wallet: Wallet;
-  nfts: Nft[];
-  collections: CollectionDocument[];
+import type { GlobalSearchData, Nft } from '../typings';
+import type { StatSearchData } from '../typings';
+import { debounce } from '../utils/debounce';
+
+const TOKEN_LENGTH = 44;
+
+export enum SearchMode {
+  Nft = 'nft',
+  Profile = 'profile',
+  Collection = 'collection',
 }
 
-type OnUpdateSearch = (event: React.ChangeEvent<HTMLInputElement>) => void;
+const defaultQueryData = '&limit=10&offset=0';
+
+type OnUpdateSearch = (evt: React.ChangeEvent<HTMLInputElement>) => void;
 
 interface GlobalSearchContext {
-  previousResults: GlobalSearchData | undefined;
   searchTerm: string;
   hasResults: boolean;
   updateSearch: OnUpdateSearch;
   searching: boolean;
-  results: GlobalSearchData | undefined;
-  refreshSearch: (
-    variables?: Partial<OperationVariables> | undefined
-  ) => Promise<ApolloQueryResult<GlobalSearchData>>;
+  results: GlobalSearchData;
 }
 
 export default function useGlobalSearch(): GlobalSearchContext {
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const [searchQuery, { data, loading, refetch, previousData }] =
-    useLazyQuery<GlobalSearchData>(GlobalSearchQuery);
+  const debouncedUpdateSearch = useCallback(
+    debounce((value: string) => {
+      setSearchTerm(value);
+    }, 500),
+    []
+  );
 
-  const hasResults = useMemo(() => {
-    if (!data || 'error' in data) {
-      return false;
-    }
-    if (
-      data.collections?.length > 0 ||
-      data.nfts?.length > 0 ||
-      data.profiles?.length > 0 ||
-      isPublicKey(data?.wallet?.address)
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }, [data]);
+  const updateSearch: OnUpdateSearch = useCallback(
+    (evt) => {
+      debouncedUpdateSearch(evt.target.value);
+    },
+    [debouncedUpdateSearch]
+  );
 
-  const updateSearch: OnUpdateSearch = (e) => {
-    const term = e?.target?.value;
+  const { data: collections, isValidating: isValidatingCollections } = useSWR<StatSearchData>(
+    searchTerm
+      ? `/stat/search?keyword=${searchTerm}&mode=${SearchMode.Collection}${defaultQueryData}`
+      : null,
+    { revalidateOnFocus: false }
+  );
 
-    setSearchTerm(term);
-    searchQuery({
-      variables: {
-        term: term,
-        walletAddress: term,
-        nftMintAddress: term,
-      },
-    });
-  };
+  const { data: profiles, isValidating: isValidatingProfiles } = useSWR<StatSearchData>(
+    searchTerm
+      ? `/stat/search?keyword=${searchTerm}&mode=${SearchMode.Profile}${defaultQueryData}`
+      : null,
+    { revalidateOnFocus: false }
+  );
+
+  const { data: nft, isValidating: isValidatingNft } = useSWR<Nft>(
+    searchTerm && searchTerm.length === TOKEN_LENGTH ? `/nfts/${searchTerm}` : null,
+    { revalidateOnFocus: false }
+  );
+
+  const isLoading =
+    (!collections && isValidatingCollections) ||
+    (!profiles && isValidatingProfiles) ||
+    (!nft && isValidatingNft);
 
   return {
     searchTerm,
-    hasResults,
-    previousResults: previousData,
+    hasResults:
+      !isLoading && (!!collections?.results?.length || !!profiles?.results?.length || !!nft),
+    searching: isLoading,
+    results: {
+      nft: nft ? { searchType: SearchMode.Nft, ...nft } : undefined,
+      profiles: profiles
+        ? profiles.results.map((p) => ({ ...p, searchType: SearchMode.Profile }))
+        : [],
+      collections: collections
+        ? collections.results.map((c) => ({ ...c, searchType: SearchMode.Collection }))
+        : [],
+    },
     updateSearch,
-    searching: loading,
-    results: data,
-    refreshSearch: refetch,
   };
 }

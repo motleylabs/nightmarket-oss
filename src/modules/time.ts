@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, subDays, startOfDay, endOfDay } from 'date-fns';
+import { addHours, formatDistanceToNow } from 'date-fns';
 
 export function formatTimeAgo(date: Date) {
   const pastDate = new Date(date);
@@ -8,19 +8,19 @@ export function formatTimeAgo(date: Date) {
 }
 
 export enum DateRangeOption {
-  DAY = '1',
-  WEEK = '7',
-  MONTH = '30',
+  HOUR = '1',
+  DAY = '24',
+  WEEK = '168',
+  MONTH = '720',
 }
 
 export function getDateTimeRange(dateRangeOption: DateRangeOption): {
-  startTime: string;
-  endTime: string;
+  startTime: number;
+  endTime: number;
 } {
-  const startTime = format(
-    subDays(startOfDay(new Date()), parseInt(dateRangeOption)),
-    "yyyy-MM-dd'T'hh:mm:ssxxx"
-  ) as string;
-  const endTime = format(endOfDay(new Date()), "yyyy-MM-dd'T'hh:mm:ssxxx") as string;
+  const now = new Date();
+  const endTime = addHours(now, 1).setMinutes(0, 0, 0) / 1000;
+  const startTime = endTime - (parseInt(dateRangeOption, 10) + 1) * 3600;
+
   return { startTime, endTime };
 }

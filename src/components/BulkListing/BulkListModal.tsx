@@ -1,8 +1,13 @@
+import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
+
 import { useCurrencies } from '../../hooks/currencies';
-import { BulkListNftForm, useBulkListing } from '../../hooks/list';
+import type { BulkListNftForm } from '../../hooks/list';
+import { useBulkListing } from '../../hooks/list';
 import { useBulkListContext } from '../../providers/BulkListProvider';
+import type { Nft } from '../../typings';
 import { roundToPrecision } from '../../utils/numbers';
 import Button, { ButtonBackground } from '../Button';
 import { Form } from '../Form';
@@ -10,8 +15,6 @@ import Icon from '../Icon';
 import Modal from '../Modal';
 import Tooltip from '../Tooltip';
 import ListingItem from './ListingItem';
-import { AuctionHouse, Nft } from '../../graphql.types';
-import clsx from 'clsx';
 
 // NB. this regex accept values of 0 so need more validation than just this regex on inputs
 export const NUMBER_REGEX = new RegExp(/^\d*\.?\d{1,9}$/);
@@ -19,10 +22,9 @@ export const NUMBER_REGEX = new RegExp(/^\d*\.?\d{1,9}$/);
 interface BulkListModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
-  auctionHouse: AuctionHouse;
 }
 
-function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX.Element {
+function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
   const { t } = useTranslation('profile');
   const { selected, setSelected } = useBulkListContext();
   const { solToUsdString } = useCurrencies();
@@ -59,7 +61,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
       setFailed([]);
       setSelected([]);
     }
-  }, [open]);
+  }, [open, setSelected]);
 
   const handleList = async (form: BulkListNftForm) => {
     try {
@@ -67,13 +69,13 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
         ...form,
         useGlobalPrice,
         nfts: selected,
-        auctionHouse: auctionHouse,
       });
       if (fulfilled.length) {
         setSuccess(fulfilled);
       }
       setFailed(selected.filter((nft) => !fulfilled.includes(nft)));
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
     }
   };
@@ -115,7 +117,7 @@ function BulkListModal({ open, setOpen, auctionHouse }: BulkListModalProps): JSX
       <div className="max-h-[25rem] overflow-auto">
         {selected.map((nft) => (
           <ListingItem
-            key={nft.address}
+            key={nft.mintAddress}
             nft={nft}
             disabled={useGlobalPrice}
             bulkListNftState={bulkListNftState}

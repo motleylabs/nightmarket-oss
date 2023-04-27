@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { Dispatch, SetStateAction, useMemo } from 'react';
 import { useTranslation } from 'next-i18next';
+import { Dispatch, SetStateAction, useMemo } from 'react';
+
 import Icon from './Icon';
 
 interface PaginationProps {

@@ -1,12 +1,12 @@
 import clsx from 'clsx';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface ToolbarProps {
   children: ReactNode;
   className?: string;
 }
 
-export function Toolbar({ children, className }: ToolbarProps): JSX.Element {
+export function Toolbar({ children, className }: ToolbarProps) {
   return (
     <header
       className={clsx(

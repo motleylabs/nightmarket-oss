@@ -1,6 +1,7 @@
 import { GetServerSidePropsContext, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useEffect, useState } from 'react';
+
 import ReferralPage from '../../components/ReferralPage';
 import { getCookie } from '../../utils/cookies';
 import { COOKIE_REF } from '../_app';

@@ -1,18 +1,24 @@
-import clsx from 'clsx';
-import React, { ReactElement, ReactNode, useState } from 'react';
-import Price from './Price';
-import { useTranslation } from 'next-i18next';
-import { CollectionNftPreviewsQuery } from './../queries/collection.graphql';
-import { Nft, Maybe, Collection } from '../graphql.types';
-import Icon from './Icon';
-import Link from 'next/link';
-import { useQuery } from '@apollo/client';
-import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
-import Image from './../components/Image';
+
+import clsx from 'clsx';
+import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import type { ReactElement, ReactNode } from 'react';
+import { useMemo } from 'react';
+import React from 'react';
+import useSWR from 'swr';
+
 import config from '../app.config';
+import { useSeries } from '../hooks/collection/useSeries';
 import { asCompactNumber } from '../modules/number';
+import type { Nft, CollectionNftsData, SelectedTrend } from '../typings';
+import { getAssetURL, AssetSize } from '../utils/assets';
+import { getSolFromLamports } from '../utils/price';
+import Image from './../components/Image';
 import Img from './../components/Image';
+import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
+import Icon from './Icon';
+import Price from './Price';
 
 export function Collection() {
   return <div />;
@@ -24,7 +30,7 @@ interface CollectionOptionProps {
   children?: ReactNode;
   avatar: JSX.Element;
   header: JSX.Element;
-  floorPrice: Maybe<string> | undefined;
+  floorPrice: number | string | undefined;
 }
 
 function CollectionOption({
@@ -82,7 +88,7 @@ function CollectionOptionAvatar({ src, figure }: CollectionAvatarProps): JSX.Ele
     <div className="relative flex aspect-square h-16 w-16">
       <Img
         fallbackSrc="/images/moon.svg"
-        src={src}
+        src={getAssetURL(src, AssetSize.Tiny)}
         className="absolute top-0 left-0 h-full w-full rounded-lg object-cover"
         alt="collection avatar"
       />
@@ -129,22 +135,16 @@ interface CollectionOptionEstimatedValueProps {
   amount: number;
 }
 
-function CollectionOptionEstimatedValue({
-  amount,
-}: CollectionOptionEstimatedValueProps): JSX.Element {
+function CollectionOptionEstimatedValue({ amount }: CollectionOptionEstimatedValueProps) {
   const { t } = useTranslation('collection');
 
+  if (!amount) return null;
+
   return (
-    <>
-      {amount && amount != 0 && (
-        <div className="-mb-1 flex flex-col">
-          <span className="text-[10px] text-gray-400">
-            {t('estimatedValue', { ns: 'collection' })}
-          </span>
-          <Price price={amount} />
-        </div>
-      )}
-    </>
+    <div className="-mb-1 flex flex-col">
+      <span className="text-[10px] text-gray-400">{t('estimatedValue', { ns: 'collection' })}</span>
+      <Price price={amount} />
+    </div>
   );
 }
 
@@ -159,8 +159,8 @@ CollectionOption.Title = CollectionOptionTitle;
 interface CollectionCardProps {
   name: string;
   image: string;
-  floorPrice: Maybe<string> | undefined;
-  nftCount: Maybe<string> | undefined;
+  floorPrice?: string;
+  nftCount?: string;
 }
 
 export default function CollectionCard({
@@ -278,33 +278,65 @@ function CollectionListRow({ children }: CollectionListRowProps) {
 CollectionList.Row = CollectionListRow;
 
 interface CollectionListNftPreviewProps {
-  collection?: string;
+  collectionSlug: string;
 }
 
-interface CollectionNftPreviewsVariables {
-  auctionHouse: string;
-  id: string | undefined;
-}
+function CollectionListNftPreview({ collectionSlug }: CollectionListNftPreviewProps): JSX.Element {
+  const previewCount = 7;
 
-interface CollectionNftPreviewData {
-  collection: Collection;
-}
-
-function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps): JSX.Element {
-  const nftPreviewQuery = useQuery<CollectionNftPreviewData, CollectionNftPreviewsVariables>(
-    CollectionNftPreviewsQuery,
+  const { data: listedNFTs, isLoading: isListedNFTsLoading } = useSWR<CollectionNftsData>(
+    `/collections/nfts?address=${collectionSlug}&sort_by=timestamp&order=desc&limit=${previewCount}&offset=0` +
+      `&program=${config.auctionHouseProgram}&auction_house=${config.auctionHouse}&listing_only=true`,
     {
-      variables: {
-        id: collection,
-        auctionHouse: config.auctionHouse,
-      },
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      refreshInterval: 60000,
     }
   );
+
+  const { data: normalNFTs, isLoading: isNFTsLoading } = useSWR<CollectionNftsData>(
+    `/collections/nfts?address=${collectionSlug}&sort_by=timestamp&order=desc&limit=${
+      previewCount * 2
+    }&offset=0`,
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      refreshInterval: 60000,
+    }
+  );
+
+  const isLoading = useMemo(
+    () => isListedNFTsLoading || isNFTsLoading,
+    [isListedNFTsLoading, isNFTsLoading]
+  );
+  const previewNFTs = useMemo(() => {
+    if (!isLoading) {
+      if (!!listedNFTs && !!normalNFTs) {
+        if (listedNFTs.nfts.length >= previewCount) {
+          return listedNFTs.nfts.slice(0, previewCount).map((nft) => ({ ...nft, isListed: true }));
+        } else {
+          const listedAddresses = listedNFTs.nfts.map((nft) => nft.mintAddress);
+          const notIncludedOnes = normalNFTs.nfts.filter(
+            (nft) => !listedAddresses.includes(nft.mintAddress)
+          );
+          return [
+            ...listedNFTs.nfts.map((nft) => ({ ...nft, isListed: true })),
+            ...notIncludedOnes
+              .slice(0, previewCount - listedNFTs.nfts.length)
+              .map((nft) => ({ ...nft, isListed: false })),
+          ];
+        }
+      }
+    }
+    return [];
+  }, [isLoading, listedNFTs, normalNFTs]);
+
+  const loading = !listedNFTs && !normalNFTs && isLoading;
 
   return (
     <>
       <div className="flex w-full justify-between md:hidden">
-        {nftPreviewQuery.loading ? (
+        {loading ? (
           <>
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
@@ -312,44 +344,44 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
-          nftPreviewQuery.data?.collection.nfts
+          previewNFTs
             .slice(0, 4)
             .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
       <div className="hidden justify-end gap-2 md:flex lg:gap-4">
-        {nftPreviewQuery.loading ? (
+        {loading ? (
           <>
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
-          nftPreviewQuery.data?.collection.nfts
+          previewNFTs
             .slice(0, 2)
             .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
       <div className="hidden justify-end gap-2 lg:flex lg:gap-4">
-        {nftPreviewQuery.loading ? (
+        {loading ? (
           <>
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
-          nftPreviewQuery.data?.collection.nfts
+          previewNFTs
             .slice(2, 5)
             .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
       </div>
       <div className="hidden justify-end gap-2 lg:gap-4 2xl:flex">
-        {nftPreviewQuery.loading ? (
+        {loading ? (
           <>
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
             <div className="flex h-16 w-16 animate-pulse rounded-lg bg-gray-700" />
           </>
         ) : (
-          nftPreviewQuery.data?.collection.nfts
+          previewNFTs
             .slice(5, 7)
             .map((nft) => <Collection.List.ShowcaseNft key={nft.mintAddress} nft={nft} />)
         )}
@@ -361,7 +393,7 @@ function CollectionListNftPreview({ collection }: CollectionListNftPreviewProps)
 CollectionList.NftPreview = CollectionListNftPreview;
 
 interface CollectionListColProps {
-  className?: String;
+  className?: string;
   children?: ReactNode;
 }
 function CollectionListCol({ children, className }: CollectionListColProps) {
@@ -370,21 +402,173 @@ function CollectionListCol({ children, className }: CollectionListColProps) {
 
 CollectionList.Col = CollectionListCol;
 
+interface CollectionListStatsProps {
+  name: string;
+  slug: string;
+  volumeLabel: string;
+  trend: SelectedTrend;
+  period: '1h' | '1d' | '7d' | '1m';
+}
+function CollectionListStats({
+  name,
+  slug,
+  volumeLabel,
+  trend,
+  period,
+}: CollectionListStatsProps): JSX.Element {
+  const { t } = useTranslation(['home', 'collection']);
+  const endTime = new Date().setMinutes(0, 0, 0) / 1000;
+  const startTime = endTime - 86400 * 15;
+
+  const {
+    data: dayData,
+    isValidating,
+    isLoading,
+  } = useSeries(slug, startTime, endTime, 'per_day', 100);
+  const {
+    data: hourData,
+    isValidating: isHourValidating,
+    isLoading: isHourLoading,
+  } = useSeries(slug, endTime - 3600 * 3, endTime, 'per_hour', 100);
+
+  const volumeDayChange = useMemo(() => {
+    if (isValidating || isLoading || !dayData || (period !== '1d' && period !== '7d')) {
+      return 0;
+    }
+    const sliceCount = period === '1d' ? 1 : 7;
+    const curLen = dayData.series.length;
+
+    if (curLen > 0) {
+      const current = dayData.series
+        .slice(Math.max(0, curLen - sliceCount), curLen)
+        .map((item) => item.volume)
+        .reduce((acc, item) => acc + item, 0);
+      const prev =
+        Math.max(0, curLen - sliceCount) > 0
+          ? dayData.series
+              .slice(Math.max(0, curLen - 2 * sliceCount), curLen - sliceCount)
+              .map((item) => item.volume)
+              .reduce((acc, item) => acc + item, 0)
+          : 0;
+
+      if (current === 0) {
+        return 0;
+      } else {
+        return Math.round(((prev - current) / current) * 100);
+      }
+    }
+
+    return 0;
+  }, [dayData, isLoading, isValidating, period]);
+
+  const volumeHourChange = useMemo(() => {
+    if (isHourValidating || isHourLoading || !hourData || period !== '1h') {
+      return 0;
+    }
+
+    const curLen = hourData.series.length;
+    if (curLen > 0) {
+      const current = hourData.series[curLen - 1].volume;
+      const prev = curLen > 1 ? hourData.series[curLen - 2].volume : 0;
+
+      if (current === 0) {
+        return 0;
+      } else {
+        return Math.round(((prev - current) / current) * 100);
+      }
+    }
+  }, [hourData, isHourLoading, isHourValidating, period]);
+
+  const listChange = useMemo(() => {
+    if (isValidating || isLoading || !dayData) {
+      return 0;
+    }
+
+    const curLen = dayData.series.length;
+    if (curLen > 0) {
+      const current = dayData.series[curLen - 1].listed;
+      const prev = curLen > 1 ? dayData.series[curLen - 2].listed : 0;
+
+      if (current === 0) {
+        return 0;
+      } else {
+        return Math.round(((prev - current) / current) * 100);
+      }
+    }
+
+    return 0;
+  }, [dayData, isLoading, isValidating]);
+
+  return (
+    <Collection.List.Col className="flex w-full flex-col justify-start gap-2 py-1 md:flex-row md:items-center xl:gap-8">
+      <div className="w-full line-clamp-2 md:w-24 xl:w-36">{name}</div>
+      <div className="flex gap-1  lg:justify-start lg:gap-4">
+        <Collection.List.DataPoint
+          isPrice
+          value={trend.floorPrice as string}
+          icon={<Icon.Sol />}
+          name={t('globalFloor', { ns: 'collection' })}
+          status={<Collection.List.DataPoint.Status value={trend.floorPriceChange} />}
+        />
+        <Collection.List.DataPoint
+          isPrice
+          value={trend.volume as string}
+          icon={<Icon.Sol />}
+          name={volumeLabel}
+          suffix="K"
+          decimals={3}
+          status={
+            <Collection.List.DataPoint.Status
+              value={
+                period === '1h'
+                  ? volumeHourChange
+                  : period === '1d'
+                  ? trend.volumeChange
+                  : volumeDayChange
+              }
+            />
+          }
+        />
+        <Collection.List.DataPoint
+          value={trend.listedCount as string}
+          name={t('listings', { ns: 'collection' })}
+          status={<Collection.List.DataPoint.Status value={listChange} />}
+        />
+      </div>
+    </Collection.List.Col>
+  );
+}
+
+CollectionList.Stats = CollectionListStats;
+
 interface CollectionListDataPointProps {
   icon?: ReactElement;
   name: string;
-  value: Maybe<string> | undefined;
+  value: string;
   status?: ReactElement;
   className?: string;
+  isPrice?: boolean;
+  decimals?: number;
+  suffix?: string;
 }
-function CollectionListDataPoint({ icon, name, value, status }: CollectionListDataPointProps) {
+function CollectionListDataPoint({
+  icon,
+  name,
+  value,
+  status,
+  suffix,
+  decimals = 0,
+  isPrice = false,
+}: CollectionListDataPointProps) {
+  if (value == null) return null;
+
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="text-xs text-gray-200 md:text-sm">{name}</div>
       <div className="flex flex-col justify-start gap-2 sm:w-28 sm:flex-row sm:items-center">
         <p className="flex items-center gap-1 text-sm font-semibold md:text-base">
           {icon}
-          {value}
+          {`${isPrice ? getSolFromLamports(value, decimals).toFixed(2) : value}${suffix ?? ''}`}
         </p>
         {status}
       </div>
@@ -395,7 +579,7 @@ function CollectionListDataPoint({ icon, name, value, status }: CollectionListDa
 CollectionList.DataPoint = CollectionListDataPoint;
 
 interface CollectionListDataPointStatusProps {
-  value: Maybe<number> | undefined;
+  value?: number;
 }
 function CollectionListDataPointStatus({ value }: CollectionListDataPointStatusProps) {
   if (!value) {
@@ -425,22 +609,19 @@ CollectionListDataPoint.Status = CollectionListDataPointStatus;
 interface CollectionListShowcaseNftProps {
   nft: Nft;
 }
-function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
-  const listing = nft.listings?.find((listing) => {
-    return listing.auctionHouse?.address === config.auctionHouse;
-  });
 
+function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
   return (
     <Link href={`/nfts/[address]`} as={`/nfts/${nft.mintAddress}`}>
       <div className="flex w-16 flex-col items-center">
         <div className="relative rounded-lg p-0.5 hover:bg-gradient-primary">
           <Image
-            src={nft.image}
+            src={getAssetURL(nft.image, AssetSize.XSmall)}
             alt={`${nft.name} preview`}
             className="relative aspect-square w-16 rounded-lg object-cover"
           />
         </div>
-        {listing?.solPrice && (
+        {nft.isListed && !!nft.latestListing && (
           <div className="group z-20 ">
             <Button
               icon={<Icon.Sol className="h-3 w-3" />}
@@ -449,7 +630,7 @@ function CollectionListShowcaseNft({ nft }: CollectionListShowcaseNftProps) {
               size={ButtonSize.Tiny}
               className="-mt-3 shadow-lg shadow-black group-hover:hidden"
             >
-              {listing?.solPrice}
+              {getSolFromLamports(nft.latestListing.price, 0, 2)}
             </Button>
             <Button size={ButtonSize.Small} className="-mt-3 hidden group-hover:block">
               Buy

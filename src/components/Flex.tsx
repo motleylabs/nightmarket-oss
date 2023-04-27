@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import type { ReactNode } from 'react';
 
 export enum FlexDirection {
   Col = 'flex-col',
@@ -19,7 +20,7 @@ export enum FlexAlign {
 
 interface FlexProps {
   direction?: FlexDirection;
-  children: JSX.Element | (JSX.Element | null | undefined)[];
+  children: ReactNode;
   className?: string;
   align?: FlexAlign;
   justify?: FlexJustify;

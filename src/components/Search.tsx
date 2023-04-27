@@ -1,13 +1,18 @@
-import React, { FC, Fragment, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+/* eslint-disable no-console */
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { DebounceInput } from 'react-debounce-input';
-import { MetadataJson, Nft, NftCreator, Wallet, Maybe, Collection } from '../graphql.types';
-import { useTranslation } from 'next-i18next';
-import Img from './Image';
+
 import clsx from 'clsx';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { GlobalSearchData } from '../hooks/globalsearch';
+import type { FC, ReactNode } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { DebounceInput } from 'react-debounce-input';
+
+import { SearchMode } from '../hooks/globalsearch';
+import type { Nft, StatSearch } from '../typings';
+import { AssetSize, getAssetURL } from '../utils/assets';
+import Img from './Image';
 
 type Input = FC;
 type Group = FC;
@@ -30,14 +35,8 @@ interface SearchProps {
   MintAddress?: NftItem;
 }
 
-type SearchResultItemType =
-  | GlobalSearchData['profiles'][0]
-  | GlobalSearchData['collections'][0]
-  | GlobalSearchData['nfts'][0]
-  | GlobalSearchData['wallet'];
-
 export default function Search({ children }: SearchProps) {
-  const [selected, setSelected] = useState<SearchResultItemType | null>(null);
+  const [selected, setSelected] = useState<(StatSearch & Nft) | null>(null);
 
   const router = useRouter();
 
@@ -45,21 +44,22 @@ export default function Search({ children }: SearchProps) {
     <Combobox
       value={selected}
       onChange={(selection) => {
+        if (!selection) {
+          // TODO: have a fallback to view these
+          console.error('Missing verified collectiona address');
+          return;
+        }
+
         setSelected(selection);
 
-        switch (selection?.__typename) {
-          case 'CollectionDocument':
-            if (!selection.id) {
-              // TODO: have a fallback to view these
-              console.error('Missing verified collectiona address');
-              break;
-            }
-            router.push(`/collections/${selection.id}`);
+        switch (selection.searchType) {
+          case SearchMode.Collection:
+            router.push(`/collections/${selection.slug}`);
             break;
-          case 'Nft':
+          case SearchMode.Nft:
             router.push(`/nfts/${selection.mintAddress}`);
             break;
-          case 'Wallet':
+          case SearchMode.Profile:
             router.push(`/profiles/${selection.address}`);
             break;
           default:
@@ -82,19 +82,22 @@ interface SearchInputProps {
   autofocus?: boolean;
 }
 
-const getOs = () => {
-  const os = ['Win32', 'Mac']; // add your OS values
-  return os.find((v) => (global as any).window?.navigator.platform.indexOf(v) >= 0);
+const getOs = (): string => {
+  const os: string[] = [];
+  if ((global as unknown as { window?: { navigator: { platform: string } } }).window) {
+    const platform = (global as unknown as { window: { navigator: { platform: string } } }).window
+      .navigator.platform;
+    if (platform.indexOf('Win32') >= 0) {
+      os.push('Win32');
+    }
+    if (platform.indexOf('Mac') >= 0) {
+      os.push('Mac');
+    }
+  }
+  return os[0] ?? '';
 };
 
-function SearchInput({
-  onChange,
-  onFocus,
-  onBlur,
-  value,
-  autofocus,
-  className,
-}: SearchInputProps): JSX.Element {
+function SearchInput({ onChange, onFocus, onBlur, value, autofocus, className }: SearchInputProps) {
   const { t } = useTranslation('common');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
@@ -123,6 +126,7 @@ function SearchInput({
   return (
     <div className={clsx('group relative block w-full transition-all', className)}>
       <button
+        type="button"
         onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
         className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
       >
@@ -144,7 +148,10 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
       />
-      <button className="pointer-events-none absolute right-4 top-0 hidden h-full  items-center justify-center md:flex">
+      <button
+        type="button"
+        className="pointer-events-none absolute right-4 top-0 hidden h-full  items-center justify-center md:flex"
+      >
         <kbd className=" hidden h-6 items-center justify-center rounded bg-gray-800 px-2 text-sm text-gray-300 group-focus-within:flex group-hover:flex">
           {searchKeyboardPrompt}
         </kbd>
@@ -157,17 +164,12 @@ Search.Input = SearchInput;
 interface SearchResultsProps {
   searching: boolean;
   children: ReactNode;
-  error?: any;
+  error?: unknown;
   hasResults: boolean;
   enabled?: boolean;
 }
 
-function SearchResults({
-  searching,
-  children,
-  hasResults,
-  enabled = false,
-}: SearchResultsProps): JSX.Element {
+function SearchResults({ searching, children, hasResults, enabled = false }: SearchResultsProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -176,7 +178,7 @@ function SearchResults({
       leave="transition ease-in duration-100"
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
-      afterLeave={() => {}}
+      afterLeave={() => null}
     >
       <Combobox.Options
         className={clsx('fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto block max-w-4xl')}
@@ -191,22 +193,18 @@ function SearchResults({
             </>
           ) : hasResults ? (
             children
+          ) : enabled ? (
+            <div className="flex h-6 w-full items-center justify-center">
+              <p className="m-0 text-center text-base font-medium">
+                {t('search.empty', { ns: 'common' })}
+              </p>
+            </div>
           ) : (
             <>
-              {enabled ? (
-                <div className="flex h-6 w-full items-center justify-center">
-                  <p className="m-0 text-center text-base font-medium">
-                    {t('search.empty', { ns: 'common' })}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <SearchLoadingItem />
-                  <SearchLoadingItem variant="circle" />
-                  <SearchLoadingItem />
-                  <SearchLoadingItem variant="circle" />
-                </>
-              )}
+              <SearchLoadingItem />
+              <SearchLoadingItem variant="circle" />
+              <SearchLoadingItem />
+              <SearchLoadingItem variant="circle" />
             </>
           )}
         </div>
@@ -219,11 +217,11 @@ Search.Results = SearchResults;
 interface SearchGroupProps<T> {
   title: string;
   children: (data: { result: T | undefined }) => ReactNode;
-  result: T | undefined;
+  result?: T;
 }
 
-function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.Element | null {
-  if ((result instanceof Array && result.length === 0) || result === null) {
+function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>) {
+  if ((result instanceof Array && result.length === 0) || result == null) {
     return null;
   }
 
@@ -238,33 +236,23 @@ function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>): JSX.E
 }
 Search.Group = SearchGroup;
 
-interface SearchResultProps {
-  slug: string;
-  image: string;
-  name?: Maybe<string> | undefined;
-  value: SearchResultItemType | MetadataJson;
-}
+type SearchResultProps = {
+  slug?: string;
+  image?: string;
+  name?: string;
+  value?: StatSearch | Nft;
+};
 
-interface CollectionSearchResultProps extends SearchResultProps {
-  collection?: Collection;
-}
-
-function CollectionSearchResult({
-  name,
-  image,
-  collection,
-  value,
-  slug,
-}: CollectionSearchResultProps): JSX.Element {
-  const router = useRouter();
+function CollectionSearchResult({ name, image, value, slug }: SearchResultProps) {
+  const { push } = useRouter();
 
   return (
     <Combobox.Option
       key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
-        router.push(`/collections/${slug}`);
-      }, [router, slug])}
+        push(`/collections/${slug}`);
+      }, [slug, push])}
     >
       {({ active }) => (
         <div
@@ -276,7 +264,7 @@ function CollectionSearchResult({
           <div className="flex flex-row items-center gap-6">
             <Img
               fallbackSrc="/images/moon.svg"
-              src={image}
+              src={getAssetURL(image, AssetSize.Tiny)}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
@@ -290,19 +278,15 @@ function CollectionSearchResult({
 
 Search.Collection = CollectionSearchResult;
 
-interface MintAddressSearchResultProps extends SearchResultProps {
-  creator?: NftCreator;
-  nft?: Nft;
-}
+type MintAddressSearchResultProps = SearchResultProps & { creator?: string };
 
 function MintAddressSearchResult({
-  creator,
   slug,
   name,
   image,
-  nft,
   value,
-}: MintAddressSearchResultProps): JSX.Element {
+  creator,
+}: MintAddressSearchResultProps) {
   const router = useRouter();
 
   return (
@@ -323,7 +307,7 @@ function MintAddressSearchResult({
           <div className="flex flex-row items-center gap-6">
             <Img
               fallbackSrc="/images/moon.svg"
-              src={image}
+              src={getAssetURL(image, AssetSize.Tiny)}
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
@@ -332,7 +316,7 @@ function MintAddressSearchResult({
           {creator && (
             <div className="flex items-center justify-end gap-4">
               <p className="m-0 hidden items-center gap-2 text-sm text-gray-300 md:flex">
-                {creator.displayName}
+                {creator}
               </p>
             </div>
           )}
@@ -344,16 +328,9 @@ function MintAddressSearchResult({
 
 Search.MintAddress = MintAddressSearchResult;
 
-interface ProfileSearchResultProps extends SearchResultProps {
-  profile?: Wallet;
-}
+type ProfileSearchResultProps = SearchResultProps;
 
-function ProfileSearchResult({
-  image,
-  slug,
-  profile,
-  value,
-}: ProfileSearchResultProps): JSX.Element | null {
+function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultProps) {
   const router = useRouter();
 
   return (
@@ -375,16 +352,13 @@ function ProfileSearchResult({
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <Img
                 fallbackSrc="/images/placeholder.png"
-                src={image}
+                src={getAssetURL(image, AssetSize.Tiny)}
                 alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />
             </div>
-            <p className="m-0 text-sm font-bold text-white">
-              {profile?.displayName || profile?.address}
-            </p>
+            {name && <p className="m-0 text-sm font-bold text-white">{name}</p>}
           </div>
-          <p className="m-0 text-sm text-gray-300 md:inline-block">{profile?.shortAddress}</p>
         </div>
       )}
     </Combobox.Option>
@@ -397,7 +371,7 @@ interface SearchLoadingProps {
   variant?: 'square' | 'circle';
 }
 
-function SearchLoadingItem({ variant = 'square' }: SearchLoadingProps): JSX.Element {
+function SearchLoadingItem({ variant = 'square' }: SearchLoadingProps) {
   return (
     <div className="flex flex-row items-center justify-between p-4">
       <div className="flex flex-row items-center gap-6">

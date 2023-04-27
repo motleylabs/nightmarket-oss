@@ -7,6 +7,20 @@
     "logo": "/images/magiceden.svg"
   },
   {
+    "marketplaceProgramAddress": "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8",
+    "auctionHouseAddress": null,
+    "name": "Magic Eden",
+    "link": "https://magiceden.io/item-details/{}",
+    "logo": "/images/magiceden.svg"
+  },
+  {
+    "marketplaceProgramAddress": "mmm3XBJg5gk8XJxEKBvdgptZz6SgK4tXvn36sodowMc",
+    "auctionHouseAddress": null,
+    "name": "CoralCube / ME AMM",
+    "link": "https://magiceden.io/item-details/{}",
+    "logo": "/images/coralcube.svg"
+  },
+  {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "6hW2rVdPUD5qn1amEvN3K9zkvgsCA34LqCvTPcpamQHc",
     "name": "Night Market",
@@ -40,5 +54,33 @@
     "name": "Holaplex",
     "link": "https://market.holaplex.com/nfts/{}",
     "logo": "/images/holaplex-logo-text.png"
+  },
+  {
+    "marketplaceProgramAddress": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",
+    "auctionHouseAddress": null,
+    "name": "Tensor Swap",
+    "link": "https://www.tensor.trade/item/{}",
+    "logo": "/images/tensor-swap.svg"
+  },
+  {
+    "marketplaceProgramAddress": "hadeK9DLv9eA7ya5KCTqSvSvRZeJC3JgD5a9Y3CNbvu",
+    "auctionHouseAddress": null,
+    "name": "Hadeswap",
+    "link": "https://beta.hadeswap.com/collection/{}",
+    "logo": "/images/hadeswap.svg"
+  },
+  {
+    "marketplaceProgramAddress": "HYPERfwdTjyJ2SCaKHmpF2MtrXqWxrsotYDsTrshHWq8",
+    "auctionHouseAddress": null,
+    "name": "Hyperspace",
+    "link": "https://hyperspace.xyz/token/{}",
+    "logo": "/images/hyperspace.svg"
+  },
+  {
+    "marketplaceProgramAddress": "2qGyiNeWyZxNdkvWHc2jT5qkCnYa1j1gDLSSUmyoWMh8",
+    "auctionHouseAddress": null,
+    "name": "Elixir",
+    "link": "https://app.elixirnft.io/",
+    "logo": "/images/elixir.svg"
   }
 ]

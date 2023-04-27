@@ -1,9 +1,9 @@
 import clsx from 'clsx';
+
 import Icon from './Icon';
-import { Maybe } from '../graphql.types';
 
 interface PriceProps {
-  price: number | string | Maybe<string> | undefined;
+  price: number | string | undefined;
   className?: string;
 }
 

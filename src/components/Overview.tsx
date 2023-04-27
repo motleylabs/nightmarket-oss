@@ -1,8 +1,9 @@
-import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
-import Img from "./Image"
-import { Maybe } from './../graphql.types';
+import React from 'react';
+import type { ReactNode } from 'react';
+
+import Img from './Image';
 
 interface OverviewProps {
   children: ReactNode;
@@ -51,7 +52,7 @@ interface OverviewAvatarProps {
 function Avatar({ src, circle }: OverviewAvatarProps): JSX.Element {
   return (
     <Img
-    fallbackSrc="/images/placeholder.png"
+      fallbackSrc="/images/placeholder.png"
       src={src}
       className={clsx(
         'inline-block h-24 w-24 border-4 border-gray-900 shadow-xl md:h-36 md:w-36',
@@ -85,7 +86,7 @@ function Figures({ children }: OverviewProps): JSX.Element {
 Overview.Figures = Figures;
 
 interface OverviewFigureProps {
-  figure: Maybe<string> | undefined;
+  figure?: string;
   label: string;
 }
 
@@ -156,118 +157,8 @@ function Tab(props: { href: string; label: string; active: boolean }) {
 }
 Overview.Tab = Tab;
 
-// NB: Keeping this until changes are finished on the collection page
-// function Tabs({ children }: OverviewTabsProps): JSX.Element {
-//   return (
-//     <nav
-//       className={clsx(
-//         'mx-auto mt-10 flex  overflow-auto'
-//         // children.length === 3 ? 'grid-cols-3' : 'grid-cols-4'
-//       )}
-//     >
-//       {children}
-//     </nav>
-//   );
-// }
-
-// Overview.Tabs = Tabs;
-
-// interface TabProps {
-//   href: string;
-//   children: ReactNode;
-//   icon?: (props: { className: string }) => JSX.Element;
-// }
-
-// function Tab({ href, children, icon: Icon }: TabProps): JSX.Element {
-//   const router = useRouter();
-
-//   return (
-//     <Link href={href} >
-//       <a
-//         className={clsx(
-//           'flex flex-none flex-row justify-center border-b px-6 py-2.5 text-center text-sm font-medium text-white',
-//           router.asPath === href
-//             ? ' border-white'
-//             : 'border-gray-800  text-gray-300 hover:text-white'
-//         )}
-//       >
-//         {Icon && <Icon className="mr-4 h-5 w-5" />}
-//         {children}
-//       </a>
-//     </Link>
-//   );
-// }
-
-// Overview.Tab = Tab;
-
 function Divider(): JSX.Element {
   return <div className="-z-10 -mt-[1px] h-[1px] bg-gray-800" />;
 }
 
 Overview.Divider = Divider;
-
-// save for later
-// export function SegmentedControl() {
-//   const [selectedTab, setSelectedTab] = useState('segment1');
-//   return (
-//     <div className={'rounded-lg bg-gray-200 p-[2px]'}>
-//       <div className={'relative flex items-center'}>
-//         {/* <!-- tab dividers --> */}
-//         <div className={'absolute w-full'}>
-//           <div className={'m-auto flex w-1/3 justify-between'}>
-//             <div
-//               className={clsx(
-//                 'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
-//                 { 'opacity-100': selectedTab === 'segment3' }
-//               )}
-//             ></div>
-//             <div
-//               className={clsx(
-//                 'h-3 w-px rounded-full bg-gray-400 opacity-0 transition-opacity duration-100 ease-in-out',
-//                 { 'opacity-100': selectedTab === 'segment1' }
-//               )}
-//             ></div>
-//           </div>
-//         </div>
-
-//         {/* <!-- white sliding tab block --> */}
-//         <div
-//           className={clsx(
-//             'absolute inset-y-0 left-0 flex w-1/3 transform rounded-md bg-white shadow transition-all duration-200 ease-in-out',
-//             {
-//               'translate-x-0': selectedTab === 'segment1',
-//               'translate-x-full': selectedTab === 'segment2',
-//               'translate-x-[200%]': selectedTab === 'segment3',
-//             }
-//           )}
-//         ></div>
-
-//         {/* <!-- clickable buttons --> */}
-//         <div
-//           className={
-//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
-//           }
-//           onClick={() => setSelectedTab('segment1')}
-//         >
-//           Segment 1
-//         </div>
-//         <div
-//           className={
-//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
-//           }
-//           onClick={() => setSelectedTab('segment2')}
-//         >
-//           Segment 2
-//         </div>
-//         <div
-//           className={
-//             'relative m-px flex flex-1 cursor-pointer items-center justify-center p-px text-sm font-semibold capitalize'
-//           }
-//           onClick={() => setSelectedTab('segment3')}
-//         >
-//           Segment 3
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }

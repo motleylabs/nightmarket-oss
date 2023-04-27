@@ -1,64 +1,85 @@
-import { useQuery, useReactiveVar } from '@apollo/client';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import { FormEventHandler } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo } from 'react';
+import type { FormEventHandler } from 'react';
 import React from 'react';
+import { useState } from 'react';
+
 import config from '../app.config';
-import { viewerVar } from '../cache';
-import { Nft, Maybe, AuctionHouse } from '../graphql.types';
-import useViewer from '../hooks/viewer';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
-import Icon from './Icon';
-import { Form } from './Form';
-import Img from './Image';
-import CheckBox from './CheckBox';
-import { useBulkListContext } from '../providers/BulkListProvider';
 import { useCloseListing } from '../hooks/list';
-import client from '../client';
+import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
+import { useBulkListContext } from '../providers/BulkListProvider';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { ActionInfo, Nft, Offer } from '../typings';
+import { getAssetURL, AssetSize } from '../utils/assets';
+import type { Marketplace } from '../utils/marketplaces';
+import { getMarketplace } from '../utils/marketplaces';
+import { getSolFromLamports } from '../utils/price';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import CheckBox from './CheckBox';
+import { Form } from './Form';
+import Icon from './Icon';
+import Img from './Image';
 
 interface PreviewProps {
   nft: Nft;
   link: string;
+  offers?: Offer[];
   showCollectionThumbnail?: boolean;
-  auctionHouse?: AuctionHouse;
   onMakeOffer: () => void;
   onBuy: () => void;
+  onSelect?: (val: boolean) => void;
 }
 
 export function Preview({
-  nft,
+  nft: previewNft,
+  offers,
   showCollectionThumbnail = true,
   link,
-  auctionHouse,
-  onMakeOffer,
   onBuy,
+  onSelect,
 }: PreviewProps): JSX.Element {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'home']);
   const { selected, setSelected } = useBulkListContext();
-  const { data } = useViewer();
+  const { address } = useWalletContext();
+  const { auctionHouse } = useAuctionHouseContext();
+  const [nft, setNft] = useState<Nft>(previewNft);
+  const isOwner = address === nft.owner;
 
-  const listing = nft.listings?.find((listing) => {
-    return listing.auctionHouse?.address === config.auctionHouse;
+  const listing: ActionInfo | null = useMemo(() => nft.latestListing, [nft.latestListing]);
+  const marketplace: Marketplace | undefined = useMemo(() => {
+    return getMarketplace(nft.latestListing?.auctionHouseProgram);
+  }, [nft.latestListing]);
+
+  const isOwnMarket: boolean = useMemo(() => {
+    return nft.latestListing?.auctionHouseAddress === config.auctionHouse;
+  }, [nft.latestListing]);
+
+  const myOffer = offers?.find((offer) => {
+    return offer.buyer === address;
   });
 
-  const myOffer = nft.offers?.find((offer) => {
-    return offer.buyer === data?.wallet.address;
+  const { onCloseListing, closingListing } = useCloseListing({
+    listing,
+    nft,
+    auctionHouse,
+    setNft,
   });
-
-  const viewer = useReactiveVar(viewerVar);
-
-  const isOwner = viewer ? viewer?.address === nft.owner?.address : false;
-
-  const { onCloseListing, closingListing } = useCloseListing({ listing, nft, auctionHouse });
 
   const handleClosing = async () => {
-    if (!closingListing) await onCloseListing();
+    if (!closingListing) {
+      const sig = await onCloseListing();
+
+      if (!!sig && !!auctionHouse) {
+        setNft((oldNft) => ({ ...oldNft, latestListing: null }));
+      }
+    }
   };
 
   const handleBulkSelect = () => {
     setSelected((selectedList) => {
-      const index = selectedList.findIndex((selected) => selected.address === nft.address);
+      const index = selectedList.findIndex((selected) => selected.mintAddress === nft.mintAddress);
       const copyList = [...selectedList]; // don't mutate original
       if (index < 0) {
         //not found so add nft
@@ -70,151 +91,170 @@ export function Preview({
       return copyList;
     });
   };
+
   const isBulkSelected = selected.includes(nft);
 
-  return (
-    <>
-      <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
-        <Link href={link}>
-          <div className="relative block overflow-hidden">
-            <Img
-              src={nft.image}
-              alt={`${nft.name} detail image`}
-              className={clsx(
-                'aspect-square w-full object-cover',
-                'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
-              )}
-            />
-            {nft.moonrankRank && (
-              <span className="absolute left-0 top-0 z-10 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
-                <img
-                  src="/images/moonrank-logo.svg"
-                  className="h-2.5 w-auto object-cover"
-                  alt="moonrank logo"
-                />
-                {nft.moonrankRank}
-              </span>
-            )}
-          </div>
-          <div className="z-20 p-4">
-            <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-              {nft.moonrankCollection?.image && showCollectionThumbnail && (
-                <Img
-                  fallbackSrc="/images/moon.svg"
-                  src={nft.moonrankCollection?.image}
-                  alt={`Collection NFT image ${nft.moonrankCollection?.id}`}
-                  className="aspect-square w-4 rounded-sm object-cover"
-                />
-              )}
-              <span className="truncate">{nft.name}</span>
-            </div>
-          </div>
-        </Link>
+  useEffect(() => {
+    onSelect?.(isBulkSelected);
+  }, [isBulkSelected, onSelect]);
 
-        <div className="relative flex h-[28px] flex-row items-center justify-between px-4">
-          {isOwner ? (
+  return (
+    <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
+      <Link href={link}>
+        <div className="relative block overflow-hidden">
+          <Img
+            src={getAssetURL(nft.image, AssetSize.XSmall)}
+            alt={`${nft.name} detail image`}
+            className={clsx(
+              'aspect-square w-full object-cover',
+              'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
+            )}
+          />
+          {Boolean(nft.moonrankRank) && (
+            <span className="absolute left-0 top-0 z-10 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+              <img
+                src="/images/moonrank-logo.svg"
+                className="h-2.5 w-auto object-cover"
+                alt="moonrank logo"
+              />
+              {nft.moonrankRank}
+            </span>
+          )}
+          {!!listing && !!marketplace && (
+            <div className="absolute right-0 top-1 z-10 m-2 items-center justify-start my-1 gap-1 text-lg">
+              <img
+                src={isOwnMarket ? '/images/moon-logo.svg' : marketplace.logo}
+                className="h-5 w-auto object-fill"
+                alt={t('logo', { ns: 'nft', market: marketplace.name })}
+              />
+            </div>
+          )}
+        </div>
+        <div className="z-20 p-4">
+          <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
+            {nft?.image && showCollectionThumbnail && (
+              <Img
+                fallbackSrc="/images/moon.svg"
+                src={getAssetURL(nft.image, AssetSize.Tiny)}
+                alt={`Collection NFT image ${nft.name}`}
+                className="aspect-square w-4 rounded-sm object-cover"
+              />
+            )}
+            <span className="truncate">{nft.name}</span>
+          </div>
+        </div>
+      </Link>
+
+      <div className="relative flex h-[38px] flex-row items-center justify-between px-4">
+        {isOwner ? (
+          !!listing ? (
             <>
-              {
-                listing ? (
-                  <>
-                    <span className="flex items-center justify-center gap-1 text-lg">
-                      <Icon.Sol /> {listing?.solPrice}
-                    </span>
-                    {auctionHouse ? (
-                      <Button
-                        onClick={handleClosing}
-                        size={ButtonSize.Small}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                      >
-                        {t('cancel')}
-                      </Button>
-                    ) : null}
-                  </>
-                ) : nft.lastSale?.price ? (
-                  <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                    {t('lastSale', { ns: 'common' })}
-                    <div className="flex flex-row items-center gap-1">
-                      <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                      {nft.lastSale?.solPrice}
-                    </div>
-                  </span>
-                ) : null //no last sale and not listed
-              }
+              <span className="flex items-center justify-center gap-1 text-lg">
+                <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+              </span>
+              <Button
+                onClick={handleClosing}
+                size={ButtonSize.Small}
+                background={ButtonBackground.Slate}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+              >
+                {t('cancel')}
+              </Button>
             </>
-          ) : (
-            <>
-              {listing ? (
-                <>
-                  <span className="flex items-center justify-start gap-1 text-lg">
-                    <Icon.Sol /> {listing?.solPrice}
-                  </span>
+          ) : !!nft.lastSale ? (
+            <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+              {t('lastSale', { ns: 'common' })}
+              <div className="flex flex-row items-center gap-1">
+                <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                {getSolFromLamports(nft.lastSale.price, 0, 3)}
+              </div>
+            </span>
+          ) : null //no last sale and not listed
+        ) : !!listing ? (
+          <div className="w-full">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+              </span>
+              {listing.auctionHouseAddress === config.auctionHouse ? (
+                <Button
+                  onClick={onBuy}
+                  size={ButtonSize.Small}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('buy', { ns: 'common' })}
+                </Button>
+              ) : (
+                <Link href={link}>
                   <Button
-                    onClick={onBuy}
                     size={ButtonSize.Small}
                     background={ButtonBackground.Slate}
                     border={ButtonBorder.Gradient}
                     color={ButtonColor.Gradient}
                   >
-                    {t('buy', { ns: 'common' })}
+                    {t('View', { ns: 'common' })}
                   </Button>
-                </>
-              ) : (
-                <div className="flex w-full items-center justify-between gap-1">
-                  {myOffer ? (
-                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('offerable.yourOffer', { ns: 'common' })}
-                      <div className="flex flex-row items-center gap-1">
-                        <Icon.Sol />
-                        {myOffer.solPrice}
-                      </div>
-                    </span>
-                  ) : nft.lastSale?.price ? (
-                    <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                      {t('offerable.lastSoldPrice', { ns: 'common' })}
-                      <div className="flex flex-row items-center gap-1">
-                        <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                        {nft.lastSale?.solPrice}
-                      </div>
-                    </span>
-                  ) : (
-                    <div />
-                  )}
-                  {!myOffer && (
-                    <Button
-                      onClick={onMakeOffer}
-                      border={ButtonBorder.Gray}
-                      color={ButtonColor.Gray}
-                      size={ButtonSize.Small}
-                    >
-                      {t('offer', { ns: 'common' })}
-                    </Button>
-                  )}
-                </div>
+                </Link>
               )}
-            </>
-          )}
-        </div>
-
-        {isOwner && !listing ? (
-          <div className="px-4">
-            <CheckBox
-              label="Select for Bulk Listing"
-              selected={isBulkSelected}
-              onClick={handleBulkSelect}
-              containerClass="justify-center my-2"
-            />
+            </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex w-full items-center justify-between gap-1">
+            {myOffer ? (
+              <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                {t('offerable.yourOffer', { ns: 'common' })}
+                <div className="flex flex-row items-center gap-1">
+                  <Icon.Sol />
+                  {getSolFromLamports(myOffer.price, 0, 3)}
+                </div>
+              </span>
+            ) : !!nft.lastSale ? (
+              <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                {t('offerable.lastSoldPrice', { ns: 'common' })}
+                <div className="flex flex-row items-center gap-1">
+                  <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                  {getSolFromLamports(nft.lastSale.price, 0, 3)}
+                </div>
+              </span>
+            ) : (
+              <div />
+            )}
+            {!myOffer && (
+              <Link href={link}>
+                <Button
+                  size={ButtonSize.Small}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('view', { ns: 'home' })}
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
-    </>
+
+      {isOwner && !listing ? (
+        <div className="px-4">
+          <CheckBox
+            label="Select for Bulk Listing"
+            selected={isBulkSelected}
+            onClick={handleBulkSelect}
+            containerClass="justify-center my-2"
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }
 
 export interface PreviewSkeletonProps {
   className?: string;
-  key?: any;
+  key?: unknown;
 }
 
 function PreviewSkeleton({ className }: PreviewSkeletonProps) {
@@ -371,7 +411,7 @@ enum FigureSize {
 interface OverviewFigureProps {
   direction?: FigureDirection;
   size?: FigureSize;
-  amount: number | Maybe<number> | undefined;
+  amount?: number;
   label: string;
   className?: string;
 }
@@ -449,7 +489,7 @@ OverviewForm.Points = OverviewFormPoints;
 
 interface OverviewFormPointProps {
   label: string;
-  children: JSX.Element | (JSX.Element | Maybe<number> | Maybe<string> | undefined)[];
+  children: JSX.Element | (JSX.Element | number | string | undefined)[];
 }
 
 function OverviewFormPoint({ label, children }: OverviewFormPointProps): JSX.Element {

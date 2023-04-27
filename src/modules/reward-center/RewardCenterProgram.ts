@@ -1,5 +1,6 @@
 import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
 import { PublicKey } from '@solana/web3.js';
+
 import { BN } from 'bn.js';
 
 const REWARD_CENTER_PROGRAM = new PublicKey('RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki');

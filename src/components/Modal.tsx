@@ -1,7 +1,9 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+
 import clsx from 'clsx';
 import React, { Dispatch, Fragment, ReactNode, SetStateAction } from 'react';
+
 import { BriceFont, HauoraFont } from '../fonts';
 
 type ModalProps = {

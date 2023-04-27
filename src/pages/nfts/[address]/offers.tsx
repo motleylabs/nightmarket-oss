@@ -1,89 +1,100 @@
+import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import {
-  AuctionHouse,
-  Nft,
-  Maybe,
-  Offer as OfferType,
-  AhListing,
-  CollectionTrend,
-} from '../../../graphql.types';
-import client from './../../../client';
-import { NftQuery } from './../../../queries/nft.graphql';
-import { NftOffersQuery } from './../../../queries/offers.graphql';
-import { GetServerSidePropsContext } from 'next';
-import config from '../../../app.config';
-import { useWallet } from '@solana/wallet-adapter-react';
-import NftLayout from '../../../layouts/NftLayout';
-import { ReactNode, useMemo } from 'react';
-import { NftMarketInfoQuery } from './../../../queries/nft.graphql';
-import { useQuery } from '@apollo/client';
+import type { ReactNode } from 'react';
+import { useMemo, useEffect } from 'react';
+
 import { Activity } from '../../../components/Activity';
+import { useOffers } from '../../../hooks/nft';
+import { useAction } from '../../../hooks/useAction';
+import { createApiTransport } from '../../../infrastructure/api';
+import NftLayout from '../../../layouts/NftLayout';
+import { useAuctionHouseContext } from '../../../providers/AuctionHouseProvider';
+import { useWalletContext } from '../../../providers/WalletContextProvider';
+import type { Nft, OfferEvent } from '../../../typings';
 import Offer from './../../../components/Offer';
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'offers', 'nft']);
+export async function getServerSideProps({ req, locale, params }: GetServerSidePropsContext) {
+  try {
+    const i18n = await serverSideTranslations(locale as string, ['common', 'nft', 'offers']);
 
-  const {
-    data: { nft, auctionHouse },
-  } = await client.query({
-    query: NftQuery,
-    fetchPolicy: 'network-only',
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+    const api = createApiTransport(req);
 
-  if (nft === null) {
+    const { data } = await api.get<Nft>(`/nfts/${params?.address}`);
+
+    if (data == null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        nft: data,
+        ...i18n,
+      },
     };
+  } catch (err) {
+    throw err;
   }
-
-  return {
-    props: {
-      nft,
-      auctionHouse,
-      ...i18n,
-    },
-  };
-}
-
-interface NFTOffersVariables {
-  address: string;
-}
-
-interface NFTOffersData {
-  nftOffers: Maybe<Nft> | undefined;
 }
 
 interface NftOfferPageProps {
   nft: Nft;
-  auctionHouse: AuctionHouse;
 }
 
-export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
+export default function NftOffers({ nft }: NftOfferPageProps) {
   const { t } = useTranslation('offers');
-  const { publicKey } = useWallet();
+  const { address } = useWalletContext();
+  const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
+  const { data: nftOffers, isLoading, isValidating, mutate } = useOffers(nft.mintAddress);
+  const { on, off } = useAction();
 
-  const { data, called, loading } = useQuery<NFTOffersData, NFTOffersVariables>(NftOffersQuery, {
-    variables: {
-      address: nft.mintAddress,
-    },
+  const addOffer = (event: Event) => {
+    const newOfferEvent: OfferEvent = (event as CustomEvent).detail;
+
+    if (newOfferEvent.mint === nft.mintAddress) {
+      if (!isLoading && !isValidating && !!nftOffers) {
+        const offerIndex = nftOffers.findIndex(
+          (offer) => offer.buyer === newOfferEvent.offer.buyer
+        );
+        if (offerIndex > -1) {
+          nftOffers.splice(offerIndex, 1);
+        }
+        if (newOfferEvent.offer.activityType.toLowerCase() !== 'cancelbid') {
+          mutate([newOfferEvent.offer, ...nftOffers], { revalidate: false });
+        } else {
+          mutate([...nftOffers], { revalidate: false });
+        }
+      }
+    }
+  };
+
+  const clearOffers = () => {
+    mutate([], { revalidate: false });
+  };
+
+  useEffect(() => {
+    on('offer-add', addOffer);
+    on('offer-clear', clearOffers);
+
+    return () => {
+      off('offer-add', addOffer);
+      off('offer-clear', clearOffers);
+    };
   });
 
   const yourOffers = useMemo(
-    () => data?.nftOffers?.offers?.filter((offer) => offer.buyer === publicKey?.toBase58()),
-    [data?.nftOffers, publicKey]
+    () => nftOffers?.filter((offer) => offer.buyer === address),
+    [nftOffers, address]
   );
 
   const remainingOffers = useMemo(
-    () => data?.nftOffers?.offers?.filter((offer) => offer.buyer !== publicKey?.toBase58()),
-    [data?.nftOffers, publicKey]
+    () => nftOffers?.filter((offer) => offer.buyer !== address),
+    [nftOffers, address]
   );
 
-  if (loading) {
+  if (!nftOffers && (auctionHouseLoading || isLoading || isValidating)) {
     return (
       <div className="flex flex-col gap-4">
         <Activity.Skeleton />
@@ -96,7 +107,7 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
 
   return (
     <div className="flex flex-col">
-      {called && data?.nftOffers?.offers?.length === 0 && (
+      {nftOffers?.length === 0 && (
         <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
           <h3 className="text-gray-300">{t('noOffers', { ns: 'offers' })}</h3>
         </div>
@@ -112,20 +123,16 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
                 meta={
                   <Activity.Meta
                     title={<Activity.Tag />}
-                    marketplace={offer.nftMarketplace}
-                    source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                    marketplaceAddress={offer.martketplaceProgramAddress}
                   />
                 }
+                source={<Activity.Wallet buyer={offer.buyer} />}
                 offer={offer}
-                key={offer.id}
+                key={i}
                 auctionHouse={auctionHouse}
-                nft={data?.nftOffers}
-                onAccept={() => {}}
-                onCancel={() => {
-                  client.cache.evict({
-                    id: client.cache.identify(offer),
-                  });
-                }}
+                nft={nft}
+                onAccept={() => null}
+                onCancel={() => null}
               />
             ))}
           </>
@@ -140,99 +147,20 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
                 meta={
                   <Activity.Meta
                     title={<Activity.Tag />}
-                    marketplace={offer.nftMarketplace}
-                    source={<Activity.Wallet wallet={offer.buyerWallet} />}
+                    marketplaceAddress={offer.martketplaceProgramAddress}
                   />
                 }
+                source={<Activity.Wallet buyer={offer.buyer} />}
                 offer={offer}
-                key={offer.id}
+                key={i}
                 auctionHouse={auctionHouse}
-                nft={data?.nftOffers}
+                nft={nft}
                 onAccept={({ buyerReceiptTokenAccount }) => {
-                  client.cache.updateQuery(
-                    {
-                      query: NftMarketInfoQuery,
-                      broadcast: false,
-                      overwrite: true,
-                      variables: {
-                        address: nft.mintAddress,
-                      },
-                    },
-                    (data) => {
-                      const offers = data.nft.offers.filter((o: OfferType) => o.id !== offer.id);
-
-                      const nft = {
-                        ...data.nft,
-                        offers,
-                        lastSale: {
-                          __typename: 'LastSale',
-                          price: offer.price.toString(),
-                        },
-                        owner: {
-                          __typename: 'NftOwner',
-                          address: offer.buyer,
-                          associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-                          profile: null,
-                        },
-                      };
-
-                      return {
-                        nft,
-                      };
-                    }
-                  );
-
-                  client.cache.modify({
-                    id: client.cache.identify({
-                      __typename: 'Wallet',
-                      address: nft.owner?.address as string,
-                    }),
-                    fields: {
-                      collectedCollections(collectedCollections, { readField }) {
-                        return collectedCollections.reduce((memo: any[], cc: any) => {
-                          const id = readField('id', cc.collection);
-                          if (id === data?.nftOffers?.moonrankCollection?.id) {
-                            const trends: Readonly<CollectionTrend> | undefined = readField(
-                              'trends',
-                              cc.collection
-                            );
-
-                            const estimatedValue = (
-                              parseFloat(cc.estimatedValue) - parseInt(trends?.floor1d)
-                            ).toString();
-
-                            const update = {
-                              ...cc,
-                              estimatedValue,
-                              nftsOwned: cc.nftsOwned - 1,
-                            };
-
-                            if (update.nftsOwned === 0) {
-                              return memo;
-                            }
-
-                            return [...memo, update];
-                          }
-
-                          return [...memo, cc];
-                        }, []);
-                      },
-                      nftCounts(counts, { readField }) {
-                        let owned: number | undefined = readField('owned', counts);
-
-                        if (!owned) {
-                          return counts;
-                        }
-
-                        return {
-                          ...counts,
-                          owned: owned - 1,
-                        };
-                      },
-                    },
-                  });
+                  // TODO: refresh UI after accepting offer
+                  // eslint-disable-next-line no-console
+                  console.log({ buyerReceiptTokenAccount });
                 }}
-                onCancel={() => {}}
+                onCancel={() => null}
               />
             ))}
           </>
@@ -245,17 +173,12 @@ export default function NftOffers({ nft, auctionHouse }: NftOfferPageProps) {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
-  auctionHouse: AuctionHouse;
+  auctionHouse: string;
 }
 
 NftOffers.getLayout = function NftDetailsLayout({
   children,
   nft,
-  auctionHouse,
 }: NftDetailsLayoutProps): JSX.Element {
-  return (
-    <NftLayout nft={nft} auctionHouse={auctionHouse}>
-      {children}
-    </NftLayout>
-  );
+  return <NftLayout nft={nft}>{children}</NftLayout>;
 };

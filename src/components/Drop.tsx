@@ -1,10 +1,9 @@
-import React from 'react';
-import Icon from './Icon';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
-import Link from 'next/link';
-import useCountdown from '../hooks/countdown';
 import { useTranslation } from 'next-i18next';
+import React from 'react';
+
 import { asCompactNumber } from '../modules/number';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import Icon from './Icon';
 import Img from './Image';
 
 interface DropProps {
@@ -17,16 +16,7 @@ interface DropProps {
   launchDate: Date;
 }
 
-export default function Drop({
-  title,
-  description,
-  price,
-  supply,
-  image,
-  link,
-  launchDate,
-}: DropProps) {
-  const { days, hours, minutes, seconds } = useCountdown(launchDate);
+export default function Drop({ title, description, price, supply, image }: DropProps) {
   const { t } = useTranslation('home');
   return (
     <div className="w-full max-w-3xl flex-shrink-0 items-center  gap-6 rounded-2xl bg-gray-800 p-4 md:flex md:p-6">
@@ -56,13 +46,6 @@ export default function Drop({
               {asCompactNumber(supply)}
             </p>
           </li>
-          {/* Will be added in later */}
-          {/* <li className="flex min-w-[92px] flex-col items-start whitespace-nowrap">
-            <p className="text-sm font-light text-gray-300">{t('drops.drops')}</p>
-            <p className="text-sm  font-semibold md:text-base">
-              {days}d {hours}h {minutes}m {seconds}s
-            </p>
-          </li> */}
 
           <li className="flex items-center justify-end  md:hidden">
             <Button

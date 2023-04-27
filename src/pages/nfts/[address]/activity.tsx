@@ -1,69 +1,78 @@
+import type { GetServerSidePropsContext } from 'next';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { GetServerSidePropsContext } from 'next';
-import client from '../../../client';
-import { NftQuery, NftActivitiesQuery } from './../../../queries/nft.graphql';
-import { AuctionHouse, Nft } from '../../../graphql.types';
-import { ReactNode } from 'react';
-import NftLayout from '../../../layouts/NftLayout';
-import config from '../../../app.config';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
-import { Activity, ActivityType } from '../../../components/Activity';
-import Link from 'next/link';
-import { Avatar, AvatarSize } from '../../../components/Avatar';
+import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
+import type { ActivityType } from '../../../components/Activity';
+import { Activity } from '../../../components/Activity';
+import { useActivities } from '../../../hooks/nft/useActivities';
+import { useAction } from '../../../hooks/useAction';
+import { createApiTransport } from '../../../infrastructure/api';
+import NftLayout from '../../../layouts/NftLayout';
+import type { ActivityEvent, Nft } from '../../../typings';
 
-  const {
-    data: { nft, auctionHouse },
-  } = await client.query({
-    query: NftQuery,
-    fetchPolicy: 'network-only',
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+  try {
+    const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
 
-  if (nft === null) {
+    const api = createApiTransport(req);
+
+    const { data } = await api.get<Nft>(`/nfts/${params?.address}`);
+
+    if (data == null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        nft: data,
+        ...i18n,
+      },
     };
+  } catch (err) {
+    throw err;
   }
-
-  return {
-    props: {
-      nft,
-      auctionHouse,
-      ...i18n,
-    },
-  };
-}
-
-interface NftActivitiesData {
-  nft: Nft;
-}
-
-interface NftActivitiesVariables {
-  address: string;
 }
 
 export default function NftActivity() {
+  const { t } = useTranslation('common');
+
   const router = useRouter();
 
-  const activitiesQuery = useQuery<NftActivitiesData, NftActivitiesVariables>(NftActivitiesQuery, {
-    variables: {
-      address: router.query.address as string,
-    },
+  const { data, isLoading, isValidating, mutate } = useActivities(router.query.address as string);
+  const { on, off } = useAction();
+
+  const addActivity = (event: Event) => {
+    const newActivityEvent: ActivityEvent = (event as CustomEvent).detail;
+
+    if (newActivityEvent.mint === router.query.address) {
+      if (!isLoading && !isValidating && !!data) {
+        mutate(
+          { activities: [newActivityEvent.activity, ...data.activities], hasNextPage: false },
+          { revalidate: false }
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    on('activity', addActivity);
+
+    return () => {
+      off('activity', addActivity);
+    };
   });
 
-  if (activitiesQuery.loading) {
+  if (!data && (isLoading || isValidating)) {
     return (
       <div className="flex flex-col gap-4">
         <Activity.Skeleton />
         <Activity.Skeleton />
-        <Activity.Skeleton />
+        <Activity.Skeleton />s
         <Activity.Skeleton />
       </div>
     );
@@ -71,37 +80,32 @@ export default function NftActivity() {
 
   return (
     <div className="flex flex-col">
-      {activitiesQuery.called && activitiesQuery.data?.nft.activities?.length === 0 && (
+      {data?.activities?.length === 0 && (
         <div className="flex w-full justify-center rounded-md border border-gray-800 p-4">
-          <h3 className="text-gray-300">No activty</h3>
+          <h3 className="text-gray-300">No activity</h3>
         </div>
       )}
       <div className="flex flex-col gap-4">
-        {activitiesQuery.data?.nft?.activities?.length !== 0 && (
+        {data?.activities?.length !== 0 && (
           <>
-            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{'All activty'}</h6>
-            {activitiesQuery.data?.nft.activities.map((activity) => (
+            <h6 className="m-0 mt-2 text-2xl font-medium text-white">{t('allActivity')}</h6>
+            {data?.activities.map((activity, i) => (
               <Activity
-                avatar={
-                  <Link
-                    className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/profiles/${activity.primaryWallet?.address}`}
-                  >
-                    <Avatar
-                      circle
-                      src={activity.primaryWallet?.previewImage as string}
-                      size={AvatarSize.Standard}
-                    />
-                  </Link>
-                }
                 type={activity.activityType as ActivityType}
-                key={activity.id}
+                key={i}
                 meta={
-                  <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplaceAddress={activity.martketplaceProgramAddress}
+                  />
                 }
+                source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
               >
-                <Activity.Price amount={activity.solPrice} />
-                <Activity.Timestamp timeSince={activity.timeSince} />
+                <Activity.Price amount={Number(activity.price)} />
+                <Activity.Timestamp
+                  signature={activity.signature}
+                  timeSince={activity.blockTimestamp}
+                />
               </Activity>
             ))}
           </>
@@ -114,17 +118,11 @@ export default function NftActivity() {
 interface NftDetailsLayoutProps {
   children: ReactNode;
   nft: Nft;
-  auctionHouse: AuctionHouse;
 }
 
 NftActivity.getLayout = function NftDetailsLayout({
   children,
   nft,
-  auctionHouse,
 }: NftDetailsLayoutProps): JSX.Element {
-  return (
-    <NftLayout nft={nft} auctionHouse={auctionHouse}>
-      {children}
-    </NftLayout>
-  );
+  return <NftLayout nft={nft}>{children}</NftLayout>;
 };

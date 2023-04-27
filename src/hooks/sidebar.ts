@@ -6,12 +6,10 @@ interface SidebarContext {
 }
 
 export default function useSidebar(): SidebarContext {
-  const [open, setSidebar] = useState<boolean>(true);
+  const [open, setSidebar] = useState<boolean>(false);
 
   useEffect(() => {
-    if (window.innerWidth <= 800) {
-      setSidebar(false);
-    }
+    setSidebar(window.innerWidth >= 800);
   }, []);
 
   const toggleSidebar = useCallback(() => {

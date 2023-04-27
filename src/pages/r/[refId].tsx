@@ -1,6 +1,7 @@
 import { GetServerSidePropsContext, NextPage } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
+
 import ReferralPage from '../../components/ReferralPage';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {

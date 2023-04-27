@@ -1,12 +1,15 @@
-import { GetServerSidePropsContext } from 'next';
+import { CheckIcon } from '@heroicons/react/24/outline';
+
+import clsx from 'clsx';
+import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { WalletProfileQuery } from './../../../queries/profile.graphql';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import client from '../../../client';
-import { AuctionHouse, Wallet } from '../../../graphql.types';
-import ProfileLayout from '../../../layouts/ProfileLayout';
-import config from '../../../app.config';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { QRCodeSVG } from 'qrcode.react';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import Button, {
   ButtonBackground,
   ButtonBorder,
@@ -14,66 +17,41 @@ import Button, {
   ButtonSize,
 } from '../../../components/Button';
 import Icon from '../../../components/Icon';
-import Link from 'next/link';
-import clsx from 'clsx';
 import { Table } from '../../../components/Table';
-import { BuddyStatsData, useBuddyStats, useClaimBuddy } from '../../../hooks/referrals';
-import { QRCodeSVG } from 'qrcode.react';
-import { CheckIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/router';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { getBuddyStats } from '../../../utils/axios';
+import { useClaimBuddy } from '../../../hooks/referrals';
+import { createApiTransport } from '../../../infrastructure/api';
+import ProfileLayout from '../../../layouts/ProfileLayout';
+import { useWalletContext } from '../../../providers/WalletContextProvider';
+import type { UserNfts } from '../../../typings';
+import { useRequest } from 'ahooks';
+import { getBuddyStats } from '../../../utils/referral';
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
 
-  const {
-    data: { wallet, auctionHouse },
-  } = await client.query({
-    query: WalletProfileQuery,
-    fetchPolicy: 'network-only',
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+  const api = createApiTransport(req);
 
-  if (wallet === null || auctionHouse === null) {
+  const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
+
+  if (data == null) {
     return {
       notFound: true,
     };
   }
 
-  let buddy = null;
-  try {
-    buddy = await getBuddyStats(wallet.address);
-  } catch (e) {
-    // catching 404 is returned if buddy doesn't exist
-  }
-
   return {
     props: {
-      buddy,
-      wallet,
-      auctionHouse,
+      ...data,
       ...i18n,
     },
   };
-}
-
-interface ProfileAffiliatePageProps {
-  wallet: Wallet;
-  buddy: BuddyStatsData;
 }
 
 const CLAIM_TAB = 'CLAIM_TAB';
 const REFERRED_TAB = 'REFERRED_TAB';
 const INACTIVE_TAB = 'INACTIVE_TAB';
 
-export default function ProfileAffiliate({
-  wallet,
-  buddy,
-}: ProfileAffiliatePageProps): JSX.Element {
+export default function ProfileAffiliate() {
   const { t } = useTranslation(['referrals', 'common']);
   const [visible, setVisible] = useState(false);
   const [domain, setDomain] = useState('');
@@ -81,20 +59,17 @@ export default function ProfileAffiliate({
   const [tab, setTab] = useState(CLAIM_TAB);
   const [copied, setCopied] = useState(false);
   const router = useRouter();
-  const { publicKey: adapterWallet, connecting, connected } = useWallet();
-  const { refreshBuddy } = useBuddyStats({
-    wallet: wallet.address,
-  });
-
-  //TODO: Values to get from API
-  // const [claimedLastWeek] = useState(0);
-  // const [volumeLastWeek] = useState(0);
-  // const [usersLastWeek] = useState(0);
+  const { address, publicKey: adapterWallet, connecting, connected } = useWalletContext();
+  const { data: buddy, refresh: refreshBuddy } = useRequest(getBuddyStats, {
+    ready: !!address,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    defaultParams: [address!]
+  })
 
   const tabContent = useMemo(() => {
     switch (tab) {
       case CLAIM_TAB: {
-        return <Table.ClaimHistory wallet={wallet} />;
+        return <Table.ClaimHistory wallet={address as string} />;
       }
       case REFERRED_TAB: {
         return <Table.ReferredList referred={buddy?.buddies} />;
@@ -103,7 +78,7 @@ export default function ProfileAffiliate({
         return <Table.Inactive />;
       }
     }
-  }, [tab]);
+  }, [buddy?.buddies, tab, address]);
 
   useEffect(() => {
     setDomain(window.location.origin);
@@ -111,7 +86,7 @@ export default function ProfileAffiliate({
 
   const url = useMemo(() => {
     return `${domain}/r/${buddy?.username}`;
-  }, [buddy?.username]);
+  }, [buddy?.username, domain]);
 
   const handleTabClick = useCallback(
     (newTab: string) => {
@@ -129,10 +104,10 @@ export default function ProfileAffiliate({
   }, [url]);
 
   useEffect(() => {
-    if (connected && wallet.address !== adapterWallet?.toString()) {
-      router.push(`/profiles/${wallet.address}`);
+    if (connected && address !== adapterWallet?.toString()) {
+      router.push(`/profiles/${address}`);
     }
-  }, [wallet.address, adapterWallet?.toString(), connecting, connected]);
+  }, [address, connecting, connected, adapterWallet, router]);
 
   return (
     <>
@@ -181,7 +156,7 @@ export default function ProfileAffiliate({
                         disabled={!buddy?.totalClaimable}
                         onClick={async () => {
                           if (buddy) {
-                            await onClaimBuddy(buddy?.username!);
+                            await onClaimBuddy(buddy?.username as string);
                             refreshBuddy();
                           }
                         }}
@@ -276,22 +251,22 @@ export default function ProfileAffiliate({
                     )}
                   </div>
                   <div className="mt-3 flex items-center justify-center">
-                    <a
+                    <Link
                       target="_blank"
                       rel="nofollow noreferrer"
                       className="text-white opacity-50"
                       href={`https://t.me/share/url?url=${url}`}
                     >
                       <Icon.Telegram className="h-4 w-auto" />
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                       target="_blank"
                       rel="nofollow noreferrer"
                       className="mx-4 text-white opacity-50"
                       href={`https://twitter.com/share?url=${url}`}
                     >
                       <Icon.Twitter className="h-5 w-auto" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -343,20 +318,15 @@ export default function ProfileAffiliate({
 
 interface ProfileAffiliateLayoutProps {
   children: ReactElement;
-  wallet: Wallet;
-  auctionHouse: AuctionHouse;
+  nfts: UserNfts['nfts'];
+  collections: UserNfts['collections'];
 }
 
 ProfileAffiliate.getLayout = function ProfileActivityLayout({
   children,
-  wallet,
-  auctionHouse,
+  ...restProps
 }: ProfileAffiliateLayoutProps): JSX.Element {
-  return (
-    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
-      {children}
-    </ProfileLayout>
-  );
+  return <ProfileLayout {...restProps}>{children}</ProfileLayout>;
 };
 
 interface TabsProps {
@@ -385,8 +355,8 @@ function Tab(props: { onClick: () => void; label: string; active: boolean; disab
           props.active
             ? 'rounded-full bg-gray-800 text-white'
             : props.disabled
-            ? 'cursor-default bg-black text-gray-300'
-            : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+              ? 'cursor-default bg-black text-gray-300'
+              : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )}
       >
         {props.label}
@@ -427,24 +397,6 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
           <Icon.Close />
         </div>
       </div>
-    </div>
-  );
-}
-
-function StatsSkeleton({ className = '', half = false }: { className?: string; half?: boolean }) {
-  return (
-    <div
-      className={clsx(
-        'over flex animate-pulse rounded-md transition xl:w-auto',
-        half ? 'lg:w-1/2' : 'lg:w-full'
-      )}
-    >
-      <div
-        className={clsx(
-          'mb-4 h-[180px] w-full rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] lg:w-full xl:mb-0 xl:w-auto  xl:min-w-[259px]',
-          className
-        )}
-      />
     </div>
   );
 }

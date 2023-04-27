@@ -1,9 +1,6 @@
-/**
- * @type {import('next').NextConfig}
- */
-
 const { i18n } = require('./next-i18next.config');
-const withGraphql = require('next-plugin-graphql');
+
+const env = require('./.config/next/env');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,25 +8,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   i18n,
-  async redirects() {
-    return [
-      {
-        source: '/collections/:id/nfts',
-        destination: '/collections/:id',
-        permanent: true,
-      },
-      {
-        source: '/profiles/:address/collected',
-        destination: '/profiles/:address',
-        permanent: true,
-      },
-      {
-        source: '/nfts/:address/details',
-        destination: '/nfts/:address',
-        permanent: true,
-      },
-    ];
-  },
+  env,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -38,4 +17,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withGraphql(nextConfig);
+module.exports = nextConfig;

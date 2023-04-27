@@ -1,8 +1,11 @@
 import { Popover, Transition } from '@headlessui/react';
 import { ArrowUpTrayIcon, CheckIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
+
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import React, { Fragment, useState } from 'react';
+import Link from 'next/link';
+import React, { Fragment } from 'react';
+
 import useClipboard from '../hooks/clipboard';
 import Button, { ButtonBackground, ButtonColor, ButtonSize } from './Button';
 
@@ -58,17 +61,22 @@ export default function Share(props: {
             <li className="w-full">
               {copied ? (
                 <div className="flex items-center">
-                  <CheckIcon className="h-4 w-4" /> <span className="pl-5">{t('copied', { ns: 'common' })}</span>
+                  <CheckIcon className="h-4 w-4" />{' '}
+                  <span className="pl-5">{t('copied', { ns: 'common' })}</span>
                 </div>
               ) : (
-                <button onClick={copyText} className="flex items-center hover:text-gray-300">
+                <button
+                  type="button"
+                  onClick={copyText}
+                  className="flex items-center hover:text-gray-300"
+                >
                   <DocumentDuplicateIcon className="h-4 w-4" />
                   <span className="pl-5">{t('copyLink', { ns: 'common' })}</span>
                 </button>
               )}
             </li>
             <li className="w-full">
-              <a
+              <Link
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                   props.twitterParams.text
                 )}&hashtags=${props.twitterParams.hashtags.join(',')}&url=${
@@ -86,7 +94,7 @@ export default function Share(props: {
                   />
                 </svg>
                 <span className="pl-5">{t('shareTwitter', { ns: 'common' })}</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </Popover.Panel>

@@ -1,38 +1,29 @@
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { useTranslation } from 'next-i18next';
+import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
+
 import config from '../app.config';
-import { Wallet } from '../graphql.types';
-import { ReferredData, useBuddyHistory } from '../hooks/referrals';
+import type { ReferredData } from '../hooks/referrals';
+import { useBuddyHistory } from '../hooks/referrals';
 import Icon from './Icon';
 import { Pagination } from './Pagination';
 
-interface Sorter {
-  label?: string;
-  direction?: 'asc' | 'desc';
-}
-
-interface CompareFn<T> {
-  (a: T, b: T): number;
-}
-
-interface TableColumn<T> {
+interface TableColumn {
   label: string;
-  //   compare: CompareFn<T>;
 }
 
 interface TableMetadata {
-  data: any[];
-  columns: TableColumn<any>[];
+  data: { [key: string]: ReactNode }[];
+  columns: TableColumn[];
 }
 
 interface TableProps {
   metadata: TableMetadata;
 }
 
-export function Table({ metadata }: TableProps): JSX.Element {
-  // const [sorter, setSorter] = useState<Sorter>({});
+export function Table({ metadata }: TableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -67,14 +58,15 @@ export function Table({ metadata }: TableProps): JSX.Element {
                 className="min-w-[150px] font-bold text-gray-200 first:rounded-tl-xl first:rounded-bl-xl first:py-4 first:pl-4 last:rounded-tr-xl last:rounded-br-xl"
                 key={`item-${itemKey}-${colKey}`}
               >
-                {item[col.label] ? item[col.label] : null}
+                {typeof item[col.label] === 'string' ? item[col.label] : null}
+                {typeof item[col.label] === 'object' ? item[col.label] : null}
               </td>
             );
           })}
         </tr>
       );
     });
-  }, [metadata.data, currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, metadata.data, metadata.columns]);
 
   return (
     <>
@@ -106,7 +98,7 @@ function Skeleton({ className = '' }: { className?: string }) {
 Table.Skeleton = Skeleton;
 
 interface ClaimHistoryProps {
-  wallet: Wallet;
+  wallet: string;
 }
 
 export const FILTER_HISTORY = ['ClaimSol'];
@@ -117,7 +109,7 @@ function ClaimHistory({ wallet }: ClaimHistoryProps) {
     columns: [],
   });
   const { data, loading } = useBuddyHistory({
-    wallet: wallet.address,
+    wallet,
     organisation: config.referralOrg,
   });
 
@@ -206,7 +198,7 @@ function ReferredList({ referred, loading = false }: ReferredListProps) {
         ],
       });
     }
-  }, [referred]);
+  }, [referred, t]);
 
   return loading ? (
     <div className="mt-11 px-6 lg:px-0">

@@ -1,104 +1,86 @@
 import { useTranslation } from 'next-i18next';
-import { useEffect, useState } from 'react';
-import { AhListing, AuctionHouse, Nft } from '../graphql.types';
-import useLogin from '../hooks/login';
-import Modal from './Modal';
-import BuyableQuery from './../queries/buyable.graphql';
-import { useApolloClient, useLazyQuery, useReactiveVar } from '@apollo/client';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
-import useBuyNow from '../hooks/buy';
-import Icon from './Icon';
-import { viewerVar } from '../cache';
-import config from './../app.config';
-import Img from './Image';
+import { useState, useMemo } from 'react';
 
-interface BuyableData {
-  nft: Nft;
-  auctionHouse: AuctionHouse;
-}
+import useBuyNow from '../hooks/buy';
+import useLogin from '../hooks/login';
+import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { Nft, ActionInfo, MiniCollection } from '../typings';
+import { getAssetURL, AssetSize } from '../utils/assets';
+import { getSolFromLamports } from '../utils/price';
+import config from './../app.config';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
+import Icon from './Icon';
+import Img from './Image';
+import Modal from './Modal';
 
 interface RenderProps {
-  buyNow: (mintAddress: string) => void;
-  children: any;
+  buyNow: (nft: Nft, collection: MiniCollection | null) => void;
+  children: unknown;
 }
 
 interface BuyableProps {
   connected?: boolean;
-  children: (args: RenderProps) => any;
+  children: (args: RenderProps) => unknown;
 }
 
 export function Buyable({ children, connected = false }: BuyableProps) {
   const { t } = useTranslation(['nft', 'common']);
   const [open, setOpen] = useState(false);
-  const client = useApolloClient();
-  const openBuyNow = (mintAddress: string) => {
-    buyableQuery({
-      variables: { address: mintAddress, auctionHouse: config.auctionHouse },
-    });
+  const [nft, setNft] = useState<Nft | null>(null);
+  const [miniCollection, setMiniCollection] = useState<MiniCollection | null>(null);
+  const openBuyNow = (nft: Nft, collection: MiniCollection | null) => {
+    setNft(nft);
+    setMiniCollection(collection);
     setOpen(true);
   };
-  const viewer = useReactiveVar(viewerVar);
+  const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
+  const { publicKey, balance } = useWalletContext();
   const onLogin = useLogin();
 
-  const [buyableQuery, { data, loading, refetch, previousData }] =
-    useLazyQuery<BuyableData>(BuyableQuery);
-
-  const listing = data?.nft.listings?.find(
-    (listing) => listing.auctionHouse?.address === config.auctionHouse
-  );
+  const listing: ActionInfo | null = useMemo(() => {
+    if (nft?.latestListing?.auctionHouseAddress === config.auctionHouse) {
+      return nft.latestListing;
+    }
+    return null;
+  }, [nft?.latestListing]);
 
   const { onBuyNow, buying, onCloseBuy } = useBuyNow();
   const handleBuy = async () => {
-    if (!data?.nft || !data.auctionHouse || !data.nft.listings || !listing) {
+    if (!nft || !auctionHouse || !listing) {
       return;
     }
 
     try {
       const response = await onBuyNow({
-        auctionHouse: data.auctionHouse,
-        nft: data.nft,
-        ahListing: listing,
+        auctionHouse,
+        nft,
+        listing,
       });
 
       if (!response) {
         return;
       }
 
-      const { buyerReceiptTokenAccount } = response;
+      // update the original nft
+      nft.owner = response.buyAction ? response.buyAction.userAddress : nft.owner;
+      nft.lastSale = response.buyAction;
+      nft.latestListing = null;
 
-      client.cache.updateQuery(
-        {
-          query: BuyableQuery,
-          broadcast: false,
-          overwrite: false,
-          variables: {
-            address: data.nft.mintAddress,
-            auctionHouse: data.auctionHouse.address,
-          },
-        },
-        (previous) => {
-          const { nft }: { nft: Nft } = previous;
-          const listings: AhListing[] = nft.listings.filter((l: AhListing) => l.id !== listing.id);
-
-          return {
-            ...previous,
-            nft: {
-              ...nft,
-              listings,
-              lastSale: {
-                __typename: 'LastSale',
-                price: listing.price.toString(),
-              },
-              owner: {
-                __typename: 'NftOwner',
-                associatedTokenAccountAddress: buyerReceiptTokenAccount.toBase58(),
-                address: viewer?.address,
-              },
-            },
-          };
-        }
+      // update the current modal
+      setNft((oldNft) =>
+        !!oldNft
+          ? {
+              ...oldNft,
+              owner: response.buyAction ? response.buyAction.userAddress : oldNft.owner,
+              lastSale: response.buyAction,
+              latestListing: null,
+            }
+          : null
       );
-    } catch (e: any) {}
+
+      setOpen(false);
+    } catch (e: unknown) {}
   };
 
   return (
@@ -109,7 +91,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
       })}
       <Modal title={t('buyable.buyNow', { ns: 'common' })} open={open} setOpen={setOpen}>
         <div className="mt-6 flex flex-col gap-6">
-          {loading ? (
+          {auctionHouseLoading ? (
             <>
               <section className="flex flex-row gap-4">
                 <div className="h-12 w-12 animate-pulse rounded-md bg-gray-800" />
@@ -154,15 +136,13 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               <section className="flex flex-row gap-4">
                 <Img
                   fallbackSrc="/images/moon.svg"
-                  src={data?.nft.image}
-                  alt={data?.nft.name}
+                  src={getAssetURL(nft?.image, AssetSize.XSmall)}
+                  alt={nft?.name}
                   className="h-12 w-12 rounded-md object-cover text-sm"
                 />
                 <div className="flex flex-col justify-between gap-2">
-                  <p className="text-base font-medium text-white">{data?.nft.name}</p>
-                  <p className="text-sm font-semibold text-gray-300">
-                    {data?.nft.moonrankCollection?.name}
-                  </p>
+                  <p className="text-base font-medium text-white">{nft?.name}</p>
+                  <p className="text-sm font-semibold text-gray-300">{miniCollection?.name}</p>
                 </div>
               </section>
               <section>
@@ -175,13 +155,13 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
-                {data?.nft.moonrankCollection?.trends && (
+                {!!miniCollection && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.floorPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {data?.nft.moonrankCollection?.trends?.compactFloor1d}
+                      <Icon.Sol /> {getSolFromLamports(miniCollection.floorPrice, 0, 2)}
                     </p>
                   </div>
                 )}
@@ -192,23 +172,27 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {listing.solPrice}
+                      <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
                     </p>
                   </div>
                 )}
-                <div className="flex flex-row justify-between">
-                  <p className="text-base font-medium text-gray-300">
-                    {t('buyable.marketplaceFee', { ns: 'common' })}
-                  </p>
-                  <p className="text-base font-medium text-gray-300">{data?.auctionHouse.fee}%</p>
-                </div>
-                {viewer && (
+                {!!auctionHouse && (
+                  <div className="flex flex-row justify-between">
+                    <p className="text-base font-medium text-gray-300">
+                      {t('buyable.marketplaceFee', { ns: 'common' })}
+                    </p>
+                    <p className="text-base font-medium text-gray-300">
+                      {auctionHouse.sellerFeeBasisPoints / 100}%
+                    </p>
+                  </div>
+                )}
+                {!!publicKey && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('buyable.currentBalance', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {viewer?.solBalance}
+                      <Icon.Sol /> {balance ?? 0}
                     </p>
                   </div>
                 )}

@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
-import clsx from 'clsx';
 import { ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+
+import clsx from 'clsx';
+import React, { useRef } from 'react';
 
 interface LightboxProps {
   children: JSX.Element | JSX.Element[];

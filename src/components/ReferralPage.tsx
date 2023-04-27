@@ -1,10 +1,12 @@
 import { useWallet } from '@solana/wallet-adapter-react';
+
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import { Animation } from './ReferralsAnimation';
+
 import { Steps } from './ReferralSteps';
+import { Animation } from './ReferralsAnimation';
 
 const TOTAL_STEPS = 3;
 export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
@@ -36,8 +38,9 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
   }, [disconnecting]);
 
   const step = useMemo(() => {
-    let Component = null,
-      nodeRef: any = null;
+    let Component = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let nodeRef: any = null;
     switch (steps) {
       case 1: {
         nodeRef = ref1;
@@ -47,7 +50,7 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
       case 1.5: {
         nodeRef = ref2;
         Component = (
-          <Steps.Welcome setSteps={setSteps} commitName={setName} wallet={publicKey?.toString()!} />
+          <Steps.Welcome setSteps={setSteps} commitName={setName} wallet={publicKey?.toString()} />
         );
         break;
       }
@@ -94,7 +97,7 @@ export default function ReferralPage({ referrer = '' }: { referrer?: string }) {
       </Head>
       <div className="relative min-h-[calc(100vh_-_8px)] overflow-hidden">
         <div className="-z-10 flex justify-center">
-          <Animation.Leaves steps={steps} />
+          <Animation.Leaves />
         </div>
         <div className="z-10 flex flex-col items-center pt-20">
           <div className="relative flex h-6 w-60 flex-row justify-between xl:w-80">

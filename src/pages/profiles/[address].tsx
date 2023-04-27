@@ -1,33 +1,34 @@
-import type { GetServerSidePropsContext } from 'next';
-import { WalletProfileQuery, CollectedNFTsQuery } from './../../queries/profile.graphql';
-import ProfileLayout, {
-  WalletProfileData,
-  WalletProfileVariables,
-} from '../../layouts/ProfileLayout';
-import client from './../../client';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { AuctionHouse, Wallet } from '../../graphql.types';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Toolbar } from '../../components/Toolbar';
-import { PillItem, Sidebar } from '../../components/Sidebar';
-import { useTranslation } from 'next-i18next';
-import useSidebar from '../../hooks/sidebar';
-import { QueryResult, useQuery } from '@apollo/client';
-import { useRouter } from 'next/router';
-import { Preview } from '../../components/Nft';
-import { List, ListGridSize } from './../../components/List';
-import { Collection } from './../../components/Collection';
 import { Listbox } from '@headlessui/react';
-import { Offerable } from '../../components/Offerable';
-import { Buyable } from '../../components/Buyable';
-import { useWallet } from '@solana/wallet-adapter-react';
-import Link from 'next/link';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import config from '../../app.config';
-import BulkListBottomDrawer from '../../components/BulkListing/BottomDrawer';
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
+import type { GetServerSidePropsContext } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import type { ReactElement } from 'react';
+import { useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import useSWR from 'swr';
+
+import BulkListBottomDrawer from '../../components/BulkListing/BottomDrawer';
+import { Buyable } from '../../components/Buyable';
+import { Preview } from '../../components/Nft';
+import { Offerable } from '../../components/Offerable';
+import type { PillItem } from '../../components/Sidebar';
+import { Sidebar } from '../../components/Sidebar';
+import { Toolbar } from '../../components/Toolbar';
+import useSidebar from '../../hooks/sidebar';
+import { createApiTransport } from '../../infrastructure/api';
+import ProfileLayout from '../../layouts/ProfileLayout';
+import { useWalletContext } from '../../providers/WalletContextProvider';
+import type { UserNfts, Offer, UserOffersData, MiniCollection } from '../../typings';
+import { getSolFromLamports } from '../../utils/price';
+import { Collection } from './../../components/Collection';
+import { List, ListGridSize } from './../../components/List';
+
+export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
     'common',
     'profile',
@@ -36,18 +37,14 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     'buyable',
   ]);
 
-  const {
-    data: { wallet, auctionHouse },
-  } = await client.query({
-    query: WalletProfileQuery,
-    fetchPolicy: 'network-only',
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+  const api = createApiTransport(req);
 
-  if (wallet === null || auctionHouse === null) {
+  const [{ data: nfts }, { data: offersData }] = await Promise.all([
+    api.get<UserNfts>(`/users/nfts?address=${params?.address}`),
+    api.get<UserOffersData>(`/users/offers?address=${params?.address}&limit=100&offset=0`),
+  ]);
+
+  if (nfts == null) {
     return {
       notFound: true,
     };
@@ -55,82 +52,68 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   return {
     props: {
-      wallet,
-      auctionHouse,
+      ...nfts,
       ...i18n,
+      offers: offersData.activities ?? null,
     },
   };
 }
 
-interface CollectionNFTForm {
-  collections: (string | undefined)[] | null | undefined;
-  listedFilter: string;
-}
-
-interface CollectionNFTsData {
-  wallet: Wallet;
-}
-
-interface CollectionNFTsVariables {
-  address: string;
-  offset: number;
-  limit: number;
-  auctionHouse: string;
-  collections?: (string | undefined)[] | null | undefined;
-}
-
-interface ProfileCollectedPageProps {
-  walletProfileClientQuery: QueryResult<WalletProfileData, WalletProfileVariables>;
-  auctionHouse: AuctionHouse;
-}
-export default function ProfileCollected({
-  walletProfileClientQuery,
-  auctionHouse,
-}: ProfileCollectedPageProps) {
+type Props = {
+  offers: Offer[];
+  nfts: UserNfts['nfts'];
+  collections: UserNfts['collections'];
+};
+export default function ProfileCollected({ offers }: Props) {
   const { t } = useTranslation(['collection', 'common']);
+  const { query } = useRouter();
+  const [showDrawer, setShowDrawer] = useState(false);
 
-  const { watch, control, setValue } = useForm<CollectionNFTForm>({
+  const { data, isValidating } = useSWR<UserNfts>(`/users/nfts?address=${query.address}`);
+
+  const { nfts: nftsData, collections: collectionsData } = data || {};
+
+  const isLoading = !data && isValidating;
+
+  const { watch, control, setValue } = useForm<{ collections: string[] }>({
     defaultValues: {
       collections: [],
     },
   });
 
-  const { publicKey } = useWallet();
-  const router = useRouter();
+  const miniCollection = (projectID: string): MiniCollection | null => {
+    const collection = collectionsData?.find((collectionData) => collectionData.id === projectID);
+    if (!collection) {
+      return null;
+    }
+
+    return {
+      slug: collection.slug,
+      name: collection.name,
+      floorPrice: collection.floorPrice,
+    };
+  };
+
+  const { address } = useWalletContext();
   const { open, toggleSidebar } = useSidebar();
-  const [hasMore, setHasMore] = useState(true);
-
-  const nftsQuery = useQuery<CollectionNFTsData, CollectionNFTsVariables>(CollectedNFTsQuery, {
-    nextFetchPolicy: 'cache-and-network',
-    variables: {
-      offset: 0,
-      limit: 24,
-      address: router.query.address as string,
-      auctionHouse: config.auctionHouse,
-    },
-  });
-
-  const collections = watch('collections');
+  const selectedCollections = watch('collections');
 
   const pillItems: PillItem[] = useMemo(
     () =>
-      collections?.reduce(
-        (arr, id) =>
-          id
+      selectedCollections?.reduce(
+        (arr, col) =>
+          col
             ? [
                 ...arr,
                 {
-                  key: id,
-                  label:
-                    walletProfileClientQuery.data?.wallet?.collectedCollections.find(
-                      (c) => c.collection?.id === id
-                    )?.collection?.name || id,
+                  key: col,
+                  label: collectionsData?.find((c) => c.id === col)?.name || col,
                 },
               ]
             : [...arr],
         [] as PillItem[]
       ) || [],
-    [walletProfileClientQuery.data?.wallet?.collectedCollections, collections]
+    [collectionsData, selectedCollections]
   );
 
   const onClearPills = useCallback(() => {
@@ -141,32 +124,14 @@ export default function ProfileCollected({
     (item: PillItem) =>
       setValue(
         'collections',
-        pillItems.filter((c) => c.key !== item.key).map((c) => c.key)
+        pillItems.filter((p) => p.key !== item.key).map((c) => c.key)
       ),
     [pillItems, setValue]
   );
 
   useEffect(() => {
-    const subscription = watch(({ collections }) => {
-      let variables: CollectionNFTsVariables = {
-        offset: 0,
-        limit: 24,
-        address: router.query.address as string,
-        auctionHouse: config.auctionHouse,
-        collections,
-      };
-
-      if (variables?.collections?.length === 0) {
-        variables.collections = null;
-      }
-
-      nftsQuery.refetch(variables).then(({ data: { wallet } }) => {
-        setHasMore(wallet.nfts.length > 0);
-      });
-    });
-
-    return subscription.unsubscribe;
-  }, [watch, router.query.address, nftsQuery]);
+    setShowDrawer(Boolean(selectedCollections.length) && address === query.address);
+  }, [selectedCollections, address, query.address]);
 
   return (
     <>
@@ -175,16 +140,13 @@ export default function ProfileCollected({
           label={t('filters', { ns: 'collection' })}
           open={open}
           onChange={toggleSidebar}
-          disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
+          show={Boolean(collectionsData && collectionsData?.length > 0)}
         />
       </Toolbar>
       <Sidebar.Page open={open}>
-        <Sidebar.Panel
-          onChange={toggleSidebar}
-          disabled={walletProfileClientQuery.data?.wallet?.collectedCollections.length === 0}
-        >
+        <Sidebar.Panel onChange={toggleSidebar} disabled={collectionsData?.length === 0}>
           <div className="mt-4 flex w-full flex-col gap-2">
-            {walletProfileClientQuery.loading ? (
+            {isLoading ? (
               <>
                 <Collection.Option.Skeleton />
                 <Collection.Option.Skeleton />
@@ -196,35 +158,30 @@ export default function ProfileCollected({
               <Controller
                 control={control}
                 name="collections"
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { value, onChange } }) => (
                   <Listbox value={value} onChange={onChange} multiple>
                     <Listbox.Options static>
-                      {walletProfileClientQuery.data?.wallet?.collectedCollections.map((cc) => (
-                        <Listbox.Option key={cc.collection?.id} value={cc.collection?.id}>
+                      {collectionsData?.map((cc) => (
+                        <Listbox.Option key={cc?.id} value={cc?.id}>
                           {({ selected }) => (
                             <Collection.Option
                               selected={selected}
                               avatar={
-                                <Link
-                                  className="group relative"
-                                  href={`/collections/${cc.collection?.id}`}
-                                >
+                                <Link className="group relative" href={`/collections/${cc?.id}`}>
                                   <Collection.Option.Avatar
-                                    src={cc.collection?.image as string}
-                                    figure={cc.nftsOwned.toString()}
+                                    src={cc?.image as string}
+                                    figure={`${cc.nftsOwned}`}
                                   />
                                   <div className="invisible absolute inset-0 rounded-lg  bg-opacity-40 backdrop-blur-sm group-hover:visible"></div>
                                   <ArrowTopRightOnSquareIcon className="invisible absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 group-hover:visible" />
                                 </Link>
                               }
-                              header={
-                                <Collection.Option.Title>
-                                  {cc.collection?.name}
-                                </Collection.Option.Title>
-                              }
-                              floorPrice={cc.collection?.trends?.compactFloor1d}
+                              header={<Collection.Option.Title>{cc?.name}</Collection.Option.Title>}
+                              floorPrice={getSolFromLamports(cc.floorPrice, 0, 2)}
                             >
-                              <Collection.Option.EstimatedValue amount={cc.estimatedValue} />
+                              <Collection.Option.EstimatedValue
+                                amount={getSolFromLamports(cc.estimatedValue, 0, 2)}
+                              />
                             </Collection.Option>
                           )}
                         </Listbox.Option>
@@ -242,84 +199,64 @@ export default function ProfileCollected({
               <Sidebar.Pills items={pillItems} onRemove={onRemovePill} onClear={onClearPills} />
             )}
 
-            <Offerable connected={Boolean(publicKey)}>
+            <Offerable connected={Boolean(address)}>
               {({ makeOffer }) => (
-                <Buyable connected={Boolean(publicKey)}>
-                  {({ buyNow }) => (
-                    <List
-                      expanded={open}
-                      data={nftsQuery.data?.wallet.nfts}
-                      loading={nftsQuery.loading}
-                      gap={6}
-                      hasMore={hasMore}
-                      grid={{
-                        [ListGridSize.Default]: [2, 2],
-                        [ListGridSize.Small]: [2, 2],
-                        [ListGridSize.Medium]: [2, 3],
-                        [ListGridSize.Large]: [3, 4],
-                        [ListGridSize.ExtraLarge]: [4, 6],
-                        [ListGridSize.Jumbo]: [6, 8],
-                      }}
-                      skeleton={Preview.Skeleton}
-                      onLoadMore={async (inView: boolean) => {
-                        if (!inView) {
-                          return;
-                        }
+                <Buyable connected={Boolean(address)}>
+                  {({ buyNow }) => {
+                    const filteredNfts = selectedCollections.length
+                      ? nftsData?.filter((nft) => selectedCollections.includes(nft.projectId))
+                      : nftsData;
 
-                        const {
-                          data: { wallet },
-                        } = await nftsQuery.fetchMore({
-                          variables: {
-                            ...nftsQuery.variables,
-                            offset: nftsQuery.data?.wallet.nfts.length,
-                          },
-                        });
-
-                        setHasMore(wallet.nfts.length > 0);
-                      }}
-                      render={(nft, i) => (
-                        <Preview
-                          key={`${nft.mintAddress}-${i}`}
-                          link={`/nfts/${nft.mintAddress}`}
-                          onMakeOffer={() => makeOffer(nft.mintAddress)}
-                          onBuy={() => buyNow(nft.mintAddress)}
-                          auctionHouse={auctionHouse}
-                          nft={nft}
-                        />
-                      )}
-                    />
-                  )}
+                    return (
+                      <List
+                        expanded={open}
+                        data={filteredNfts}
+                        loading={isLoading}
+                        gap={6}
+                        hasMore={false}
+                        grid={{
+                          [ListGridSize.Default]: [2, 2],
+                          [ListGridSize.Small]: [2, 2],
+                          [ListGridSize.Medium]: [2, 3],
+                          [ListGridSize.Large]: [3, 4],
+                          [ListGridSize.ExtraLarge]: [4, 6],
+                          [ListGridSize.Jumbo]: [6, 8],
+                        }}
+                        skeleton={Preview.Skeleton}
+                        render={(nft, i) => (
+                          <Preview
+                            key={`${nft.mintAddress}-${i}`}
+                            link={`/nfts/${nft.mintAddress}`}
+                            onMakeOffer={() => makeOffer(nft, miniCollection(nft.projectId))}
+                            onBuy={() => buyNow(nft, miniCollection(nft.projectId))}
+                            nft={nft}
+                            offers={offers}
+                            onSelect={setShowDrawer}
+                          />
+                        )}
+                      />
+                    );
+                  }}
                 </Buyable>
               )}
             </Offerable>
           </>
         </Sidebar.Content>
       </Sidebar.Page>
-      <BulkListBottomDrawer
-        ownedNfts={nftsQuery.data?.wallet.nfts}
-        auctionHouse={auctionHouse}
-        openDrawer={
-          Boolean(collections?.length) && publicKey?.toString() === nftsQuery.data?.wallet.address
-        } //open bulk drawer if one or more collections are selected
-      />
+      <BulkListBottomDrawer ownedNfts={nftsData} openDrawer={showDrawer} />
     </>
   );
 }
 
 interface CollectionNftsLayout {
   children: ReactElement;
-  wallet: Wallet;
-  auctionHouse: AuctionHouse;
+  nfts: UserNfts['nfts'];
+  collections: UserNfts['collections'];
 }
 
 ProfileCollected.getLayout = function ProfileCollectedLayout({
   children,
-  wallet,
-  auctionHouse,
+  ...restProps
 }: CollectionNftsLayout): JSX.Element {
-  return (
-    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
-      {children}
-    </ProfileLayout>
-  );
+  return <ProfileLayout {...restProps}>{children}</ProfileLayout>;
 };

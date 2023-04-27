@@ -1,25 +1,29 @@
-import { AuctionHouse, Offer, Maybe, Nft, AhListing } from '../graphql.types';
-import { useMemo } from 'react';
-import Button, { ButtonSize, ButtonBackground, ButtonColor, ButtonBorder } from './Button';
-import { useTranslation } from 'next-i18next';
-import { Activity, ActivityType } from './Activity';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useCloseOffer, useAcceptOffer, AcceptOfferResponse } from './../hooks/offer';
+
+import { useTranslation } from 'next-i18next';
+import { useMemo } from 'react';
+
 import config from '../app.config';
-import { toast } from 'react-toastify';
+import type { Offer, Nft, ActionInfo, AuctionHouse } from '../typings';
+import type { AcceptOfferResponse } from './../hooks/offer';
+import { useCloseOffer, useAcceptOffer } from './../hooks/offer';
+import { Activity, ActivityType } from './Activity';
+import Button, { ButtonSize, ButtonBackground, ButtonColor, ButtonBorder } from './Button';
 
 interface OfferProps {
   offer: Offer;
-  auctionHouse: Maybe<AuctionHouse> | undefined;
+  auctionHouse?: AuctionHouse | null;
   avatar?: JSX.Element;
   meta: JSX.Element;
-  nft: Maybe<Nft> | undefined;
+  nft: Nft | null;
+  source?: JSX.Element;
   onCancel: () => void;
   onAccept: (payload: AcceptOfferResponse) => void;
 }
 
 export default function OfferUI({
   offer,
+  source,
   auctionHouse,
   nft,
   meta,
@@ -30,15 +34,14 @@ export default function OfferUI({
   const { publicKey } = useWallet();
   const { t } = useTranslation('common');
   const { closingOffer, onCloseOffer } = useCloseOffer(offer);
-  const viewerAddress = publicKey?.toBase58();
+  const viewerAddress = useMemo(() => publicKey?.toBase58(), [publicKey]);
 
-  const listing: AhListing | null = useMemo(() => {
-    const listing = nft?.listings?.find((listing: AhListing) => {
-      return listing.auctionHouse?.address === config.auctionHouse;
-    });
-
-    return listing || null;
-  }, [nft?.listings]);
+  const listing: ActionInfo | null = useMemo(() => {
+    if (nft?.latestListing?.auctionHouseAddress === config.auctionHouse) {
+      return nft?.latestListing;
+    }
+    return null;
+  }, [nft?.latestListing]);
 
   const { onAcceptOffer, acceptingOffer } = useAcceptOffer(offer);
 
@@ -55,24 +58,25 @@ export default function OfferUI({
       }
 
       onAccept(response);
-    } catch (e: any) {}
+    } catch (e: unknown) {}
   };
 
   const handleCancelOffer = async () => {
     try {
       await onCloseOffer({ nft, auctionHouse });
       onCancel();
-    } catch (err: any) {}
+    } catch (err: unknown) {}
   };
 
   return (
     <Activity
       type={ActivityType.OfferCreated}
-      key={offer.id}
+      key={offer.martketplaceProgramAddress}
       avatar={avatar}
       meta={meta}
+      source={source}
       actionButton={
-        offer.auctionHouse?.address === config.auctionHouse && (
+        offer.martketplaceProgramAddress === config.auctionHouse && (
           <>
             {offer.buyer === viewerAddress && (
               <Button
@@ -87,7 +91,7 @@ export default function OfferUI({
                 {t('cancel', { ns: 'common' })}
               </Button>
             )}
-            {nft?.owner?.address === viewerAddress && (
+            {nft?.owner === viewerAddress && (
               <Button
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}
@@ -103,8 +107,8 @@ export default function OfferUI({
         )
       }
     >
-      <Activity.Price amount={offer.solPrice} />
-      <Activity.Timestamp timeSince={offer.timeSince} />
+      <Activity.Price amount={Number(offer.price)} />
+      <Activity.Timestamp signature={offer.signature} timeSince={offer.blockTimestamp} />
     </Activity>
   );
 }

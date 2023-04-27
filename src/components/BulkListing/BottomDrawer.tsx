@@ -1,34 +1,28 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { useMemo, useState } from 'react';
+
 import config from '../../app.config';
-import { AuctionHouse, Nft } from '../../graphql.types';
 import { useBulkListContext } from '../../providers/BulkListProvider';
-import Button, { ButtonBackground, ButtonColor } from '../Button';
+import type { UserNfts } from '../../typings';
+import { getAssetURL, AssetSize } from '../../utils/assets';
+import Button, { ButtonBackground } from '../Button';
 import CheckBox from '../CheckBox';
 import Img from '../Image';
 import BulkListModal from './BulkListModal';
 
 interface BulkListBottomDrawerProps {
-  ownedNfts?: Nft[];
-  auctionHouse: AuctionHouse;
+  ownedNfts?: UserNfts['nfts'];
   openDrawer: boolean;
 }
-function BulkListBottomDrawer({
-  ownedNfts = [],
-  auctionHouse,
-  openDrawer,
-}: BulkListBottomDrawerProps): JSX.Element {
+function BulkListBottomDrawer({ ownedNfts = [], openDrawer }: BulkListBottomDrawerProps) {
   const { t } = useTranslation('profile');
   const { selected, setSelected } = useBulkListContext();
   const [listingOpen, setListingOpen] = useState(false);
 
   const unlistedNfts = useMemo(() => {
     return ownedNfts.filter(
-      (nft) =>
-        !nft.listings ||
-        nft.listings.filter((listing) => listing.auctionHouse?.address === config.auctionHouse)
-          .length === 0
+      (nft) => nft.latestListing?.auctionHouseAddress !== config.auctionHouse
     );
   }, [ownedNfts]);
 
@@ -37,8 +31,7 @@ function BulkListBottomDrawer({
     else setSelected([]);
   };
 
-  const inView = selected.length > 0 || openDrawer;
-  const position = inView ? 'translate-y-0' : 'translate-y-36';
+  const position = openDrawer ? 'translate-y-0' : 'translate-y-40';
 
   return (
     <div
@@ -75,9 +68,9 @@ function BulkListBottomDrawer({
             <div className="relative flex w-[60%] items-center gap-1 overflow-hidden">
               {selected.map((nft) => (
                 <Img
-                  key={nft.address}
+                  key={nft.mintAddress}
                   fallbackSrc="/images/moon.svg"
-                  src={nft.image}
+                  src={getAssetURL(nft.image, AssetSize.Tiny)}
                   alt={nft.name}
                   className="image-fit h-[1.5rem] w-[1.5rem] rounded-md"
                 />
@@ -101,7 +94,7 @@ function BulkListBottomDrawer({
         )}
       </div>
 
-      <BulkListModal open={listingOpen} setOpen={setListingOpen} auctionHouse={auctionHouse} />
+      <BulkListModal open={listingOpen} setOpen={setListingOpen} />
     </div>
   );
 }

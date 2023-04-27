@@ -1,11 +1,4 @@
-import {
-  differenceInDays,
-  differenceInHours,
-  differenceInMinutes,
-  differenceInSeconds,
-  intervalToDuration,
-} from 'date-fns';
-import { secondsToHours } from 'date-fns/esm';
+import { intervalToDuration } from 'date-fns';
 import { useEffect, useState } from 'react';
 
 interface TimeLeft {

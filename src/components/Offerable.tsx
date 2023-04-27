@@ -1,121 +1,108 @@
-import { useApolloClient, useLazyQuery, useReactiveVar } from '@apollo/client';
-import React, { useState } from 'react';
-import Modal from './Modal';
-import OfferableQuery from './../queries/offerable.graphql';
-import { AuctionHouse, Nft } from '../graphql.types';
-import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
-import { useTranslation } from 'next-i18next';
-import { Form } from './Form';
-import { OfferForm, useMakeOffer } from '../hooks/offer';
-import Icon from './Icon';
-import Img from "./Image"
-import useLogin from '../hooks/login';
 import clsx from 'clsx';
-import { viewerVar } from '../cache';
-import config from './../app.config';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'next-i18next';
+import React, { useState, useMemo } from 'react';
 
-interface OfferableData {
-  nft: Nft;
-  auctionHouse: AuctionHouse;
-}
+import useLogin from '../hooks/login';
+import { useOffers } from '../hooks/nft';
+import { useMakeOffer } from '../hooks/offer';
+import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { ActionInfo, MiniCollection, Nft } from '../typings';
+import { getAssetURL, AssetSize } from '../utils/assets';
+import { getSolFromLamports } from '../utils/price';
+import config from './../app.config';
+import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
+import { Form } from './Form';
+import Icon from './Icon';
+import Img from './Image';
+import Modal from './Modal';
 
 interface RenderProps {
-  makeOffer: (mintAddress: string) => void;
-  children: any;
+  makeOffer: (nft: Nft, collection: MiniCollection | null) => void;
+  children: unknown;
 }
 
 interface OfferableProps {
   connected?: boolean;
-  children: (args: RenderProps) => any;
+  children: (args: RenderProps) => unknown;
 }
 
 export function Offerable({ children, connected = false }: OfferableProps) {
   const { t } = useTranslation('common');
-  const viewer = useReactiveVar(viewerVar);
   const onLogin = useLogin();
+  const { publicKey, balance } = useWalletContext();
 
-  const client = useApolloClient();
-
+  const [miniCollection, setMiniCollection] = useState<MiniCollection | null>(null);
   const [open, setOpen] = useState(false);
-  const openOffer = (mintAddress: string) => {
-    if (!viewer) {
+  const [mintAddress, setMintAddress] = useState<string>('');
+  const { data: nftOffers, isLoading, isValidating, mutate } = useOffers(mintAddress);
+  const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
+  const [nft, setNft] = useState<Nft | undefined>();
+
+  const openOffer = (nft: Nft, collection: MiniCollection | null) => {
+    if (!collection) {
+      return;
+    }
+
+    if (!publicKey) {
       onLogin();
       return;
     }
 
-    offerableQuery({
-      variables: { address: mintAddress, auctionHouse: config.auctionHouse },
-    });
+    setNft(nft);
+    setMiniCollection(collection);
+    setMintAddress(nft.mintAddress);
     setOpen(true);
   };
 
-  const [offerableQuery, { data, loading, refetch, previousData }] =
-    useLazyQuery<OfferableData>(OfferableQuery);
-
-  const myOffer = data?.nft.offers?.find((offer) => {
-    return offer.buyer === viewer?.address;
+  const myOffer = nftOffers?.find((offer) => {
+    return offer.buyer === publicKey?.toBase58();
   });
 
-  const { registerOffer, onMakeOffer, handleSubmitOffer, onCancelMakeOffer, offerFormState } =
-    useMakeOffer(data?.nft);
+  const listing: ActionInfo | null = useMemo(() => {
+    if (nft?.latestListing?.auctionHouseAddress === config.auctionHouse) {
+      return nft.latestListing;
+    }
+    return null;
+  }, [nft?.latestListing]);
 
-  const handleOffer: any = async ({ amount }: { amount: string }) => {
-    if (!data?.nft || !data?.auctionHouse) {
+  const { registerOffer, onMakeOffer, handleSubmitOffer, onCancelMakeOffer, offerFormState } =
+    useMakeOffer(listing, miniCollection?.floorPrice);
+
+  const handleOffer: unknown = async ({ amount }: { amount: string }) => {
+    if (!nft || !auctionHouse) {
       return;
     }
     try {
       const response = await onMakeOffer({
         amount: Number(amount),
-        nft: data?.nft,
-        auctionHouse: data.auctionHouse,
+        nft: nft,
+        auctionHouse,
       });
 
       if (!response) {
         return;
       }
 
-      const { buyerTradeState, metadata } = response;
-
-      client.cache.updateQuery(
-        {
-          query: OfferableQuery,
-          broadcast: false,
-          overwrite: true,
-          variables: {
-            address: data.nft.mintAddress,
-            auctionHouse: data.auctionHouse.address,
-          },
-        },
-        (previous) => {
-          const { nft }: { nft: Nft } = previous;
-
-          const offer = {
-            __typename: 'Offer',
-            id: `temp-offer-${viewer?.address}`,
-            tradeState: buyerTradeState.toBase58(),
-            buyer: viewer?.address,
-            metadata: metadata.toBase58(),
-            auctionHouse: {
-              address: data.auctionHouse.address,
-              __typename: 'AuctionHouse',
+      if (!!nftOffers) {
+        mutate(
+          [
+            {
+              activityType: 'BID',
+              buyer: publicKey?.toBase58() ?? '',
+              blockTimestamp: Math.floor(new Date().getTime() / 1000),
+              martketplaceProgramAddress: config.auctionHouseProgram ?? '',
+              auctionHouseAddress: auctionHouse.address,
+              price: `${response.buyerPrice}`,
+              seller: null,
+              signature: response.signature,
             },
-            price: (Number(amount) * LAMPORTS_PER_SOL).toString(),
-          };
-
-          const offers = [...nft.offers, offer];
-
-          return {
-            ...previous,
-            nft: {
-              ...nft,
-              offers,
-            },
-          };
-        }
-      );
-    } catch (e: any) {
+            ...nftOffers,
+          ],
+          { revalidate: false }
+        );
+      }
+    } catch (e: unknown) {
     } finally {
       setOpen(false);
     }
@@ -129,7 +116,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
       })}
       <Modal title={t('offerable.makeOffer')} open={open} setOpen={setOpen}>
         <div className="mt-6 flex flex-col gap-6">
-          {loading ? (
+          {isLoading || isValidating || auctionHouseLoading ? (
             <>
               <section className="flex flex-row gap-4">
                 <div className="h-12 w-12 animate-pulse rounded-md bg-gray-800" />
@@ -166,60 +153,59 @@ export function Offerable({ children, connected = false }: OfferableProps) {
               </section>
             </>
           ) : (
+            // @ts-expect-error TODO: Fix types
             <Form onSubmit={handleSubmitOffer(handleOffer)} className="flex flex-col gap-6">
               <section className="flex flex-row gap-4">
                 <Img
                   fallbackSrc="/images/moon.svg"
-                  src={data?.nft.image}
-                  alt={data?.nft.name}
+                  src={getAssetURL(nft?.image, AssetSize.XSmall)}
+                  alt={nft?.name}
                   className="h-12 w-12 rounded-md object-cover text-sm"
                 />
                 <div className="flex flex-col justify-between gap-2">
-                  <p className="text-base font-medium text-white">{data?.nft.name}</p>
-                  <p className="text-sm font-semibold text-gray-300">
-                    {data?.nft.moonrankCollection?.name}
-                  </p>
+                  <p className="text-base font-medium text-white">{nft?.name}</p>
+                  <p className="text-sm font-semibold text-gray-300">{miniCollection?.name}</p>
                 </div>
               </section>
               <section className="flex flex-col gap-2">
-                {myOffer && (
+                {!!myOffer && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('offerable.yourOffer', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center  gap-1 text-base font-medium text-gray-300">
-                      <Icon.Sol /> {myOffer?.solPrice}
+                      <Icon.Sol /> {getSolFromLamports(myOffer.price, 0, 3)}
                     </p>
                   </div>
                 )}
-                {data?.nft.moonrankCollection?.trends && (
+                {!!miniCollection && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('offerable.floorPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
-                      <Icon.Sol /> {data?.nft.moonrankCollection?.trends.compactFloor1d}
+                      <Icon.Sol /> {getSolFromLamports(miniCollection.floorPrice, 0, 2)}
                     </p>
                   </div>
                 )}
-                {data?.nft.listings && data?.nft.listings.length > 0 && (
+                {!!listing && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('offerable.listPrice', { ns: 'common' })}
                     </p>
                     {/* TODO: sort for lowest listing thats not expired */}
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
-                      <Icon.Sol /> {data.nft.listings[0].solPrice}
+                      <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
                     </p>
                   </div>
                 )}
-                {data?.nft.purchases && data?.nft.purchases.length > 0 && (
+                {!!nft && !!nft.lastSale && (
                   <div className="flex flex-row justify-between">
                     <p className="text-base font-medium text-gray-300">
                       {t('offerable.lastSoldPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
-                      <Icon.Sol /> {data.nft.purchases[0].solPrice}
+                      <Icon.Sol /> {getSolFromLamports(nft.lastSale.price, 0, 3)}
                     </p>
                   </div>
                 )}
@@ -228,7 +214,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                     {t('offerable.currentBalance', { ns: 'common' })}
                   </p>
                   <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
-                    <Icon.Sol /> {viewer?.solBalance}
+                    <Icon.Sol /> {balance ?? 0}
                   </p>
                 </div>
               </section>

@@ -1,16 +1,19 @@
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
+
+import { useRequest } from 'ahooks';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-import Router from 'next/router';
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import useLogin from '../hooks/login';
-import { useBuddyStats, useCreateBuddy } from '../hooks/referrals';
-import useViewer from '../hooks/viewer';
+import { useCreateBuddy } from '../hooks/referrals';
+import { getBuddyStats } from '../utils/referral';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import Icon from './Icon';
-import { QRCodeSVG } from 'qrcode.react';
 
 export function Steps(): JSX.Element {
   return <div></div>;
@@ -49,21 +52,24 @@ Steps.Connect = Connect;
 interface WelcomeProps {
   setSteps: Dispatch<SetStateAction<number>>;
   commitName: Dispatch<SetStateAction<string>>;
-  wallet: string;
+  wallet?: string;
 }
 
 function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [timeEllapsed, setTimeEllapsed] = useState(false);
 
-  const { loading: loadingBuddy, data: buddy } = useBuddyStats({
-    wallet: wallet,
+  const { loading: loadingBuddy, data: buddy } = useRequest(getBuddyStats, {
+    ready: !!wallet,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    defaultParams: [wallet!],
   });
 
   useEffect(() => {
     if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) {
       setSteps(2);
     } else if (timeEllapsed && !loadingBuddy && buddy?.publicKey) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain, @typescript-eslint/no-non-null-assertion
       commitName(buddy?.username!);
       setSteps(3);
     }
@@ -102,8 +108,8 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const viewerQueryResult = useViewer();
   const [domain, setDomain] = useState('');
+  const { publicKey } = useWallet();
 
   const { creating, created, onCreateBuddy, validateName } = useCreateBuddy();
 
@@ -171,18 +177,16 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
             if (e.key === 'Enter') handleEnter();
           }}
         />
-        {viewerQueryResult.data && (
+        {publicKey && (
           <div className="flex h-full items-center rounded bg-gray-800 p-2 text-sm font-semibold text-gray-200">
-            {viewerQueryResult.data.wallet.displayName}
+            {publicKey.toBase58()}
           </div>
         )}
       </div>
 
       <div className="mt-1 ml-4 w-full text-sm">
         {error ? (
-          <>
-            <p className="whitespace-nowrap text-left text-sm text-red-500">{error}</p>
-          </>
+          <p className="whitespace-nowrap text-left text-sm text-red-500">{error}</p>
         ) : (
           <>
             <span className="text-gray-500">{`${domain}/r/`}</span>
@@ -257,6 +261,7 @@ function Success({ name }: SuccessProps): JSX.Element {
           <span className="text-white">{name}</span>
         </div>
         <button
+          type="button"
           onClick={copyWallet}
           className="flex cursor-pointer items-center text-base text-white duration-200 ease-in-out hover:scale-110 "
         >
@@ -280,22 +285,22 @@ function Success({ name }: SuccessProps): JSX.Element {
         </div>
       </div>
       <div className="mt-8 flex items-center justify-center">
-        <a
+        <Link
           target="_blank"
           rel="nofollow noreferrer"
           className="text-white"
           href={`https://t.me/share/url?url=${url}`}
         >
           <Icon.Telegram />
-        </a>
-        <a
+        </Link>
+        <Link
           target="_blank"
           rel="nofollow noreferrer"
           className="mx-4 text-white"
           href={`https://twitter.com/share?url=${url}`}
         >
           <Icon.Twitter />
-        </a>
+        </Link>
       </div>
       <div className="mt-5 text-white xl:font-semibold">{t('manage', { ns: 'referrals' })}</div>
       <Link href={`/profiles/${publicKey}/affiliate`}>

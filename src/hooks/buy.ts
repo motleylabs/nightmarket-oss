@@ -1,36 +1,39 @@
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { useCallback, useState } from 'react';
-import { AhListing, AuctionHouse, Nft } from '../graphql.types';
-import useLogin from './login';
-import { NftMarketInfoQuery, NftDetailsQuery } from './../queries/nft.graphql';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import {
-  createBuyListingInstruction,
+import type {
   BuyListingInstructionAccounts,
   BuyListingInstructionArgs,
 } from '@holaplex/hpl-reward-center';
-import { toast } from 'react-toastify';
+import { createBuyListingInstruction } from '@holaplex/hpl-reward-center';
+import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+import {
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddress,
+  getAssociatedTokenAddressSync,
+} from '@solana/spl-token';
+import { useConnection } from '@solana/wallet-adapter-react';
+import type { AccountMeta, AddressLookupTableAccount } from '@solana/web3.js';
 import {
   PublicKey,
-  Transaction,
-  AccountMeta,
   TransactionInstruction,
   ComputeBudgetProgram,
-  AddressLookupTableProgram,
   TransactionMessage,
   VersionedTransaction,
-  sendAndConfirmTransaction,
-  Signer,
 } from '@solana/web3.js';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { RewardCenterProgram } from '../modules/reward-center';
-import useViewer from './viewer';
-import { notifyInstructionError } from '../modules/bugsnag';
+
+import { useCallback, useState } from 'react';
+import { toast } from 'react-toastify';
+
 import config from '../app.config';
-import { useCachedBuddy } from './referrals';
+import { notifyInstructionError } from '../modules/bugsnag';
+import { RewardCenterProgram } from '../modules/reward-center';
+import { useWalletContext } from '../providers/WalletContextProvider';
+import type { AuctionHouse } from '../typings';
+import type { ActionInfo, ErrorWithLogs, Nft } from '../typings';
+import { getMetadataAccount } from '../utils/metaplex';
+import { reduceSettledPromise } from '../utils/promises';
 import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
-import { reduceSettledPromise } from '../utils/promises';
+import { useCachedBuddy } from './referrals';
 
 interface BuyForm {
   amount?: number;
@@ -39,18 +42,19 @@ interface BuyForm {
 interface BuyListedForm extends BuyForm {
   nft: Nft;
   auctionHouse: AuctionHouse;
-  ahListing: AhListing;
+  listing: ActionInfo;
 }
 
 interface BuyListingResponse {
   buyerReceiptTokenAccount: PublicKey;
+  buyAction: ActionInfo | null;
 }
 
 interface BuyContext {
   buy: boolean;
   buying: boolean;
   onBuyNow: ({
-    amount,
+    listing,
     nft,
     auctionHouse,
   }: BuyListedForm) => Promise<BuyListingResponse | undefined>;
@@ -59,43 +63,61 @@ interface BuyContext {
 }
 
 export default function useBuyNow(): BuyContext {
-  const wallet = useWallet();
-  const { connected, publicKey, signTransaction, signAllTransactions } = wallet;
+  const { connected, publicKey, address, signTransaction, signAllTransactions } =
+    useWalletContext();
   const { connection } = useConnection();
-  const viewer = useViewer();
   const [buy, setBuy] = useState(false);
   const [buying, setBuying] = useState(false);
 
   const { linkBuddy } = useCachedBuddy({
-    wallet: wallet.publicKey?.toString()!,
+    wallet: address as string,
   });
 
-  const onBuyNow = async ({ nft, auctionHouse, ahListing }: BuyListedForm) => {
+  const onBuyNow = async ({
+    nft,
+    auctionHouse,
+    listing: curListing,
+  }: BuyListedForm): Promise<BuyListingResponse | undefined> => {
     if (
       !connected ||
       !publicKey ||
       !signTransaction ||
       !nft ||
       !nft.owner ||
-      !auctionHouse.rewardCenter ||
-      !viewer
+      !auctionHouse.rewardCenter
     ) {
+      toast('Required data is missing to take buyNow action', { type: 'error' });
       throw new Error('not all params provided');
     }
 
-    setBuying(true);
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const listedPrice = parseFloat(ahListing.price);
-    const seller = new PublicKey(nft?.owner?.address);
+    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const tokenMint = new PublicKey(nft.mintAddress);
+    const associatedTokenAcc = getAssociatedTokenAddressSync(tokenMint, new PublicKey(nft.owner));
+
+    // find bump
+    const [sellerTradeState, sellerTradeStateBump] =
+      await RewardCenterProgram.findAuctioneerTradeStateAddress(
+        new PublicKey(nft.owner),
+        auctionHouseAddress,
+        associatedTokenAcc,
+        treasuryMint,
+        tokenMint,
+        1
+      );
+
+    if (!!curListing.tradeState && sellerTradeState.toBase58() !== curListing.tradeState) {
+      throw new Error('trade state address does not match');
+    }
+
+    setBuying(true);
+    const listedPrice = Number(curListing.price);
+    const seller = new PublicKey(nft.owner);
     const authority = new PublicKey(auctionHouse.authority);
     const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
     const auctionHouseTreasury = new PublicKey(auctionHouse.auctionHouseTreasury);
-    const sellerTradeState = new PublicKey(ahListing.tradeState);
-    const sellerTradeStateBump = ahListing.tradeStateBump;
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = new PublicKey(nft.address);
-    const associatedTokenAcc = new PublicKey(nft.owner.associatedTokenAccountAddress);
+
+    const metadata = getMetadataAccount(tokenMint);
     const token = new PublicKey(auctionHouse?.rewardCenter?.tokenMint);
 
     const [buyerTradeState, buyerTradeStateBump] =
@@ -111,12 +133,7 @@ export default function useBuyNow(): BuyContext {
     const [escrowPaymentAccount, escrowPaymentBump] =
       await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
 
-    const buyerReceiptTokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      tokenMint,
-      publicKey
-    );
+    const buyerReceiptTokenAccount = await getAssociatedTokenAddress(tokenMint, publicKey);
 
     const [programAsSigner, programAsSignerBump] =
       await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
@@ -140,36 +157,22 @@ export default function useBuyNow(): BuyContext {
       rewardCenter
     );
 
-    const rewardCenterRewardTokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
+    const rewardCenterRewardTokenAccount = await getAssociatedTokenAddress(
       token,
       rewardCenter,
       true
     );
 
-    const buyerRewardTokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      token,
-      publicKey
-    );
+    const buyerRewardTokenAccount = await getAssociatedTokenAddress(token, publicKey);
 
-    const buyerATAInstruction = Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      token,
+    const buyerATAInstruction = createAssociatedTokenAccountInstruction(
+      publicKey,
       buyerRewardTokenAccount,
       publicKey,
-      publicKey
+      token
     );
 
-    const sellerRewardTokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      token,
-      seller
-    );
+    const sellerRewardTokenAccount = await getAssociatedTokenAddress(token, seller);
 
     const accounts: BuyListingInstructionAccounts = {
       buyer: publicKey,
@@ -220,13 +223,20 @@ export default function useBuyNow(): BuyContext {
 
     let remainingAccounts: AccountMeta[] = [];
 
-    for (let creator of nft.creators) {
-      const creatorAccount = {
-        pubkey: new PublicKey(creator.address),
-        isSigner: false,
-        isWritable: true,
-      };
-      remainingAccounts = [...remainingAccounts, creatorAccount];
+    // find NFT creators
+    const metadataAccountInfo = await connection.getAccountInfo(metadata);
+    if (!!metadataAccountInfo) {
+      const metadataInfo = Metadata.deserialize(metadataAccountInfo.data as Buffer, 0)[0];
+      if (!!metadataInfo.data.creators) {
+        for (const creator of metadataInfo.data.creators) {
+          const creatorAccount = {
+            pubkey: new PublicKey(creator.address),
+            isSigner: false,
+            isWritable: true,
+          };
+          remainingAccounts = [...remainingAccounts, creatorAccount];
+        }
+      }
     }
 
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
@@ -255,12 +265,17 @@ export default function useBuyNow(): BuyContext {
       })
     );
 
+    let buyTxIndex = 0;
     const transactions: VersionedTransaction[] = [];
     try {
       const signedBuddyTx = await linkBuddy();
-      if (signedBuddyTx) transactions.push(signedBuddyTx);
+      if (signedBuddyTx) {
+        transactions.push(signedBuddyTx);
+        buyTxIndex = 1;
+      }
     } catch (e) {}
 
+    let buyAction: ActionInfo | null = null;
     try {
       const { blockhash } = await connection.getLatestBlockhash();
 
@@ -268,7 +283,7 @@ export default function useBuyNow(): BuyContext {
         payerKey: publicKey,
         recentBlockhash: blockhash,
         instructions: arrayOfInstructions,
-      }).compileToV0Message([lookupTableAccount!]);
+      }).compileToV0Message([lookupTableAccount as AddressLookupTableAccount]);
 
       const transactionV0 = new VersionedTransaction(messageV0);
 
@@ -290,24 +305,38 @@ export default function useBuyNow(): BuyContext {
 
       if (settledSignedTxs.fulfilled.length > 0) {
         toast('NFT purchased', { type: 'success' });
-      }
 
-      return { buyerReceiptTokenAccount };
-    } catch (err: any) {
-      notifyInstructionError(err, {
+        if (buyTxIndex < settledSignedTxs.fulfilled.length) {
+          const blockTimestamp = Math.floor(new Date().getTime() / 1000);
+
+          buyAction = {
+            auctionHouseAddress: auctionHouseAddress.toBase58(),
+            auctionHouseProgram: config.auctionHouseProgram ?? '',
+            blockTimestamp,
+            price: curListing.price,
+            signature: settledSignedTxs.fulfilled[buyTxIndex],
+            userAddress: publicKey?.toBase58() ?? '',
+          };
+        }
+      }
+    } catch (err: unknown) {
+      const error = err as ErrorWithLogs;
+
+      notifyInstructionError(error, {
         operation: 'NFT purchased',
         metadata: {
           userPubkey: publicKey.toBase58(),
-          programLogs: err.logs,
+          programLogs: error.logs,
           nft,
         },
       });
-      toast(err.message, { type: 'error' });
+      toast(error.message, { type: 'error' });
 
       throw err;
     } finally {
       setBuying(false);
       setBuy(false);
+      return { buyerReceiptTokenAccount, buyAction };
     }
   };
 

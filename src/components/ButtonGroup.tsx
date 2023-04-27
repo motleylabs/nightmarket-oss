@@ -1,12 +1,13 @@
-import clsx from 'clsx';
-import { ReactNode } from 'react';
 import { RadioGroup } from '@headlessui/react';
+
+import clsx from 'clsx';
+import type { ReactNode } from 'react';
 
 interface ButtonGroupProps<T> {
   style?: 'oval' | 'plain';
   children: ReactNode;
   value: T;
-  onChange: (value: T | undefined) => void;
+  onChange: (value: T) => void;
   className?: string;
 }
 

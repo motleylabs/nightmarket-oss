@@ -1,7 +1,10 @@
-import clsx from 'clsx';
 import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { ReactNode, Children, cloneElement } from 'react';
+
+import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
+import type { ReactNode } from 'react';
+import { Children, cloneElement } from 'react';
+
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 
 export function Sidebar(): JSX.Element {
@@ -12,27 +15,28 @@ interface SidebarControlProps {
   label: string;
   open: boolean;
   onChange: () => void;
-  disabled?: boolean;
+  show?: boolean;
 }
 
-function SidebarControl({ open, label, onChange, disabled }: SidebarControlProps): JSX.Element {
-  const { t } = useTranslation('common');
+function SidebarControl({ open, label, onChange, show = true }: SidebarControlProps) {
+  if (!show) return null;
+
   return (
     <div className="relative">
       <button
+        type="button"
         className={clsx(
           'flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
           'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
-          open && !disabled && ''
+          open && ''
         )}
-        disabled={disabled}
         onClick={onChange}
       >
         <span className="pl-2">{label}</span>
         <ChevronRightIcon
           className={clsx(
             'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
-            open && !disabled && 'md:rotate-180'
+            open && 'md:rotate-180'
           )}
         />
       </button>
@@ -47,7 +51,7 @@ interface SidebarPageProps {
   open?: boolean;
 }
 
-function SidebarPage({ children, open }: SidebarPageProps): JSX.Element {
+function SidebarPage({ children, open }: SidebarPageProps) {
   return (
     <section className="mx-4 mb-6 flex gap-6 md:mx-10">
       {Children.map(children, (child) => cloneElement(child, { open }))}
@@ -115,22 +119,20 @@ function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps
   const { t } = useTranslation('common');
   return (
     <div className={clsx('mb-4 mt-4 flex flex-wrap gap-2 md:mb-2', className)}>
-      <>
-        {items.map((item) => {
-          return <Sidebar.Pill key={item.key} pillItem={item} onRemove={() => onRemove(item)} />;
-        })}
-        {items.length > 0 && (
-          <Button
-            background={ButtonBackground.Black}
-            border={ButtonBorder.Gradient}
-            color={ButtonColor.Gradient}
-            size={ButtonSize.Tiny}
-            onClick={onClear}
-          >
-            {t('clear', { ns: 'common' })}
-          </Button>
-        )}
-      </>
+      {items.map((item) => {
+        return <Sidebar.Pill key={item.key} pillItem={item} onRemove={() => onRemove(item)} />;
+      })}
+      {items.length > 0 && (
+        <Button
+          background={ButtonBackground.Black}
+          border={ButtonBorder.Gradient}
+          color={ButtonColor.Gradient}
+          size={ButtonSize.Tiny}
+          onClick={onClear}
+        >
+          {t('clear', { ns: 'common' })}
+        </Button>
+      )}
     </div>
   );
 }

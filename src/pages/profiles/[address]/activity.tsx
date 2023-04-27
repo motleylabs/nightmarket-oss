@@ -1,37 +1,31 @@
 import type { GetServerSidePropsContext } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
-import { WalletProfileQuery, ProfileActivitiesQuery } from './../../../queries/profile.graphql';
-import client from '../../../client';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { ActivityType as EventTypes, AuctionHouse, Wallet } from '../../../graphql.types';
-import { Toolbar } from '../../../components/Toolbar';
-import { Activity, ActivityType } from '../../../components/Activity';
 import { useTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
-import { useForm, Controller } from 'react-hook-form';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import type { ReactElement } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { InView } from 'react-intersection-observer';
-import ProfileLayout from '../../../layouts/ProfileLayout';
+import useSWRInfinite from 'swr/infinite';
+
+import type { ActivityType } from '../../../components/Activity';
+import { Activity } from '../../../components/Activity';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
-import config from '../../../app.config';
+import { Toolbar } from '../../../components/Toolbar';
+import { createApiTransport } from '../../../infrastructure/api';
+import ProfileLayout from '../../../layouts/ProfileLayout';
+import type { UserActivitiesData, UserNfts } from '../../../typings';
+import { getActivityTypes } from '../../../utils/activity';
 
-export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
-  const {
-    data: { wallet, auctionHouse },
-  } = await client.query({
-    query: WalletProfileQuery,
-    fetchPolicy: 'network-only',
-    variables: {
-      address: params?.address,
-      auctionHouse: config.auctionHouse,
-    },
-  });
+  const api = createApiTransport(req);
 
-  if (wallet === null || auctionHouse === null) {
+  const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
+
+  if (data == null) {
     return {
       notFound: true,
     };
@@ -39,94 +33,58 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
   return {
     props: {
-      wallet,
-      auctionHouse,
+      ...data,
       ...i18n,
     },
   };
 }
 
-interface ProfileActivitiesData {
-  wallet: Wallet;
-}
-
-interface ProfileActivitiesVariables {
-  offset: number;
-  limit: number;
-  address: string;
-  eventTypes: EventTypes[] | null;
-}
+const PAGE_LIMIT = 24;
 
 enum ActivityFilter {
-  All = 'ALL',
-  Listings = 'LISTING_CREATED',
-  Offers = 'OFFER_CREATED',
-  Sales = 'SALES',
-}
-
-interface ProfileActivityForm {
-  type: ActivityFilter;
+  Listings = 'listing',
+  Offers = 'bid',
+  Transaction = 'transaction',
 }
 
 export default function ProfileActivity(): JSX.Element {
   const { t } = useTranslation(['profile', 'common']);
 
   const activityFilterOptions = [
-    { label: t('activityFilters.all', { ns: 'profile' }), value: ActivityFilter.All },
-    { label: t('activityFilters.offers', { ns: 'profile' }), value: ActivityFilter.Offers },
-    { label: t('activityFilters.sales', { ns: 'profile' }), value: ActivityFilter.Sales },
+    { label: t('listings', { ns: 'profile' }), value: ActivityFilter.Listings },
+    { label: t('offers', { ns: 'profile' }), value: ActivityFilter.Offers },
+    { label: t('sales', { ns: 'profile' }), value: ActivityFilter.Transaction },
   ];
 
-  const { watch, control } = useForm<ProfileActivityForm>({
-    defaultValues: {
-      type: activityFilterOptions[0].value,
-    },
+  const { watch, control } = useForm<{ type: `${ActivityFilter}` }>({
+    defaultValues: { type: activityFilterOptions[0].value },
   });
-  const router = useRouter();
-  const [hasMore, setHasMore] = useState(true);
 
-  const activitiesQuery = useQuery<ProfileActivitiesData, ProfileActivitiesVariables>(
-    ProfileActivitiesQuery,
-    {
-      variables: {
-        offset: 0,
-        limit: 24,
-        address: router.query.address as string,
-        eventTypes: null,
-      },
-    }
-  );
+  const { query } = useRouter();
 
-  useEffect(() => {
-    const subscription = watch(({ type }) => {
-      let variables: ProfileActivitiesVariables = {
-        offset: 0,
-        limit: 24,
-        address: router.query.address as string,
-        eventTypes: null,
-      };
+  const selectedType = watch('type');
 
-      switch (type) {
-        case ActivityFilter.All:
-          variables.eventTypes = null;
-          break;
-        case ActivityFilter.Listings:
-          variables.eventTypes = [EventTypes.ListingCreated];
-          break;
-        case ActivityFilter.Offers:
-          variables.eventTypes = [EventTypes.OfferCreated];
-          break;
-        case ActivityFilter.Sales:
-          variables.eventTypes = [EventTypes.Purchase];
-          break;
-      }
+  const getKey = (pageIndex: number, previousPageData: UserActivitiesData) => {
+    if (previousPageData && !previousPageData.hasNextPage) return null;
 
-      activitiesQuery.refetch(variables).then(({ data: { wallet } }) => {
-        setHasMore(wallet.activities.length > 0);
-      });
-    });
-    return subscription.unsubscribe;
-  }, [watch, router.query.address, activitiesQuery]);
+    const typeQueryParam = encodeURIComponent(JSON.stringify(getActivityTypes(selectedType)));
+
+    return `/users/activities?address=${
+      query.address
+    }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
+  };
+
+  const { data, size, setSize, isValidating } = useSWRInfinite<UserActivitiesData>(getKey, {
+    revalidateOnFocus: false,
+  });
+
+  const onShowMoreActivities = () => {
+    setSize(size + 1);
+  };
+
+  const isLoading = !data && isValidating;
+  const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
+  const activities = data?.flatMap((d) => d.activities) ?? [];
 
   return (
     <>
@@ -148,7 +106,7 @@ export default function ProfileActivity(): JSX.Element {
         </div>
       </Toolbar>
       <div className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8">
-        {activitiesQuery.loading ? (
+        {isLoading ? (
           <>
             <Activity.Skeleton />
             <Activity.Skeleton />
@@ -157,27 +115,34 @@ export default function ProfileActivity(): JSX.Element {
           </>
         ) : (
           <>
-            {activitiesQuery.data?.wallet.activities.map((activity) => (
+            {activities.map((activity) => (
               <Activity
                 avatar={
                   <Link
                     className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/nfts/${activity.nft?.mintAddress}`}
+                    href={`/nfts/${activity.mint}`}
                   >
-                    <Avatar src={activity.nft?.image as string} size={AvatarSize.Standard} />
+                    <Avatar src={activity.image} size={AvatarSize.Standard} />
                   </Link>
                 }
                 type={activity.activityType as ActivityType}
-                key={activity.id}
+                key={activity.mint}
                 meta={
-                  <Activity.Meta title={<Activity.Tag />} marketplace={activity.nftMarketplace} />
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplaceAddress={activity.martketplaceProgramAddress}
+                  />
                 }
+                source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
               >
-                <Activity.Price amount={activity.solPrice} />
-                <Activity.Timestamp timeSince={activity.timeSince} />
+                <Activity.Price amount={Number(activity.price)} />
+                <Activity.Timestamp
+                  signature={activity.signature}
+                  timeSince={activity.blockTimestamp}
+                />
               </Activity>
             ))}
-            {hasMore && (
+            {hasNextPage && (
               <>
                 <InView
                   rootMargin="200px 0px"
@@ -186,15 +151,7 @@ export default function ProfileActivity(): JSX.Element {
                       return;
                     }
 
-                    const {
-                      data: { wallet },
-                    } = await activitiesQuery.fetchMore({
-                      variables: {
-                        offset: activitiesQuery.data?.wallet.activities.length,
-                      },
-                    });
-
-                    setHasMore(wallet.activities.length > 0);
+                    onShowMoreActivities();
                   }}
                 >
                   <Activity.Skeleton />
@@ -212,18 +169,13 @@ export default function ProfileActivity(): JSX.Element {
 
 interface ProfileActivityLayoutProps {
   children: ReactElement;
-  wallet: Wallet;
-  auctionHouse: AuctionHouse;
+  nfts: UserNfts['nfts'];
+  collections: UserNfts['collections'];
 }
 
 ProfileActivity.getLayout = function ProfileActivityLayout({
   children,
-  wallet,
-  auctionHouse,
+  ...restProps
 }: ProfileActivityLayoutProps): JSX.Element {
-  return (
-    <ProfileLayout wallet={wallet} auctionHouse={auctionHouse}>
-      {children}
-    </ProfileLayout>
-  );
+  return <ProfileLayout {...restProps}>{children}</ProfileLayout>;
 };

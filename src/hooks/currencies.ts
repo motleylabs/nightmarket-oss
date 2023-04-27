@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+
 import { CurrencyContext } from '../providers/CurrencyProvider';
 
 export function useCurrencies() {
