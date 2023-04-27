@@ -107,7 +107,6 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
-    require('@tailwindcss/line-clamp'),
     plugin(function ({ addUtilities }) {
       addUtilities({
         /* Hide scrollbar for Chrome, Safari and Opera */

@@ -114,6 +114,7 @@ type IconComponent = React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElemen
 function ActivityTag({ type }: ActivityTagProps) {
   const { t } = useTranslation('common');
 
+  // @ts-ignore
   const [label, Icon] = useMemo<[] | [string, IconComponent]>(() => {
     switch (type) {
       case ActivityType.Purchase:
