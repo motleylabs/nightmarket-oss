@@ -148,7 +148,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="flex flex-shrink-0 rounded-lg border-8 border-gray-800">
               <Img
                 fallbackSrc="/images/moon.svg"
-                src={getAssetURL(collection.image, AssetSize.Tiny)}
+                src={getAssetURL(collection.image, AssetSize.XSmall)}
                 className="inline-block aspect-square h-36 w-36 rounded-md object-cover shadow-xl md:h-36 md:w-36"
                 alt="overview avatar"
               />

@@ -471,7 +471,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                 href={`/collections/${collection.slug}`}
               >
                 <Image
-                  src={collection.image}
+                  src={getAssetURL(collection.image, AssetSize.XSmall)}
                   className="aspect-square w-10 rounded-md object-cover"
                   alt="collection image"
                 />
