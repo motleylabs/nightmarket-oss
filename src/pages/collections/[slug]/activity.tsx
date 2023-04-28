@@ -71,8 +71,9 @@ export default function CollectionActivity(): JSX.Element {
 
     const typeQueryParam = encodeURIComponent(JSON.stringify(getActivityTypes(selectedType)));
 
-    return `/collections/activities?address=${query.slug
-      }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
+    return `/collections/activities?address=${
+      query.slug
+    }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<CollectionActivitiesData>(getKey, {

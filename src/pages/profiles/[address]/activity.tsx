@@ -70,8 +70,9 @@ export default function ProfileActivity(): JSX.Element {
 
     const typeQueryParam = encodeURIComponent(JSON.stringify(getActivityTypes(selectedType)));
 
-    return `/users/activities?address=${query.address
-      }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
+    return `/users/activities?address=${
+      query.address
+    }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<UserActivitiesData>(getKey, {

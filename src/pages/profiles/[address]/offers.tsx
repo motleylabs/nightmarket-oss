@@ -43,8 +43,9 @@ export default function ProfileOffers() {
   const getKey = (pageIndex: number, previousPageData: UserOffersData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
 
-    return `/users/offers?address=${query.address}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT
-      }`;
+    return `/users/offers?address=${query.address}&limit=${PAGE_LIMIT}&offset=${
+      pageIndex * PAGE_LIMIT
+    }`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<UserOffersData>(getKey, {

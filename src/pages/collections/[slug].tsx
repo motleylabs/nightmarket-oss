@@ -149,10 +149,13 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
     const attributesQueryParam = encodeURIComponent(JSON.stringify(querySelectedAttributes));
 
-    return `/collections/nfts?sort_by=${selectedSort}&order=${selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc
-      }&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT
-      }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${config.auctionHouse
-      }`;
+    return `/collections/nfts?sort_by=${selectedSort}&order=${
+      selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc
+    }&limit=${PAGE_LIMIT}&offset=${
+      pageIndex * PAGE_LIMIT
+    }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
+      config.auctionHouse
+    }`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey, {
@@ -248,12 +251,12 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                         valueItem.value
                                       )
                                         ? attributes[group.name]?.values?.filter(
-                                          (a) => a !== valueItem.value
-                                        )
+                                            (a) => a !== valueItem.value
+                                          )
                                         : [
-                                          ...(attributes[group.name]?.values ?? []),
-                                          valueItem.value,
-                                        ],
+                                            ...(attributes[group.name]?.values ?? []),
+                                            valueItem.value,
+                                          ],
                                     },
                                   });
                                 }}
