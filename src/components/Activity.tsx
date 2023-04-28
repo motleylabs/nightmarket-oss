@@ -96,7 +96,9 @@ function ActivityMeta({ title, marketplaceAddress, type }: ActivityMetaProps): J
             alt={`nft marketplace logo ${marketplaceAddress}`}
             className="object-fit h-5"
           />
-          <div className="inline-block text-sm">{marketplace?.name}</div>
+          <div className={clsx('inline-block text-sm', isOwnMarket && 'font-serif uppercase')}>
+            {marketplace?.name}
+          </div>
         </div>
       </div>
     </div>
