@@ -1,7 +1,7 @@
 import { format, roundToNearestMinutes } from 'date-fns';
 import { useTranslation } from 'next-i18next';
+import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
-import { TailSpin } from 'react-loader-spinner';
 import {
   CartesianGrid,
   Line,
@@ -15,6 +15,10 @@ import {
 import { DateRangeOption } from '../../modules/time';
 import type { DataPoint } from '../../typings';
 import { CustomLineChartTooltip } from './Chart';
+
+const TailSpin = dynamic(() => import('react-loader-spinner').then((mod) => mod.TailSpin), {
+  ssr: false,
+});
 
 const tickGapDict = {
   [DateRangeOption.DAY]: 30,
