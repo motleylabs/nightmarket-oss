@@ -1,5 +1,5 @@
 {
-  "cron": [
+  "crons": [
     {
       "path": "/collection/madlads",
       "schedule": "* * * * *"

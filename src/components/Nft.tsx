@@ -148,7 +148,7 @@ export function Preview({
         </div>
       </Link>
 
-      <div className="relative flex h-[38px] flex-row items-center justify-between px-4">
+      <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4">
         {isOwner ? (
           !!listing ? (
             <>
@@ -165,15 +165,7 @@ export function Preview({
                 {t('cancel')}
               </Button>
             </>
-          ) : !!nft.lastSale ? (
-            <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-              {t('lastSale', { ns: 'common' })}
-              <div className="flex flex-row items-center gap-1">
-                <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                {getSolFromLamports(nft.lastSale.price, 0, 3)}
-              </div>
-            </span>
-          ) : null //no last sale and not listed
+          ) : null // not listed
         ) : !!listing ? (
           <div className="w-full">
             <div className="flex items-center justify-between">
@@ -214,14 +206,6 @@ export function Preview({
                   {getSolFromLamports(myOffer.price, 0, 3)}
                 </div>
               </span>
-            ) : !!nft.lastSale ? (
-              <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                {t('offerable.lastSoldPrice', { ns: 'common' })}
-                <div className="flex flex-row items-center gap-1">
-                  <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                  {getSolFromLamports(nft.lastSale.price, 0, 3)}
-                </div>
-              </span>
             ) : (
               <div />
             )}
@@ -240,6 +224,20 @@ export function Preview({
           </div>
         )}
       </div>
+
+      {!!nft.lastSale ? (
+        <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4">
+          <div className="w-full">
+            <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+              {t('lastSale', { ns: 'common' })}
+              <div className="flex flex-row items-center gap-1">
+                <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                {getSolFromLamports(nft.lastSale.price, 0, 3)}
+              </div>
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {isOwner && !listing && bulkSelectEnabled ? (
         <div className="px-4">
