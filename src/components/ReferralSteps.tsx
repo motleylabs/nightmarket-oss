@@ -96,7 +96,7 @@ interface CreateProps {
   referrer: string;
 }
 
-const FEE_ESTIMATE = 0.007;
+const FEE_ESTIMATE = 0.008;
 
 function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
   const { t } = useTranslation('referrals');
@@ -149,7 +149,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
       </div>
       <div
         className={clsx(
-          'mt-10 flex h-12 w-full flex-row items-center rounded-lg border border-neutral-600 py-2 px-4',
+          'mt-10 flex h-12 w-full flex-row items-center rounded-lg border border-neutral-600 py-2 px-4 bg-black',
           {
             'border-red-500': error,
           }
@@ -173,7 +173,7 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
         />
         {publicKey && (
           <div className="flex h-full items-center rounded bg-gray-800 p-2 text-sm font-semibold text-gray-200">
-            {publicKey.toBase58()}
+            {publicKey.toBase58().substring(0, 5)}...
           </div>
         )}
       </div>
@@ -267,7 +267,7 @@ function Success({ name }: SuccessProps): JSX.Element {
         </button>
       </div>
       <div className="relative w-full">
-        <div className="absolute -top-24 right-4 flex h-14 w-14 rotate-12 items-center justify-center md:-top-5 xl:right-0">
+        <div className="absolute -top-24 right-0 flex h-14 w-14 rotate-12 items-center justify-center md:-top-5 xl:right-0">
           <div
             className="absolute inset-0 m-auto h-10 w-10 text-center leading-3 text-white"
             style={{ paddingTop: 2, fontSize: 10 }}
