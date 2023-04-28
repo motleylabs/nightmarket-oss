@@ -18,19 +18,36 @@ export function Chart() {
   return <div />;
 }
 
-const DynamicStyledLineChart = dynamic(() =>
-  import('./StyledLineChart').then((mod) => mod.StyledLineChart)
+const DynamicStyledLineChart = dynamic(
+  () => import('./StyledLineChart').then((mod) => mod.StyledLineChart),
+  {
+    ssr: false,
+  }
 );
-const DynamicTinyLineChart = dynamic(() =>
-  import('./TinyLineChart').then((mod) => mod.TinyLineChart)
+const DynamicTinyLineChart = dynamic(
+  () => import('./TinyLineChart').then((mod) => mod.TinyLineChart),
+  {
+    ssr: false,
+  }
 );
-const DynamicStyledBarChart = dynamic(() =>
-  import('./StyledBarChart').then((mod) => mod.StyledBarChart)
+const DynamicStyledBarChart = dynamic(
+  () => import('./StyledBarChart').then((mod) => mod.StyledBarChart),
+  {
+    ssr: false,
+  }
 );
-const DynamicChartTimeseries = dynamic(() =>
-  import('./ChartTimeseries').then((mod) => mod.ChartTimeseries)
+const DynamicChartTimeseries = dynamic(
+  () => import('./ChartTimeseries').then((mod) => mod.ChartTimeseries),
+  {
+    ssr: false,
+  }
 );
-const DynamicChartPreview = dynamic(() => import('./ChartPreview').then((mod) => mod.ChartPreview));
+const DynamicChartPreview = dynamic(
+  () => import('./ChartPreview').then((mod) => mod.ChartPreview),
+  {
+    ssr: false,
+  }
+);
 
 Chart.LineChart = DynamicStyledLineChart;
 Chart.TinyLineChart = DynamicTinyLineChart;
