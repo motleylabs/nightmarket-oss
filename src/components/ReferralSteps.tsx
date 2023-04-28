@@ -1,7 +1,6 @@
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
 
-import { useRequest } from 'ahooks';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -10,8 +9,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import useLogin from '../hooks/login';
-import { useCreateBuddy } from '../hooks/referrals';
-import { getBuddyStats } from '../utils/referral';
+import { useBuddy, useCreateBuddy } from '../hooks/referrals';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import Icon from './Icon';
 
@@ -59,11 +57,7 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   const { t } = useTranslation('referrals');
   const [timeEllapsed, setTimeEllapsed] = useState(false);
 
-  const { loading: loadingBuddy, data: buddy } = useRequest(getBuddyStats, {
-    ready: !!wallet,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    defaultParams: [wallet!],
-  });
+  const { loading: loadingBuddy, data: buddy } = useBuddy(wallet);
 
   useEffect(() => {
     if (timeEllapsed && !loadingBuddy && !buddy?.publicKey) {

@@ -1,18 +1,14 @@
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+
+import { useBuddy } from '../hooks/referrals';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import Button, { ButtonBackground } from './Button';
-import { useRequest } from 'ahooks';
-import { getBuddyStats } from '../utils/referral';
 
 export default function Banner() {
   const { t } = useTranslation('referrals');
   const { address } = useWalletContext();
-  const { data, loading } = useRequest(getBuddyStats, {
-    ready: !!address,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    defaultParams: [address!]
-  })
+  const { data, loading } = useBuddy(address);
 
   return (
     <div className="relative mt-14 w-full overflow-hidden rounded-2xl bg-gradient-primary">
