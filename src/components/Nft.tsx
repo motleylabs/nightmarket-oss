@@ -230,7 +230,7 @@ export function Preview({
                   border={ButtonBorder.Gradient}
                   color={ButtonColor.Gradient}
                 >
-                  {t('view', { ns: 'home' })}
+                  {t('View', { ns: 'common' })}
                 </Button>
               </Link>
             )}
