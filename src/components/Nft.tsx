@@ -126,6 +126,7 @@ export function Preview({
                 src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
                 className="h-5 w-auto object-fill"
                 alt={t('logo', { ns: 'nft', market: marketplace.name })}
+                title={t('listedOn', { ns: 'nft', market: marketplace.name })}
               />
             </div>
           )}

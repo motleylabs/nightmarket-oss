@@ -13,6 +13,7 @@
   "buy": "Buy Now",
   "view": "View on {{market}}",
   "logo": "{{market}} logo",
+  "listedOn": "Listed on {{market}}.",
   "cancel": "Cancel",
   "update": "Update",
   "updateListing": "Update Listing",
