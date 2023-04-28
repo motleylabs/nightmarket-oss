@@ -123,7 +123,7 @@ export function Preview({
           {!!listing && !!marketplace && (
             <div className="absolute right-0 top-1 z-10 m-2 items-center justify-start my-1 gap-1 text-lg">
               <img
-                src={isOwnMarket ? '/images/moon-logo.svg' : marketplace.logo}
+                src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
                 className="h-5 w-auto object-fill"
                 alt={t('logo', { ns: 'nft', market: marketplace.name })}
               />
