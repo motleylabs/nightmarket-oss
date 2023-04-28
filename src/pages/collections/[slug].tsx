@@ -315,6 +315,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                           onBuy={() => buyNow(nft, miniCollection)}
                           nft={nft}
                           showCollectionThumbnail={false}
+                          bulkSelectEnabled={false}
                         />
                       )}
                     />

@@ -232,6 +232,7 @@ export default function ProfileCollected({ offers }: Props) {
                             nft={nft}
                             offers={offers}
                             onSelect={setShowDrawer}
+                            bulkSelectEnabled={true}
                           />
                         )}
                       />

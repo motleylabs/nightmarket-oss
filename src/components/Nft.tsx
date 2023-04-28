@@ -27,6 +27,7 @@ interface PreviewProps {
   link: string;
   offers?: Offer[];
   showCollectionThumbnail?: boolean;
+  bulkSelectEnabled: boolean;
   onMakeOffer: () => void;
   onBuy: () => void;
   onSelect?: (val: boolean) => void;
@@ -37,6 +38,7 @@ export function Preview({
   offers,
   showCollectionThumbnail = true,
   link,
+  bulkSelectEnabled,
   onBuy,
   onSelect,
 }: PreviewProps): JSX.Element {
@@ -239,7 +241,7 @@ export function Preview({
         )}
       </div>
 
-      {isOwner && !listing ? (
+      {isOwner && !listing && bulkSelectEnabled ? (
         <div className="px-4">
           <CheckBox
             label="Select for Bulk Listing"
