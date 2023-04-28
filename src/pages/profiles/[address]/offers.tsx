@@ -3,6 +3,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { InView } from 'react-intersection-observer';
 import useSWRInfinite from 'swr/infinite';
 
@@ -42,9 +43,8 @@ export default function ProfileOffers() {
   const getKey = (pageIndex: number, previousPageData: UserOffersData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
 
-    return `/users/offers?address=${query.address}&limit=${PAGE_LIMIT}&offset=${
-      pageIndex * PAGE_LIMIT
-    }`;
+    return `/users/offers?address=${query.address}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT
+      }`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<UserOffersData>(getKey, {
@@ -57,7 +57,7 @@ export default function ProfileOffers() {
 
   const isLoading = !data && isValidating;
   const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
-  const offers = data?.flatMap((d) => d.activities) ?? [];
+  const offers = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
 
   return (
     <div className="mt-20 flex flex-col gap-4 px-4 pt-4 md:px-8">

@@ -4,6 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { InView } from 'react-intersection-observer';
 import useSWRInfinite from 'swr/infinite';
@@ -69,9 +70,8 @@ export default function ProfileActivity(): JSX.Element {
 
     const typeQueryParam = encodeURIComponent(JSON.stringify(getActivityTypes(selectedType)));
 
-    return `/users/activities?address=${
-      query.address
-    }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
+    return `/users/activities?address=${query.address
+      }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<UserActivitiesData>(getKey, {
@@ -84,7 +84,7 @@ export default function ProfileActivity(): JSX.Element {
 
   const isLoading = !data && isValidating;
   const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
-  const activities = data?.flatMap((d) => d.activities) ?? [];
+  const activities = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
 
   return (
     <>
