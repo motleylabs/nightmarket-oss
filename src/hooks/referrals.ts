@@ -1,5 +1,5 @@
 import { createBuddyClient } from '@ladderlabs/buddylink';
-import type { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
+import { BuddyClient } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/BuddyClient';
 import type { NodeWallet } from '@ladderlabs/buddylink/dist/esm/instructions/buddy/create-buddy-client';
 import { useConnection } from '@solana/wallet-adapter-react';
 import type { TransactionInstruction } from '@solana/web3.js';
@@ -360,7 +360,7 @@ export function useCachedBuddy(props: CachedBuddyProps) {
     let transaction = null;
     try {
       const buddyInstructions =
-        (await createBuddyInstructions(publicKey?.toString().substring(0, 8), refId)) || [];
+        (await createBuddyInstructions(generateRandomString(10), refId)) || [];
 
       if (buddyInstructions.length === 0) {
         setCookie(COOKIE_REF, '', 0);
@@ -396,4 +396,16 @@ export function useCachedBuddy(props: CachedBuddyProps) {
   ]);
 
   return { linkBuddy };
+}
+
+function generateRandomString(length: number) {
+  let result = '';
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
 }
