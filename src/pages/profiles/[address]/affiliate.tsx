@@ -18,13 +18,11 @@ import Button, {
 } from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { Table } from '../../../components/Table';
-import { useClaimBuddy } from '../../../hooks/referrals';
+import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
 import { createApiTransport } from '../../../infrastructure/api';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { useWalletContext } from '../../../providers/WalletContextProvider';
 import type { UserNfts } from '../../../typings';
-import { useRequest } from 'ahooks';
-import { getBuddyStats } from '../../../utils/referral';
 
 export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
@@ -60,11 +58,7 @@ export default function ProfileAffiliate() {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const { address, publicKey: adapterWallet, connecting, connected } = useWalletContext();
-  const { data: buddy, refresh: refreshBuddy } = useRequest(getBuddyStats, {
-    ready: !!address,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    defaultParams: [address!]
-  })
+  const { data: buddy, refresh: refreshBuddy } = useBuddy(address);
 
   const tabContent = useMemo(() => {
     switch (tab) {
@@ -355,8 +349,8 @@ function Tab(props: { onClick: () => void; label: string; active: boolean; disab
           props.active
             ? 'rounded-full bg-gray-800 text-white'
             : props.disabled
-              ? 'cursor-default bg-black text-gray-300'
-              : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
+            ? 'cursor-default bg-black text-gray-300'
+            : 'cursor-pointer bg-black text-gray-300 hover:bg-gray-800 hover:text-gray-200'
         )}
       >
         {props.label}

@@ -5,6 +5,7 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import type { TransactionInstruction } from '@solana/web3.js';
 import { TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
+import { useRequest } from 'ahooks';
 import type { AxiosError } from 'axios';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
@@ -16,7 +17,6 @@ import { COOKIE_REF } from '../pages/_app';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs } from '../typings';
 import { getCookie, setCookie } from '../utils/cookies';
-import { useRequest } from 'ahooks';
 import { getBuddyStats } from '../utils/referral';
 
 interface CreateContext {
@@ -228,15 +228,15 @@ export function useClaimBuddy() {
 interface Transfer {
   from: string;
   to:
-  | {
-    pubkey: string;
-    amount: number;
-  }
-  | {
-    pubkey: string;
-    amount: number;
-  }[]
-  | boolean;
+    | {
+        pubkey: string;
+        amount: number;
+      }
+    | {
+        pubkey: string;
+        amount: number;
+      }[]
+    | boolean;
 }
 
 interface TransactionHistory {
@@ -320,12 +320,19 @@ interface CachedBuddyProps {
   wallet: string;
 }
 
-export function useCachedBuddy(props: CachedBuddyProps) {
-  const { data: buddy, loading } = useRequest(getBuddyStats, {
-    ready: !!props.wallet,
+export function useBuddy(address?: string) {
+  return useRequest(getBuddyStats, {
+    cacheKey: `getBuddyStats-${address ?? ''}`,
+    ready: !!address,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    defaultParams: [props.wallet]
-  })
+    defaultParams: [address!],
+    staleTime: 300000,
+    cacheTime: -1,
+  });
+}
+
+export function useCachedBuddy(props: CachedBuddyProps) {
+  const { data: buddy, loading } = useBuddy(props.wallet);
 
   const { createBuddyInstructions, validateName } = useCreateBuddy();
   const { connection } = useConnection();
