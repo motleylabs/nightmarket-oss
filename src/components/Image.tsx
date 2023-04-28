@@ -52,7 +52,7 @@ function Img({
   if (hasImageError || hideImage) {
     return (
       <div
-        className={clsx(className, backdrop, 'w-ful block aspect-square', {
+        className={clsx(className, backdrop, 'w-full block aspect-square', {
           'animate-pulse': !hasImageError,
         })}
       />
