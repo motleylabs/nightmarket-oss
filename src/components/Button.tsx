@@ -1,6 +1,10 @@
 import clsx from 'clsx';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-import { TailSpin } from 'react-loader-spinner';
+
+const TailSpin = dynamic(() => import('react-loader-spinner').then((mod) => mod.TailSpin), {
+  ssr: false,
+});
 
 export enum ButtonBackground {
   Gradient = 'bg-gradient-primary hover:bg-gradient-hover focus:bg-gradient-hover disabled:bg-gradient-primary',

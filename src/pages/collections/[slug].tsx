@@ -32,6 +32,7 @@ const PAGE_LIMIT = 24;
 export async function getServerSideProps({ locale, params, req, res }: GetServerSidePropsContext) {
   res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
 
+  const start1 = Date.now();
   const i18n = await serverSideTranslations(locale as string, [
     'common',
     'collection',
@@ -39,9 +40,15 @@ export async function getServerSideProps({ locale, params, req, res }: GetServer
     'buyable',
     'analytics',
   ]);
-  const api = createApiTransport(req);
+  console.log('i18n', Date.now() - start1);
 
+  const start2 = Date.now();
+  const api = createApiTransport(req);
+  console.log('api', Date.now() - start2);
+
+  const start3 = Date.now();
   const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
+  console.log('data', Date.now() - start3);
 
   if (data == null) {
     return {
@@ -49,6 +56,7 @@ export async function getServerSideProps({ locale, params, req, res }: GetServer
     };
   }
 
+  const start4 = Date.now();
   data.attributes?.map((attribute) => {
     if (attribute.values.length > 0) {
       const total = attribute.values.reduce((acc, item) => acc + item.counts, 0);
@@ -57,6 +65,7 @@ export async function getServerSideProps({ locale, params, req, res }: GetServer
       });
     }
   });
+  console.log('data.attributes', Date.now() - start4);
 
   return {
     props: {

@@ -1,11 +1,17 @@
 {
-    "git": {
-        "deploymentEnabled": {
-          "holaplex-legacy": false
-        }
-    },
-    "github": {
-      "silent": true
-    },
-    "trailingSlash": false
-  }
+  "crons": [
+    {
+      "path": "/collection/madlads",
+      "schedule": "* * * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "holaplex-legacy": false
+    }
+  },
+  "github": {
+    "silent": true
+  },
+  "trailingSlash": false
+}
