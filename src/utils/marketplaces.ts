@@ -6,6 +6,7 @@ export interface Marketplace {
   name: string;
   link: string;
   logo: string;
+  buyNowEnabled: boolean;
 }
 
 export const getMarketplace = (marketplaceAddress: string | undefined): Marketplace | undefined => {

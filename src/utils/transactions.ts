@@ -1,13 +1,15 @@
+import type { WalletContextState } from '@solana/wallet-adapter-react';
 import type {
   Commitment,
   Connection,
+  Keypair,
   PublicKey,
   SignatureStatus,
   TransactionInstruction,
   TransactionSignature,
   VersionedTransaction,
 } from '@solana/web3.js';
-import { Transaction } from '@solana/web3.js';
+import { Transaction, ComputeBudgetProgram } from '@solana/web3.js';
 
 import { reduceSettledPromise } from './promises';
 
@@ -278,3 +280,106 @@ export async function awaitTransactionSignatureConfirmation(
   done = true;
   return status;
 }
+
+export const sendTransactionWithRetry = async (
+  connection: Connection,
+  wallet: WalletContextState,
+  instructions: TransactionInstruction[],
+  signers: Keypair[],
+  computeUnits = 0,
+  commitment: Commitment = 'singleGossip',
+  includesFeePayer: boolean = false,
+  beforeSend?: () => void
+) => {
+  if (!wallet.publicKey) throw new Error('Wallet not connected');
+
+  let transaction = new Transaction();
+  if (computeUnits > 0) {
+    const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+      units: computeUnits,
+    });
+    transaction.add(modifyComputeUnits);
+  }
+  instructions.forEach((instruction) => transaction.add(instruction));
+  transaction.recentBlockhash = (await connection.getLatestBlockhash(commitment)).blockhash;
+  transaction.feePayer = wallet.publicKey;
+
+  if (signers.length > 0) {
+    transaction.partialSign(...signers);
+  }
+  if (!includesFeePayer) {
+    transaction = await wallet.signTransaction!(transaction);
+  }
+
+  if (beforeSend) {
+    beforeSend();
+  }
+
+  const { txid, slot } = await sendSignedTransaction({
+    connection,
+    signedTransaction: transaction,
+  });
+
+  return { txid, slot };
+};
+
+export interface Txn {
+  txid: string | null;
+  slot: number | null;
+}
+
+export async function sendSignedTransaction({
+  signedTransaction,
+  connection,
+  timeout = DEFAULT_TIMEOUT,
+}: {
+  signedTransaction: Transaction;
+  connection: Connection;
+  timeout?: number;
+}): Promise<Txn> {
+  const rawTransaction = signedTransaction.serialize();
+  const startTime = getUnixTs();
+  let slot = 0;
+  const txid: TransactionSignature = await connection.sendRawTransaction(rawTransaction, {
+    skipPreflight: true,
+  });
+
+  console.log('Started awaiting confirmation for', txid);
+
+  let done = false;
+  (async () => {
+    while (!done && getUnixTs() - startTime < timeout) {
+      connection.sendRawTransaction(rawTransaction, {
+        skipPreflight: true,
+      });
+      // eslint-disable-next-line no-await-in-loop
+      await wait(500);
+    }
+  })();
+  try {
+    const confirmation = await awaitTransactionSignatureConfirmation(txid, timeout, connection);
+    console.log('🚀 ~ file: connection.ts ~ line 388 ~ confirmation', confirmation);
+
+    if (!confirmation) throw new Error('Timed out awaiting confirmation on transaction');
+
+    if (confirmation.err) {
+      console.error(confirmation.err);
+      throw new Error('Transaction failed: Custom instruction error');
+    }
+
+    slot = confirmation?.slot || 0;
+  } catch (err: any) {
+    console.error('Transaction Error caught', err);
+    if ((err as string) === 'timeout') {
+      throw new Error('Timed out awaiting confirmation on transaction');
+    }
+    throw new Error('Transaction failed');
+  } finally {
+    done = true;
+  }
+
+  console.log('Latency', txid, getUnixTs() - startTime);
+  return { txid, slot };
+}
+
+export const getUnixTs = () => new Date().getTime() / 1000;

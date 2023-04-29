@@ -15,7 +15,9 @@ import Icon from '../components/Icon';
 import Lightbox from '../components/Lightbox';
 import { Paragraph, TextColor, FontWeight } from '../components/Typography';
 import useBuyNow from '../hooks/buy';
+import type { BuyListingResponse } from '../hooks/buy';
 import { useDetail } from '../hooks/collection/useDetail';
+import useHSBuyNow from '../hooks/hyperspace';
 import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import useLogin from '../hooks/login';
 import { useOffers } from '../hooks/nft';
@@ -102,12 +104,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
     return nft.latestListing?.auctionHouseAddress === config.auctionHouse;
   }, [nft.latestListing]);
 
-  const listing: ActionInfo | null = useMemo(() => {
-    if (nft.latestListing) {
-      return nft.latestListing;
-    }
-    return null;
-  }, [nft.latestListing]);
+  const listing: ActionInfo | null = useMemo(() => nft.latestListing, [nft.latestListing]);
 
   const highestOffer: Offer | null = useMemo(() => {
     const sorted = offers
@@ -179,18 +176,28 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
+  const { buying: HSBuying, onHSBuyNow } = useHSBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
       return;
     }
 
+    let response: BuyListingResponse | undefined = undefined;
+
     try {
-      const response = await onBuyNow({
-        nft,
-        auctionHouse,
-        listing,
-      });
+      if (isOwnMarket) {
+        response = await onBuyNow({
+          nft,
+          auctionHouse,
+          listing,
+        });
+      } else {
+        response = await onHSBuyNow({
+          nft,
+          listing,
+        });
+      }
 
       if (!response) {
         return;
@@ -198,8 +205,10 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
 
       setNft((oldNft) => ({
         ...oldNft,
-        owner: response.buyAction ? response.buyAction.userAddress : oldNft.owner,
-        lastSale: response.buyAction,
+        // eslint-disable-next-line
+        owner: response!.buyAction ? response!.buyAction.userAddress : oldNft.owner,
+        // eslint-disable-next-line
+        lastSale: response!.buyAction,
         latestListing: null,
       }));
 
@@ -487,16 +496,13 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
             <Overview.Form.Title>{t('buy', { ns: 'nft' })}</Overview.Form.Title>
             <Flex direction={FlexDirection.Col} className="mt-4 px-6 pt-8 pb-6 md:pt-0">
               <div>
-                <Flex
-                  align={FlexAlign.Center}
-                  justify={FlexJustify.Between}
-                  className="rounded-md bg-primary-600 p-4"
-                >
+                <Flex align={FlexAlign.Center} className="rounded-md bg-primary-600 p-4 gap-1">
                   <img
                     src={marketplace?.logo}
                     className="h-5 w-auto object-fill"
                     alt={t('logo', { ns: 'nft', market: marketplace?.name })}
                   />
+                  {!isOwnMarket && <h2>{marketplace?.name}</h2>}
                 </Flex>
               </div>
               <Overview.Form.Points>
@@ -839,8 +845,15 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                         )
                       ) : (
                         listing && (
-                          <Button block onClick={isOwnMarket ? onOpenBuy : onViewExternalListing}>
-                            {t(isOwnMarket ? 'buy' : 'view', {
+                          <Button
+                            block
+                            onClick={
+                              !!marketplace && marketplace.buyNowEnabled
+                                ? onOpenBuy
+                                : onViewExternalListing
+                            }
+                          >
+                            {t(!!marketplace && marketplace.buyNowEnabled ? 'buy' : 'view', {
                               ns: 'nft',
                               market: marketplace?.name,
                             })}
