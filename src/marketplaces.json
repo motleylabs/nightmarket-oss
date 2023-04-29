@@ -4,21 +4,21 @@
     "auctionHouseAddress": null,
     "name": "Magic Eden",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/magiceden.svg"
+    "logo": "/images/marketplaces/magiceden.svg"
   },
   {
     "marketplaceProgramAddress": "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8",
     "auctionHouseAddress": null,
     "name": "Magic Eden",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/magiceden.svg"
+    "logo": "/images/marketplaces/magiceden.svg"
   },
   {
     "marketplaceProgramAddress": "mmm3XBJg5gk8XJxEKBvdgptZz6SgK4tXvn36sodowMc",
     "auctionHouseAddress": null,
     "name": "CoralCube / ME AMM",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/coralcube.svg"
+    "logo": "/images/marketplaces/coralcube.svg"
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
@@ -56,31 +56,45 @@
     "logo": "/images/holaplex-logo-text.png"
   },
   {
+    "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
+    "auctionHouseAddress": "GWErq8nJf5JQtohg5k7RTkiZmoCxvGBJqbMSfkrxYFFy",
+    "name": "Solanart",
+    "link": "https://solanart.io/nft/{}",
+    "logo": "/images/marketplaces/solanart.svg"
+  },
+  {
+    "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
+    "auctionHouseAddress": "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y",
+    "name": "OpenSea",
+    "link": "https://opensea.io/assets/solana/{}",
+    "logo": "/images/marketplaces/opensea.svg"
+  },
+  {
     "marketplaceProgramAddress": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",
     "auctionHouseAddress": null,
     "name": "Tensor Swap",
     "link": "https://www.tensor.trade/item/{}",
-    "logo": "/images/tensor-swap.svg"
+    "logo": "/images/marketplaces/tensor-swap.svg"
   },
   {
     "marketplaceProgramAddress": "hadeK9DLv9eA7ya5KCTqSvSvRZeJC3JgD5a9Y3CNbvu",
     "auctionHouseAddress": null,
     "name": "Hadeswap",
     "link": "https://beta.hadeswap.com/collection/{}",
-    "logo": "/images/hadeswap.svg"
+    "logo": "/images/marketplaces/hadeswap.svg"
   },
   {
     "marketplaceProgramAddress": "HYPERfwdTjyJ2SCaKHmpF2MtrXqWxrsotYDsTrshHWq8",
     "auctionHouseAddress": null,
     "name": "Hyperspace",
     "link": "https://hyperspace.xyz/token/{}",
-    "logo": "/images/hyperspace.svg"
+    "logo": "/images/marketplaces/hyperspace.svg"
   },
   {
     "marketplaceProgramAddress": "2qGyiNeWyZxNdkvWHc2jT5qkCnYa1j1gDLSSUmyoWMh8",
     "auctionHouseAddress": null,
     "name": "Elixir",
     "link": "https://app.elixirnft.io/",
-    "logo": "/images/elixir.svg"
+    "logo": "/images/marketplaces/elixir.svg"
   }
 ]

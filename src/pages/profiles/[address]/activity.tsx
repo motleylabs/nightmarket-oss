@@ -132,6 +132,7 @@ export default function ProfileActivity(): JSX.Element {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplaceAddress={activity.martketplaceProgramAddress}
+                    auctionHouseAddress={activity.auctionHouseAddress}
                   />
                 }
                 source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}

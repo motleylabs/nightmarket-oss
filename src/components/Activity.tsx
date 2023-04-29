@@ -71,11 +71,12 @@ export function Activity({
 interface ActivityMetaProps {
   title: JSX.Element;
   marketplaceAddress?: string;
+  auctionHouseAddress?: string;
   type?: ActivityType;
 }
-function ActivityMeta({ title, marketplaceAddress, type }: ActivityMetaProps): JSX.Element {
+function ActivityMeta({ title, marketplaceAddress, auctionHouseAddress, type }: ActivityMetaProps): JSX.Element {
   const marketplace = useMemo<Marketplace | undefined>(
-    () => getMarketplace(marketplaceAddress),
+    () => getMarketplace(marketplaceAddress, auctionHouseAddress),
     [marketplaceAddress]
   );
 

@@ -124,6 +124,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplaceAddress={offer.martketplaceProgramAddress}
+                    auctionHouseAddress={offer.auctionHouseAddress}
                   />
                 }
                 source={<Activity.Wallet buyer={offer.buyer} />}
@@ -148,6 +149,7 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplaceAddress={offer.martketplaceProgramAddress}
+                    auctionHouseAddress={offer.auctionHouseAddress}
                   />
                 }
                 source={<Activity.Wallet buyer={offer.buyer} />}

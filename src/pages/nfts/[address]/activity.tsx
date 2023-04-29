@@ -97,6 +97,7 @@ export default function NftActivity() {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplaceAddress={activity.martketplaceProgramAddress}
+                    auctionHouseAddress={activity.auctionHouseAddress}
                   />
                 }
                 source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}

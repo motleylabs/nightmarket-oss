@@ -95,7 +95,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
   const notOwner = !isOwner;
 
   const marketplace: Marketplace | undefined = useMemo(() => {
-    return getMarketplace(nft.latestListing?.auctionHouseProgram);
+    return getMarketplace(nft.latestListing?.auctionHouseProgram, nft.latestListing?.auctionHouseAddress);
   }, [nft.latestListing]);
 
   const isOwnMarket: boolean = useMemo(() => {
