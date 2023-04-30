@@ -148,7 +148,7 @@ const Home: NextPage = () => {
           </Hero.Main>
           <Hero.Image>
             <Image
-              className="rounded-tr-2xl rounded-br-2xl"
+              className="rounded-tl-2xl rounded-tr-2xl md:rounded-tr-2xl md:rounded-br-2xl"
               src="/images/open_all_night.jpg"
               alt="Open All Night"
               width={1280}
