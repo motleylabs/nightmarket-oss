@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import Image from './Image';
+import { getAssetURL, AssetSize } from '../utils/assets';
 
 export enum AvatarSize {
   Tiny,
@@ -32,7 +33,7 @@ export function Avatar({ src, circle, size }: AvatarProps) {
       })}
     >
       <Image
-        src={src}
+        src={getAssetURL(src, AssetSize.XSmall)}
         alt="avatar"
         className={clsx(
           'aspect-square object-cover',
