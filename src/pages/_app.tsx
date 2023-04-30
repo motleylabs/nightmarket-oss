@@ -619,7 +619,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-export const COOKIE_REF = 'refId';
+export const COOKIE_REF = 'ref';
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet;
 
