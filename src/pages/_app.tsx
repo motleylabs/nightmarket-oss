@@ -619,7 +619,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-export const COOKIE_REF = 'refId';
+export const COOKIE_REF = 'ref';
 function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const network = WalletAdapterNetwork.Mainnet;
 
@@ -654,13 +654,13 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
-    if (router.query?.refId) {
+    if (router.query?.[COOKIE_REF]) {
       const hasCookie = getCookie(COOKIE_REF);
       if (!hasCookie) {
-        setCookie(COOKIE_REF, (router.query?.refId as string).toLowerCase(), 60);
+        setCookie(COOKIE_REF, (router.query?.[COOKIE_REF] as string).toLowerCase(), 60);
       }
     }
-  }, [router.query?.refId]);
+  }, [router.query?.[COOKIE_REF]]);
 
   const { cache } = useSWRConfig();
 

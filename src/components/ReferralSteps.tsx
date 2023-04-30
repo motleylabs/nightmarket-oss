@@ -1,6 +1,7 @@
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
 
+import { clearCache } from 'ahooks';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -72,7 +73,7 @@ function Welcome({ setSteps, commitName, wallet }: WelcomeProps): JSX.Element {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setTimeEllapsed(true);
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearTimeout(timeout);
@@ -138,9 +139,11 @@ function Create({ setSteps, commitName, referrer }: CreateProps): JSX.Element {
       if (name.length >= 3) {
         await onCreateBuddy(name, referrer);
         commitName(name.toLowerCase());
+        clearCache(`getBuddyStats-${publicKey?.toString()}`);
+        localStorage.setItem(`buddy-${publicKey?.toString()}`, name);
       } else setError(t('nameLengthError'));
     }
-  }, [name, error]);
+  }, [name, error, publicKey]);
 
   return (
     <div className="mt-12 flex flex-col items-center" style={{ maxWidth: 420 }}>
@@ -250,7 +253,7 @@ function Success({ name }: SuccessProps): JSX.Element {
         {url ? <QRCodeSVG value={url} fgColor={'white'} bgColor={'black'} /> : null}
       </div>
       <div className="mt-8 flex w-full flex-row items-center justify-center font-medium">
-        <div className="pr-4 ">
+        <div className="pr-4 text-center max-w-[350px]">
           <span className="text-gray-500">{`${domain}/r/`}</span>
           <span className="text-white">{name}</span>
         </div>

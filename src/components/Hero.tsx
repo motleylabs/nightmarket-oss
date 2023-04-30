@@ -31,7 +31,7 @@ interface HeroTitleProps {
 }
 
 function HeroTitle({ children }: HeroTitleProps): JSX.Element {
-  return <h1 className="mb-10 font-serif text-3xl lg:text-5xl ">{children}</h1>;
+  return <h1 className="mb-4 md:mb-10 font-serif text-3xl lg:text-5xl ">{children}</h1>;
 }
 
 Hero.Title = HeroTitle;
@@ -41,7 +41,7 @@ interface HeroSubTitleProps {
 }
 
 function HeroSubTitle({ children }: HeroSubTitleProps): JSX.Element {
-  return <h2 className="text-base text-gray-400 lg:text-xl ">{children}</h2>;
+  return <h2 className="text-lg text-gray-400 lg:text-xl ">{children}</h2>;
 }
 
 Hero.SubTitle = HeroSubTitle;
@@ -51,7 +51,7 @@ interface HeroActionsProps {
 }
 
 function HeroActions({ children }: HeroActionsProps): JSX.Element {
-  return <div className="mt-16 flex gap-6 lg:gap-8">{children}</div>;
+  return <div className="flex flex-col w-full md:flex-row mt-8 md:mt-16 gap-6 lg:gap-8">{children}</div>;
 }
 
 Hero.Actions = HeroActions;
