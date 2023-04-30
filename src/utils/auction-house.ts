@@ -12,8 +12,7 @@ import type { AuctionHouse } from '../typings';
 
 export const getAuctionHouseByAddress = async (
   connection: Connection,
-  auctionHouse: PublicKey,
-  auctioneerAuthority?: PublicKey
+  auctionHouse: PublicKey
 ): Promise<MtlyAuctionHouse> => {
   const mtlyHouse = await MtlyAuctionHouse.fromAccountAddress(connection, auctionHouse);
   return mtlyHouse;
@@ -28,8 +27,7 @@ export const getAuctionHouseInfo = async (
   try {
     const mpAuctionHouse = await getAuctionHouseByAddress(
       connection,
-      address,
-      new PublicKey(process.env.NEXT_PUBLIC_AUCTIONEER_AUTHORITY ?? '')
+      address
     );
 
     auctionHouse = {
