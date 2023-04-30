@@ -17,7 +17,7 @@ import Button, {
   ButtonSize,
 } from '../../../components/Button';
 import Icon from '../../../components/Icon';
-import { Table } from '../../../components/Table';
+import { Table, calculateFees } from '../../../components/Table';
 import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
 import { createApiTransport } from '../../../infrastructure/api';
 import ProfileLayout from '../../../layouts/ProfileLayout';
@@ -58,7 +58,27 @@ export default function ProfileAffiliate() {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const { address, publicKey: adapterWallet, connecting, connected } = useWalletContext();
-  const { data: buddy, refresh: refreshBuddy } = useBuddy(address);
+  const { data, loading: loadingBuddy, refresh: refreshBuddy } = useBuddy(address);
+
+  const buddy = useMemo(() => {
+    if (data?.error === 'User not found') {
+      const storedBuddy = localStorage.getItem(`buddy-${adapterWallet?.toString()}`);
+      if (storedBuddy) {
+        return {
+          publicKey: adapterWallet?.toString(),
+          buddies: [],
+          username: storedBuddy,
+          totalClaimable: 0,
+          totalEarned: 0,
+          totalGeneratedMarketplaceVolumeByReferrals: 0,
+        };
+      }
+    } else if (data?.publicKey) {
+      localStorage.removeItem(`buddy-${adapterWallet?.toString()}`);
+      return data;
+    }
+    return {};
+  }, [data, adapterWallet, loadingBuddy]);
 
   const tabContent = useMemo(() => {
     switch (tab) {
@@ -66,7 +86,7 @@ export default function ProfileAffiliate() {
         return <Table.ClaimHistory wallet={address as string} />;
       }
       case REFERRED_TAB: {
-        return <Table.ReferredList referred={buddy?.buddies} />;
+        return <Table.ReferredList referred={buddy?.buddies} loading={loadingBuddy} />;
       }
       case INACTIVE_TAB: {
         return <Table.Inactive />;
@@ -107,14 +127,13 @@ export default function ProfileAffiliate() {
     <>
       <div>
         <header className="top-0 grid grid-cols-2 items-center justify-between gap-4 bg-black md:mx-10 md:flex md:h-[58px] xl:my-4 xl:mx-4"></header>
-
         {process.env.NEXT_PUBLIC_BLOCK_REFERRALS === 'true' ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
             <div className="mb-4 text-center text-lg text-white sm:w-[375px]">
               {t('comingSoon', { ns: 'referrals' })}
             </div>
           </div>
-        ) : !buddy?.publicKey ? (
+        ) : !loadingBuddy && !buddy?.publicKey ? (
           <div className="mx-6 mt-10 flex flex-col items-center justify-center xl:mx-0 xl:mt-14 xl:h-[150px] ">
             <div className="mb-4 text-center text-lg text-white sm:w-[375px]">
               {t('noBuddy', { ns: 'referrals' })}
@@ -129,140 +148,162 @@ export default function ProfileAffiliate() {
           <>
             <div className="mx-6 mt-10 flex flex-col flex-wrap items-center justify-center xl:mx-0 xl:mt-14 xl:min-h-[150px] xl:w-full xl:flex-row">
               <div className="w-full md:flex md:items-center md:justify-center xl:mb-4 xl:w-auto">
-                <PillStat
-                  title={t('profile.available', { ns: 'referrals' })}
-                  className="md:mr-4 md:min-w-[328px] xl:mb-0"
-                >
+                {loadingBuddy ? (
                   <>
-                    <div className="flex items-center">
-                      <Icon.Solana />
-                      <h2 className="ml-1 text-2xl font-bold">{buddy?.totalClaimable}</h2>
-                    </div>
-                    <div>
-                      <Button
-                        block
-                        className="mt-12 h-8 w-full"
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                        size={ButtonSize.Small}
-                        loading={claiming}
-                        disabled={!buddy?.totalClaimable}
-                        onClick={async () => {
-                          if (buddy) {
-                            await onClaimBuddy(buddy?.username as string);
-                            refreshBuddy();
-                          }
-                        }}
-                      >
-                        {t('profile.claimRewards', { ns: 'referrals' })}
-                      </Button>
-                    </div>
+                    <StatsSkeleton />
+                    <StatsSkeleton className="md:mr-0 xl:mr-4" />
                   </>
-                </PillStat>
-                <PillStat
-                  title={t('profile.feesByReferral', { ns: 'referrals' })}
-                  className="md:min-w-[328px] xl:mb-0 xl:mr-4"
-                >
-                  <div className="flex items-center">
-                    <Icon.Solana />
-                    <h2 className="ml-1 text-2xl font-bold">
-                      {(buddy?.totalGeneratedFeeVolumeByReferrals || 0) / 1e9}
-                    </h2>
-                  </div>
-                </PillStat>
+                ) : (
+                  <>
+                    <PillStat
+                      title={t('profile.available', { ns: 'referrals' })}
+                      className="md:mr-4 md:min-w-[328px] xl:mb-0"
+                    >
+                      <>
+                        <div className="flex items-center">
+                          <Icon.Solana />
+                          <h2 className="ml-1 text-2xl font-bold">{buddy?.totalClaimable}</h2>
+                        </div>
+                        <div>
+                          <Button
+                            block
+                            className="mt-12 h-8 w-full"
+                            background={ButtonBackground.Slate}
+                            border={ButtonBorder.Gradient}
+                            color={ButtonColor.Gradient}
+                            size={ButtonSize.Small}
+                            loading={claiming}
+                            disabled={!buddy?.totalClaimable}
+                            onClick={async () => {
+                              if (buddy) {
+                                await onClaimBuddy(buddy?.username as string);
+                                refreshBuddy();
+                              }
+                            }}
+                          >
+                            {t('profile.claimRewards', { ns: 'referrals' })}
+                          </Button>
+                        </div>
+                      </>
+                    </PillStat>
+                    <PillStat
+                      title={t('profile.feesByReferral', { ns: 'referrals' })}
+                      className="md:min-w-[328px] xl:mb-0 xl:mr-4"
+                    >
+                      <div className="flex items-center">
+                        <Icon.Solana />
+                        <h2 className="ml-1 text-2xl font-bold">
+                          {calculateFees(buddy?.totalGeneratedMarketplaceVolumeByReferrals)}
+                        </h2>
+                      </div>
+                    </PillStat>
+                  </>
+                )}
               </div>
               <div className="w-full md:flex md:items-center md:justify-center xl:mb-4 xl:w-auto">
-                <PillStat
-                  title={t('profile.allTimeClaim', { ns: 'referrals' })}
-                  className="md:mr-4 md:min-w-[328px] xl:mb-0"
-                >
-                  <div className="flex items-center">
-                    <Icon.Solana />
-                    <h2 className="ml-1 text-2xl font-bold">{buddy?.totalEarned}</h2>
-                  </div>
-                </PillStat>
-                <PillStat
-                  title={t('profile.totalGeneratedRevenue', { ns: 'referrals' })}
-                  className="md:min-w-[328px] xl:mb-0 xl:mr-4"
-                >
-                  <div className="flex xl:flex-col">
-                    <div className="flex w-full items-center">
-                      <Icon.Solana />
-                      <h2 className="ml-1 text-2xl font-bold">
-                        {(buddy?.totalGeneratedMarketplaceVolumeByReferrals || 0) / 1e9}
-                      </h2>
-                    </div>
-                    <div className="flex w-full items-center xl:mt-8">
-                      <Icon.User />
-                      <h2 className="ml-1 text-2xl font-bold">{buddy?.buddies.length}</h2>
-                    </div>
-                  </div>
-                </PillStat>
-              </div>
-              <div className="w-full md:flex md:items-center md:justify-center lg:justify-start xl:mb-4 xl:w-auto">
-                <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]  lg:w-1/2 xl:w-auto xl:min-w-[259px]">
-                  <div className="flex justify-between">
-                    <h4 className="text-gray-300">
-                      {t('profile.affiliateLink', { ns: 'referrals' })}
-                    </h4>
-                    <div
-                      className="flex h-6 w-6 cursor-pointer items-center justify-center rounded bg-gray-800 hover:bg-gray-700"
-                      onClick={() => {
-                        setVisible(true);
-                      }}
+                {loadingBuddy ? (
+                  <>
+                    <StatsSkeleton />
+                    <StatsSkeleton className="md:mr-0 xl:mr-0" />
+                  </>
+                ) : (
+                  <>
+                    <PillStat
+                      title={t('profile.allTimeClaim', { ns: 'referrals' })}
+                      className="md:mr-4 md:min-w-[328px] xl:mb-0"
                     >
-                      <Icon.QRCode />
-                    </div>
-                  </div>
-                  <div
-                    className="mt-4 flex h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-gray-800"
-                    onClick={handleCopy}
-                  >
-                    {buddy?.username ? (
-                      <div className="relative flex items-center bg-gray-800 px-4 text-gray-400">
-                        <span>
-                          {domain}/r/<span className="text-white">{buddy?.username}</span>
-                        </span>
-                        <div
-                          className="absolute right-2 py-2 pr-2 pl-4"
-                          style={{
-                            background:
-                              'linear-gradient(90deg, rgba(23, 22, 28, 0) 0%, rgb(23, 22, 28, 0.5) 25%, rgb(23, 22, 28) 35%)',
-                          }}
-                        >
-                          {copied ? (
-                            <CheckIcon className=" h-4 w-4 text-gray-300" />
-                          ) : (
-                            <Icon.Copy className=" h-4 w-4" />
-                          )}
+                      <div className="flex items-center">
+                        <Icon.Solana />
+                        <h2 className="ml-1 text-2xl font-bold">{buddy?.totalEarned}</h2>
+                      </div>
+                    </PillStat>
+                    <PillStat
+                      title={t('profile.totalGeneratedRevenue', { ns: 'referrals' })}
+                      className="md:min-w-[328px] xl:mb-0 xl:mr-4"
+                    >
+                      <div className="flex xl:flex-col">
+                        <div className="flex w-full items-center">
+                          <Icon.Solana />
+                          <h2 className="ml-1 text-2xl font-bold">
+                            {(buddy?.totalGeneratedMarketplaceVolumeByReferrals || 0) / 1e9}
+                          </h2>
+                        </div>
+                        <div className="flex w-full items-center xl:mt-8">
+                          <Icon.User />
+                          <h2 className="ml-1 text-2xl font-bold">{buddy?.buddies.length}</h2>
                         </div>
                       </div>
-                    ) : (
-                      <p className="flex items-center text-gray-400">
-                        {t('profile.generating', { ns: 'referrals' })}
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-3 flex items-center justify-center">
-                    <Link
-                      target="_blank"
-                      rel="nofollow noreferrer"
-                      className="text-white opacity-50"
-                      href={`https://t.me/share/url?url=${url}`}
+                    </PillStat>
+                  </>
+                )}
+              </div>
+              <div className="w-full md:flex md:items-center md:justify-center lg:justify-start xl:mb-4 xl:w-auto">
+                {loadingBuddy ? (
+                  <StatsSkeleton half className="lg:w-1/2 xl:ml-4 xl:w-auto" />
+                ) : (
+                  <div className="h-[180px] rounded-2xl border border-gray-800 p-4 md:min-w-[328px]  lg:w-1/2 xl:w-auto xl:min-w-[259px]">
+                    <div className="flex justify-between">
+                      <h4 className="text-gray-300">
+                        {t('profile.affiliateLink', { ns: 'referrals' })}
+                      </h4>
+                      <div
+                        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded bg-gray-800 hover:bg-gray-700"
+                        onClick={() => {
+                          setVisible(true);
+                        }}
+                      >
+                        <Icon.QRCode />
+                      </div>
+                    </div>
+                    <div
+                      className="mt-4 flex h-12 w-full cursor-pointer items-center justify-center rounded-lg bg-gray-800"
+                      onClick={handleCopy}
                     >
-                      <Icon.Telegram className="h-4 w-auto" />
-                    </Link>
-                    <Link
-                      target="_blank"
-                      rel="nofollow noreferrer"
-                      className="mx-4 text-white opacity-50"
-                      href={`https://twitter.com/share?url=${url}`}
-                    >
-                      <Icon.Twitter className="h-5 w-auto" />
-                    </Link>
+                      {buddy?.username ? (
+                        <div className="relative flex items-center bg-gray-800 px-4 text-gray-400">
+                          <span>
+                            {domain}/r/<span className="text-white">{buddy?.username}</span>
+                          </span>
+                          <div
+                            className="absolute right-2 py-2 pr-2 pl-4"
+                            style={{
+                              background:
+                                'linear-gradient(90deg, rgba(23, 22, 28, 0) 0%, rgb(23, 22, 28, 0.5) 25%, rgb(23, 22, 28) 35%)',
+                            }}
+                          >
+                            {copied ? (
+                              <CheckIcon className=" h-4 w-4 text-gray-300" />
+                            ) : (
+                              <Icon.Copy className=" h-4 w-4" />
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="flex items-center text-gray-400">
+                          {t('profile.generating', { ns: 'referrals' })}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-3 flex items-center justify-center">
+                      <Link
+                        target="_blank"
+                        rel="nofollow noreferrer"
+                        className="text-white opacity-50"
+                        href={`https://t.me/share/url?url=${url}`}
+                      >
+                        <Icon.Telegram className="h-4 w-auto" />
+                      </Link>
+                      <Link
+                        target="_blank"
+                        rel="nofollow noreferrer"
+                        className="mx-4 text-white opacity-50"
+                        href={`https://twitter.com/share?url=${url}`}
+                      >
+                        <Icon.Twitter className="h-5 w-auto" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
             <div className="xl: mt-11 flex w-full overflow-auto md:pl-6 xl:justify-center xl:pl-0">
@@ -391,6 +432,24 @@ function QRCode({ url, isVisible, close }: { url: string; isVisible: boolean; cl
           <Icon.Close />
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatsSkeleton({ className = '', half = false }: { className?: string; half?: boolean }) {
+  return (
+    <div
+      className={clsx(
+        'over flex animate-pulse rounded-md transition xl:w-auto',
+        half ? 'lg:w-1/2' : 'lg:w-full'
+      )}
+    >
+      <div
+        className={clsx(
+          'mb-4 h-[180px] w-full rounded-2xl bg-gray-800 p-4 md:mr-4 md:min-w-[328px] lg:w-full xl:mb-0 xl:w-auto  xl:min-w-[259px]',
+          className
+        )}
+      />
     </div>
   );
 }
