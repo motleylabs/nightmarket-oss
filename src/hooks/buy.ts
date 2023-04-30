@@ -1,9 +1,9 @@
 import type {
   BuyListingInstructionAccounts,
   BuyListingInstructionArgs,
-} from '@holaplex/hpl-reward-center';
-import { createBuyListingInstruction } from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+} from '@motleylabs/mtly-reward-center';
+import { createBuyListingInstruction } from '@motleylabs/mtly-reward-center';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import {
   createAssociatedTokenAccountInstruction,

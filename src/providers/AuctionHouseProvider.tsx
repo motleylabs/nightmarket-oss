@@ -1,4 +1,3 @@
-import { Metaplex, bundlrStorage, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 
@@ -26,21 +25,16 @@ export function AuctionHouseContextProvider({ children }: { children: React.Reac
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetched, setIsFetched] = useState<boolean>(false);
 
-  const metaplex = useMemo(
-    () => Metaplex.make(connection).use(walletAdapterIdentity(wallet)).use(bundlrStorage()),
-    [connection, wallet]
-  );
-
   useEffect(() => {
     if (wallet.connected && !auctionHouse && !isLoading && !isFetched) {
       setIsLoading(true);
-      getAuctionHouseInfo(connection, metaplex, new PublicKey(config.auctionHouse)).then((res) => {
+      getAuctionHouseInfo(connection, new PublicKey(config.auctionHouse)).then((res) => {
         setAuctionHouse(res);
         setIsFetched(true);
         setIsLoading(false);
       });
     }
-  }, [auctionHouse, connection, isFetched, isLoading, metaplex, wallet.connected]);
+  }, [auctionHouse, connection, isFetched, isLoading, wallet.connected]);
 
   return (
     <AuctionHouseContext.Provider value={{ auctionHouse, isLoading, isFetched }}>

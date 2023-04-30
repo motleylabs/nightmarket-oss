@@ -4,13 +4,13 @@ import type {
   CloseListingInstructionAccounts,
   UpdateListingInstructionAccounts,
   UpdateListingInstructionArgs,
-} from '@holaplex/hpl-reward-center';
+} from '@motleylabs/mtly-reward-center';
 import {
   createCreateListingInstruction,
   createCloseListingInstruction,
   createUpdateListingInstruction,
-} from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+} from '@motleylabs/mtly-reward-center';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,

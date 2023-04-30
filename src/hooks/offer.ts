@@ -6,14 +6,14 @@ import type {
   AcceptOfferInstructionAccounts,
   AcceptOfferInstructionArgs,
   CloseListingInstructionAccounts,
-} from '@holaplex/hpl-reward-center';
+} from '@motleylabs/mtly-reward-center';
 import {
   createCreateOfferInstruction,
   createCloseOfferInstruction,
   createAcceptOfferInstruction,
   createCloseListingInstruction,
-} from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+} from '@motleylabs/mtly-reward-center';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import {

@@ -1,4 +1,4 @@
-import type { PayoutOperation } from '@holaplex/hpl-reward-center';
+import type { PayoutOperation } from '@motleylabs/mtly-reward-center';
 import type { PublicKey } from '@solana/web3.js';
 
 import type { SearchMode } from '../hooks/globalsearch';
