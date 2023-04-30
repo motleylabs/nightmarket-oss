@@ -1,9 +1,9 @@
+import { AuctionHouse as MtlyAuctionHouse } from '@motleylabs/mtly-auction-house';
 import {
   PROGRAM_ID,
   RewardCenter,
   rewardCenterDiscriminator,
 } from '@motleylabs/mtly-reward-center';
-import { AuctionHouse as MtlyAuctionHouse } from '@motleylabs/mtly-auction-house';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import type { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
@@ -25,10 +25,7 @@ export const getAuctionHouseInfo = async (
   let auctionHouse: AuctionHouse | null = null;
 
   try {
-    const mpAuctionHouse = await getAuctionHouseByAddress(
-      connection,
-      address
-    );
+    const mpAuctionHouse = await getAuctionHouseByAddress(connection, address);
 
     auctionHouse = {
       address: address.toBase58(),

@@ -51,7 +51,10 @@ export function Preview({
 
   const listing: ActionInfo | null = useMemo(() => nft.latestListing, [nft.latestListing]);
   const marketplace: Marketplace | undefined = useMemo(() => {
-    return getMarketplace(nft.latestListing?.auctionHouseProgram, nft.latestListing?.auctionHouseAddress);
+    return getMarketplace(
+      nft.latestListing?.auctionHouseProgram,
+      nft.latestListing?.auctionHouseAddress
+    );
   }, [nft.latestListing]);
 
   const isOwnMarket: boolean = useMemo(() => {

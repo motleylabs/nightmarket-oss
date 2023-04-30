@@ -1,5 +1,6 @@
 import { PROGRAM_ID } from '@motleylabs/mtly-auction-house';
 import { PublicKey } from '@solana/web3.js';
+
 import BN from 'bn.js';
 
 export class AuctionHouseProgram {
