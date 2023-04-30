@@ -51,7 +51,7 @@ interface HeroActionsProps {
 }
 
 function HeroActions({ children }: HeroActionsProps): JSX.Element {
-  return <div className="flex flex-col w-full md:flex-row mt-8 md:mt-16 gap-6 lg:gap-8">{children}</div>;
+  return <div className="flex flex-col w-full md:flex-row md:w-auto mt-8 md:mt-16 gap-6 lg:gap-8">{children}</div>;
 }
 
 Hero.Actions = HeroActions;
