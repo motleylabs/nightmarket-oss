@@ -13,6 +13,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
+import { Analytics } from '@vercel/analytics/react';
 
 import clsx from 'clsx';
 import type { NextPage } from 'next';
@@ -686,6 +687,7 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                       <NavigationBar />
                       <PageLayout {...pageProps}>
                         <Component {...pageProps} />
+                        <Analytics />
                       </PageLayout>
                       <Footer links={links} />
                     </AuctionHouseContextProvider>

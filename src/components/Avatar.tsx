@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import Image from './Image';
 import { getAssetURL, AssetSize } from '../utils/assets';
+import Image from './Image';
 
 export enum AvatarSize {
   Tiny,

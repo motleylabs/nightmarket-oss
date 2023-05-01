@@ -315,7 +315,9 @@ function CollectionListNftPreview({ collectionSlug }: CollectionListNftPreviewPr
         if (listedNFTs.nfts && listedNFTs.nfts.length >= previewCount) {
           return listedNFTs.nfts.slice(0, previewCount).map((nft) => ({ ...nft, isListed: true }));
         } else {
-          const listedAddresses = listedNFTs.nfts ? listedNFTs.nfts.map((nft) => nft.mintAddress) : [];
+          const listedAddresses = listedNFTs.nfts
+            ? listedNFTs.nfts.map((nft) => nft.mintAddress)
+            : [];
           const notIncludedOnes = normalNFTs.nfts
             ? normalNFTs.nfts.filter((nft) => !listedAddresses.includes(nft.mintAddress))
             : [];
