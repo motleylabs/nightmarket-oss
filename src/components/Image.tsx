@@ -29,6 +29,7 @@ function Img({
 
   useEffect(() => {
     const image = new Image();
+    image.decoding = 'async';
     image.onload = () => {
       setHideImage(false);
     };
