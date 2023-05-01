@@ -13,8 +13,8 @@ export const getBuyNowTransaction = async (
       mint: tokenAddress,
     });
 
-    if (data.data.length > 0) {
-      return Buffer.from(data.data);
+    if (data.buffer.length > 0) {
+      return data.buffer;
     }
   } catch (e: unknown) {
     // eslint-disable-next-line no-console
