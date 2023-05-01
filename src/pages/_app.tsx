@@ -687,7 +687,6 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
                       <NavigationBar />
                       <PageLayout {...pageProps}>
                         <Component {...pageProps} />
-                        <Analytics />
                       </PageLayout>
                       <Footer links={links} />
                     </AuctionHouseContextProvider>
