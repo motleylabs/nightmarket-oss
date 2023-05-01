@@ -21,7 +21,7 @@ import type { PillItem } from '../../components/Sidebar';
 import { Sidebar } from '../../components/Sidebar';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
-import { createApiTransport } from '../../infrastructure/api';
+import { api } from '../../infrastructure/api';
 import CollectionLayout from '../../layouts/CollectionLayout';
 import type { Collection, CollectionNftsData } from '../../typings';
 import type { Nft } from '../../typings';
@@ -29,7 +29,7 @@ import { OrderDirection } from '../../typings/index.d';
 
 const PAGE_LIMIT = 24;
 
-export async function getServerSideProps({ locale, params, req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params, res }: GetServerSidePropsContext) {
   res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
 
   const start1 = Date.now();
@@ -43,7 +43,6 @@ export async function getServerSideProps({ locale, params, req, res }: GetServer
   console.log('i18n', Date.now() - start1);
 
   const start2 = Date.now();
-  const api = createApiTransport(req);
   console.log('api', Date.now() - start2);
 
   const start3 = Date.now();

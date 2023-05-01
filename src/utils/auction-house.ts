@@ -1,31 +1,39 @@
-import { PROGRAM_ID, RewardCenter, rewardCenterDiscriminator } from '@holaplex/hpl-reward-center';
-import type { Metaplex } from '@metaplex-foundation/js';
+import { AuctionHouse as MtlyAuctionHouse } from '@motleylabs/mtly-auction-house';
+import {
+  PROGRAM_ID,
+  RewardCenter,
+  rewardCenterDiscriminator,
+} from '@motleylabs/mtly-reward-center';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import type { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
 import type { AuctionHouse } from '../typings';
 
+export const getAuctionHouseByAddress = async (
+  connection: Connection,
+  auctionHouse: PublicKey
+): Promise<MtlyAuctionHouse> => {
+  const mtlyHouse = await MtlyAuctionHouse.fromAccountAddress(connection, auctionHouse);
+  return mtlyHouse;
+};
+
 export const getAuctionHouseInfo = async (
   connection: Connection,
-  metaplex: Metaplex,
   address: PublicKey
 ): Promise<AuctionHouse | null> => {
   let auctionHouse: AuctionHouse | null = null;
 
   try {
-    const mpAuctionHouse = await metaplex.auctionHouse().findByAddress({
-      address,
-      auctioneerAuthority: new PublicKey(process.env.NEXT_PUBLIC_AUCTIONEER_AUTHORITY ?? ''),
-    });
+    const mpAuctionHouse = await getAuctionHouseByAddress(connection, address);
 
     auctionHouse = {
-      address: mpAuctionHouse.address.toBase58(),
-      authority: mpAuctionHouse.authorityAddress.toBase58(),
-      auctionHouseFeeAccount: mpAuctionHouse.feeAccountAddress.toBase58(),
-      auctionHouseTreasury: mpAuctionHouse.treasuryAccountAddress.toBase58(),
+      address: address.toBase58(),
+      authority: mpAuctionHouse.authority.toBase58(),
+      auctionHouseFeeAccount: mpAuctionHouse.auctionHouseFeeAccount.toBase58(),
+      auctionHouseTreasury: mpAuctionHouse.auctionHouseTreasury.toBase58(),
       sellerFeeBasisPoints: mpAuctionHouse.sellerFeeBasisPoints,
-      treasuryMint: mpAuctionHouse.treasuryMint.address.toBase58(),
+      treasuryMint: mpAuctionHouse.treasuryMint.toBase58(),
       rewardCenter: null,
     };
 

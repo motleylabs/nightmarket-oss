@@ -5,6 +5,7 @@ import type { NextPage, GetStaticPropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useMemo, useRef, useState } from 'react';
@@ -145,6 +146,15 @@ const Home: NextPage = () => {
               </Button>
             </Hero.Actions>
           </Hero.Main>
+          <Hero.Image>
+            <Image
+              className="rounded-tl-2xl rounded-tr-2xl md:rounded-tr-2xl md:rounded-br-2xl"
+              src="/images/open_all_night.jpg"
+              alt="Open All Night"
+              width={1280}
+              height={1280}
+            />
+          </Hero.Image>
         </Hero>
 
         <section>

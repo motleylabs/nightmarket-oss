@@ -4,20 +4,25 @@ import type {
   CloseListingInstructionAccounts,
   UpdateListingInstructionAccounts,
   UpdateListingInstructionArgs,
-} from '@holaplex/hpl-reward-center';
+} from '@motleylabs/mtly-reward-center';
 import {
   createCreateListingInstruction,
   createCloseListingInstruction,
   createUpdateListingInstruction,
-} from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
+} from '@motleylabs/mtly-reward-center';
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,
 } from '@solana/spl-token';
 import { useConnection } from '@solana/wallet-adapter-react';
-import type { TransactionInstruction } from '@solana/web3.js';
-import { PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
+import type { TransactionInstruction, AccountMeta } from '@solana/web3.js';
+import {
+  ComputeBudgetProgram,
+  PublicKey,
+  Transaction,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js';
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
@@ -32,7 +37,8 @@ import { toLamports, toSol } from '../modules/sol';
 import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs, Nft, AuctionHouse, ActionInfo } from '../typings';
-import { getMetadataAccount } from '../utils/metaplex';
+import { getMetadataAccount, getPNFTAccounts } from '../utils/metaplex';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import {
   buildTransaction,
@@ -162,6 +168,20 @@ export function useListNft(): ListNftContext {
       programAsSigner: programAsSigner,
     };
 
+    if (nft.tokenStandard === 'ProgrammableNonFungible') {
+      const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
+      let remainingAccounts: AccountMeta[] = [];
+      remainingAccounts.push(pnftAccounts.metadataProgram);
+      remainingAccounts.push(pnftAccounts.delegateRecord);
+      remainingAccounts.push(pnftAccounts.tokenRecord);
+      remainingAccounts.push(pnftAccounts.tokenMint);
+      remainingAccounts.push(pnftAccounts.edition);
+      remainingAccounts.push(pnftAccounts.authRulesProgram);
+      remainingAccounts.push(pnftAccounts.authRules);
+      remainingAccounts.push(pnftAccounts.sysvarInstructions);
+      accounts.anchorRemainingAccounts = remainingAccounts;
+    }
+
     const args: CreateListingInstructionArgs = {
       createListingParams: {
         price: buyerPrice,
@@ -173,6 +193,12 @@ export function useListNft(): ListNftContext {
     };
 
     const instruction = createCreateListingInstruction(accounts, args);
+    // patch metadata account to writable for AH / RWD
+    for (let i = 0; i < instruction.keys.length; i++) {
+      if (instruction.keys[i].pubkey.equals(metadata)) {
+        instruction.keys[i].isWritable = true;
+      }
+    }
 
     const sellerRewardTokenAccount = getAssociatedTokenAddressSync(token, publicKey);
 
@@ -192,6 +218,11 @@ export function useListNft(): ListNftContext {
     }
 
     arrayOfInstructions.push(instruction);
+
+    const culIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
+    arrayOfInstructions.push(culIx);
+    const cupIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 });
+    arrayOfInstructions.push(cupIx);
 
     const transactions: VersionedTransaction[] = [];
     let listingTxIndex = 0;
@@ -806,10 +837,35 @@ export function useCloseListing({
       ahAuctioneerPda: auctioneer,
     };
 
+    if (nft.tokenStandard === 'ProgrammableNonFungible') {
+      const [programAsSigner, programAsSignerBump] =
+        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+      const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
+      let remainingAccounts: AccountMeta[] = [];
+      remainingAccounts.push(pnftAccounts.metadataProgram);
+      remainingAccounts.push(pnftAccounts.delegateRecord);
+      remainingAccounts.push(pnftAccounts.programAsSigner);
+      remainingAccounts.push({ isSigner: false, isWritable: true, pubkey: metadata });
+      remainingAccounts.push(pnftAccounts.edition);
+      remainingAccounts.push(pnftAccounts.tokenRecord);
+      remainingAccounts.push(pnftAccounts.tokenMint);
+      remainingAccounts.push(pnftAccounts.authRulesProgram);
+      remainingAccounts.push(pnftAccounts.authRules);
+      remainingAccounts.push(pnftAccounts.sysvarInstructions);
+      remainingAccounts.push(pnftAccounts.systemProgram);
+      accounts.anchorRemainingAccounts = remainingAccounts;
+    }
+
     const instruction = createCloseListingInstruction(accounts);
 
     const tx = new Transaction();
     tx.add(instruction);
+
+    const culIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
+    tx.add(culIx);
+    const cupIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 });
+    tx.add(cupIx);
+
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
@@ -817,7 +873,9 @@ export function useCloseListing({
 
     try {
       const signedTx = await signTransaction(tx);
-      signature = await connection.sendRawTransaction(signedTx.serialize());
+      signature = await connection.sendRawTransaction(signedTx.serialize(), {
+        skipPreflight: true,
+      });
       if (!signature) {
         return null;
       }

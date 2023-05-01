@@ -1,3 +1,5 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import type {
   CreateOfferInstructionAccounts,
   CreateOfferInstructionArgs,
@@ -6,16 +8,13 @@ import type {
   AcceptOfferInstructionAccounts,
   AcceptOfferInstructionArgs,
   CloseListingInstructionAccounts,
-} from '@holaplex/hpl-reward-center';
+} from '@motleylabs/mtly-reward-center';
 import {
   createCreateOfferInstruction,
   createCloseOfferInstruction,
   createAcceptOfferInstruction,
   createCloseListingInstruction,
-} from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+} from '@motleylabs/mtly-reward-center';
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,
@@ -43,7 +42,8 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports, toSol } from '../modules/sol';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ActionInfo, ErrorWithLogs, Nft, Offer, Collection, AuctionHouse } from '../typings';
-import { getMetadataAccount } from '../utils/metaplex';
+import { getPNFTAccounts, getMetadataAccount } from '../utils/metaplex';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
@@ -886,6 +886,23 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
       }
     }
 
+    if (nft.tokenStandard === 'ProgrammableNonFungible') {
+      const pnftAccounts = await getPNFTAccounts(
+        connection,
+        buyerAddress,
+        programAsSigner,
+        tokenMint,
+        publicKey
+      );
+      remainingAccounts.push(pnftAccounts.metadataProgram);
+      remainingAccounts.push(pnftAccounts.edition);
+      remainingAccounts.push(pnftAccounts.sellerTokenRecord);
+      remainingAccounts.push(pnftAccounts.tokenRecord);
+      remainingAccounts.push(pnftAccounts.authRulesProgram);
+      remainingAccounts.push(pnftAccounts.authRules);
+      remainingAccounts.push(pnftAccounts.sysvarInstructions);
+    }
+
     // patch metadata account to writable for AH / RWD
     for (let i = 0; i < acceptOfferIx.keys.length; i++) {
       if (acceptOfferIx.keys[i].pubkey.equals(metadata)) {
@@ -926,6 +943,28 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
         tradeState: sellerTradeState,
         ahAuctioneerPda: auctioneer,
       };
+
+      if (nft.tokenStandard === 'ProgrammableNonFungible') {
+        const pnftAccounts = await getPNFTAccounts(
+          connection,
+          publicKey,
+          programAsSigner,
+          tokenMint
+        );
+        let remainingAccounts: AccountMeta[] = [];
+        remainingAccounts.push(pnftAccounts.metadataProgram);
+        remainingAccounts.push(pnftAccounts.delegateRecord);
+        remainingAccounts.push(pnftAccounts.programAsSigner);
+        remainingAccounts.push({ isSigner: false, isWritable: true, pubkey: metadata });
+        remainingAccounts.push(pnftAccounts.edition);
+        remainingAccounts.push(pnftAccounts.tokenRecord);
+        remainingAccounts.push(pnftAccounts.tokenMint);
+        remainingAccounts.push(pnftAccounts.authRulesProgram);
+        remainingAccounts.push(pnftAccounts.authRules);
+        remainingAccounts.push(pnftAccounts.sysvarInstructions);
+        remainingAccounts.push(pnftAccounts.systemProgram);
+        accounts.anchorRemainingAccounts = remainingAccounts;
+      }
 
       const closeListingIx = createCloseListingInstruction(accounts);
 

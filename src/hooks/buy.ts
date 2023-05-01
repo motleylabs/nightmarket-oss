@@ -1,10 +1,9 @@
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import type {
   BuyListingInstructionAccounts,
   BuyListingInstructionArgs,
-} from '@holaplex/hpl-reward-center';
-import { createBuyListingInstruction } from '@holaplex/hpl-reward-center';
-import { AuctionHouseProgram } from '@holaplex/mpl-auction-house';
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
+} from '@motleylabs/mtly-reward-center';
+import { createBuyListingInstruction } from '@motleylabs/mtly-reward-center';
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
@@ -29,7 +28,8 @@ import { RewardCenterProgram } from '../modules/reward-center';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { AuctionHouse } from '../typings';
 import type { ActionInfo, ErrorWithLogs, Nft } from '../typings';
-import { getMetadataAccount } from '../utils/metaplex';
+import { getPNFTAccounts, getMetadataAccount } from '../utils/metaplex';
+import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
@@ -236,6 +236,24 @@ export default function useBuyNow(): BuyContext {
           remainingAccounts = [...remainingAccounts, creatorAccount];
         }
       }
+    }
+
+    if (nft.tokenStandard === 'ProgrammableNonFungible') {
+      const pnftAccounts = await getPNFTAccounts(
+        connection,
+        publicKey,
+        programAsSigner,
+        tokenMint,
+        seller
+      );
+
+      remainingAccounts.push(pnftAccounts.metadataProgram);
+      remainingAccounts.push(pnftAccounts.edition);
+      remainingAccounts.push(pnftAccounts.sellerTokenRecord);
+      remainingAccounts.push(pnftAccounts.tokenRecord);
+      remainingAccounts.push(pnftAccounts.authRulesProgram);
+      remainingAccounts.push(pnftAccounts.authRules);
+      remainingAccounts.push(pnftAccounts.sysvarInstructions);
     }
 
     const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);

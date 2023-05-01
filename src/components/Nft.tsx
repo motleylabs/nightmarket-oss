@@ -51,7 +51,10 @@ export function Preview({
 
   const listing: ActionInfo | null = useMemo(() => nft.latestListing, [nft.latestListing]);
   const marketplace: Marketplace | undefined = useMemo(() => {
-    return getMarketplace(nft.latestListing?.auctionHouseProgram);
+    return getMarketplace(
+      nft.latestListing?.auctionHouseProgram,
+      nft.latestListing?.auctionHouseAddress
+    );
   }, [nft.latestListing]);
 
   const isOwnMarket: boolean = useMemo(() => {
@@ -226,7 +229,7 @@ export function Preview({
       </div>
 
       {!!nft.lastSale ? (
-        <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4">
+        <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4 pt-1">
           <div className="w-full">
             <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
               {t('lastSale', { ns: 'common' })}

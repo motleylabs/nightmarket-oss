@@ -14,19 +14,17 @@ import { Activity } from '../../../components/Activity';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { Toolbar } from '../../../components/Toolbar';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import type { Collection, CollectionActivitiesData } from '../../../typings';
 import { getActivityTypes } from '../../../utils/activity';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
     'common',
     'collection',
     'analytics',
   ]);
-
-  const api = createApiTransport(req);
 
   const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
 
@@ -136,6 +134,7 @@ export default function CollectionActivity(): JSX.Element {
                   <Activity.Meta
                     title={<Activity.Tag />}
                     marketplaceAddress={activity.martketplaceProgramAddress}
+                    auctionHouseAddress={activity.auctionHouseAddress}
                   />
                 }
                 source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}

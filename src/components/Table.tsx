@@ -178,7 +178,7 @@ function ReferredList({ referred, loading = false }: ReferredListProps) {
               <div className="mr-1">
                 <Icon.Sol />
               </div>
-              <div>{(ref.totalGeneratedFeeVolume || 0) / 1e9}</div>
+              <div>{calculateFees(ref.totalGeneratedMarketplaceVolume)}</div>
             </div>
           ),
           [t('table.volume', { ns: 'referrals' })]: (
@@ -225,4 +225,8 @@ Table.Inactive = Inactive;
 
 function ellipsize(pubKey: string) {
   return `${pubKey.substring(0, 4)}...${pubKey.substring(pubKey.length - 4, pubKey.length)}`;
+}
+
+export function calculateFees(totalVolume: number = 0) {
+  return (totalVolume / 1e9) * 0.01;
 }
