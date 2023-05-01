@@ -528,7 +528,12 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               <Flex direction={FlexDirection.Col} gap={4}>
                 {connected ? (
                   <>
-                    <Button block loading={buying} disabled={buying} onClick={handleBuy}>
+                    <Button
+                      block
+                      loading={buying || HSBuying}
+                      disabled={buying || HSBuying}
+                      onClick={handleBuy}
+                    >
                       {t('buy', { ns: 'nft' })}
                     </Button>
                     <Button
@@ -539,7 +544,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
-                      disabled={buying}
+                      disabled={buying || HSBuying}
                     >
                       {t('cancel', { ns: 'nft' })}
                     </Button>

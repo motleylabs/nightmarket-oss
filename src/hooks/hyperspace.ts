@@ -1,5 +1,5 @@
 import { useConnection } from '@solana/wallet-adapter-react';
-import { Transaction } from '@solana/web3.js';
+import { Transaction, Message } from '@solana/web3.js';
 
 import { useState } from 'react';
 
@@ -41,25 +41,33 @@ export default function useHSBuyNow(): HSBuyContext {
       nft.mintAddress
     );
 
-    if (buyNowTxBuffer) {
-      const tx = Transaction.from(buyNowTxBuffer);
+    console.log({ buyNowTxBuffer });
 
-      const { txid } = await sendTransactionWithRetry(connection, wallet, tx.instructions, []);
+    if (!!buyNowTxBuffer) {
+      try {
+        const tx = Transaction.populate(Message.from(buyNowTxBuffer));
 
-      if (!!txid) {
-        // eslint-disable-next-line no-console
-        console.log('Buynow signature: ', txid);
+        const { txid } = await sendTransactionWithRetry(connection, wallet, tx.instructions, []);
 
-        return {
-          buyAction: {
-            auctionHouseAddress: config.auctionHouse,
-            auctionHouseProgram: config.auctionHouseProgram ?? '',
-            blockTimestamp: Math.floor(new Date().getTime() / 1000),
-            price: listing.price,
-            signature: txid,
-            userAddress: wallet.publicKey.toBase58(),
-          },
-        };
+        if (!!txid) {
+          // eslint-disable-next-line no-console
+          console.log('Buynow signature: ', txid);
+
+          return {
+            buyAction: {
+              auctionHouseAddress: config.auctionHouse,
+              auctionHouseProgram: config.auctionHouseProgram ?? '',
+              blockTimestamp: Math.floor(new Date().getTime() / 1000),
+              price: listing.price,
+              signature: txid,
+              userAddress: wallet.publicKey.toBase58(),
+            },
+          };
+        }
+      } catch (ex) {
+        console.log(ex);
+      } finally {
+        setBuying(false);
       }
     }
 

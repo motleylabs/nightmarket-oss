@@ -1,5 +1,6 @@
 import { CoinGeckoClient } from 'coingecko-api-v3';
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import { asUsdString } from '../modules/number';
 
