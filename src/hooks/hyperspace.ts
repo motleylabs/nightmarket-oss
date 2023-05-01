@@ -1,6 +1,13 @@
 /* eslint-disable no-console */
 import { useConnection } from '@solana/wallet-adapter-react';
-import { Message, Transaction } from '@solana/web3.js';
+import {
+  Connection,
+  TransactionMessage,
+  PublicKey,
+  VersionedTransaction,
+  Transaction,
+  Message,
+} from '@solana/web3.js';
 
 import { useState } from 'react';
 
@@ -8,7 +15,7 @@ import config from '../app.config';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ActionInfo, Nft } from '../typings';
 import { getBuyNowTransaction } from '../utils/hyperspace';
-import { sendTransactionWithRetry } from '../utils/transactions';
+import { sendVersionedTransactionWithRetry, sendTransactionWithRetry } from '../utils/transactions';
 import type { BuyListingResponse } from './buy';
 
 interface HSBuyParams {
@@ -19,6 +26,15 @@ interface HSBuyParams {
 interface HSBuyContext {
   buying: boolean;
   onHSBuyNow: ({ nft, listing }: HSBuyParams) => Promise<BuyListingResponse | undefined>;
+}
+
+async function versionedTransactionFromBuyBuffer(
+  connection: Connection,
+  publicKey: PublicKey,
+  buffer: Buffer
+): Promise<VersionedTransaction> {
+  const tx = VersionedTransaction.deserialize(buffer);
+  return tx;
 }
 
 export default function useHSBuyNow(): HSBuyContext {
@@ -37,6 +53,9 @@ export default function useHSBuyNow(): HSBuyContext {
     setBuying(true);
 
     const buyNowTxBuffer = await getBuyNowTransaction(
+      listing.auctionHouseProgram,
+      listing.auctionHouseAddress,
+      listing.userAddress,
       wallet.publicKey.toBase58(),
       listing.price,
       nft.mintAddress
@@ -46,9 +65,13 @@ export default function useHSBuyNow(): HSBuyContext {
 
     if (!!buyNowTxBuffer) {
       try {
-        const tx = Transaction.populate(Message.from(Buffer.from(buyNowTxBuffer)));
+        const tx = await versionedTransactionFromBuyBuffer(
+          connection,
+          wallet.publicKey,
+          buyNowTxBuffer
+        );
 
-        const { txid } = await sendTransactionWithRetry(connection, wallet, tx.instructions, []);
+        const { txid } = await sendVersionedTransactionWithRetry(connection, wallet, tx);
 
         if (!!txid) {
           // eslint-disable-next-line no-console

@@ -281,6 +281,34 @@ export async function awaitTransactionSignatureConfirmation(
   return status;
 }
 
+export const sendVersionedTransactionWithRetry = async (
+  connection: Connection,
+  wallet: WalletContextState,
+  transaction: VersionedTransaction,
+  commitment: Commitment = 'singleGossip',
+  includesFeePayer: boolean = false,
+  beforeSend?: () => void
+) => {
+  if (!wallet.publicKey) throw new Error('Wallet not connected');
+
+  transaction.message.recentBlockhash = (await connection.getLatestBlockhash(commitment)).blockhash;
+
+  if (!includesFeePayer) {
+    transaction = await wallet.signTransaction!(transaction);
+  }
+
+  if (beforeSend) {
+    beforeSend();
+  }
+
+  const { txid, slot } = await sendSignedTransaction({
+    connection,
+    signedTransaction: transaction,
+  });
+
+  return { txid, slot };
+};
+
 export const sendTransactionWithRetry = async (
   connection: Connection,
   wallet: WalletContextState,
@@ -333,7 +361,7 @@ export async function sendSignedTransaction({
   connection,
   timeout = DEFAULT_TIMEOUT,
 }: {
-  signedTransaction: Transaction;
+  signedTransaction: VersionedTransaction | Transaction;
   connection: Connection;
   timeout?: number;
 }): Promise<Txn> {
