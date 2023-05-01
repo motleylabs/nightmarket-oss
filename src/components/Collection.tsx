@@ -466,7 +466,7 @@ function CollectionListStats({
       return 0;
     }
 
-    const curLen = hourData.series.length;
+    const curLen = hourData?.series?.length;
     if (curLen > 0) {
       const current = hourData.series[curLen - 1].volume;
       const prev = curLen > 1 ? hourData.series[curLen - 2].volume : 0;
