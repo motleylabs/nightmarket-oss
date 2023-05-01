@@ -436,7 +436,7 @@ function CollectionListStats({
       return 0;
     }
     const sliceCount = period === '1d' ? 1 : 7;
-    const curLen = dayData.series.length;
+    const curLen = dayData?.series?.length;
 
     if (curLen > 0) {
       const current = dayData.series
@@ -484,7 +484,7 @@ function CollectionListStats({
       return 0;
     }
 
-    const curLen = dayData.series.length;
+    const curLen = dayData?.series?.length;
     if (curLen > 0) {
       const current = dayData.series[curLen - 1].listed;
       const prev = curLen > 1 ? dayData.series[curLen - 2].listed : 0;
