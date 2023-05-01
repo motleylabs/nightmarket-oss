@@ -120,7 +120,7 @@ const Home: NextPage = () => {
         <meta name="description" content={t('metadata.description', { ns: 'home' })} />
         <meta name="og:title" content={t('metadata.title', { ns: 'home' })} />
         <meta name="og:description" content={t('metadata.description', { ns: 'home' })} />
-        <meta name="og:image" content="/images/open_all_night.jpg" />
+        <meta name="og:image" content="https://nightmarket.io/images/open_all_night.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
