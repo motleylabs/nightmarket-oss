@@ -103,5 +103,12 @@
     "name": "Elixir",
     "link": "https://app.elixirnft.io/",
     "logo": "/images/marketplaces/elixir.svg"
+  },
+  {
+    "marketplaceProgramAddress": "AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn",
+    "auctionHouseAddress": null,
+    "name": "Exchange Art",
+    "link": "https://exchange.art/single/{}",
+    "logo": "/images/marketplaces/exchangeart.svg"
   }
 ]
