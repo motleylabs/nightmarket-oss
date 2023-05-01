@@ -4,17 +4,15 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-import { createApiTransport } from '../../infrastructure/api';
+import { api } from '../../infrastructure/api';
 import NftLayout from '../../layouts/NftLayout';
 import type { Nft, NftDetail } from '../../typings';
 import { hideTokenDetails } from '../../utils/tokens';
 import Icon from './../../components/Icon';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   try {
     const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
-
-    const api = createApiTransport(req);
 
     const { data } = await api.get<Nft>(`/nfts/${params?.address}`);
 

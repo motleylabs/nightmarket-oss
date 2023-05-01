@@ -14,15 +14,13 @@ import { Activity } from '../../../components/Activity';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
 import Select from '../../../components/Select';
 import { Toolbar } from '../../../components/Toolbar';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import type { UserActivitiesData, UserNfts } from '../../../typings';
 import { getActivityTypes } from '../../../utils/activity';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
-
-  const api = createApiTransport(req);
 
   const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
 

@@ -20,7 +20,7 @@ import type { PillItem } from '../../components/Sidebar';
 import { Sidebar } from '../../components/Sidebar';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
-import { createApiTransport } from '../../infrastructure/api';
+import { api } from '../../infrastructure/api';
 import ProfileLayout from '../../layouts/ProfileLayout';
 import { useWalletContext } from '../../providers/WalletContextProvider';
 import type { UserNfts, Offer, UserOffersData, MiniCollection } from '../../typings';
@@ -28,7 +28,7 @@ import { getSolFromLamports } from '../../utils/price';
 import { Collection } from './../../components/Collection';
 import { List, ListGridSize } from './../../components/List';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
     'common',
     'profile',
@@ -36,8 +36,6 @@ export async function getServerSideProps({ locale, params, req }: GetServerSideP
     'nft',
     'buyable',
   ]);
-
-  const api = createApiTransport(req);
 
   const [{ data: nfts }, { data: offersData }] = await Promise.all([
     api.get<UserNfts>(`/users/nfts?address=${params?.address}`),

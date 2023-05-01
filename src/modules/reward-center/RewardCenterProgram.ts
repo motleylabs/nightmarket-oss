@@ -1,7 +1,8 @@
-import { AuctionHouseProgram } from '../../utils/mtly-house';
 import { PublicKey } from '@solana/web3.js';
 
 import { BN } from 'bn.js';
+
+import { AuctionHouseProgram } from '../../utils/mtly-house';
 
 const REWARD_CENTER_PROGRAM = new PublicKey('rwdD3F6CgoCAoVaxcitXAeWRjQdiGc5AVABKCpQSMfd');
 

@@ -1,14 +1,5 @@
 import type { ReactNode } from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Label,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts';
-
+import { Bar, BarChart, CartesianGrid, Label, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
 export function StyledBarChart(props: {
   height?: number;

@@ -19,15 +19,13 @@ import Button, {
 import Icon from '../../../components/Icon';
 import { Table, calculateFees } from '../../../components/Table';
 import { useBuddy, useClaimBuddy } from '../../../hooks/referrals';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import { useWalletContext } from '../../../providers/WalletContextProvider';
 import type { UserNfts } from '../../../typings';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
-
-  const api = createApiTransport(req);
 
   const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
 

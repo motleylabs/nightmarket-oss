@@ -9,17 +9,15 @@ import useSWRInfinite from 'swr/infinite';
 
 import { Activity } from '../../../components/Activity';
 import { Avatar, AvatarSize } from '../../../components/Avatar';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import ProfileLayout from '../../../layouts/ProfileLayout';
 import type { UserNfts, UserOffersData } from '../../../typings';
 import Offer from './../../../components/Offer';
 
 const PAGE_LIMIT = 24;
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
-
-  const api = createApiTransport(req);
 
   const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
 
