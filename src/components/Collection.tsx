@@ -312,17 +312,17 @@ function CollectionListNftPreview({ collectionSlug }: CollectionListNftPreviewPr
   const previewNFTs = useMemo(() => {
     if (!isLoading) {
       if (!!listedNFTs && !!normalNFTs) {
-        if (listedNFTs.nfts.length >= previewCount) {
+        if (listedNFTs.nfts && listedNFTs.nfts.length >= previewCount) {
           return listedNFTs.nfts.slice(0, previewCount).map((nft) => ({ ...nft, isListed: true }));
         } else {
-          const listedAddresses = listedNFTs.nfts.map((nft) => nft.mintAddress);
+          const listedAddresses = listedNFTs.nfts ? listedNFTs.nfts.map((nft) => nft.mintAddress) : [];
           const notIncludedOnes = normalNFTs.nfts
             ? normalNFTs.nfts.filter((nft) => !listedAddresses.includes(nft.mintAddress))
             : [];
           return [
-            ...listedNFTs.nfts.map((nft) => ({ ...nft, isListed: true })),
+            ...(listedNFTs.nfts ? listedNFTs.nfts : []).map((nft) => ({ ...nft, isListed: true })),
             ...notIncludedOnes
-              .slice(0, previewCount - listedNFTs.nfts.length)
+              .slice(0, previewCount - (listedNFTs.nfts ? listedNFTs.nfts : []).length)
               .map((nft) => ({ ...nft, isListed: false })),
           ];
         }
