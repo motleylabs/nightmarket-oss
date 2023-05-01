@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 import { useConnection } from '@solana/wallet-adapter-react';
-import { Transaction, Message } from '@solana/web3.js';
+import { Message, Transaction } from '@solana/web3.js';
 
 import { useState } from 'react';
 
@@ -45,7 +46,7 @@ export default function useHSBuyNow(): HSBuyContext {
 
     if (!!buyNowTxBuffer) {
       try {
-        const tx = Transaction.populate(Message.from(buyNowTxBuffer));
+        const tx = Transaction.populate(Message.from(Buffer.from(buyNowTxBuffer)));
 
         const { txid } = await sendTransactionWithRetry(connection, wallet, tx.instructions, []);
 
