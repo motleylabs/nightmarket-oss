@@ -6,7 +6,7 @@ export interface Marketplace {
   name: string;
   link: string;
   logo: string;
-  buyNowEnabled: boolean;
+  buyNowEnabled?: boolean;
 }
 
 const multiTenantMarkets: Map<string, boolean> = new Map([

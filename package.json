@@ -44,6 +44,7 @@
     "coingecko-api-v3": "^0.0.23",
     "date-fns": "^2.30.0",
     "i18next": "^22.4.15",
+    "js-base64": "^3.7.5",
     "next": "^13.3.2",
     "next-i18next": "^13.2.2",
     "nookies": "^2.5.2",
