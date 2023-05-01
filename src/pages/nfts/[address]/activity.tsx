@@ -8,15 +8,13 @@ import { InView } from 'react-intersection-observer';
 import type { ActivityType } from '../../../components/Activity';
 import { Activity } from '../../../components/Activity';
 import { useActivities } from '../../../hooks/nft/useActivities';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import NftLayout from '../../../layouts/NftLayout';
 import type { Nft } from '../../../typings';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   try {
     const i18n = await serverSideTranslations(locale as string, ['common', 'nft']);
-
-    const api = createApiTransport(req);
 
     const { data } = await api.get<Nft>(`/nfts/${params?.address}`);
 

@@ -11,20 +11,18 @@ import React from 'react';
 
 import { Chart } from '../../../components/Chart';
 import { useSeries } from '../../../hooks/collection/useSeries';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import { DateRangeOption, getDateTimeRange } from '../../../modules/time';
 import { CollectionDateRange } from '../../../typings/index.d';
 import type { Collection } from '../../../typings/index.d';
 
-export async function getServerSideProps({ locale, params, req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
     'collection',
     'common',
     'analytics',
   ]);
-
-  const api = createApiTransport(req);
 
   const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
 

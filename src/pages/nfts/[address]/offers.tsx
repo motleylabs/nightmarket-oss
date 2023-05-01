@@ -7,18 +7,16 @@ import { useMemo, useEffect } from 'react';
 import { Activity } from '../../../components/Activity';
 import { useOffers } from '../../../hooks/nft';
 import { useAction } from '../../../hooks/useAction';
-import { createApiTransport } from '../../../infrastructure/api';
+import { api } from '../../../infrastructure/api';
 import NftLayout from '../../../layouts/NftLayout';
 import { useAuctionHouseContext } from '../../../providers/AuctionHouseProvider';
 import { useWalletContext } from '../../../providers/WalletContextProvider';
 import type { Nft, OfferEvent } from '../../../typings';
 import Offer from './../../../components/Offer';
 
-export async function getServerSideProps({ req, locale, params }: GetServerSidePropsContext) {
+export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   try {
     const i18n = await serverSideTranslations(locale as string, ['common', 'nft', 'offers']);
-
-    const api = createApiTransport(req);
 
     const { data } = await api.get<Nft>(`/nfts/${params?.address}`);
 
