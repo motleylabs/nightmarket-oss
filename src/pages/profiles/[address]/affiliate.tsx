@@ -287,7 +287,7 @@ export default function ProfileAffiliate() {
                         target="_blank"
                         rel="nofollow noreferrer"
                         className="text-white opacity-50"
-                        href={`https://t.me/share/url?url=${url}`}
+                        href={`https://t.me/share/url?text=${t('social.main')}&url=${url}`}
                       >
                         <Icon.Telegram className="h-4 w-auto" />
                       </Link>
@@ -295,7 +295,7 @@ export default function ProfileAffiliate() {
                         target="_blank"
                         rel="nofollow noreferrer"
                         className="mx-4 text-white opacity-50"
-                        href={`https://twitter.com/share?url=${url}`}
+                        href={`https://twitter.com/share?url=${url}&text=${t('social.main')}%0A%0A`}
                       >
                         <Icon.Twitter className="h-5 w-auto" />
                       </Link>

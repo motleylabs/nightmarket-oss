@@ -232,7 +232,7 @@ function Success({ name }: SuccessProps): JSX.Element {
 
   const url = useMemo(() => {
     return `${domain}/r/${name}`;
-  }, [name]);
+  }, [domain, name]);
 
   const copyWallet = useCallback(async () => {
     if (url) {
@@ -286,7 +286,7 @@ function Success({ name }: SuccessProps): JSX.Element {
           target="_blank"
           rel="nofollow noreferrer"
           className="text-white"
-          href={`https://t.me/share/url?url=${url}`}
+          href={`https://t.me/share/url?text=${t('social.main')}&url=${url}`}
         >
           <Icon.Telegram />
         </Link>
@@ -294,7 +294,7 @@ function Success({ name }: SuccessProps): JSX.Element {
           target="_blank"
           rel="nofollow noreferrer"
           className="mx-4 text-white"
-          href={`https://twitter.com/share?url=${url}`}
+          href={`https://twitter.com/share?url=${url}&text=${t('social.main')}%0A%0A`}
         >
           <Icon.Twitter />
         </Link>

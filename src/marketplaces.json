@@ -115,5 +115,13 @@
     "link": "https://app.elixirnft.io/",
     "logo": "/images/marketplaces/elixir.svg",
     "buyNowEnabled": true
+  },
+  {
+    "marketplaceProgramAddress": "AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn",
+    "auctionHouseAddress": null,
+    "name": "Exchange Art",
+    "link": "https://exchange.art/single/{}",
+    "logo": "/images/marketplaces/exchangeart.svg",
+    "buyNowEnabled": true
   }
 ]

@@ -13,6 +13,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
+import { Analytics } from '@vercel/analytics/react';
 
 import clsx from 'clsx';
 import type { NextPage } from 'next';
@@ -94,7 +95,7 @@ function ReportHeader() {
     <div className="hidden items-center justify-center gap-12 bg-gradient-primary py-2 px-4 md:flex">
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">Market cap</span>
-        {loading || !rpcReport || !overallStat ? (
+        {loading || !rpcReport || !overallStat || !overallStat.marketCap ? (
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
@@ -107,7 +108,7 @@ function ReportHeader() {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">24h volume</span>
-        {loading || !rpcReport || !overallStat ? (
+        {loading || !rpcReport || !overallStat || !overallStat.volume1d || !rpcReport.solPrice ? (
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
@@ -122,7 +123,7 @@ function ReportHeader() {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL price</span>
-        {loading || !rpcReport ? (
+        {loading || !rpcReport || !rpcReport.solPrice ? (
           <EmptyBox />
         ) : (
           <span className="font-semibold text-white">${`${rpcReport.solPrice?.toFixed(2)}`}</span>
@@ -130,7 +131,7 @@ function ReportHeader() {
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-white">SOL TPS</span>
-        {loading || !rpcReport ? (
+        {loading || !rpcReport || !rpcReport.tps ? (
           <EmptyBox />
         ) : (
           <span className="font-semibold text-white">

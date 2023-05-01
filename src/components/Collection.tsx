@@ -312,17 +312,19 @@ function CollectionListNftPreview({ collectionSlug }: CollectionListNftPreviewPr
   const previewNFTs = useMemo(() => {
     if (!isLoading) {
       if (!!listedNFTs && !!normalNFTs) {
-        if (listedNFTs.nfts.length >= previewCount) {
+        if (listedNFTs.nfts && listedNFTs.nfts.length >= previewCount) {
           return listedNFTs.nfts.slice(0, previewCount).map((nft) => ({ ...nft, isListed: true }));
         } else {
-          const listedAddresses = listedNFTs.nfts.map((nft) => nft.mintAddress);
+          const listedAddresses = listedNFTs.nfts
+            ? listedNFTs.nfts.map((nft) => nft.mintAddress)
+            : [];
           const notIncludedOnes = normalNFTs.nfts
             ? normalNFTs.nfts.filter((nft) => !listedAddresses.includes(nft.mintAddress))
             : [];
           return [
-            ...listedNFTs.nfts.map((nft) => ({ ...nft, isListed: true })),
+            ...(listedNFTs.nfts ? listedNFTs.nfts : []).map((nft) => ({ ...nft, isListed: true })),
             ...notIncludedOnes
-              .slice(0, previewCount - listedNFTs.nfts.length)
+              .slice(0, previewCount - (listedNFTs.nfts ? listedNFTs.nfts : []).length)
               .map((nft) => ({ ...nft, isListed: false })),
           ];
         }
@@ -436,7 +438,7 @@ function CollectionListStats({
       return 0;
     }
     const sliceCount = period === '1d' ? 1 : 7;
-    const curLen = dayData.series.length;
+    const curLen = dayData?.series?.length;
 
     if (curLen > 0) {
       const current = dayData.series
@@ -466,7 +468,7 @@ function CollectionListStats({
       return 0;
     }
 
-    const curLen = hourData.series.length;
+    const curLen = hourData?.series?.length;
     if (curLen > 0) {
       const current = hourData.series[curLen - 1].volume;
       const prev = curLen > 1 ? hourData.series[curLen - 2].volume : 0;
@@ -484,7 +486,7 @@ function CollectionListStats({
       return 0;
     }
 
-    const curLen = dayData.series.length;
+    const curLen = dayData?.series?.length;
     if (curLen > 0) {
       const current = dayData.series[curLen - 1].listed;
       const prev = curLen > 1 ? dayData.series[curLen - 2].listed : 0;
