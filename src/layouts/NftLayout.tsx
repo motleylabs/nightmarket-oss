@@ -205,8 +205,8 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
       if (!response) {
         return;
       }
-      
-      if (!!response.buyAction) {        
+
+      if (!!response.buyAction) {
         setNft((oldNft) => ({
           ...oldNft,
           // eslint-disable-next-line

@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 import { useConnection } from '@solana/wallet-adapter-react';
+import { VersionedTransaction } from '@solana/web3.js';
+
 import { useState } from 'react';
 
 import config from '../app.config';
@@ -8,7 +10,6 @@ import type { ActionInfo, Nft } from '../typings';
 import { getBuyNowTransaction } from '../utils/hyperspace';
 import { sendVersionedTransactionWithRetry } from '../utils/transactions';
 import type { BuyListingResponse } from './buy';
-import { VersionedTransaction } from '@solana/web3.js';
 
 interface HSBuyParams {
   nft: Nft;
@@ -36,7 +37,6 @@ export default function useHSBuyNow(): HSBuyContext {
     setBuying(true);
 
     const buyNowTxBuffer = await getBuyNowTransaction(
-
       wallet.publicKey.toBase58(),
       listing.price,
       nft.mintAddress
