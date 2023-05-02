@@ -16,7 +16,7 @@ const VALID_IMAGE_SIZES = [
   AssetSize.Large,
 ];
 
-const ASSET_BASE = 'https://assets.holaplex.tools/';
+const ASSET_BASE = 'https://assets.nightmarket.io/';
 
 export function getAssetURL(url: string | undefined, size: AssetSize): string {
   if (!url) {
