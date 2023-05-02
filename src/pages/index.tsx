@@ -29,6 +29,8 @@ import type { CollectionsTrendsData, CollectionTrend, SelectedTrend } from '../t
 import { CollectionInterval, CollectionSort, OrderDirection } from '../typings/index.d';
 import { AssetSize, getAssetURL } from '../utils/assets';
 
+import OpenAllNight from '../../public/images/open_all_night.jpg';
+
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
   const i18n = await serverSideTranslations(locale as string, [
     'common',
@@ -153,7 +155,7 @@ const Home: NextPage = () => {
           <Hero.Image>
             <Image
               className="rounded-tl-2xl rounded-tr-2xl md:rounded-tr-2xl md:rounded-br-2xl"
-              src="/images/open_all_night.jpg"
+              src={OpenAllNight.src}
               alt="Open All Night"
               width={1280}
               height={1280}
