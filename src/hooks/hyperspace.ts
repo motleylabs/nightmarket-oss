@@ -21,6 +21,13 @@ interface HSBuyContext {
   onHSBuyNow: ({ nft, listing }: HSBuyParams) => Promise<BuyListingResponse | undefined>;
 }
 
+async function versionedTransactionFromBuyBuffer(
+  buffer: Buffer
+): Promise<VersionedTransaction> {
+  const tx = VersionedTransaction.deserialize(buffer);
+  return tx;
+}
+
 export default function useHSBuyNow(): HSBuyContext {
   const wallet = useWalletContext();
   const { connection } = useConnection();
@@ -37,6 +44,9 @@ export default function useHSBuyNow(): HSBuyContext {
     setBuying(true);
 
     const buyNowTxBuffer = await getBuyNowTransaction(
+      listing.auctionHouseProgram,
+      listing.auctionHouseAddress,
+      listing.userAddress,
       wallet.publicKey.toBase58(),
       listing.price,
       nft.mintAddress
@@ -46,7 +56,7 @@ export default function useHSBuyNow(): HSBuyContext {
 
     if (!!buyNowTxBuffer) {
       try {
-        const tx = VersionedTransaction.deserialize(buyNowTxBuffer);
+        const tx = await versionedTransactionFromBuyBuffer(buyNowTxBuffer);
 
         const { txid } = await sendVersionedTransactionWithRetry(connection, wallet, tx);
 

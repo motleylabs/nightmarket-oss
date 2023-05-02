@@ -2,6 +2,9 @@ import axios from 'axios';
 import { Base64 } from 'js-base64';
 
 export const getBuyNowTransaction = async (
+  auctionHouseProgram: string,
+  auctionHouseAddress: string,
+  seller: string,
   buyer: string,
   price: string,
   tokenAddress: string
