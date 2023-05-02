@@ -230,6 +230,8 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           },
         } as ActivityEvent);
       }
+
+      onCloseBuy();
     } catch (e: unknown) {}
   };
 
