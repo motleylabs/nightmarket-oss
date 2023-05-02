@@ -1,22 +1,14 @@
 /* eslint-disable no-console */
 import { useConnection } from '@solana/wallet-adapter-react';
-import {
-  Connection,
-  TransactionMessage,
-  PublicKey,
-  VersionedTransaction,
-  Transaction,
-  Message,
-} from '@solana/web3.js';
-
 import { useState } from 'react';
 
 import config from '../app.config';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ActionInfo, Nft } from '../typings';
 import { getBuyNowTransaction } from '../utils/hyperspace';
-import { sendVersionedTransactionWithRetry, sendTransactionWithRetry } from '../utils/transactions';
+import { sendVersionedTransactionWithRetry } from '../utils/transactions';
 import type { BuyListingResponse } from './buy';
+import { VersionedTransaction } from '@solana/web3.js';
 
 interface HSBuyParams {
   nft: Nft;
@@ -29,8 +21,6 @@ interface HSBuyContext {
 }
 
 async function versionedTransactionFromBuyBuffer(
-  connection: Connection,
-  publicKey: PublicKey,
   buffer: Buffer
 ): Promise<VersionedTransaction> {
   const tx = VersionedTransaction.deserialize(buffer);
@@ -66,8 +56,6 @@ export default function useHSBuyNow(): HSBuyContext {
     if (!!buyNowTxBuffer) {
       try {
         const tx = await versionedTransactionFromBuyBuffer(
-          connection,
-          wallet.publicKey,
           buyNowTxBuffer
         );
 
