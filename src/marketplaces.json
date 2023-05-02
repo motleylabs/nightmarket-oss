@@ -28,7 +28,8 @@
     "auctionHouseAddress": "FVmjRUm2ssXi5vZUhwzB2HfXzTVzvE73x3f5NmTtZ7C8",
     "name": "Night Market",
     "link": "https://nightmarket.io/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",

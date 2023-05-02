@@ -205,17 +205,17 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
       if (!response) {
         return;
       }
+      
+      if (!!response.buyAction) {        
+        setNft((oldNft) => ({
+          ...oldNft,
+          // eslint-disable-next-line
+          owner: response!.buyAction ? response!.buyAction.userAddress : oldNft.owner,
+          // eslint-disable-next-line
+          lastSale: response!.buyAction,
+          latestListing: null,
+        }));
 
-      setNft((oldNft) => ({
-        ...oldNft,
-        // eslint-disable-next-line
-        owner: response!.buyAction ? response!.buyAction.userAddress : oldNft.owner,
-        // eslint-disable-next-line
-        lastSale: response!.buyAction,
-        latestListing: null,
-      }));
-
-      if (!!response.buyAction) {
         trigger('activity', {
           mint: nft.mintAddress,
           activity: {
