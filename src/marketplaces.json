@@ -5,7 +5,7 @@
     "name": "Magic Eden",
     "link": "https://magiceden.io/item-details/{}",
     "logo": "/images/marketplaces/magiceden.svg",
-    "buyNowEnabled": false
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8",
@@ -69,7 +69,7 @@
     "name": "Holaplex",
     "link": "https://market.holaplex.com/nfts/{}",
     "logo": "/images/holaplex-logo-text.png",
-    "buyNowEnabled": true
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
@@ -115,7 +115,7 @@
     "name": "Elixir",
     "link": "https://app.elixirnft.io/",
     "logo": "/images/marketplaces/elixir.svg",
-    "buyNowEnabled": true
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn",

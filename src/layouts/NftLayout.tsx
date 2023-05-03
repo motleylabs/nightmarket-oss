@@ -14,10 +14,10 @@ import { Row, Col } from '../components/Grid';
 import Icon from '../components/Icon';
 import Lightbox from '../components/Lightbox';
 import { Paragraph, TextColor, FontWeight } from '../components/Typography';
+import useAttributedBuyNow from '../hooks/attributedbuy';
 import useBuyNow from '../hooks/buy';
 import type { BuyListingResponse } from '../hooks/buy';
 import { useDetail } from '../hooks/collection/useDetail';
-import useHSBuyNow from '../hooks/hyperspace';
 import { useListNft, useUpdateListing, useCloseListing } from '../hooks/list';
 import useLogin from '../hooks/login';
 import { useOffers } from '../hooks/nft';
@@ -179,7 +179,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
-  const { buying: HSBuying, onHSBuyNow } = useHSBuyNow();
+  const { buying: AttributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
@@ -196,7 +196,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           listing,
         });
       } else {
-        response = await onHSBuyNow({
+        response = await onAttributedBuyNow({
           nft,
           listing,
         });
@@ -535,8 +535,8 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                   <>
                     <Button
                       block
-                      loading={buying || HSBuying}
-                      disabled={buying || HSBuying}
+                      loading={buying || AttributedBuying}
+                      disabled={buying || AttributedBuying}
                       onClick={handleBuy}
                     >
                       {t('buy', { ns: 'nft' })}
@@ -549,7 +549,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
-                      disabled={buying || HSBuying}
+                      disabled={buying || AttributedBuying}
                     >
                       {t('cancel', { ns: 'nft' })}
                     </Button>
