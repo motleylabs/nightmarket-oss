@@ -7,6 +7,6 @@ export const useActivities = () => {
   const { query } = useRouter();
 
   return useSWR<NftActivitiesData>(`/nfts/activities?address=${query.address}`, {
-    revalidateOnFocus: false,
+    interval: 10 * 1000,
   });
 };
