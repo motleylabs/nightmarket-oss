@@ -19,7 +19,7 @@ import Img from './Image';
 import Modal from './Modal';
 
 interface RenderProps {
-  buyNow: (nft: Nft, collection: MiniCollection | null) => void;
+  buyNow: (nft: Nft, collection: MiniCollection | null, callback?: () => void) => void;
   children: unknown;
 }
 
@@ -33,10 +33,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [open, setOpen] = useState(false);
   const [nft, setNft] = useState<Nft | null>(null);
   const [miniCollection, setMiniCollection] = useState<MiniCollection | null>(null);
-  const openBuyNow = (nft: Nft, collection: MiniCollection | null) => {
+  const [buyCallback, setBuyCallback] = useState<(() => void) | null>(null);
+  const openBuyNow = (nft: Nft, collection: MiniCollection | null, callback?: () => void) => {
     setNft(nft);
     setMiniCollection(collection);
     setOpen(true);
+    if(!!callback) {
+      setBuyCallback(callback);
+    }
   };
   const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
   const { publicKey, balance } = useWalletContext();
@@ -105,6 +109,11 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               }
             : null
         );
+
+        // execute callback
+        if(!!buyCallback) {
+          buyCallback();
+        }
       }
 
       setOpen(false);
