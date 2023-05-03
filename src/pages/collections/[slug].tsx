@@ -7,7 +7,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
 
@@ -152,6 +152,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const { query } = useRouter();
   const { open, toggleSidebar } = useSidebar();
+  const [isLive, setIsLive] = useState<boolean>(false);
 
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
@@ -167,7 +168,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     }`;
   };
 
-  const { data, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey, {
+  const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
     revalidateOnFocus: false,
   });
 
@@ -198,6 +199,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
 
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <>
       <Toolbar>
@@ -205,6 +210,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           label={t('filters', { ns: 'collection' })}
           open={open}
           onChange={toggleSidebar}
+          isLive={isLive}
+          setIsLive={setIsLive}
+          refresh={() => mutate()}
         />
         <Controller
           control={control}

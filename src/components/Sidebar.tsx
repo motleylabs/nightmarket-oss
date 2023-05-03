@@ -2,10 +2,15 @@ import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import type { ReactNode } from 'react';
+import Image from 'next/image';
+import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { Children, cloneElement } from 'react';
 
+import liveIcon from '../../public/images/live-light.svg';
+import playIcon from '../../public/images/play.svg';
+import refreshIcon from '../../public/images/refresh.svg';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import { Toggle } from './Toggle';
 
 export function Sidebar(): JSX.Element {
   return <div></div>;
@@ -16,13 +21,24 @@ interface SidebarControlProps {
   open: boolean;
   onChange: () => void;
   show?: boolean;
+  isLive?: boolean;
+  setIsLive?: Dispatch<SetStateAction<boolean>>;
+  refresh?: () => void;
 }
 
-function SidebarControl({ open, label, onChange, show = true }: SidebarControlProps) {
+function SidebarControl({
+  open,
+  label,
+  onChange,
+  show = true,
+  isLive = undefined,
+  setIsLive,
+  refresh,
+}: SidebarControlProps) {
   if (!show) return null;
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center">
       <button
         type="button"
         className={clsx(
@@ -32,14 +48,52 @@ function SidebarControl({ open, label, onChange, show = true }: SidebarControlPr
         )}
         onClick={onChange}
       >
-        <span className="pl-2">{label}</span>
-        <ChevronRightIcon
-          className={clsx(
-            'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
-            open && 'md:rotate-180'
-          )}
-        />
+        {open && (
+          <ChevronRightIcon className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')} />
+        )}
+        <span className={clsx('pl-2', open && 'mr-2')}>{label}</span>
+        {!open && (
+          <ChevronRightIcon
+            className={clsx('ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0')}
+          />
+        )}
       </button>
+      {isLive !== undefined && (
+        <div>
+          {isLive ? (
+            <div className="flex items-center ml-3">
+              <Toggle
+                classes="mr-3"
+                value={isLive}
+                onChange={(val) => {
+                  if (!!setIsLive) setIsLive(val);
+                }}
+              />
+              <p className="text-white whitespace-nowrap mr-1">Live data</p>
+              <div className="w-[24px] h-[24px] flex items-center">
+                <Image src={liveIcon} alt="live-icon" />
+              </div>
+            </div>
+          ) : (
+            <div
+              className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+              onClick={() => {
+                if (!!setIsLive) setIsLive(true);
+              }}
+            >
+              <Image src={playIcon} alt="play-icon" />
+            </div>
+          )}
+        </div>
+      )}
+      {!!refresh && (
+        <div
+          className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+          onClick={refresh}
+        >
+          <Image src={refreshIcon} alt="refresh-icon" />
+        </div>
+      )}
     </div>
   );
 }
