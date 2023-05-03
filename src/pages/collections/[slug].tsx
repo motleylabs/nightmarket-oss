@@ -153,15 +153,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { query } = useRouter();
   const { open, toggleSidebar } = useSidebar();
 
-	const [pageVersion, setPageVersion] = useState<number>(Date.now());
-	const userCacheKey = useMemo(() => {
-		return [publicKey ? publicKey.toBase58() : Math.random(), pageVersion].join('-');
-	}, [pageVersion]);
-
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
 
-		const pageVersionParam = encodeURIComponent(pageVersion);
     const attributesQueryParam = encodeURIComponent(JSON.stringify(querySelectedAttributes));
 
     return `/collections/nfts?sort_by=${selectedSort}&order=${
@@ -170,7 +164,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }&_u=${userCacheKey}`;
+    }`;
   };
 
   const { data, mutate, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey);

@@ -11,7 +11,7 @@ import type { Nft, ActionInfo, MiniCollection } from '../typings';
 import { getAssetURL, AssetSize } from '../utils/assets';
 import type { Marketplace } from '../utils/marketplaces';
 import { getMarketplace } from '../utils/marketplaces';
-import { getSolFromLamports } from '../utils/price';
+import { getSolFromLamports, buyerTotalsForListing } from '../utils/price';
 import config from './../app.config';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
 import Icon from './Icon';
@@ -62,6 +62,10 @@ export function Buyable({ children, connected = false }: BuyableProps) {
     () => nft?.latestListing ?? null,
     [nft?.latestListing]
   );
+
+  const { nftPrice, totalPrice, totalRoyalties, totalMarketplaceFee } = useMemo(() => {
+    return buyerTotalsForListing(nft, isOwnMarket, auctionHouse);
+  }, [nft, nft?.latestListing, auctionHouse]);
 
   const { onBuyNow, buying, onCloseBuy } = useBuyNow();
   const { buying: attributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
@@ -204,25 +208,51 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     </p>
                   </div>
                 )}
-                {listing && (
-                  <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">
-                      {t('buyable.listPrice', { ns: 'common' })}
-                    </p>
-                    {/* TODO: sort for lowest listing thats not expired */}
-                    <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
-                    </p>
-                  </div>
-                )}
-                {!!auctionHouse && (
-                  <div className="flex flex-row justify-between">
-                    <p className="text-base font-medium text-gray-300">
-                      {t('buyable.marketplaceFee', { ns: 'common' })}
-                    </p>
-                    <p className="text-base font-medium text-gray-300">
-                      {auctionHouse.sellerFeeBasisPoints / 100}%
-                    </p>
+                {nft && listing && (
+                  <div>
+                    <div className="flex flex-row justify-between">
+                      <p className="text-base font-medium text-gray-300">
+                        {t('buyable.listPrice', { ns: 'common' })}
+                      </p>
+                      {/* TODO: sort for lowest listing thats not expired */}
+                      <p className="flex flex-row items-center text-base font-medium text-gray-300">
+                        <Icon.Sol /> {getSolFromLamports(nftPrice, 0, 3)}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between">
+                      <p className="text-base font-medium text-gray-300">
+                        {t('royalties', { ns: 'nft' })}
+                      </p>
+                      <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
+                        <Icon.Sol />{' '}
+                        <span>
+                          {getSolFromLamports(totalRoyalties, 0, 3)} (
+                          {nft.sellerFeeBasisPoints / 100}%)
+                        </span>
+                      </div>
+                    </div>
+                    {isOwnMarket && !!auctionHouse && (
+                      <div className="flex flex-row justify-between">
+                        <p className="text-base font-medium text-gray-300">
+                          {t('buyable.marketplaceFee', { ns: 'common' })}
+                        </p>
+                        <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
+                          <Icon.Sol />{' '}
+                          <span>
+                            {getSolFromLamports(totalMarketplaceFee, 0, 3)} (
+                            {auctionHouse.sellerFeeBasisPoints / 100}%)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-row justify-between">
+                      <p className="text-base font-medium text-white">
+                        {t('total', { ns: 'nft' })}
+                      </p>
+                      <div className="text-base font-medium text-white flex flex-row justify-center items-center">
+                        <Icon.Sol /> <span>{getSolFromLamports(totalPrice, 0, 3)}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {!!publicKey && (
@@ -231,7 +261,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       {t('buyable.currentBalance', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {balance ?? 0}
+                      <Icon.Sol /> {getSolFromLamports(balance ?? 0, 0, 3)}
                     </p>
                   </div>
                 )}
@@ -242,10 +272,17 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     className="font-semibold"
                     block
                     loading={buying || attributedBuying}
-                    disabled={buying || attributedBuying}
+                    disabled={(balance ?? 0) < totalPrice || buying || attributedBuying}
                     onClick={handleBuy}
                   >
-                    {t('buyable.buyNowButton', { ns: 'common' })}
+                    {t(
+                      balance ?? 0 > totalPrice
+                        ? 'buyable.buyNowButton'
+                        : 'buyable.notEnoughBalance',
+                      {
+                        ns: 'common',
+                      }
+                    )}
                   </Button>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">

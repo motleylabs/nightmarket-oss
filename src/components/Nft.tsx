@@ -500,12 +500,13 @@ OverviewForm.Points = OverviewFormPoints;
 
 interface OverviewFormPointProps {
   label: string;
+  className?: string;
   children: JSX.Element | (JSX.Element | number | string | undefined)[];
 }
 
-function OverviewFormPoint({ label, children }: OverviewFormPointProps): JSX.Element {
+function OverviewFormPoint({ label, className, children }: OverviewFormPointProps): JSX.Element {
   return (
-    <li className="flex justify-between">
+    <li className={clsx('flex justify-between', className)}>
       <span>{label}</span>
       <span className="flex flex-row items-center justify-center gap-1">{children}</span>
     </li>

@@ -29,7 +29,7 @@ import type { ActionInfo, ActivityEvent, Nft, Offer, OfferEvent } from '../typin
 import { getAssetURL, AssetSize } from '../utils/assets';
 import { getMarketplace } from '../utils/marketplaces';
 import type { Marketplace } from '../utils/marketplaces';
-import { getSolFromLamports } from '../utils/price';
+import { buyerTotalsForListing, getSolFromLamports } from '../utils/price';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './../components/Button';
 import { ButtonGroup } from './../components/ButtonGroup';
 import Image, { ImgBackdrop } from './../components/Image';
@@ -177,6 +177,10 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
 
     window.open(marketplace.link.replace('{}', nft.mintAddress), '_blank', 'noopener,noreferrer');
   };
+
+  const { nftPrice, totalPrice, totalRoyalties, totalMarketplaceFee } = useMemo(() => {
+    return buyerTotalsForListing(nft, isOwnMarket, auctionHouse);
+  }, [nft, nft?.latestListing, auctionHouse]);
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
   const { buying: attributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
@@ -516,18 +520,38 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                     <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
                   </Overview.Form.Point>
                 )}
-                {listing && (
-                  <Overview.Form.Point label={t('buyable.listPrice', { ns: 'common' })}>
-                    <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
-                  </Overview.Form.Point>
-                )}
-                {auctionHouse && (
-                  <Overview.Form.Point label={t('buyable.marketplaceFee', { ns: 'common' })}>
-                    {auctionHouse.sellerFeeBasisPoints / 100}%
-                  </Overview.Form.Point>
+                {nft && listing && (
+                  <div>
+                    <Overview.Form.Point label={t('buyable.listPrice', { ns: 'common' })}>
+                      <Icon.Sol /> {getSolFromLamports(nftPrice, 0, 3)}
+                    </Overview.Form.Point>
+                    <Overview.Form.Point label={t('royalties', { ns: 'nft' })}>
+                      <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
+                        <Icon.Sol />{' '}
+                        <span>
+                          {getSolFromLamports(totalRoyalties, 0, 3)} (
+                          {nft.sellerFeeBasisPoints / 100}%)
+                        </span>
+                      </div>
+                    </Overview.Form.Point>
+                    {isOwnMarket && !!auctionHouse && (
+                      <Overview.Form.Point label={t('buyable.marketplaceFee', { ns: 'common' })}>
+                        <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
+                          <Icon.Sol />{' '}
+                          <span>
+                            {getSolFromLamports(totalMarketplaceFee, 0, 3)} (
+                            {auctionHouse.sellerFeeBasisPoints / 100}%)
+                          </span>
+                        </div>
+                      </Overview.Form.Point>
+                    )}
+                    <Overview.Form.Point label={t('total', { ns: 'nft' })} className="text-white">
+                      <Icon.Sol /> {getSolFromLamports(totalPrice, 0, 3)}
+                    </Overview.Form.Point>
+                  </div>
                 )}
                 <Overview.Form.Point label={t('buyable.currentBalance', { ns: 'common' })}>
-                  <Icon.Sol /> {balance ?? 0}
+                  <Icon.Sol /> {getSolFromLamports(balance ?? 0, 0, 3)}
                 </Overview.Form.Point>
               </Overview.Form.Points>
               <Flex direction={FlexDirection.Col} gap={4}>
@@ -535,10 +559,15 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                   <Button
                     block
                     loading={buying || attributedBuying}
-                    disabled={buying || attributedBuying}
+                    disabled={(balance ?? 0) < totalPrice || buying || attributedBuying}
                     onClick={handleBuy}
                   >
-                    {t('buy', { ns: 'nft' })}
+                    {t(
+                      (balance ?? 0) > totalPrice
+                        ? 'buyable.buyNowButton'
+                        : 'buyable.notEnoughBalance',
+                      { ns: 'common' }
+                    )}
                   </Button>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">
@@ -585,7 +614,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               {publicKey && (
                 <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
-                  {balance ?? 0}
+                  {getSolFromLamports(balance ?? 0, 0, 3)}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>
