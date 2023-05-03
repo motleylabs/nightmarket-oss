@@ -220,12 +220,12 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           mint: nft.mintAddress,
           activity: {
             activityType: 'TRANSACTION',
-            buyer: response.buyAction.userAddress,
+            seller: response.buyAction.userAddress,
             blockTimestamp: response.buyAction.blockTimestamp,
-            martketplaceProgramAddress: config.auctionHouseProgram ?? '',
-            auctionHouseAddress: auctionHouse.address,
+            martketplaceProgramAddress: listing.auctionHouseProgram,
+            auctionHouseAddress: listing.auctionHouseAddress,
             price: response.buyAction.price,
-            seller: publicKey?.toBase58() ?? '',
+            buyer: publicKey?.toBase58() ?? '',
             signature: response.buyAction.signature,
           },
         } as ActivityEvent);
@@ -532,33 +532,31 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               </Overview.Form.Points>
               <Flex direction={FlexDirection.Col} gap={4}>
                 {connected ? (
-                  <>
-                    <Button
-                      block
-                      loading={buying || attributedBuying}
-                      disabled={buying || attributedBuying}
-                      onClick={handleBuy}
-                    >
-                      {t('buy', { ns: 'nft' })}
-                    </Button>
-                    <Button
-                      block
-                      onClick={() => {
-                        onCloseBuy();
-                      }}
-                      background={ButtonBackground.Slate}
-                      border={ButtonBorder.Gray}
-                      color={ButtonColor.Gray}
-                      disabled={buying || attributedBuying}
-                    >
-                      {t('cancel', { ns: 'nft' })}
-                    </Button>
-                  </>
+                  <Button
+                    block
+                    loading={buying || attributedBuying}
+                    disabled={buying || attributedBuying}
+                    onClick={handleBuy}
+                  >
+                    {t('buy', { ns: 'nft' })}
+                  </Button>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">
                     {t('connectToBuy', { ns: 'nft' })}
                   </Button>
                 )}
+                <Button
+                  block
+                  onClick={() => {
+                    onCloseBuy();
+                  }}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gray}
+                  color={ButtonColor.Gray}
+                  disabled={buying || attributedBuying}
+                >
+                  {t('cancel', { ns: 'nft' })}
+                </Button>
               </Flex>
             </Flex>
           </div>

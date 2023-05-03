@@ -237,36 +237,34 @@ export function Buyable({ children, connected = false }: BuyableProps) {
               </section>
               <section className="flex flex-col gap-4">
                 {connected ? (
-                  <>
-                    <Button
-                      className="font-semibold"
-                      block
-                      loading={buying || attributedBuying}
-                      disabled={buying || attributedBuying}
-                      onClick={handleBuy}
-                    >
-                      {t('buyable.buyNowButton', { ns: 'common' })}
-                    </Button>
-                    <Button
-                      className="font-semibold"
-                      block
-                      onClick={() => {
-                        onCloseBuy();
-                        setOpen(false);
-                      }}
-                      disabled={buying || attributedBuying}
-                      background={ButtonBackground.Cell}
-                      border={ButtonBorder.Gradient}
-                      color={ButtonColor.Gradient}
-                    >
-                      {t('cancel', { ns: 'common' })}
-                    </Button>
-                  </>
+                  <Button
+                    className="font-semibold"
+                    block
+                    loading={buying || attributedBuying}
+                    disabled={buying || attributedBuying}
+                    onClick={handleBuy}
+                  >
+                    {t('buyable.buyNowButton', { ns: 'common' })}
+                  </Button>
                 ) : (
                   <Button onClick={onLogin} className="font-semibold">
                     {t('buyable.connectToBuy', { ns: 'common' })}
                   </Button>
                 )}
+                <Button
+                  className="font-semibold"
+                  block
+                  onClick={() => {
+                    onCloseBuy();
+                    setOpen(false);
+                  }}
+                  disabled={buying || attributedBuying}
+                  background={ButtonBackground.Cell}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('cancel', { ns: 'common' })}
+                </Button>
               </section>
             </div>
           )}
