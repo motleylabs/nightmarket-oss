@@ -155,6 +155,8 @@ export default function useAttributedBuyNow(): AttributedBuyContext {
           // eslint-disable-next-line no-console
           console.log('Buynow signature: ', txid);
 
+          toast('NFT purchased', { type: 'success' });
+
           return {
             buyAction: {
               auctionHouseAddress: config.auctionHouse,
