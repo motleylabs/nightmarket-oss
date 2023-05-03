@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 
 import type { ActivityType } from '../../../components/Activity';
@@ -17,7 +18,6 @@ import { api } from '../../../infrastructure/api';
 import CollectionLayout from '../../../layouts/CollectionLayout';
 import type { Collection, CollectionActivitiesData } from '../../../typings';
 import { getActivityTypes } from '../../../utils/activity';
-import InfiniteScroll from 'react-infinite-scroll-component';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   const i18n = await serverSideTranslations(locale as string, [
@@ -79,7 +79,7 @@ export default function CollectionActivity(): JSX.Element {
   });
 
   const onShowMoreActivities = () => {
-    setSize(oldSize => oldSize + 1);
+    setSize((oldSize) => oldSize + 1);
   };
 
   // const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
@@ -108,17 +108,20 @@ export default function CollectionActivity(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <InfiniteScroll 
-        dataLength = {activities.length}
+      <InfiniteScroll
+        dataLength={activities.length}
         next={onShowMoreActivities}
         hasMore={hasNextPage}
-        loader={<>
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-          <Activity.Skeleton />
-        </>}
-        className="flex flex-col gap-4 px-4 pt-4 md:px-8">
+        loader={
+          <>
+            <Activity.Skeleton />
+            <Activity.Skeleton />
+            <Activity.Skeleton />
+            <Activity.Skeleton />
+          </>
+        }
+        className="flex flex-col gap-4 px-4 pt-4 md:px-8"
+      >
         {activities.map((activity, i) => (
           <Activity
             avatar={
@@ -147,7 +150,7 @@ export default function CollectionActivity(): JSX.Element {
             />
           </Activity>
         ))}
-      </InfiniteScroll>      
+      </InfiniteScroll>
     </>
   );
 }

@@ -12,6 +12,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
 
+import OpenAllNight from '../../public/images/open_all_night.jpg';
 import Banner from '../components/Banner';
 import Button, {
   ButtonBackground,
@@ -28,8 +29,6 @@ import useLogin from '../hooks/login';
 import type { CollectionsTrendsData, CollectionTrend, SelectedTrend } from '../typings/index.d';
 import { CollectionInterval, CollectionSort, OrderDirection } from '../typings/index.d';
 import { AssetSize, getAssetURL } from '../utils/assets';
-
-import OpenAllNight from '../../public/images/open_all_night.jpg';
 
 export const getStaticProps = async ({ locale }: GetStaticPropsContext) => {
   const i18n = await serverSideTranslations(locale as string, [
