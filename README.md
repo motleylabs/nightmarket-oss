@@ -1,6 +1,12 @@
-# Rewards center marketplace
+# Night Market
 
 A Solana NFT marketplace built by the people for the people using open source software by [Holaplex](https://holaplex.com/), [Metaplex](https://metaplex.com/) and [Motley Labs](https://motleylabs.com/).
+
+## Contributing
+
+We welcome contributions to Night Market from the community -- please open a pull request!
+
+All contributions are automatically licensed under the [GPL 3.0](https://github.com/motleylabs/nightmarket/blob/main/LICENSE).
 
 ## Overview
 
