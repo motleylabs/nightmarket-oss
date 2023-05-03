@@ -3,7 +3,6 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { InView } from 'react-intersection-observer';
 
 import type { ActivityType } from '../../../components/Activity';
 import { Activity } from '../../../components/Activity';
@@ -38,12 +37,11 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 export default function NftActivity() {
   const { t } = useTranslation('common');
 
-  const { data, isValidating, handleShowMoreActivities } = useActivities();
+  const { data, isValidating } = useActivities();
 
   const isLoading = !data && isValidating;
 
-  const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
-  const activities = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
+  const activities = useMemo(() => data?.activities ?? [], [data?.activities]);
 
   if (isLoading) {
     return (
@@ -90,24 +88,6 @@ export default function NftActivity() {
             />
           </Activity>
         ))}
-        {hasNextPage && (
-          <>
-            <InView
-              rootMargin="200px 0px"
-              onChange={async (inView) => {
-                if (!inView) {
-                  return;
-                }
-
-                handleShowMoreActivities();
-              }}
-            >
-              <Activity.Skeleton />
-            </InView>
-            <Activity.Skeleton />
-            <Activity.Skeleton />
-          </>
-        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Disclosure } from '@headlessui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
@@ -166,15 +167,15 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     }`;
   };
 
-  const { data, size, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey, {
+  const { data, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey, {
     revalidateOnFocus: false,
   });
 
-  const isLoading = !data && isValidating;
-  const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
+  const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
+  const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
 
   const onShowMoreNfts = () => {
-    setSize(size + 1);
+    setSize((oldSize) => oldSize + 1);
   };
 
   const onClearPills = useCallback(() => {

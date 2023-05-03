@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { InView } from 'react-intersection-observer';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 
 import type { ActivityType } from '../../../components/Activity';
@@ -74,16 +74,16 @@ export default function CollectionActivity(): JSX.Element {
     }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
   };
 
-  const { data, size, setSize, isValidating } = useSWRInfinite<CollectionActivitiesData>(getKey, {
+  const { data, setSize } = useSWRInfinite<CollectionActivitiesData>(getKey, {
     revalidateOnFocus: false,
   });
 
   const onShowMoreActivities = () => {
-    setSize(size + 1);
+    setSize((oldSize) => oldSize + 1);
   };
 
-  const isLoading = !data && isValidating;
-  const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
+  // const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
+  const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
   const activities = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
 
   return (
@@ -108,65 +108,49 @@ export default function CollectionActivity(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <div className="flex flex-col gap-4 px-4 pt-4 md:px-8">
-        {isLoading ? (
+      <InfiniteScroll
+        dataLength={activities.length}
+        next={onShowMoreActivities}
+        hasMore={hasNextPage}
+        loader={
           <>
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
           </>
-        ) : (
-          <>
-            {activities.map((activity, i) => (
-              <Activity
-                avatar={
-                  <Link
-                    className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/nfts/${activity.mint}`}
-                  >
-                    <Avatar src={activity.image} size={AvatarSize.Standard} />
-                  </Link>
-                }
-                type={activity.activityType as ActivityType}
-                key={`${activity.mint}-${i}}`}
-                meta={
-                  <Activity.Meta
-                    title={<Activity.Tag />}
-                    marketplaceAddress={activity.martketplaceProgramAddress}
-                    auctionHouseAddress={activity.auctionHouseAddress}
-                  />
-                }
-                source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
+        }
+        className="flex flex-col gap-4 px-4 pt-4 md:px-8"
+      >
+        {activities.map((activity, i) => (
+          <Activity
+            avatar={
+              <Link
+                className="cursor-pointer transition hover:scale-[1.02]"
+                href={`/nfts/${activity.mint}`}
               >
-                <Activity.Price amount={Number(activity.price)} />
-                <Activity.Timestamp
-                  signature={activity.signature}
-                  timeSince={activity.blockTimestamp}
-                />
-              </Activity>
-            ))}
-            {hasNextPage && (
-              <>
-                <InView
-                  rootMargin="200px 0px"
-                  onChange={async (inView) => {
-                    if (!inView) {
-                      return;
-                    }
-
-                    onShowMoreActivities();
-                  }}
-                >
-                  <Activity.Skeleton />
-                </InView>
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-              </>
-            )}
-          </>
-        )}
-      </div>
+                <Avatar src={activity.image} size={AvatarSize.Standard} />
+              </Link>
+            }
+            type={activity.activityType as ActivityType}
+            key={`${activity.mint}-${i}}`}
+            meta={
+              <Activity.Meta
+                title={<Activity.Tag />}
+                marketplaceAddress={activity.martketplaceProgramAddress}
+                auctionHouseAddress={activity.auctionHouseAddress}
+              />
+            }
+            source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
+          >
+            <Activity.Price amount={Number(activity.price)} />
+            <Activity.Timestamp
+              signature={activity.signature}
+              timeSince={activity.blockTimestamp}
+            />
+          </Activity>
+        ))}
+      </InfiniteScroll>
     </>
   );
 }

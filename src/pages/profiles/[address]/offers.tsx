@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { InView } from 'react-intersection-observer';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import useSWRInfinite from 'swr/infinite';
 
 import { Activity } from '../../../components/Activity';
@@ -46,77 +46,61 @@ export default function ProfileOffers() {
     }`;
   };
 
-  const { data, size, setSize, isValidating } = useSWRInfinite<UserOffersData>(getKey, {
+  const { data, setSize } = useSWRInfinite<UserOffersData>(getKey, {
     revalidateOnFocus: false,
   });
 
   const onShowMoreOffers = () => {
-    setSize(size + 1);
+    setSize((oldSize) => oldSize + 1);
   };
 
-  const isLoading = !data && isValidating;
-  const hasNextPage = Boolean(data?.every((d) => d.hasNextPage));
+  // const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
+  const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
   const offers = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
 
   return (
-    <div className="mt-20 flex flex-col gap-4 px-4 pt-4 md:px-8">
-      {isLoading ? (
+    <InfiniteScroll
+      dataLength={offers.length}
+      next={onShowMoreOffers}
+      hasMore={hasNextPage}
+      loader={
         <>
           <Activity.Skeleton />
           <Activity.Skeleton />
           <Activity.Skeleton />
           <Activity.Skeleton />
         </>
-      ) : (
-        <>
-          {offers.map((offer, i) => {
-            return (
-              <Offer
-                nft={null}
-                avatar={
-                  <Link
-                    className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/nfts/${offer.mint}`}
-                  >
-                    <Avatar src={offer.image as string} size={AvatarSize.Standard} />
-                  </Link>
-                }
-                offer={offer}
-                key={`${offer.mint}-${i}`}
-                onAccept={() => null}
-                onCancel={() => null}
-                meta={
-                  <Activity.Meta
-                    title={<Activity.Tag />}
-                    marketplaceAddress={offer.martketplaceProgramAddress}
-                    auctionHouseAddress={offer.auctionHouseAddress}
-                  />
-                }
-                source={<Activity.Wallet buyer={offer.buyer} />}
-              />
-            );
-          })}
-          {hasNextPage && (
-            <>
-              <InView
-                rootMargin="200px 0px"
-                onChange={async (inView) => {
-                  if (!inView) {
-                    return;
-                  }
-
-                  onShowMoreOffers();
-                }}
+      }
+      className="mt-20 flex flex-col gap-4 px-4 pt-4 md:px-8"
+    >
+      {offers.map((offer, i) => {
+        return (
+          <Offer
+            nft={null}
+            avatar={
+              <Link
+                className="cursor-pointer transition hover:scale-[1.02]"
+                href={`/nfts/${offer.mint}`}
               >
-                <Activity.Skeleton />
-              </InView>
-              <Activity.Skeleton />
-              <Activity.Skeleton />
-            </>
-          )}
-        </>
-      )}
-    </div>
+                <Avatar src={offer.image as string} size={AvatarSize.Standard} />
+              </Link>
+            }
+            offer={offer}
+            key={`${offer.mint}-${i}`}
+            onAccept={() => null}
+            onCancel={() => null}
+            meta={
+              <Activity.Meta
+                title={<Activity.Tag />}
+                marketplaceAddress={offer.martketplaceProgramAddress}
+                auctionHouseAddress={offer.auctionHouseAddress}
+              />
+            }
+            source={<Activity.Wallet buyer={offer.buyer} />}
+          />
+        );
+      })}
+    </InfiniteScroll>
   );
 }
 
