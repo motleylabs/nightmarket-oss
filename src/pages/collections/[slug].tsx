@@ -321,10 +321,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                           key={`${nft.mintAddress}-${i}`}
                           link={`/nfts/${nft.mintAddress}`}
                           onMakeOffer={() => makeOffer(nft, miniCollection)}
-                          onBuy={() => buyNow(nft, miniCollection, () => {
-                            console.log(i); 
-                            nfts.splice(i, 1)
-                          })}
+                          onBuy={() =>
+                            buyNow(nft, miniCollection, () => {
+                              nfts.splice(i, 1);
+                            })
+                          }
                           nft={nft}
                           showCollectionThumbnail={false}
                           bulkSelectEnabled={false}

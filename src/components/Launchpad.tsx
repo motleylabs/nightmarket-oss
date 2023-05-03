@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { millisecondsToMinutes, formatDistance } from 'date-fns';
 import { useTranslation } from 'next-i18next';
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 
 import useLaunchpad, { LaunchpadState } from '../hooks/launchpad';
 import Button, { ButtonBackground, ButtonColor } from './Button';

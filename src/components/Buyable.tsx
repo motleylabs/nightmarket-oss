@@ -1,5 +1,5 @@
 import { useTranslation } from 'next-i18next';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 
 import useAttributedBuyNow from '../hooks/attributedbuy';
 import useBuyNow from '../hooks/buy';
@@ -33,13 +33,14 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const [open, setOpen] = useState(false);
   const [nft, setNft] = useState<Nft | null>(null);
   const [miniCollection, setMiniCollection] = useState<MiniCollection | null>(null);
-  const [buyCallback, setBuyCallback] = useState<(() => void) | null>(null);
+  const buyCallbackRef = useRef<() => void>();
+
   const openBuyNow = (nft: Nft, collection: MiniCollection | null, callback?: () => void) => {
     setNft(nft);
     setMiniCollection(collection);
     setOpen(true);
-    if(!!callback) {
-      setBuyCallback(callback);
+    if (!!callback) {
+      buyCallbackRef.current = callback;
     }
   };
   const { isLoading: auctionHouseLoading, auctionHouse } = useAuctionHouseContext();
@@ -111,8 +112,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
         );
 
         // execute callback
-        if(!!buyCallback) {
-          buyCallback();
+        if (!!buyCallbackRef.current) {
+          buyCallbackRef.current();
         }
       }
 
