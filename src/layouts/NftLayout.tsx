@@ -220,12 +220,12 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           mint: nft.mintAddress,
           activity: {
             activityType: 'TRANSACTION',
-            buyer: response.buyAction.userAddress,
+            seller: response.buyAction.userAddress,
             blockTimestamp: response.buyAction.blockTimestamp,
-            martketplaceProgramAddress: config.auctionHouseProgram ?? '',
-            auctionHouseAddress: auctionHouse.address,
+            martketplaceProgramAddress: listing.auctionHouseProgram,
+            auctionHouseAddress: listing.auctionHouseAddress,
             price: response.buyAction.price,
-            seller: publicKey?.toBase58() ?? '',
+            buyer: publicKey?.toBase58() ?? '',
             signature: response.buyAction.signature,
           },
         } as ActivityEvent);
