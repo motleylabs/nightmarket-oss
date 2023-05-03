@@ -12,6 +12,14 @@ All contributions are automatically licensed under the [GPL 3.0](https://github.
 
 ## Overview
 
+### Stack overview
+
+This repository contains the Night Market frontend -- a web app built with Next.js, React and TailwindCSS. The `main` branch is what's deployed at [nightmarket.io](https://nightmarket.io/).
+
+The frontend talks to [andromeda](https://github.com/motleylabs/andromeda), our web2 backend which talks to data providers, and [reward-center-program](https://github.com/motleylabs/reward-center-program), our marketplace on-chain program.
+
+### Code overview
+
 - `src/typings` - Types declarations.
 - `public/*` - Static assets including fonts, images and locales.
 - `src/components/*` - The different reusable components used throughout the app including Button, Icon, Avatar, Form, List, etc.
