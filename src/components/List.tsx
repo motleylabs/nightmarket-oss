@@ -2,7 +2,7 @@ import { useWindowWidth } from '@react-hook/window-size';
 
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useState } from 'react';
-import { InView } from 'react-intersection-observer';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 type ListGridSizeValue = [number, number];
 
@@ -40,7 +40,6 @@ interface ListProps<T> {
 
 export function List<T>({
   data,
-  loading,
   gap,
   grid,
   skeleton,
@@ -96,32 +95,22 @@ export function List<T>({
   }, [grid]);
 
   return (
-    <div
+    <InfiniteScroll
+      dataLength={data?.length ?? 0}
+      next={() => {
+        if (!!onLoadMore) onLoadMore(true);
+      }}
+      hasMore={hasMore}
+      loader={[...Array(activeGridSize * 2)].map((_, index) => (
+        <Skeleton key={index} />
+      ))}
       className={clsx(
         `grid gap-4 pt-4 md:gap-${gap}`,
         expanded ? openClassNames : closedClassNames,
         className
       )}
     >
-      {loading ? (
-        [...Array(activeGridSize * 2)].map((_, index) => <Skeleton key={index} />)
-      ) : (
-        <>
-          {data?.map(render)}
-          {hasMore &&
-            [...Array(activeGridSize)].map((_, index) => {
-              if (index === 0) {
-                return (
-                  <InView rootMargin="200px 0px" onChange={onLoadMore} key={index}>
-                    <Skeleton />
-                  </InView>
-                );
-              } else {
-                return <Skeleton key={index} />;
-              }
-            })}
-        </>
-      )}
-    </div>
+      {data?.map(render)}
+    </InfiniteScroll>
   );
 }
