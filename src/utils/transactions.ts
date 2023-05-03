@@ -291,8 +291,6 @@ export const sendVersionedTransactionWithRetry = async (
 ) => {
   if (!wallet.publicKey) throw new Error('Wallet not connected');
 
-  transaction.message.recentBlockhash = (await connection.getLatestBlockhash(commitment)).blockhash;
-
   if (!includesFeePayer) {
     transaction = await wallet.signTransaction!(transaction);
   }

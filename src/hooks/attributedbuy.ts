@@ -45,12 +45,6 @@ const MAE_PROGRAM_ID = new PublicKey('MAEh4YsXkNqkTKrKUZta96sPPSr3wusThnsiXjAjRP
 const SEALED_PROGRAM_IDS = [new PublicKey('M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K')];
 
 function isSealedTransaction(accounts: AccountMeta[]): boolean {
-  console.log('accounts', accounts);
-
-  accounts.forEach((account, idx) => {
-    console.log(idx, account.pubkey.toBase58());
-  });
-
   return accounts.some((account) =>
     SEALED_PROGRAM_IDS.some((programId) => programId.equals(account.pubkey))
   );
@@ -62,7 +56,6 @@ async function versionedTransactionFromBuyBuffer(
   buffer: Buffer
 ): Promise<VersionedTransaction> {
   const tx = VersionedTransaction.deserialize(buffer);
-  console.log('TX', tx, tx.version);
 
   const alts: AddressLookupTableAccount[] = [];
   const loadedAddresses: LoadedAddresses = {
@@ -89,7 +82,6 @@ async function versionedTransactionFromBuyBuffer(
   const accounts: AccountMeta[] = parseTransactionAccounts(tx.message, loadedAddresses);
 
   if (isSealedTransaction(accounts)) {
-    console.log('Tx is sealed', tx);
     return tx;
   }
 
@@ -116,7 +108,6 @@ async function versionedTransactionFromBuyBuffer(
   }).compileToV0Message(alts);
 
   const transactionV0 = new VersionedTransaction(messageV0);
-  console.log(transactionV0);
   return transactionV0;
 }
 
@@ -150,7 +141,6 @@ export default function useAttributedBuyNow(): AttributedBuyContext {
       nft.mintAddress
     );
 
-    console.log(buyNowTxBuffer, error);
     if (error) {
       handleError(error);
     } else if (!!buyNowTxBuffer) {
