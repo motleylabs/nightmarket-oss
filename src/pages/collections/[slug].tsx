@@ -7,7 +7,7 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
 
@@ -153,9 +153,15 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { query } = useRouter();
   const { open, toggleSidebar } = useSidebar();
 
+	const [pageVersion, setPageVersion] = useState<number>(Date.now());
+	const userCacheKey = useMemo(() => {
+		return [publicKey ? publicKey.toBase58() : Math.random(), pageVersion].join('-');
+	}, [pageVersion]);
+
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
 
+		const pageVersionParam = encodeURIComponent(pageVersion);
     const attributesQueryParam = encodeURIComponent(JSON.stringify(querySelectedAttributes));
 
     return `/collections/nfts?sort_by=${selectedSort}&order=${
@@ -164,12 +170,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }`;
+    }&_u=${userCacheKey}`;
   };
 
-  const { data, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey, {
-    revalidateOnFocus: false,
-  });
+  const { data, mutate, setSize, isValidating } = useSWRInfinite<CollectionNftsData>(getKey);
 
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
