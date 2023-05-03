@@ -76,14 +76,16 @@
     "auctionHouseAddress": "GWErq8nJf5JQtohg5k7RTkiZmoCxvGBJqbMSfkrxYFFy",
     "name": "Solanart",
     "link": "https://solanart.io/nft/{}",
-    "logo": "/images/marketplaces/solanart.svg"
+    "logo": "/images/marketplaces/solanart.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
     "auctionHouseAddress": "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y",
     "name": "OpenSea",
     "link": "https://opensea.io/assets/solana/{}",
-    "logo": "/images/marketplaces/opensea.svg"
+    "logo": "/images/marketplaces/opensea.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",

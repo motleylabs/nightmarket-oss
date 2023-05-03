@@ -1,12 +1,16 @@
 import { useTranslation } from 'next-i18next';
 import { useState, useMemo } from 'react';
 
+import useAttributedBuyNow from '../hooks/attributedbuy';
 import useBuyNow from '../hooks/buy';
+import type { BuyListingResponse } from '../hooks/buy';
 import useLogin from '../hooks/login';
 import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { Nft, ActionInfo, MiniCollection } from '../typings';
 import { getAssetURL, AssetSize } from '../utils/assets';
+import type { Marketplace } from '../utils/marketplaces';
+import { getMarketplace } from '../utils/marketplaces';
 import { getSolFromLamports } from '../utils/price';
 import config from './../app.config';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from './Button';
@@ -38,46 +42,70 @@ export function Buyable({ children, connected = false }: BuyableProps) {
   const { publicKey, balance } = useWalletContext();
   const onLogin = useLogin();
 
-  const listing: ActionInfo | null = useMemo(() => {
-    if (nft?.latestListing?.auctionHouseAddress === config.auctionHouse) {
-      return nft.latestListing;
-    }
-    return null;
+  const isOwnMarket: boolean = useMemo(() => {
+    return nft?.latestListing?.auctionHouseAddress === config.auctionHouse;
   }, [nft?.latestListing]);
 
+  const marketplace: Marketplace | undefined = useMemo(() => {
+    return getMarketplace(
+      nft?.latestListing?.auctionHouseProgram,
+      nft?.latestListing?.auctionHouseAddress
+    );
+  }, [nft?.latestListing]);
+
+  const listing: ActionInfo | null = useMemo(
+    () => nft?.latestListing ?? null,
+    [nft?.latestListing]
+  );
+
   const { onBuyNow, buying, onCloseBuy } = useBuyNow();
+  const { buying: attributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
+
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
       return;
     }
 
+    let response: BuyListingResponse | undefined = undefined;
+
     try {
-      const response = await onBuyNow({
-        auctionHouse,
-        nft,
-        listing,
-      });
+      if (isOwnMarket) {
+        response = await onBuyNow({
+          auctionHouse,
+          nft,
+          listing,
+        });
+      } else {
+        response = await onAttributedBuyNow({
+          nft,
+          listing,
+        });
+      }
 
       if (!response) {
         return;
       }
 
-      // update the original nft
-      nft.owner = response.buyAction ? response.buyAction.userAddress : nft.owner;
-      nft.lastSale = response.buyAction;
-      nft.latestListing = null;
+      if (!!response.buyAction) {
+        // update the original nft
+        nft.owner = response.buyAction ? response.buyAction.userAddress : nft.owner;
+        nft.lastSale = response.buyAction;
+        nft.latestListing = null;
 
-      // update the current modal
-      setNft((oldNft) =>
-        !!oldNft
-          ? {
-              ...oldNft,
-              owner: response.buyAction ? response.buyAction.userAddress : oldNft.owner,
-              lastSale: response.buyAction,
-              latestListing: null,
-            }
-          : null
-      );
+        // update the current modal
+        setNft((oldNft) =>
+          !!oldNft
+            ? {
+                ...oldNft,
+                // eslint-disable-next-line
+                owner: response!.buyAction ? response!.buyAction.userAddress : oldNft.owner,
+                // eslint-disable-next-line
+                lastSale: response!.buyAction,
+                latestListing: null,
+              }
+            : null
+        );
+      }
 
       setOpen(false);
     } catch (e: unknown) {}
@@ -146,12 +174,13 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                 </div>
               </section>
               <section>
-                <div className="flex flex-row items-center justify-between rounded-md bg-primary-600 p-4">
+                <div className="flex flex-row items-center rounded-md bg-primary-600 p-4">
                   <img
-                    src="/images/nightmarket-beta.svg"
-                    className="h-5 w-auto object-fill"
-                    alt="night market logo"
+                    src={marketplace?.logo}
+                    className="h-5 w-auto object-fill mr-2"
+                    alt={t('logo', { ns: 'nft', market: marketplace?.name })}
                   />
+                  {!isOwnMarket && <h2>{marketplace?.name}</h2>}
                 </div>
               </section>
               <section id={'prices'} className="flex flex-col gap-2">
@@ -203,8 +232,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                     <Button
                       className="font-semibold"
                       block
-                      loading={buying}
-                      disabled={buying}
+                      loading={buying || attributedBuying}
+                      disabled={buying || attributedBuying}
                       onClick={handleBuy}
                     >
                       {t('buyable.buyNowButton', { ns: 'common' })}
@@ -216,7 +245,7 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                         onCloseBuy();
                         setOpen(false);
                       }}
-                      disabled={buying}
+                      disabled={buying || attributedBuying}
                       background={ButtonBackground.Cell}
                       border={ButtonBorder.Gradient}
                       color={ButtonColor.Gradient}

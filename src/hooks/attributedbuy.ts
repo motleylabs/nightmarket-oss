@@ -1,21 +1,19 @@
 /* eslint-disable no-console */
 import {
-  AttributeInstructionArgs,
   PROGRAM_ID as MTLY_RWD_PROGRAM_ID,
   createAttributeInstruction,
 } from '@motleylabs/mtly-reward-center';
+import type { AttributeInstructionArgs } from '@motleylabs/mtly-reward-center';
 import { useConnection } from '@solana/wallet-adapter-react';
-import {
+import type {
   LoadedAddresses,
-  TransactionMessage,
   Connection,
-  PublicKey,
-  VersionedTransaction,
   AddressLookupTableAccount,
   Message,
   AccountMeta,
   TransactionInstruction,
 } from '@solana/web3.js';
+import { TransactionMessage, PublicKey, VersionedTransaction } from '@solana/web3.js';
 
 import { useState } from 'react';
 import { toast } from 'react-toastify';

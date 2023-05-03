@@ -97,6 +97,14 @@ export function Preview({
     });
   };
 
+  const onViewExternalListing = async () => {
+    if (!nft || !marketplace) {
+      return;
+    }
+
+    window.open(marketplace.link.replace('{}', nft.mintAddress), '_blank', 'noopener,noreferrer');
+  };
+
   const isBulkSelected = selected.includes(nft);
 
   useEffect(() => {
@@ -175,7 +183,7 @@ export function Preview({
               <span className="flex items-center gap-1">
                 <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
               </span>
-              {listing.auctionHouseAddress === config.auctionHouse ? (
+              {marketplace && marketplace.buyNowEnabled ? (
                 <Button
                   onClick={onBuy}
                   size={ButtonSize.Small}
@@ -186,16 +194,15 @@ export function Preview({
                   {t('buy', { ns: 'common' })}
                 </Button>
               ) : (
-                <Link href={link}>
-                  <Button
-                    size={ButtonSize.Small}
-                    background={ButtonBackground.Slate}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                  >
-                    {t('View', { ns: 'common' })}
-                  </Button>
-                </Link>
+                <Button
+                  onClick={onViewExternalListing}
+                  size={ButtonSize.Small}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('View', { ns: 'common' })}
+                </Button>
               )}
             </div>
           </div>

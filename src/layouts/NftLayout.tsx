@@ -179,7 +179,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
   };
 
   const { buy, onBuyNow, onOpenBuy, onCloseBuy, buying } = useBuyNow();
-  const { buying: AttributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
+  const { buying: attributedBuying, onAttributedBuyNow } = useAttributedBuyNow();
 
   const handleBuy = async () => {
     if (!nft || !auctionHouse || !listing) {
@@ -535,8 +535,8 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                   <>
                     <Button
                       block
-                      loading={buying || AttributedBuying}
-                      disabled={buying || AttributedBuying}
+                      loading={buying || attributedBuying}
+                      disabled={buying || attributedBuying}
                       onClick={handleBuy}
                     >
                       {t('buy', { ns: 'nft' })}
@@ -549,7 +549,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                       background={ButtonBackground.Slate}
                       border={ButtonBorder.Gray}
                       color={ButtonColor.Gray}
-                      disabled={buying || AttributedBuying}
+                      disabled={buying || attributedBuying}
                     >
                       {t('cancel', { ns: 'nft' })}
                     </Button>
