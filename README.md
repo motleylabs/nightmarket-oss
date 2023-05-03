@@ -6,6 +6,8 @@ A Solana NFT marketplace built by the people for the people using open source so
 
 We welcome contributions to Night Market from the community -- please open a pull request!
 
+Feel free to join the [Motley DAO Discord](https://discord.gg/motleydao) to talk to the team and other community members.
+
 All contributions are automatically licensed under the [GPL 3.0](https://github.com/motleylabs/nightmarket/blob/main/LICENSE).
 
 ## Overview
