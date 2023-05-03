@@ -384,8 +384,6 @@ export async function sendSignedTransaction({
   })();
   try {
     const confirmation = await awaitTransactionSignatureConfirmation(txid, timeout, connection);
-    console.log('🚀 ~ file: connection.ts ~ line 388 ~ confirmation', confirmation);
-
     if (!confirmation) throw new Error('Timed out awaiting confirmation on transaction');
 
     if (confirmation.err) {
