@@ -220,7 +220,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           mint: nft.mintAddress,
           activity: {
             activityType: 'TRANSACTION',
-            seller: response.buyAction.userAddress,
+            seller: listing.userAddress,
             blockTimestamp: response.buyAction.blockTimestamp,
             martketplaceProgramAddress: listing.auctionHouseProgram,
             auctionHouseAddress: listing.auctionHouseAddress,
