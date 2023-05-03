@@ -1,8 +1,24 @@
-# Rewards center marketplace
+# Night Market
 
 A Solana NFT marketplace built by the people for the people using open source software by [Holaplex](https://holaplex.com/), [Metaplex](https://metaplex.com/) and [Motley Labs](https://motleylabs.com/).
 
+## Contributing
+
+We welcome contributions to Night Market from the community -- please open a pull request!
+
+Feel free to join the [Motley DAO Discord](https://discord.gg/motleydao) to talk to the team and other community members.
+
+All contributions are automatically licensed under the [GPL 3.0](https://github.com/motleylabs/nightmarket/blob/main/LICENSE).
+
 ## Overview
+
+### Stack overview
+
+This repository contains the Night Market frontend -- a web app built with Next.js, React and TailwindCSS. The `main` branch is what's deployed at [nightmarket.io](https://nightmarket.io/).
+
+The frontend talks to [andromeda](https://github.com/motleylabs/andromeda), our web2 backend which talks to data providers, and [reward-center-program](https://github.com/motleylabs/reward-center-program), our marketplace on-chain program.
+
+### Code overview
 
 - `src/typings` - Types declarations.
 - `public/*` - Static assets including fonts, images and locales.
