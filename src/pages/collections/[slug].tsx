@@ -1,16 +1,25 @@
 /* eslint-disable no-console */
 import { Disclosure } from '@headlessui/react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { DebounceInput } from 'react-debounce-input';
 import { useForm, Controller } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
 
+import cardGridLargeActiveIcon from '../../../public/images/card-grid-large-active.svg';
+import cardGridLargeIcon from '../../../public/images/card-grid-large.svg';
+import cardGridSmallActiveIcon from '../../../public/images/card-grid-small-active.svg';
+import cardGridSmallIcon from '../../../public/images/card-grid-small.svg';
+import cardListActiveIcon from '../../../public/images/card-list-active.svg';
+import cardListIcon from '../../../public/images/card-list.svg';
 import config from '../../app.config';
 import { Attribute } from '../../components/Attribute';
 import { Buyable } from '../../components/Buyable';
@@ -96,6 +105,7 @@ type CollectionNftsProps = {
 
 export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { t } = useTranslation(['collection', 'common']);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const sortOptions: SortOption[] = [
     {
@@ -153,6 +163,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { query } = useRouter();
   const { open, toggleSidebar } = useSidebar();
   const [isLive, setIsLive] = useState<boolean>(false);
+  const [nftName, setNftName] = useState<string>('');
 
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
@@ -165,7 +176,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }`;
+    }&name=${nftName}`;
   };
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
@@ -174,6 +185,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
+  const [cardType, setCardType] = useState<string>('list');
 
   const onShowMoreNfts = () => {
     setSize((oldSize) => oldSize + 1);
@@ -214,18 +226,67 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           setIsLive={setIsLive}
           refresh={() => mutate()}
         />
-        <Controller
-          control={control}
-          name="sortBySelect"
-          render={({ field: { onChange, value } }) => (
-            <Select
-              value={value}
-              onChange={onChange}
-              options={sortOptions}
-              className="w-full md:w-40 lg:w-52"
+        <div className="group relative block lg:w-[800px] md:w-[500px] sm:w-full sm:my-3">
+          <button
+            type="button"
+            onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
+            className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
+          >
+            <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
+          </button>
+          <DebounceInput
+            minLength={1}
+            debounceTimeout={300}
+            autoComplete="off"
+            autoCorrect="off"
+            className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all focus:border-white focus:placeholder-gray-400 focus:outline-none hover:border-white md:py-2"
+            type="search"
+            placeholder={t('search', { ns: 'collection' })}
+            onChange={(e) => setNftName(e.target.value)}
+            inputRef={searchInputRef}
+          />
+        </div>
+        <div className="flex items-center">
+          <Controller
+            control={control}
+            name="sortBySelect"
+            render={({ field: { onChange, value } }) => (
+              <Select
+                value={value}
+                onChange={onChange}
+                options={sortOptions}
+                className="w-full md:w-40 lg:w-52"
+              />
+            )}
+          />
+          <div
+            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            onClick={() => setCardType('list')}
+          >
+            <Image
+              src={cardType === 'list' ? cardListActiveIcon : cardListIcon}
+              alt="card-list-icon"
             />
-          )}
-        />
+          </div>
+          <div
+            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            onClick={() => setCardType('grid-small')}
+          >
+            <Image
+              src={cardType === 'grid-small' ? cardGridSmallActiveIcon : cardGridSmallIcon}
+              alt="card-grid-small-icon"
+            />
+          </div>
+          <div
+            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            onClick={() => setCardType('grid-large')}
+          >
+            <Image
+              src={cardType === 'grid-large' ? cardGridLargeActiveIcon : cardGridLargeIcon}
+              alt="card-grid-large-icon"
+            />
+          </div>
+        </div>
       </Toolbar>
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
