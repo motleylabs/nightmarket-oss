@@ -1,8 +1,8 @@
 .toggle-input .switch {
     position: relative;
     display: inline-block;
-    width: 48px;
-    height: 28px;
+    width: 40px;
+    height: 24px;
 }
 
 .toggle-input .switch input {
@@ -26,10 +26,10 @@
 .toggle-input .slider:before {
     position: absolute;
     content: '';
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 4px;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
     background-color: #eee;
     -webkit-transition: 0.4s;
     transition: 0.4s;
@@ -44,9 +44,9 @@
 }
 
 .toggle-input input:checked + .slider:before {
-    -webkit-transform: translateX(20px);
-    -ms-transform: translateX(20px);
-    transform: translateX(20px);
+    -webkit-transform: translateX(17px);
+    -ms-transform: translateX(17px);
+    transform: translateX(17px);
 }
 
 .toggle-input .slider.round {

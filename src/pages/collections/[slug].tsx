@@ -37,6 +37,7 @@ import { Offerable } from '../../components/Offerable';
 import Select from '../../components/Select';
 import type { PillItem } from '../../components/Sidebar';
 import { Sidebar } from '../../components/Sidebar';
+import { Toggle } from '../../components/Toggle';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
 import { api } from '../../infrastructure/api';
@@ -192,6 +193,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setPriceFilter(updatedFilter);
   };
 
+  const [listingOnly, setListingOnly] = useState<boolean>(false);
+  const [nightmarketOnly, setNightmarketOnly] = useState<boolean>(false);
+
   const selectedAttributes: PillItem[] = useMemo(() => {
     const pillItems = Object.entries(attributes)
       .map(([group, attributes]) =>
@@ -210,15 +214,29 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       });
     }
 
-    if (nftName !== "") {
+    if (nftName !== '') {
       pillItems.unshift({
         key: 'name',
-        label: `NFT Name: ${nftName}`
-      })
+        label: `NFT Name: ${nftName}`,
+      });
+    }
+
+    if (listingOnly) {
+      pillItems.unshift({
+        key: 'sale',
+        label: `For sale`,
+      });
+    }
+
+    if (nightmarketOnly) {
+      pillItems.unshift({
+        key: 'nightmarket',
+        label: `Night Market Only`,
+      });
     }
 
     return pillItems;
-  }, [attributes, nftName, priceFilter.max, priceFilter.min]);
+  }, [attributes, listingOnly, nftName, nightmarketOnly, priceFilter.max, priceFilter.min]);
 
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
@@ -231,7 +249,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }&name=${nftName}&min=${priceFilter.min}&max=${priceFilter.max}`;
+    }&program=${nightmarketOnly ? config.auctionHouseProgram ?? '' : ''}&name=${nftName}&min=${
+      priceFilter.min
+    }&max=${priceFilter.max}&listing_only=${listingOnly ? 'true' : 'false'}`;
   };
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
@@ -255,23 +275,34 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setValue('attributes', {});
     clearPriceFilter();
     setNftName('');
+    setNightmarketOnly(false);
+    setListingOnly(false);
   }, [clearPriceFilter, setValue]);
 
   const onRemovePill = useCallback(
     (item: PillItem) => {
-      const [group, attribute] = item.key.split(':', 2);
-      if (group === 'price') {
-        clearPriceFilter();
-      } else if (group === 'name') {
-        setNftName('');
-      } else {
-        setValue('attributes', {
-          ...attributes,
-          [group]: {
-            type: attributes[group].type,
-            values: attributes[group].values.filter((a) => a !== attribute),
-          },
-        });
+      switch (item.key) {
+        case 'price':
+          clearPriceFilter();
+          break;
+        case 'name':
+          setNftName('');
+          break;
+        case 'sale':
+          setListingOnly(false);
+          break;
+        case 'nightmarket':
+          setNightmarketOnly(false);
+          break;
+        default:
+          const [group, attribute] = item.key.split(':', 2);
+          setValue('attributes', {
+            ...attributes,
+            [group]: {
+              type: attributes[group].type,
+              values: attributes[group].values.filter((a) => a !== attribute),
+            },
+          });
       }
     },
     [attributes, clearPriceFilter, setValue]
@@ -294,7 +325,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           setIsLive={setIsLive}
           refresh={() => mutate()}
         />
-        <div className="group relative block lg:w-[800px] md:w-[500px] sm:w-full sm:my-3">
+        <div className="group relative block lg:w-[800px] md:w-[500px] md:my-0 sm:w-full my-3">
           <button
             type="button"
             onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
@@ -329,7 +360,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             )}
           />
           <div
-            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('list')}
           >
             <Image
@@ -338,7 +369,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             />
           </div>
           <div
-            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('grid-small')}
           >
             <Image
@@ -347,7 +378,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             />
           </div>
           <div
-            className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('grid-large')}
           >
             <Image
@@ -395,7 +426,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                             )}
                           </div>
                         </Disclosure.Button>
-                        <Disclosure.Panel className={'mt-3'}>
+                        <Disclosure.Panel className={'mt-3 mb-2'}>
                           <Form onSubmit={handlePriceSubmit(handlePriceFilter)}>
                             <div className="flex">
                               <div>
@@ -429,6 +460,36 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                               {t('apply', { ns: 'collection' })}
                             </Button>
                           </Form>
+                        </Disclosure.Panel>
+                      </div>
+                    )}
+                  </Disclosure>
+                  <Disclosure defaultOpen={true}>
+                    {({ open }) => (
+                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                        <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
+                          <span className="font-semibold capitalize text-white">Listing type</span>
+                          <div className="flex items-center ">
+                            {open ? (
+                              <ChevronUpIcon width={20} height={20} className="text-white" />
+                            ) : (
+                              <ChevronDownIcon width={20} height={20} className="text-white" />
+                            )}
+                          </div>
+                        </Disclosure.Button>
+                        <Disclosure.Panel className={'mt-3 mb-2'}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white whitespace-nowrap mr-1 text-[14px]">
+                              For Sale
+                            </span>
+                            <Toggle value={listingOnly} onChange={setListingOnly} />
+                          </div>
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="text-white whitespace-nowrap mr-1 text-[14px]">
+                              Night Market Only
+                            </span>
+                            <Toggle value={nightmarketOnly} onChange={setNightmarketOnly} />
+                          </div>
                         </Disclosure.Panel>
                       </div>
                     )}
