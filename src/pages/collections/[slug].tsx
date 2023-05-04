@@ -260,7 +260,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
-  const [cardType, setCardType] = useState<string>('list');
+  const [cardType, setCardType] = useState<string>('grid-small');
 
   const onShowMoreNfts = () => {
     setSize((oldSize) => oldSize + 1);
@@ -580,18 +580,19 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                 <Buyable connected={Boolean(publicKey)}>
                   {({ buyNow }) => (
                     <List
+                      cardType={cardType}
                       expanded={open}
                       data={nfts}
                       loading={isLoading}
                       hasMore={hasNextPage}
                       gap={6}
                       grid={{
-                        [ListGridSize.Default]: [2, 2],
-                        [ListGridSize.Small]: [2, 2],
-                        [ListGridSize.Medium]: [2, 3],
-                        [ListGridSize.Large]: [3, 4],
-                        [ListGridSize.ExtraLarge]: [4, 6],
-                        [ListGridSize.Jumbo]: [6, 8],
+                        [ListGridSize.Default]: [1, 2, 2],
+                        [ListGridSize.Small]: [1, 2, 2],
+                        [ListGridSize.Medium]: [1, 2, 3],
+                        [ListGridSize.Large]: [2, 3, 4],
+                        [ListGridSize.ExtraLarge]: [3, 4, 6],
+                        [ListGridSize.Jumbo]: [4, 6, 8],
                       }}
                       skeleton={Preview.Skeleton}
                       onLoadMore={async (inView: boolean) => {
@@ -603,6 +604,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                       }}
                       render={(nft, i) => (
                         <Preview
+                          cardType={cardType}
                           key={`${nft.mintAddress}-${i}`}
                           link={`/nfts/${nft.mintAddress}`}
                           onMakeOffer={() => makeOffer(nft, miniCollection)}

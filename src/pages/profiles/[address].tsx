@@ -194,7 +194,12 @@ export default function ProfileCollected({ offers }: Props) {
         <Sidebar.Content>
           <>
             {pillItems.length > 0 && (
-              <Sidebar.Pills items={pillItems} onRemove={onRemovePill} onClear={onClearPills} />
+              <Sidebar.Pills
+                clearButtonFirst={false}
+                items={pillItems}
+                onRemove={onRemovePill}
+                onClear={onClearPills}
+              />
             )}
 
             <Offerable connected={Boolean(address)}>
@@ -207,6 +212,7 @@ export default function ProfileCollected({ offers }: Props) {
 
                     return (
                       <List
+                        cardType="grid"
                         expanded={open}
                         data={filteredNfts}
                         loading={isLoading}
@@ -223,6 +229,7 @@ export default function ProfileCollected({ offers }: Props) {
                         skeleton={Preview.Skeleton}
                         render={(nft, i) => (
                           <Preview
+                            cardType="grid"
                             key={`${nft.mintAddress}-${i}`}
                             link={`/nfts/${nft.mintAddress}`}
                             onMakeOffer={() => makeOffer(nft, miniCollection(nft.projectId))}

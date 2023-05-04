@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React, { useEffect, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-type ListGridSizeValue = [number, number];
+type ListGridSizeValue = [number, number, number];
 
 export enum ListGridSize {
   Default = 'default',
@@ -31,6 +31,7 @@ interface ListProps<T> {
   grid: ListGrid;
   expanded?: boolean;
   hasMore: boolean;
+  cardType: string;
   render: (item: T, index: number) => JSX.Element;
   onLoadMore?: (inView: boolean) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +43,7 @@ export function List<T>({
   data,
   gap,
   grid,
+  cardType,
   skeleton,
   render,
   onLoadMore,
@@ -56,7 +58,7 @@ export function List<T>({
   useEffect(() => {
     let nextGridSize: number;
 
-    const activeGridIndex = expanded ? 0 : 1;
+    const activeGridIndex = cardType === 'grid-large' ? (expanded ? 0 : 1) : expanded ? 1 : 2;
 
     if (windowWidth >= 1536) {
       nextGridSize = grid[ListGridSize.Jumbo][activeGridIndex];
@@ -73,17 +75,29 @@ export function List<T>({
     }
 
     setActiveGridSize(nextGridSize);
-  }, [windowWidth, grid, expanded]);
+  }, [windowWidth, grid, expanded, cardType]);
 
   const [openClassNames, closedClassNames] = useMemo(() => {
     const classNames = Object.entries(grid).reduce<[string[], string[]]>(
-      ([openClassNames, closedClassNames], [size, [open, closed]]) => {
+      ([openClassNames, closedClassNames], [size, [large, medium, small]]) => {
         if (size === ListGridSize.Default) {
-          openClassNames = [...openClassNames, `grid-cols-${open}`];
-          closedClassNames = [...closedClassNames, `grid-cols-${closed}`];
+          openClassNames = [
+            ...openClassNames,
+            `grid-cols-${cardType === 'grid-large' ? large : medium}`,
+          ];
+          closedClassNames = [
+            ...closedClassNames,
+            `grid-cols-${cardType === 'grid-large' ? medium : small}`,
+          ];
         } else {
-          openClassNames = [...openClassNames, `${size}:grid-cols-${open}`];
-          closedClassNames = [...closedClassNames, `${size}:grid-cols-${closed}`];
+          openClassNames = [
+            ...openClassNames,
+            `${size}:grid-cols-${cardType === 'grid-large' ? large : medium}`,
+          ];
+          closedClassNames = [
+            ...closedClassNames,
+            `${size}:grid-cols-${cardType === 'grid-large' ? medium : small}`,
+          ];
         }
 
         return [openClassNames, closedClassNames];
@@ -92,7 +106,7 @@ export function List<T>({
     );
 
     return classNames;
-  }, [grid]);
+  }, [cardType, grid]);
 
   return (
     <InfiniteScroll
@@ -101,16 +115,43 @@ export function List<T>({
         if (!!onLoadMore) onLoadMore(true);
       }}
       hasMore={hasMore}
-      loader={[...Array(activeGridSize * 2)].map((_, index) => (
-        <Skeleton key={index} />
-      ))}
+      loader={
+        cardType.includes('list') ? (
+          <>
+            <div className="h-16 mb-2 animate-pulse rounded-[10px] bg-gray-800" />
+            <div className="h-16 mb-2 animate-pulse rounded-[10px] bg-gray-800" />
+            <div className="h-16 mb-2 animate-pulse rounded-[10px] bg-gray-800" />
+            <div className="h-16 mb-2 animate-pulse rounded-[10px] bg-gray-800" />
+          </>
+        ) : (
+          [...Array(activeGridSize * 2)].map((_, index) => <Skeleton key={index} />)
+        )
+      }
       className={clsx(
-        `grid gap-4 pt-4 md:gap-${gap}`,
+        cardType.includes('list') ? '' : `grid gap-4 pt-4 md:gap-${gap}`,
         expanded ? openClassNames : closedClassNames,
         className
       )}
     >
-      {data?.map(render)}
+      {cardType.includes('list') ? (
+        <table className="nfts-table w-full bg-transparent border-separate border-spacing-x-0 border-spacing-y-2">
+          <thead>
+            <tr className="bg-transparent w-full">
+              <th className="text-[12px] text-gray-300 text-left px-3">Name</th>
+              <th className="text-[12px] text-gray-300 text-left">Rarity</th>
+              <th className="text-[12px] text-gray-300 text-left">Price</th>
+              <th className="text-[12px] text-gray-300 text-left">Market</th>
+              <th className="text-[12px] text-gray-300 text-left">Last sale</th>
+              <th className="text-[12px] text-gray-300 text-left">Owner</th>
+              <th className="text-[12px] text-gray-300 text-left">Price update</th>
+              <th className="text-[12px] text-gray-300 text-left w-[80px]">Action</th>
+            </tr>
+          </thead>
+          <tbody>{data?.map(render)}</tbody>
+        </table>
+      ) : (
+        data?.map(render)
+      )}
     </InfiniteScroll>
   );
 }
