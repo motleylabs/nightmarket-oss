@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { Disclosure } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 import type { GetServerSidePropsContext } from 'next';
@@ -22,7 +23,14 @@ import cardListActiveIcon from '../../../public/images/card-list-active.svg';
 import cardListIcon from '../../../public/images/card-list.svg';
 import config from '../../app.config';
 import { Attribute } from '../../components/Attribute';
+import Button, {
+  ButtonBackground,
+  ButtonBorder,
+  ButtonColor,
+  ButtonSize,
+} from '../../components/Button';
 import { Buyable } from '../../components/Buyable';
+import { Form } from '../../components/Form';
 import { List, ListGridSize } from '../../components/List';
 import { Preview } from '../../components/Nft';
 import { Offerable } from '../../components/Offerable';
@@ -38,6 +46,16 @@ import type { Nft } from '../../typings';
 import { OrderDirection } from '../../typings/index.d';
 
 const PAGE_LIMIT = 24;
+
+type PriceFilterForm = {
+  priceMin: number;
+  priceMax: number;
+};
+
+type PriceFilter = {
+  min: string;
+  max: string;
+};
 
 export async function getServerSideProps({ locale, params, res }: GetServerSidePropsContext) {
   res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
@@ -134,18 +152,6 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const attributes = watch('attributes');
   const selectedSort = watch('sortBySelect');
 
-  const selectedAttributes: PillItem[] = useMemo(
-    () =>
-      Object.entries(attributes)
-        .map(([group, attributes]) =>
-          attributes.values?.map((a) => {
-            return { key: `${group}:${a}`, label: `${group}: ${a}` };
-          })
-        )
-        .flat(),
-    [attributes]
-  );
-
   const querySelectedAttributes = useMemo(
     () =>
       Object.entries(attributes)
@@ -164,6 +170,55 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { open, toggleSidebar } = useSidebar();
   const [isLive, setIsLive] = useState<boolean>(false);
   const [nftName, setNftName] = useState<string>('');
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>({ min: '', max: '' });
+  const {
+    register,
+    formState: { errors: priceErrors },
+    handleSubmit: handlePriceSubmit,
+    reset: resetPrice,
+  } = useForm<PriceFilterForm>();
+
+  const handlePriceFilter = async (form: PriceFilterForm) => {
+    const updatedFilter = {
+      min: '',
+      max: '',
+    };
+    if (form.priceMin > 0) {
+      updatedFilter.min = `${form.priceMin}`;
+    }
+    if (form.priceMax > 0) {
+      updatedFilter.max = `${form.priceMax}`;
+    }
+    setPriceFilter(updatedFilter);
+  };
+
+  const selectedAttributes: PillItem[] = useMemo(() => {
+    const pillItems = Object.entries(attributes)
+      .map(([group, attributes]) =>
+        attributes.values?.map((a) => {
+          return { key: `${group}:${a}`, label: `${group}: ${a}` };
+        })
+      )
+      .flat();
+
+    if (priceFilter.min !== '' || priceFilter.max !== '') {
+      pillItems.unshift({
+        key: 'price',
+        label: `price: ${priceFilter.min !== '' ? priceFilter.min : 'Infinity'} -> ${
+          priceFilter.max !== '' ? priceFilter.max : 'Infinity'
+        }`,
+      });
+    }
+
+    if (nftName !== "") {
+      pillItems.unshift({
+        key: 'name',
+        label: `NFT Name: ${nftName}`
+      })
+    }
+
+    return pillItems;
+  }, [attributes, nftName, priceFilter.max, priceFilter.min]);
 
   const getKey = (pageIndex: number, previousPageData: CollectionNftsData) => {
     if (previousPageData && !previousPageData.hasNextPage) return null;
@@ -176,7 +231,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }&name=${nftName}`;
+    }&name=${nftName}&min=${priceFilter.min}&max=${priceFilter.max}`;
   };
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
@@ -191,22 +246,35 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setSize((oldSize) => oldSize + 1);
   };
 
+  const clearPriceFilter = useCallback(() => {
+    setPriceFilter({ min: '', max: '' });
+    resetPrice();
+  }, [resetPrice]);
+
   const onClearPills = useCallback(() => {
     setValue('attributes', {});
-  }, [setValue]);
+    clearPriceFilter();
+    setNftName('');
+  }, [clearPriceFilter, setValue]);
 
   const onRemovePill = useCallback(
     (item: PillItem) => {
       const [group, attribute] = item.key.split(':', 2);
-      setValue('attributes', {
-        ...attributes,
-        [group]: {
-          type: attributes[group].type,
-          values: attributes[group].values.filter((a) => a !== attribute),
-        },
-      });
+      if (group === 'price') {
+        clearPriceFilter();
+      } else if (group === 'name') {
+        setNftName('');
+      } else {
+        setValue('attributes', {
+          ...attributes,
+          [group]: {
+            type: attributes[group].type,
+            values: attributes[group].values.filter((a) => a !== attribute),
+          },
+        });
+      }
     },
-    [attributes, setValue]
+    [attributes, clearPriceFilter, setValue]
   );
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
@@ -243,6 +311,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             type="search"
             placeholder={t('search', { ns: 'collection' })}
             onChange={(e) => setNftName(e.target.value)}
+            value={nftName}
             inputRef={searchInputRef}
           />
         </div>
@@ -291,6 +360,17 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
+            {open && selectedAttributes.length > 0 && (
+              <div className="gap-1">
+                <span className="text-gray-300 text-[12px]">Attributes:</span>
+                <Sidebar.Pills
+                  items={selectedAttributes}
+                  onRemove={onRemovePill}
+                  onClear={onClearPills}
+                  clearButtonFirst={false}
+                />
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               {collection.attributes.length == 0 ? (
                 <>
@@ -301,63 +381,142 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                   <Attribute.Skeleton />
                 </>
               ) : (
-                collection.attributes.map((group) => (
-                  <div
-                    key={`attribute-group-${group.name}`}
-                    className=" w-full rounded-2xl bg-gray-800 p-4"
-                  >
-                    <Disclosure>
-                      {({ open }) => (
-                        <>
-                          <Disclosure.Button className="flex w-full items-center justify-between">
-                            <Attribute.Header group={group} isOpen={open} />
-                          </Disclosure.Button>
-                          <Disclosure.Panel className={'mt-6 space-y-4'}>
-                            {group.values.map((valueItem) => (
-                              <Attribute.Option
-                                key={`attribute-${group.name}-${valueItem.value}`}
-                                variant={valueItem.value}
-                                count={valueItem.counts}
-                                percent={valueItem.percent}
-                                selected={attributes[group.name]?.values?.includes(valueItem.value)}
-                                onClick={() => {
-                                  setValue('attributes', {
-                                    ...attributes,
-                                    [group.name]: {
-                                      type: group.type,
-                                      values: attributes[group.name]?.values?.includes(
-                                        valueItem.value
-                                      )
-                                        ? attributes[group.name]?.values?.filter(
-                                            (a) => a !== valueItem.value
-                                          )
-                                        : [
-                                            ...(attributes[group.name]?.values ?? []),
-                                            valueItem.value,
-                                          ],
-                                    },
-                                  });
-                                }}
-                              />
-                            ))}
-                          </Disclosure.Panel>
-                        </>
-                      )}
-                    </Disclosure>
-                  </div>
-                ))
+                <>
+                  <Disclosure defaultOpen={true}>
+                    {({ open }) => (
+                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                        <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
+                          <span className="font-semibold capitalize text-white">Price range</span>
+                          <div className="flex items-center ">
+                            {open ? (
+                              <ChevronUpIcon width={20} height={20} className="text-white" />
+                            ) : (
+                              <ChevronDownIcon width={20} height={20} className="text-white" />
+                            )}
+                          </div>
+                        </Disclosure.Button>
+                        <Disclosure.Panel className={'mt-3'}>
+                          <Form onSubmit={handlePriceSubmit(handlePriceFilter)}>
+                            <div className="flex">
+                              <div>
+                                <Form.Input
+                                  placeholder="Min"
+                                  type="number"
+                                  {...register('priceMin')}
+                                ></Form.Input>
+                                <Form.Error message={priceErrors.priceMin?.message} />
+                              </div>
+                              <div className="relative items-center w-[20px] mx-2">
+                                <span className="absolute top-1/2 w-full border-[1px] border-gray-700"></span>
+                              </div>
+                              <div>
+                                <Form.Input
+                                  placeholder="Max"
+                                  type="number"
+                                  {...register('priceMax')}
+                                ></Form.Input>
+                                <Form.Error message={priceErrors.priceMax?.message} />
+                              </div>
+                            </div>
+                            <Button
+                              className="mt-3 w-full"
+                              htmlType="submit"
+                              size={ButtonSize.Large}
+                              background={ButtonBackground.Slate}
+                              border={ButtonBorder.Gradient}
+                              color={ButtonColor.Gradient}
+                            >
+                              {t('apply', { ns: 'collection' })}
+                            </Button>
+                          </Form>
+                        </Disclosure.Panel>
+                      </div>
+                    )}
+                  </Disclosure>
+                  <Disclosure defaultOpen={true}>
+                    {({ open }) => (
+                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                        <Disclosure.Button className="flex w-full items-center justify-between pb-3 py-[8px] border-b-[1px] border-[#323137]">
+                          <span className="font-semibold capitalize text-white">Attributes</span>
+                          <div className="flex items-center ">
+                            {open ? (
+                              <ChevronUpIcon width={20} height={20} className="text-white" />
+                            ) : (
+                              <ChevronDownIcon width={20} height={20} className="text-white" />
+                            )}
+                          </div>
+                        </Disclosure.Button>
+                        <Disclosure.Panel className={'mt-3 space-y-4'}>
+                          {collection.attributes.map((group) => (
+                            <div
+                              key={`attribute-group-${group.name}`}
+                              className="w-full rounded-2xl py-1"
+                            >
+                              <Disclosure>
+                                {({ open }) => (
+                                  <>
+                                    <Disclosure.Button className="flex w-full items-center justify-between">
+                                      <Attribute.Header group={group} isOpen={open} />
+                                    </Disclosure.Button>
+                                    <Disclosure.Panel className={'mt-6 space-y-4'}>
+                                      {group.values.map((valueItem) => (
+                                        <Attribute.Option
+                                          key={`attribute-${group.name}-${valueItem.value}`}
+                                          variant={valueItem.value}
+                                          count={valueItem.counts}
+                                          percent={valueItem.percent}
+                                          selected={attributes[group.name]?.values?.includes(
+                                            valueItem.value
+                                          )}
+                                          onClick={() => {
+                                            setValue('attributes', {
+                                              ...attributes,
+                                              [group.name]: {
+                                                type: group.type,
+                                                values: attributes[group.name]?.values?.includes(
+                                                  valueItem.value
+                                                )
+                                                  ? attributes[group.name]?.values?.filter(
+                                                      (a) => a !== valueItem.value
+                                                    )
+                                                  : [
+                                                      ...(attributes[group.name]?.values ?? []),
+                                                      valueItem.value,
+                                                    ],
+                                              },
+                                            });
+                                          }}
+                                        />
+                                      ))}
+                                    </Disclosure.Panel>
+                                  </>
+                                )}
+                              </Disclosure>
+                            </div>
+                          ))}
+                        </Disclosure.Panel>
+                      </div>
+                    )}
+                  </Disclosure>
+                </>
               )}
             </div>
           </div>
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {selectedAttributes.length > 0 && (
-              <Sidebar.Pills
-                items={selectedAttributes}
-                onRemove={onRemovePill}
-                onClear={onClearPills}
-              />
+            {!open && selectedAttributes.length > 0 && (
+              <div className="gap-1 flex items-center">
+                <span className="mb-4 mt-4 flex flex-wrap gap-2 md:mb-2 mr-1 text-gray-300 text-[12px]">
+                  Attributes:
+                </span>
+                <Sidebar.Pills
+                  items={selectedAttributes}
+                  onRemove={onRemovePill}
+                  onClear={onClearPills}
+                  clearButtonFirst={true}
+                />
+              </div>
             )}
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (

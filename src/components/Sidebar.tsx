@@ -155,16 +155,34 @@ interface SidebarPillsProps {
   onRemove: (item: PillItem) => void;
   onClear?: () => void;
   className?: string;
+  clearButtonFirst: boolean;
 }
 
-function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps) {
+function SidebarPills({
+  items,
+  onRemove,
+  onClear,
+  className,
+  clearButtonFirst,
+}: SidebarPillsProps) {
   const { t } = useTranslation('common');
   return (
     <div className={clsx('mb-4 mt-4 flex flex-wrap gap-2 md:mb-2', className)}>
+      {clearButtonFirst && items.length > 0 && (
+        <Button
+          background={ButtonBackground.Black}
+          border={ButtonBorder.Gradient}
+          color={ButtonColor.Gradient}
+          size={ButtonSize.Tiny}
+          onClick={onClear}
+        >
+          {t('clear', { ns: 'common' })}
+        </Button>
+      )}
       {items.map((item) => {
         return <Sidebar.Pill key={item.key} pillItem={item} onRemove={() => onRemove(item)} />;
       })}
-      {items.length > 0 && (
+      {!clearButtonFirst && items.length > 0 && (
         <Button
           background={ButtonBackground.Black}
           border={ButtonBorder.Gradient}
