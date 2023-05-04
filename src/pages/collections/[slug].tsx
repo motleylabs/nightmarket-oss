@@ -10,7 +10,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { useForm, Controller } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
@@ -309,10 +309,6 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   );
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   return (
     <>
