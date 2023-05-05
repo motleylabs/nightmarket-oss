@@ -33,7 +33,7 @@ interface ListProps<T> {
   expanded?: boolean;
   hasMore: boolean;
   render: (item: T, index: number) => JSX.Element;
-  onLoadMore?: (inView: boolean) => Promise<void>;
+  onLoadMore?: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   skeleton: (props: any) => JSX.Element;
   className?: string;
@@ -102,7 +102,7 @@ export function List<T>({
         <InfiniteScroll
           dataLength={data.length}
           next={() => {
-            if (!!onLoadMore) onLoadMore(true);
+            if (!!onLoadMore) onLoadMore();
           }}
           hasMore={hasMore}
           loader={[...Array(activeGridSize * 2)].map((_, index) => (
