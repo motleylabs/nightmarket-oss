@@ -316,6 +316,16 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
 
+  const isNotFound = (nftName: string, nfts: Nft[], isLoading: boolean) => {
+    return nftName !== '' && nfts.length === 0 && !isLoading;
+  };
+
+  const NotFoundView = ({ keyword }: { keyword: string }) => (
+    <div className="text-gray-200">
+      Could not find anything by
+      <span className="font-bold text-white"> {keyword}</span>
+    </div>
+  );
   return (
     <>
       <Toolbar>
@@ -584,46 +594,50 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             <Offerable connected={Boolean(publicKey)}>
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>
-                  {({ buyNow }) => (
-                    <List
-                      cardType={cardType}
-                      expanded={open}
-                      data={nfts}
-                      loading={isLoading}
-                      hasMore={hasNextPage}
-                      gap={6}
-                      grid={{
-                        [ListGridSize.Default]: [1, 2, 2],
-                        [ListGridSize.Small]: [1, 2, 2],
-                        [ListGridSize.Medium]: [1, 2, 3],
-                        [ListGridSize.Large]: [2, 3, 4],
-                        [ListGridSize.ExtraLarge]: [3, 4, 6],
-                        [ListGridSize.Jumbo]: [4, 6, 8],
-                      }}
-                      skeleton={Preview.Skeleton}
-                      onLoadMore={onShowMoreNfts}
-                      render={(nft, i) => (
-                        <Preview
-                          cardType={cardType}
-                          key={`${nft.mintAddress}-${i}`}
-                          link={`/nfts/${nft.mintAddress}`}
-                          onMakeOffer={() => makeOffer(nft, miniCollection)}
-                          onBuy={() =>
-                            buyNow(nft, miniCollection, () => {
-                              nfts.splice(i, 1);
-                            })
-                          }
-                          nft={nft}
-                          showCollectionThumbnail={false}
-                          bulkSelectEnabled={false}
-                        />
-                      )}
-                      sortBy={sortBy}
-                      setSortBy={setSortBy}
-                      orderBy={orderBy}
-                      setOrderBy={setOrderBy}
-                    />
-                  )}
+                  {({ buyNow }) =>
+                    isNotFound(nftName, nfts, isLoading) ? (
+                      <NotFoundView keyword={nftName} />
+                    ) : (
+                      <List
+                        cardType={cardType}
+                        expanded={open}
+                        data={nfts}
+                        loading={isLoading}
+                        hasMore={hasNextPage}
+                        gap={6}
+                        grid={{
+                          [ListGridSize.Default]: [1, 2, 2],
+                          [ListGridSize.Small]: [1, 2, 2],
+                          [ListGridSize.Medium]: [1, 2, 3],
+                          [ListGridSize.Large]: [2, 3, 4],
+                          [ListGridSize.ExtraLarge]: [3, 4, 6],
+                          [ListGridSize.Jumbo]: [4, 6, 8],
+                        }}
+                        skeleton={Preview.Skeleton}
+                        onLoadMore={onShowMoreNfts}
+                        render={(nft, i) => (
+                          <Preview
+                            cardType={cardType}
+                            key={`${nft.mintAddress}-${i}`}
+                            link={`/nfts/${nft.mintAddress}`}
+                            onMakeOffer={() => makeOffer(nft, miniCollection)}
+                            onBuy={() =>
+                              buyNow(nft, miniCollection, () => {
+                                nfts.splice(i, 1);
+                              })
+                            }
+                            nft={nft}
+                            showCollectionThumbnail={false}
+                            bulkSelectEnabled={false}
+                          />
+                        )}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        orderBy={orderBy}
+                        setOrderBy={setOrderBy}
+                      />
+                    )
+                  }
                 </Buyable>
               )}
             </Offerable>
