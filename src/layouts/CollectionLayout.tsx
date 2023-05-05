@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { subDays } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo } from 'react';
@@ -158,8 +159,25 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 <Overview.Title>{collection.name}</Overview.Title>
                 <VerifiedBadge isVerified={true} />
               </div>
-              <div className="flex justify-center text-gray-300 md:justify-start">
-                <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
+              <div className="flex justify-center text-gray-300 md:justify-start gap-3">
+                {!collection.twitter && !collection.website && !collection.discord && (
+                  <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
+                )}
+                {!!collection.twitter && (
+                  <Link href={collection.twitter} target="_blank">
+                    <Icon.Twitter className="h-7 w-7" />
+                  </Link>
+                )}
+                {!!collection.website && (
+                  <Link href={collection.website} target="_blank">
+                    <Icon.Web className="h-7 w-7" />
+                  </Link>
+                )}
+                {!!collection.discord && (
+                  <Link href={collection.discord} target="_blank">
+                    <Icon.Discord className="h-7 w-7" />
+                  </Link>
+                )}
               </div>
 
               <p

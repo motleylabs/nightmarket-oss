@@ -133,6 +133,9 @@ export type Collection = {
   statistics: CollectionStatistics;
   isVerified: boolean;
   symbol: string;
+  twitter: string | null;
+  discord: string | null;
+  website: string | null;
   verifiedCollectionAddress: string;
 };
 
