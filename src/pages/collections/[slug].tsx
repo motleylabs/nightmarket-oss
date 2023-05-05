@@ -10,7 +10,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo, useState, useRef } from 'react';
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { useForm, Controller } from 'react-hook-form';
 import useSWRInfinite from 'swr/infinite';
@@ -195,6 +195,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const [listingOnly, setListingOnly] = useState<boolean>(false);
   const [nightmarketOnly, setNightmarketOnly] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>('price');
+  const [orderBy, setOrderBy] = useState<string>('asc');
 
   const selectedAttributes: PillItem[] = useMemo(() => {
     const pillItems = Object.entries(attributes)
@@ -243,9 +245,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
     const attributesQueryParam = encodeURIComponent(JSON.stringify(querySelectedAttributes));
 
-    return `/collections/nfts?sort_by=${selectedSort}&order=${
-      selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc
-    }&limit=${PAGE_LIMIT}&offset=${
+    return `/collections/nfts?sort_by=${sortBy}&order=${orderBy}&limit=${PAGE_LIMIT}&offset=${
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
@@ -253,6 +253,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       priceFilter.min
     }&max=${priceFilter.max}&listing_only=${listingOnly ? 'true' : 'false'}`;
   };
+
+  useEffect(() => {
+    setSortBy(selectedSort);
+    setOrderBy(selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc);
+  }, [selectedSort]);
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
     revalidateOnFocus: false,
@@ -614,6 +619,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                           bulkSelectEnabled={false}
                         />
                       )}
+                      sortBy={sortBy}
+                      setSortBy={setSortBy}
+                      orderBy={orderBy}
+                      setOrderBy={setOrderBy}
                     />
                   )}
                 </Buyable>

@@ -2,7 +2,10 @@ import { useWindowWidth } from '@react-hook/window-size';
 
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useState } from 'react';
+import type { SetStateAction, Dispatch } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+
+import { SortingArrow } from './SortingArrow';
 
 type ListGridSizeValue = [number, number, number];
 
@@ -29,14 +32,18 @@ interface ListProps<T> {
   gap: number;
   loading: boolean;
   grid: ListGrid;
-  expanded?: boolean;
   hasMore: boolean;
   cardType: string;
   render: (item: T, index: number) => JSX.Element;
-  onLoadMore?: (inView: boolean) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   skeleton: (props: any) => JSX.Element;
+  onLoadMore?: (inView: boolean) => Promise<void>;
   className?: string;
+  expanded?: boolean;
+  sortBy?: string;
+  setSortBy?: Dispatch<SetStateAction<string>>;
+  orderBy?: string;
+  setOrderBy?: Dispatch<SetStateAction<string>>;
 }
 
 export function List<T>({
@@ -50,6 +57,10 @@ export function List<T>({
   expanded,
   className,
   hasMore,
+  sortBy,
+  setSortBy,
+  orderBy,
+  setOrderBy,
 }: ListProps<T>): JSX.Element {
   const windowWidth = useWindowWidth();
   const Skeleton = skeleton;
@@ -108,6 +119,16 @@ export function List<T>({
     return classNames;
   }, [cardType, grid]);
 
+  const sort = (field: string) => {
+    if (!!setOrderBy) {
+      setOrderBy((oldOrder) => (field !== sortBy ? 'asc' : oldOrder === 'asc' ? 'desc' : 'asc'));
+    }
+
+    if (!!setSortBy) {
+      setSortBy(field);
+    }
+  };
+
   return (
     <InfiniteScroll
       dataLength={data?.length ?? 0}
@@ -137,14 +158,76 @@ export function List<T>({
         <table className="nfts-table w-full bg-transparent border-separate border-spacing-x-0 border-spacing-y-2">
           <thead>
             <tr className="bg-transparent w-full">
-              <th className="text-[12px] text-gray-300 text-left px-3">Name</th>
-              <th className="text-[12px] text-gray-300 text-left">Rarity</th>
-              <th className="text-[12px] text-gray-300 text-left">Price</th>
-              <th className="text-[12px] text-gray-300 text-left">Market</th>
-              <th className="text-[12px] text-gray-300 text-left">Last sale</th>
-              <th className="text-[12px] text-gray-300 text-left">Owner</th>
-              <th className="text-[12px] text-gray-300 text-left">Price update</th>
-              <th className="text-[12px] text-gray-300 text-left w-[80px]">Action</th>
+              <th
+                onClick={() => sort('name')}
+                className="text-[12px] text-gray-300 text-left px-3 cursor-pointer w-[20%]"
+              >
+                <span className="flex items-center">
+                  Name &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="name" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('moonrank')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+              >
+                <span className="flex items-center">
+                  Rarity &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="moonrank" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('price')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+              >
+                <span className="flex items-center">
+                  Price &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="price" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('marketplace')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[10%]"
+              >
+                <span className="flex items-center">
+                  Market &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="marketplace" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('last_sale_price')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+              >
+                <span className="flex items-center">
+                  Last sale &nbsp;
+                  <SortingArrow
+                    sortBy={sortBy ?? ''}
+                    field="last_sale_price"
+                    orderBy={orderBy ?? ''}
+                  />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('owner')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+              >
+                <span className="flex items-center">
+                  Owner &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="owner" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th
+                onClick={() => sort('timstamp')}
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+              >
+                <span className="flex items-center">
+                  Price update &nbsp;
+                  <SortingArrow sortBy={sortBy ?? ''} field="timestamp" orderBy={orderBy ?? ''} />
+                </span>
+              </th>
+              <th className="text-[12px] text-gray-300 text-left cursor-pointer w-[80px] w-[10%]">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody>{data?.map(render)}</tbody>

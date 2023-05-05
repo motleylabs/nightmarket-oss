@@ -219,12 +219,12 @@ export default function ProfileCollected({ offers }: Props) {
                         gap={6}
                         hasMore={false}
                         grid={{
-                          [ListGridSize.Default]: [2, 2],
-                          [ListGridSize.Small]: [2, 2],
-                          [ListGridSize.Medium]: [2, 3],
-                          [ListGridSize.Large]: [3, 4],
-                          [ListGridSize.ExtraLarge]: [4, 6],
-                          [ListGridSize.Jumbo]: [6, 8],
+                          [ListGridSize.Default]: [1, 2, 2],
+                          [ListGridSize.Small]: [1, 2, 2],
+                          [ListGridSize.Medium]: [1, 2, 3],
+                          [ListGridSize.Large]: [2, 3, 4],
+                          [ListGridSize.ExtraLarge]: [3, 4, 6],
+                          [ListGridSize.Jumbo]: [4, 6, 8],
                         }}
                         skeleton={Preview.Skeleton}
                         render={(nft, i) => (
