@@ -36,9 +36,9 @@ interface ListProps<T> {
   hasMore: boolean;
   cardType: string;
   render: (item: T, index: number) => JSX.Element;
+  onLoadMore?: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   skeleton: (props: any) => JSX.Element;
-  onLoadMore?: (inView: boolean) => Promise<void>;
   className?: string;
   expanded?: boolean;
   sortBy?: string;
@@ -137,7 +137,7 @@ export function List<T>({
         <InfiniteScroll
           dataLength={data?.length ?? 0}
           next={() => {
-            if (!!onLoadMore) onLoadMore(true);
+            if (!!onLoadMore) onLoadMore();
           }}
           hasMore={hasMore}
           loader={

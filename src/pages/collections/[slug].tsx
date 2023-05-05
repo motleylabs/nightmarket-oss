@@ -601,13 +601,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                         [ListGridSize.Jumbo]: [4, 6, 8],
                       }}
                       skeleton={Preview.Skeleton}
-                      onLoadMore={async (inView: boolean) => {
-                        if (!inView) {
-                          return;
-                        }
-
-                        onShowMoreNfts();
-                      }}
+                      onLoadMore={onShowMoreNfts}
                       render={(nft, i) => (
                         <Preview
                           cardType={cardType}
