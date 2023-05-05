@@ -192,7 +192,7 @@ export function Preview({
                   <span className="flex items-center gap-1">
                     <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
                   </span>
-                  {listing.auctionHouseAddress === config.auctionHouse ? (
+                  {marketplace && marketplace.buyNowEnabled ? (
                     <Button
                       onClick={onBuy}
                       size={ButtonSize.Small}
@@ -203,16 +203,15 @@ export function Preview({
                       {t('buy', { ns: 'common' })}
                     </Button>
                   ) : (
-                    <Link href={link}>
-                      <Button
-                        size={ButtonSize.Small}
-                        background={ButtonBackground.Slate}
-                        border={ButtonBorder.Gradient}
-                        color={ButtonColor.Gradient}
-                      >
-                        {t('View', { ns: 'common' })}
-                      </Button>
-                    </Link>
+                    <Button
+                      onClick={onViewExternalListing}
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('View', { ns: 'common' })}
+                    </Button>
                   )}
                 </div>
               </div>
@@ -271,11 +270,11 @@ export function Preview({
           ) : null}
         </div>
       ) : (
-        <tr
-          className="text-white whitespace-nowrap p-2 rounded-lg cursor-pointer text-[14px]"
-          onClick={() => router.push(link)}
-        >
-          <td className="flex items-center py-2 px-3 overflow-hidden">
+        <tr className="text-white whitespace-nowrap p-2 rounded-lg text-[14px]">
+          <td
+            onClick={() => router.push(link)}
+            className="flex items-center py-2 px-3 cursor-pointer overflow-hidden"
+          >
             <div className="nft-image w-[48px] h-[48px] mr-2">
               <Img
                 src={getAssetURL(nft.image, AssetSize.XSmall)}
@@ -360,7 +359,6 @@ export function Preview({
                   {t('View', { ns: 'common' })}
                 </Button>
               )
-
             ) : (
               <div className="flex w-full items-center justify-between gap-1">
                 {myOffer ? (
