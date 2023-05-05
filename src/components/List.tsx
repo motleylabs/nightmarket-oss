@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { useWindowWidth } from '@react-hook/window-size';
 
 import clsx from 'clsx';
@@ -40,6 +41,7 @@ interface ListProps<T> {
 
 export function List<T>({
   data,
+  loading,
   gap,
   grid,
   skeleton,
@@ -95,22 +97,37 @@ export function List<T>({
   }, [grid]);
 
   return (
-    <InfiniteScroll
-      dataLength={data?.length ?? 0}
-      next={() => {
-        if (!!onLoadMore) onLoadMore(true);
-      }}
-      hasMore={hasMore}
-      loader={[...Array(activeGridSize * 2)].map((_, index) => (
-        <Skeleton key={index} />
-      ))}
-      className={clsx(
-        `grid gap-4 pt-4 md:gap-${gap}`,
-        expanded ? openClassNames : closedClassNames,
-        className
-      )}
-    >
-      {data?.map(render)}
-    </InfiniteScroll>
+    <>
+      { !!data && data.length > 0 ? 
+        <InfiniteScroll
+          dataLength={data.length}
+          next={() => {
+            if (!!onLoadMore) onLoadMore(true);
+          }}
+          hasMore={hasMore}
+          loader={[...Array(activeGridSize * 2)].map((_, index) => (
+            <Skeleton key={index} />
+          ))}
+          className={clsx(
+            `grid gap-4 pt-4 md:gap-${gap}`,
+            expanded ? openClassNames : closedClassNames,
+            className
+          )}
+        >
+          {data?.map(render)}
+        </InfiniteScroll>
+        :
+        loading &&
+          <div className={clsx(
+            `grid gap-4 pt-4 md:gap-${gap}`,
+            expanded ? openClassNames : closedClassNames,
+            className
+          )}>
+            {[...Array(activeGridSize * 2)].map((_, index) => (
+              <Skeleton key={index} />
+            ))}
+          </div>
+      }
+    </>
   );
 }
