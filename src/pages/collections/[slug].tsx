@@ -435,6 +435,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                 <Form.Input
                                   placeholder="Min"
                                   type="number"
+                                  step={0.001}
                                   {...register('priceMin')}
                                 ></Form.Input>
                                 <Form.Error message={priceErrors.priceMin?.message} />
@@ -446,6 +447,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                 <Form.Input
                                   placeholder="Max"
                                   type="number"
+                                  step={0.001}
                                   {...register('priceMax')}
                                 ></Form.Input>
                                 <Form.Error message={priceErrors.priceMax?.message} />
