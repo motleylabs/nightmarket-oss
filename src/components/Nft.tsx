@@ -9,7 +9,6 @@ import { useState } from 'react';
 
 import config from '../app.config';
 import { useCloseListing } from '../hooks/list';
-import { shortenAddress } from '../modules/address';
 import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useBulkListContext } from '../providers/BulkListProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
@@ -265,10 +264,10 @@ export function Preview({
         </div>
       ) : (
         <tr
-          className="text-white whitespace-nowrap p-2 rounded-lg cursor-pointer"
+          className="text-white whitespace-nowrap p-2 rounded-lg cursor-pointer text-[14px]"
           onClick={() => router.push(link)}
         >
-          <td className="flex items-center py-2 px-3">
+          <td className="flex items-center py-2 px-3 overflow-hidden">
             <div className="nft-image w-[48px] h-[48px] mr-2">
               <Img
                 src={getAssetURL(nft.image, AssetSize.XSmall)}
@@ -279,9 +278,9 @@ export function Preview({
                 )}
               />
             </div>
-            {nft.name}
+            <span className="hidden sm:block">{nft.name}</span>
           </td>
-          <td>{nft.moonrankRank}</td>
+          <td className="xl:table-cell hidden">{nft.moonrankRank}</td>
           <td>
             {!!listing ? (
               <span className="flex items-center gap-1">
@@ -305,7 +304,7 @@ export function Preview({
               '-'
             )}
           </td>
-          <td>
+          <td className="lg:table-cell hidden">
             {!!nft.lastSale ? (
               <span className="flex items-center gap-1">
                 <Icon.Sol /> {getSolFromLamports(nft.lastSale.price, 0, 3)}
@@ -314,8 +313,10 @@ export function Preview({
               '-'
             )}
           </td>
-          <td>{!!nft.owner ? shortenAddress(nft.owner ?? '', 4) : '-'}</td>
-          <td>{!!listing ? formatToNow(listing.blockTimestamp) : '-'}</td>
+          <td className="hidden 2xl:table-cell">{!!nft.owner ? nft.owner.slice(0, 5) : '-'}</td>
+          <td className="lg:table-cell hidden">
+            {!!listing ? formatToNow(listing.blockTimestamp) : '-'}
+          </td>
           <td>
             {isOwner ? (
               !!listing ? (

@@ -160,16 +160,16 @@ export function List<T>({
             <tr className="bg-transparent w-full">
               <th
                 onClick={() => sort('name')}
-                className="text-[12px] text-gray-300 text-left px-3 cursor-pointer w-[20%]"
+                className="text-[12px] text-gray-300 text-left px-3 cursor-pointer 2xl:w-[20%] xl:w-[26%] lg:w-[30%] md:w-[39%] sm:w-[45%] w-[30%]"
               >
                 <span className="flex items-center">
-                  Name &nbsp;
+                  NFT &nbsp;
                   <SortingArrow sortBy={sortBy ?? ''} field="name" orderBy={orderBy ?? ''} />
                 </span>
               </th>
               <th
                 onClick={() => sort('moonrank')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%] xl:table-cell hidden"
               >
                 <span className="flex items-center">
                   Rarity &nbsp;
@@ -178,7 +178,7 @@ export function List<T>({
               </th>
               <th
                 onClick={() => sort('price')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] md:w-[22%] sm:w-[19%] w-[24%]"
               >
                 <span className="flex items-center">
                   Price &nbsp;
@@ -187,7 +187,7 @@ export function List<T>({
               </th>
               <th
                 onClick={() => sort('marketplace')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[10%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer xl:w-[10%] lg:w-[12%] md:w-[22%] sm:w-[19%] w-[24%]"
               >
                 <span className="flex items-center">
                   Market &nbsp;
@@ -196,7 +196,7 @@ export function List<T>({
               </th>
               <th
                 onClick={() => sort('last_sale_price')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer xl:w-[12%] w-[14%] lg:table-cell hidden"
               >
                 <span className="flex items-center">
                   Last sale &nbsp;
@@ -209,7 +209,7 @@ export function List<T>({
               </th>
               <th
                 onClick={() => sort('owner')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%] 2xl:table-cell hidden"
               >
                 <span className="flex items-center">
                   Owner &nbsp;
@@ -218,14 +218,14 @@ export function List<T>({
               </th>
               <th
                 onClick={() => sort('timstamp')}
-                className="text-[12px] text-gray-300 text-left cursor-pointer w-[12%]"
+                className="text-[12px] text-gray-300 text-left cursor-pointer 2xl:w-[12%] xl:w-[18%] lg:w-[20%] lg:table-cell hidden"
               >
                 <span className="flex items-center">
-                  Price update &nbsp;
+                  Activity &nbsp;
                   <SortingArrow sortBy={sortBy ?? ''} field="timestamp" orderBy={orderBy ?? ''} />
                 </span>
               </th>
-              <th className="text-[12px] text-gray-300 text-left cursor-pointer w-[80px] w-[10%]">
+              <th className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] sm:w-[17%] w-[22%]">
                 Action
               </th>
             </tr>
