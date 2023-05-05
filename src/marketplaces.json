@@ -4,111 +4,127 @@
     "auctionHouseAddress": null,
     "name": "Magic Eden",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/marketplaces/magiceden.svg"
+    "logo": "/images/marketplaces/magiceden.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8",
     "auctionHouseAddress": null,
     "name": "Magic Eden",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/marketplaces/magiceden.svg"
+    "logo": "/images/marketplaces/magiceden.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "mmm3XBJg5gk8XJxEKBvdgptZz6SgK4tXvn36sodowMc",
     "auctionHouseAddress": null,
     "name": "CoralCube / ME AMM",
     "link": "https://magiceden.io/item-details/{}",
-    "logo": "/images/marketplaces/coralcube.svg"
+    "logo": "/images/marketplaces/coralcube.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "rwdD3F6CgoCAoVaxcitXAeWRjQdiGc5AVABKCpQSMfd",
     "auctionHouseAddress": "FVmjRUm2ssXi5vZUhwzB2HfXzTVzvE73x3f5NmTtZ7C8",
     "name": "Night Market",
     "link": "https://nightmarket.io/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "6hW2rVdPUD5qn1amEvN3K9zkvgsCA34LqCvTPcpamQHc",
     "name": "Night Market",
     "link": "https://nightmarket.io/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "9R8XEEez1uKz9qhSXUUAk4msH6RZ1VRnzmSHeXb9C7cE",
     "name": "Night Market (Beta)",
     "link": "https://beta.nightmarket.io/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "FrUzLxqzhp2gMYXv3WEJJwRSjB4xg3Xo8CmqvBKRQ756",
     "name": "Night Market (Dev)",
     "link": "https://nightmarket.holaplex.dev/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "RwDDvPp7ta9qqUwxbBfShsNreBaSsKvFcHzMxfBC3Ki",
     "auctionHouseAddress": "8JfAyq7iGvEEsJ1SRzFHpxSAcjt9nGD7VgjeB56vGPuK",
     "name": "Night Market (Builders)",
     "link": "https://nightmarket.holaplex.dev/nfts/{}",
-    "logo": "/images/nightmarket-beta.svg"
+    "logo": "/images/nightmarket-beta.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
     "auctionHouseAddress": null,
     "name": "Holaplex",
     "link": "https://market.holaplex.com/nfts/{}",
-    "logo": "/images/holaplex-logo-text.png"
+    "logo": "/images/holaplex-logo-text.png",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
     "auctionHouseAddress": "GWErq8nJf5JQtohg5k7RTkiZmoCxvGBJqbMSfkrxYFFy",
     "name": "Solanart",
     "link": "https://solanart.io/nft/{}",
-    "logo": "/images/marketplaces/solanart.svg"
+    "logo": "/images/marketplaces/solanart.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
     "auctionHouseAddress": "3o9d13qUvEuuauhFrVom1vuCzgNsJifeaBYDPquaT73Y",
     "name": "OpenSea",
     "link": "https://opensea.io/assets/solana/{}",
-    "logo": "/images/marketplaces/opensea.svg"
+    "logo": "/images/marketplaces/opensea.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",
     "auctionHouseAddress": null,
     "name": "Tensor Swap",
     "link": "https://www.tensor.trade/item/{}",
-    "logo": "/images/marketplaces/tensor-swap.svg"
+    "logo": "/images/marketplaces/tensor-swap.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "hadeK9DLv9eA7ya5KCTqSvSvRZeJC3JgD5a9Y3CNbvu",
     "auctionHouseAddress": null,
     "name": "Hadeswap",
     "link": "https://beta.hadeswap.com/collection/{}",
-    "logo": "/images/marketplaces/hadeswap.svg"
+    "logo": "/images/marketplaces/hadeswap.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "HYPERfwdTjyJ2SCaKHmpF2MtrXqWxrsotYDsTrshHWq8",
     "auctionHouseAddress": null,
     "name": "Hyperspace",
     "link": "https://hyperspace.xyz/token/{}",
-    "logo": "/images/marketplaces/hyperspace.svg"
+    "logo": "/images/marketplaces/hyperspace.svg",
+    "buyNowEnabled": true
   },
   {
     "marketplaceProgramAddress": "2qGyiNeWyZxNdkvWHc2jT5qkCnYa1j1gDLSSUmyoWMh8",
     "auctionHouseAddress": null,
     "name": "Elixir",
     "link": "https://app.elixirnft.io/",
-    "logo": "/images/marketplaces/elixir.svg"
+    "logo": "/images/marketplaces/elixir.svg",
+    "buyNowEnabled": false
   },
   {
     "marketplaceProgramAddress": "AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn",
     "auctionHouseAddress": null,
     "name": "Exchange Art",
     "link": "https://exchange.art/single/{}",
-    "logo": "/images/marketplaces/exchangeart.svg"
+    "logo": "/images/marketplaces/exchangeart.svg",
+    "buyNowEnabled": true
   }
 ]

@@ -19,8 +19,8 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!publicKey || balance != null) return;
-    connection.getBalance(publicKey).then((lamp) => setBalance(getSolFromLamports(lamp, 0, 3)));
+    if (!publicKey) return;
+    connection.getBalance(publicKey).then((lamp) => setBalance(lamp));
   }, [publicKey, balance, connection]);
 
   const returnValue = {

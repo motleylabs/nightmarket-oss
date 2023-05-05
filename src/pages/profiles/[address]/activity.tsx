@@ -73,7 +73,7 @@ export default function ProfileActivity(): JSX.Element {
     }&activity_types=${typeQueryParam}&limit=${PAGE_LIMIT}&offset=${pageIndex * PAGE_LIMIT}`;
   };
 
-  const { data, setSize } = useSWRInfinite<UserActivitiesData>(getKey, {
+  const { data, setSize, isValidating } = useSWRInfinite<UserActivitiesData>(getKey, {
     revalidateOnFocus: false,
   });
 
@@ -81,7 +81,7 @@ export default function ProfileActivity(): JSX.Element {
     setSize((oldSize) => oldSize + 1);
   };
 
-  // const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
+  const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
   const activities = useMemo(() => data?.flatMap((d) => d.activities) ?? [], [data]);
 
@@ -104,49 +104,59 @@ export default function ProfileActivity(): JSX.Element {
           />
         </div>
       </Toolbar>
-      <InfiniteScroll
-        dataLength={activities.length}
-        next={onShowMoreActivities}
-        hasMore={hasNextPage}
-        loader={
-          <>
+      { activities.length === 0 ?
+        isLoading &&
+          <div className="flex flex-col gap-4 px-4">
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
-          </>
-        }
-        className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8"
-      >
-        {activities.map((activity) => (
-          <Activity
-            avatar={
-              <Link
-                className="cursor-pointer transition hover:scale-[1.02]"
-                href={`/nfts/${activity.mint}`}
-              >
-                <Avatar src={activity.image} size={AvatarSize.Standard} />
-              </Link>
+          </div>
+        : 
+          <InfiniteScroll
+            dataLength={activities.length}
+            next={onShowMoreActivities}
+            hasMore={hasNextPage}
+            loader={
+              <>
+                <Activity.Skeleton />
+                <Activity.Skeleton />
+                <Activity.Skeleton />
+                <Activity.Skeleton />
+              </>
             }
-            type={activity.activityType as ActivityType}
-            key={activity.mint}
-            meta={
-              <Activity.Meta
-                title={<Activity.Tag />}
-                marketplaceAddress={activity.martketplaceProgramAddress}
-                auctionHouseAddress={activity.auctionHouseAddress}
-              />
-            }
-            source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
+            className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8"
           >
-            <Activity.Price amount={Number(activity.price)} />
-            <Activity.Timestamp
-              signature={activity.signature}
-              timeSince={activity.blockTimestamp}
-            />
-          </Activity>
-        ))}
-      </InfiniteScroll>
+            {activities.map((activity) => (
+              <Activity
+                avatar={
+                  <Link
+                    className="cursor-pointer transition hover:scale-[1.02]"
+                    href={`/nfts/${activity.mint}`}
+                  >
+                    <Avatar src={activity.image} size={AvatarSize.Standard} />
+                  </Link>
+                }
+                type={activity.activityType as ActivityType}
+                key={activity.mint}
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplaceAddress={activity.martketplaceProgramAddress}
+                    auctionHouseAddress={activity.auctionHouseAddress}
+                  />
+                }
+                source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
+              >
+                <Activity.Price amount={Number(activity.price)} />
+                <Activity.Timestamp
+                  signature={activity.signature}
+                  timeSince={activity.blockTimestamp}
+                />
+              </Activity>
+            ))}
+          </InfiniteScroll>
+      }
     </>
   );
 }

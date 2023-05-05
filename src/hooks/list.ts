@@ -170,7 +170,7 @@ export function useListNft(): ListNftContext {
 
     if (nft.tokenStandard === 'ProgrammableNonFungible') {
       const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
-      let remainingAccounts: AccountMeta[] = [];
+      const remainingAccounts: AccountMeta[] = [];
       remainingAccounts.push(pnftAccounts.metadataProgram);
       remainingAccounts.push(pnftAccounts.delegateRecord);
       remainingAccounts.push(pnftAccounts.tokenRecord);
@@ -838,10 +838,9 @@ export function useCloseListing({
     };
 
     if (nft.tokenStandard === 'ProgrammableNonFungible') {
-      const [programAsSigner, programAsSignerBump] =
-        await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+      const [programAsSigner] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
       const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
-      let remainingAccounts: AccountMeta[] = [];
+      const remainingAccounts: AccountMeta[] = [];
       remainingAccounts.push(pnftAccounts.metadataProgram);
       remainingAccounts.push(pnftAccounts.delegateRecord);
       remainingAccounts.push(pnftAccounts.programAsSigner);

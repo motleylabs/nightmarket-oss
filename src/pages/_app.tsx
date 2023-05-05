@@ -51,6 +51,7 @@ import { WalletContextProvider, useWalletContext } from '../providers/WalletCont
 import type { Nft, OverallStat, RPCReport, StatSearch } from '../typings/index.js';
 import { getAssetURL, AssetSize } from '../utils/assets';
 import { getCookie, setCookie } from '../utils/cookies';
+import { getSolFromLamports } from '../utils/price';
 import { hideTokenDetails } from '../utils/tokens';
 import './../../styles/globals.css';
 import config from './../app.config';
@@ -406,7 +407,7 @@ function ProfilePopover() {
               </div>
               <div className="flex flex-row items-center gap-2 p-4">
                 <Icon.Sol className="h-4 w-4" />
-                {balance}
+                {getSolFromLamports(balance ?? 0, 0, 3)}
               </div>
               <div onClick={() => close()} className="flex flex-col pb-4">
                 <Link

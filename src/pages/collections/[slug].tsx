@@ -262,9 +262,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setOrderBy(selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc);
   }, [selectedSort]);
 
-  const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey, {
-    revalidateOnFocus: false,
-  });
+  const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey);
 
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
@@ -616,7 +614,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                           key={`${nft.mintAddress}-${i}`}
                           link={`/nfts/${nft.mintAddress}`}
                           onMakeOffer={() => makeOffer(nft, miniCollection)}
-                          onBuy={() => buyNow(nft, miniCollection)}
+                          onBuy={() =>
+                            buyNow(nft, miniCollection, () => {
+                              nfts.splice(i, 1);
+                            })
+                          }
                           nft={nft}
                           showCollectionThumbnail={false}
                           bulkSelectEnabled={false}

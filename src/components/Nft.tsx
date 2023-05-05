@@ -104,6 +104,14 @@ export function Preview({
     });
   };
 
+  const onViewExternalListing = async () => {
+    if (!nft || !marketplace) {
+      return;
+    }
+
+    window.open(marketplace.link.replace('{}', nft.mintAddress), '_blank', 'noopener,noreferrer');
+  };
+
   const isBulkSelected = selected.includes(nft);
 
   useEffect(() => {
@@ -331,7 +339,7 @@ export function Preview({
                 </Button>
               ) : null // not listed
             ) : !!listing ? (
-              listing.auctionHouseAddress === config.auctionHouse ? (
+              marketplace && marketplace.buyNowEnabled ? (
                 <Button
                   onClick={onBuy}
                   size={ButtonSize.Small}
@@ -342,20 +350,8 @@ export function Preview({
                   {t('buy', { ns: 'common' })}
                 </Button>
               ) : (
-                <Link href={link}>
-                  <Button
-                    size={ButtonSize.Small}
-                    background={ButtonBackground.Slate}
-                    border={ButtonBorder.Gradient}
-                    color={ButtonColor.Gradient}
-                  >
-                    {t('View', { ns: 'common' })}
-                  </Button>
-                </Link>
-              )
-            ) : (
-              <Link href={link}>
                 <Button
+                  onClick={onViewExternalListing}
                   size={ButtonSize.Small}
                   background={ButtonBackground.Slate}
                   border={ButtonBorder.Gradient}
@@ -363,7 +359,31 @@ export function Preview({
                 >
                   {t('View', { ns: 'common' })}
                 </Button>
-              </Link>
+              )
+
+            ) : (
+              <div className="flex w-full items-center justify-between gap-1">
+                {myOffer ? (
+                  <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                    {t('offerable.yourOffer', { ns: 'common' })}
+                    <div className="flex flex-row items-center gap-1">
+                      <Icon.Sol />
+                      {getSolFromLamports(myOffer.price, 0, 3)}
+                    </div>
+                  </span>
+                ) : (
+                  <Link href={link}>
+                    <Button
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('View', { ns: 'common' })}
+                    </Button>
+                  </Link>
+                )}
+              </div>
             )}
           </td>
         </tr>
@@ -609,12 +629,13 @@ OverviewForm.Points = OverviewFormPoints;
 
 interface OverviewFormPointProps {
   label: string;
+  className?: string;
   children: JSX.Element | (JSX.Element | number | string | undefined)[];
 }
 
-function OverviewFormPoint({ label, children }: OverviewFormPointProps): JSX.Element {
+function OverviewFormPoint({ label, className, children }: OverviewFormPointProps): JSX.Element {
   return (
-    <li className="flex justify-between">
+    <li className={clsx('flex justify-between', className)}>
       <span>{label}</span>
       <span className="flex flex-row items-center justify-center gap-1">{children}</span>
     </li>

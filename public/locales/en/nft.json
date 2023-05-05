@@ -14,6 +14,7 @@
   "view": "View on {{market}}",
   "logo": "{{market}} logo",
   "listedOn": "Listed on {{market}}.",
+  "total": "Total",
   "cancel": "Cancel",
   "update": "Update",
   "updateListing": "Update Listing",

@@ -3,6 +3,7 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import BN from 'bn.js';
 
 import { toSol } from '../modules/sol';
+import { AuctionHouse, Nft } from '../typings';
 
 export function formatAsBN(value: string | number | null | undefined): string {
   if (!value) {
@@ -51,4 +52,36 @@ export function getExtendedSolFromLamports(price: string, decimals = 3, round = 
   } else {
     return `${getSolFromLamports(price, decimals, round)} K`;
   }
+}
+
+interface BuyerTotals {
+  nftPrice: number;
+  totalPrice: number;
+  totalRoyalties: number;
+  totalMarketplaceFee: number;
+}
+
+export function buyerTotalsForListing(
+  nft: Nft | null,
+  isOwnMarket: boolean,
+  auctionHouse?: AuctionHouse | null
+): BuyerTotals {
+  if (!nft || !nft.latestListing) {
+    return {} as BuyerTotals;
+  }
+
+  const nftPrice = +nft?.latestListing?.price ?? 0;
+
+  const royalties = nft?.sellerFeeBasisPoints ?? 0;
+  const marketplaceFee = isOwnMarket ? auctionHouse?.sellerFeeBasisPoints : 0;
+
+  const totalRoyalties = Math.ceil(nftPrice * (royalties / 10000));
+  const totalMarketplaceFee = Math.ceil(nftPrice * ((marketplaceFee ?? 0) / 10000));
+
+  return {
+    nftPrice: nftPrice,
+    totalPrice: nftPrice + totalRoyalties + totalMarketplaceFee,
+    totalRoyalties: totalRoyalties,
+    totalMarketplaceFee: totalMarketplaceFee,
+  };
 }

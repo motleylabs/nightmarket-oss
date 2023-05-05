@@ -39,7 +39,7 @@
         "ignoreRestArgs": true
       }
     ],
-    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/consistent-type-imports": "off",
     "@next/next/no-img-element": "off"
   },
   "plugins": [

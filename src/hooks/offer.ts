@@ -951,7 +951,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
           programAsSigner,
           tokenMint
         );
-        let remainingAccounts: AccountMeta[] = [];
+        const remainingAccounts: AccountMeta[] = [];
         remainingAccounts.push(pnftAccounts.metadataProgram);
         remainingAccounts.push(pnftAccounts.delegateRecord);
         remainingAccounts.push(pnftAccounts.programAsSigner);

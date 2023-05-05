@@ -48,6 +48,7 @@
   },
   "buyable": {
     "buyNow": "Buy Now",
+    "notEnoughBalance": "Insufficient Balance",
     "earnSauce": "You'll earn",
     "floorPrice": "Current Floor Price",
     "listPrice": "Current Listed Price",

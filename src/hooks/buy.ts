@@ -45,8 +45,7 @@ interface BuyListedForm extends BuyForm {
   listing: ActionInfo;
 }
 
-interface BuyListingResponse {
-  buyerReceiptTokenAccount: PublicKey;
+export interface BuyListingResponse {
   buyAction: ActionInfo | null;
 }
 
@@ -354,7 +353,7 @@ export default function useBuyNow(): BuyContext {
     } finally {
       setBuying(false);
       setBuy(false);
-      return { buyerReceiptTokenAccount, buyAction };
+      return { buyAction };
     }
   };
 
