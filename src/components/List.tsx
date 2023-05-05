@@ -252,26 +252,30 @@ export function List<T>({
             data?.map(render)
           )}
         </InfiniteScroll>
-      ) : loading && cardType.includes('list') ? (
-        <div className="flex flex-col gap-4 pt-4">
-          <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-          <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-          <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-          <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-        </div>
-      ) : (
-        <div
-          className={clsx(
-            `grid gap-4 pt-4 md:gap-${gap}`,
-            expanded ? openClassNames : closedClassNames,
-            className
+      ) : (loading && 
+        <>
+          { cardType.includes('list') ? (
+            <div className="flex flex-col gap-4 pt-4">
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+            </div>
+          ) : (
+            <div
+              className={clsx(
+                `grid gap-4 pt-4 md:gap-${gap}`,
+                expanded ? openClassNames : closedClassNames,
+                className
+              )}
+            >
+              {[...Array(activeGridSize * 2)].map((_, index) => (
+                <Skeleton key={index} />
+              ))}
+            </div>
           )}
-        >
-          {[...Array(activeGridSize * 2)].map((_, index) => (
-            <Skeleton key={index} />
-          ))}
-        </div>
-      )}
+        </>
+      )}      
     </>
   );
 }
