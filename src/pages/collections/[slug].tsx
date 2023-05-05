@@ -249,9 +249,12 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       pageIndex * PAGE_LIMIT
     }&attributes=${attributesQueryParam}&address=${query.slug}&auction_house=${
       config.auctionHouse
-    }&program=${nightmarketOnly ? config.auctionHouseProgram ?? '' : ''}&name=${Buffer.from(nftName, "utf8").toString("base64")}&min=${
-      priceFilter.min
-    }&max=${priceFilter.max}&listing_only=${listingOnly ? 'true' : 'false'}`;
+    }&program=${nightmarketOnly ? config.auctionHouseProgram ?? '' : ''}&name=${Buffer.from(
+      nftName,
+      'utf8'
+    ).toString('base64')}&min=${priceFilter.min}&max=${priceFilter.max}&listing_only=${
+      listingOnly ? 'true' : 'false'
+    }`;
   };
 
   useEffect(() => {
@@ -314,10 +317,6 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   );
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
-
-  useEffect(() => {
-    console.log(Buffer.from(nftName, "utf8").toString("base64"))
-  }, [nftName])
 
   return (
     <>
