@@ -3,13 +3,10 @@ import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
+import { TailSpin } from 'react-loader-spinner';
 
 import type { DataPoint } from '../../typings';
 import { CustomLineChartTooltip } from './Chart';
-
-const TailSpin = dynamic(() => import('react-loader-spinner').then((mod) => mod.TailSpin), {
-  ssr: false,
-});
 
 export function TinyLineChart(props: {
   height?: number;

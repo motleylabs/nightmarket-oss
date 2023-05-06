@@ -212,6 +212,14 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
     };
 
     const instruction = createCreateOfferInstruction(accounts, args);
+
+    // patch metadata account to writable for AH / RWD
+    for (let i = 0; i < instruction.keys.length; i++) {
+      if (instruction.keys[i].pubkey.equals(metadata)) {
+        instruction.keys[i].isWritable = true;
+      }
+    }
+
     const arrayOfInstructions = new Array<TransactionInstruction>();
 
     const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
@@ -470,6 +478,13 @@ export function useUpdateOffer(
     };
 
     const closeOfferIx = createCloseOfferInstruction(closeOfferAccounts, closeOfferArgs);
+
+    // patch metadata account to writable for AH / RWD
+    for (let i = 0; i < closeOfferIx.keys.length; i++) {
+      if (closeOfferIx.keys[i].pubkey.equals(metadata)) {
+        closeOfferIx.keys[i].isWritable = true;
+      }
+    }
 
     const createofferAccounts: CreateOfferInstructionAccounts = {
       wallet: publicKey,
@@ -894,10 +909,20 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
         tokenMint,
         publicKey
       );
+
       remainingAccounts.push(pnftAccounts.metadataProgram);
       remainingAccounts.push(pnftAccounts.edition);
       remainingAccounts.push(pnftAccounts.sellerTokenRecord);
       remainingAccounts.push(pnftAccounts.tokenRecord);
+      remainingAccounts.push(pnftAccounts.authRulesProgram);
+      remainingAccounts.push(pnftAccounts.authRules);
+      remainingAccounts.push(pnftAccounts.sysvarInstructions);
+
+      remainingAccounts.push(pnftAccounts.metadataProgram);
+      remainingAccounts.push(pnftAccounts.delegateRecord);
+      remainingAccounts.push(pnftAccounts.sellerTokenRecord);
+      remainingAccounts.push(pnftAccounts.tokenMint);
+      remainingAccounts.push(pnftAccounts.edition);
       remainingAccounts.push(pnftAccounts.authRulesProgram);
       remainingAccounts.push(pnftAccounts.authRules);
       remainingAccounts.push(pnftAccounts.sysvarInstructions);
@@ -912,7 +937,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
 
     const keys = acceptOfferIx.keys.concat(remainingAccounts);
 
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
+    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 1000000 });
 
     const arrayOfInstructions = new Array<TransactionInstruction>();
 
