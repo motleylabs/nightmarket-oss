@@ -13,7 +13,6 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { Analytics } from '@vercel/analytics/react';
 
 import clsx from 'clsx';
 import type { NextPage } from 'next';
@@ -543,7 +542,7 @@ function MobileNavMenu({
                 </div>
                 <div className="flex flex-row items-center gap-2 py-4">
                   <Icon.Sol className="h-4 w-4" />
-                  {balance}
+                  {getSolFromLamports(balance ?? 0, 0, 3)}
                 </div>
                 <Link
                   href={`/profiles/${address}`}
