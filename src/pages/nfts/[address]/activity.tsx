@@ -48,7 +48,7 @@ export default function NftActivity() {
       <div className="flex flex-col gap-4">
         <Activity.Skeleton />
         <Activity.Skeleton />
-        <Activity.Skeleton />s
+        <Activity.Skeleton />
         <Activity.Skeleton />
       </div>
     );
