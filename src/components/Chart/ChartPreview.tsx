@@ -17,7 +17,7 @@ export function ChartPreview({
   max?: number;
 }) {
   return (
-    <div className={clsx('flex flex-col gap-1 rounded-xl bg-gray-800 py-6')}>
+    <div className={clsx('flex flex-col gap-1 rounded-xl bg-gray-800 py-6 w-1/2')}>
       <div className="flex items-center justify-between px-6">
         <h2 className="text-sm text-gray-300">{title}</h2>
         <h2 className="text-sm text-gray-300">{dateRange}</h2>
