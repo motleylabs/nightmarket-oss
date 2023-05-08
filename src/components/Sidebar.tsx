@@ -58,7 +58,7 @@ function SidebarControl({
         )}
       </button>
       {isLive !== undefined && (
-        <div className="flex items-center ml-3">
+        <div className="flex items-center ml-3 min-w-[150px]">
           <Toggle
             classes="mr-3"
             value={isLive}
