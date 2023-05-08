@@ -96,9 +96,14 @@ module.exports = {
             border: 'width 0.25s ease-out 0.5s, height 0.25s ease-out 0.75s',
           },
         },
+        refresh: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'draw-border': 'draw .5s',
+        refresh: 'refresh 1s ease-in-out',
       },
       transitionProperty: {
         width: 'width',
