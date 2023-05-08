@@ -246,7 +246,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                   ${getMegaValue(collection.statistics.marketCap)}
                 </CollectionFigure>
                 <CollectionFigure label={t('listings', { ns: 'collection' })} loading={isLoading}>
-                  {collection.statistics.listed1d.toLocaleString()}
+                  {parseInt(collection.statistics.listed1d, 10).toLocaleString()}
                 </CollectionFigure>
                 <CollectionFigure label={t('holders', { ns: 'collection' })} loading={isLoading}>
                   {collection.statistics.holders.toLocaleString()}
