@@ -3,7 +3,7 @@ import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Image from 'next/image';
-import type { ReactNode, Dispatch, SetStateAction } from 'react';
+import { ReactNode, Dispatch, SetStateAction, useState } from 'react';
 import { Children, cloneElement } from 'react';
 
 import liveIcon from '../../public/images/live-light.svg';
@@ -34,6 +34,8 @@ function SidebarControl({
   setIsLive,
   refresh,
 }: SidebarControlProps) {
+  const [animateRefreshButton, setAnimateRefreshButton] = useState(false);
+
   return (
     <div className="relative flex items-center">
       {show ? (
@@ -78,8 +80,14 @@ function SidebarControl({
           )}
           {!!refresh && (
             <div
-              className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
-              onClick={refresh}
+              className={`${
+                animateRefreshButton && 'animate-refresh'
+              } ml-3 flex  flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer`}
+              onClick={() => {
+                refresh();
+                setAnimateRefreshButton(true);
+              }}
+              onAnimationEnd={() => setAnimateRefreshButton(false)}
             >
               <Image src={refreshIcon} alt="refresh-icon" />
             </div>
