@@ -15,7 +15,7 @@ import { useSeries } from '../hooks/collection/useSeries';
 import useMetaplex from '../hooks/metaplex';
 import type { Collection } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
-import { getExtendedSolFromLamports, getSolFromLamports } from '../utils/price';
+import { getExtendedSolFromLamports, getMegaValue, getSolFromLamports } from '../utils/price';
 import { Overview } from './../components/Overview';
 
 interface VerifiedBadgeProps {
@@ -243,7 +243,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                   label={t('estimatedMarketcap', { ns: 'collection' })}
                   loading={isLoading}
                 >
-                  <Icon.Sol /> {getExtendedSolFromLamports(collection.statistics.marketCap, 3, 2)}
+                  ${getMegaValue(collection.statistics.marketCap)}
                 </CollectionFigure>
                 <CollectionFigure label={t('listings', { ns: 'collection' })} loading={isLoading}>
                   {collection.statistics.listed1d.toLocaleString()}
