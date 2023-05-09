@@ -338,16 +338,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
 
-  const isNotFound = (nftName: string, nfts: Nft[], isLoading: boolean) => {
-    return nftName !== '' && nfts.length === 0 && !isLoading;
-  };
+  const isNotFound = useMemo (() => nfts.length === 0 && !isLoading, [isLoading, nfts.length]);
 
-  const NotFoundView = ({ keyword }: { keyword: string }) => (
-    <div className="text-gray-200">
-      Could not find anything by
-      <span className="font-bold text-white"> {keyword}</span>
-    </div>
-  );
   return (
     <>
       <Toolbar>
@@ -619,8 +611,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(publicKey)}>
                   {({ buyNow }) =>
-                    isNotFound(nftName, nfts, isLoading) ? (
-                      <NotFoundView keyword={nftName} />
+                    isNotFound ? (
+                      <div className="text-gray-200 my-6 w-full flex justify-center">
+                        No matches found
+                      </div>
                     ) : (
                       <List
                         cardType={cardType}
