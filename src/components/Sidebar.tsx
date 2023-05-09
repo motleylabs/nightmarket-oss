@@ -41,7 +41,7 @@ function SidebarControl({
       <button
         type="button"
         className={clsx(
-          'flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
+          'flex items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
           'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
           open && ''
         )}
