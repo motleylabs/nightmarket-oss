@@ -338,7 +338,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
 
-  const isNotFound = useMemo (() => nfts.length === 0 && !isLoading, [isLoading, nfts.length]);
+  const isNotFound = useMemo(() => nfts.length === 0 && !isLoading, [isLoading, nfts.length]);
 
   return (
     <>
