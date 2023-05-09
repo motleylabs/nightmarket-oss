@@ -174,6 +174,7 @@ export type CollectionStatistics = {
   holders: number;
   listed1d: string;
   marketCap: string;
+  marketCapSol: string;
   supply: number;
   volume1d: string;
 };

@@ -70,3 +70,24 @@
 .nfts-table tr td {
     background-color: rgb(23 22 28);
 }
+
+.custom-scrollbar::-webkit-scrollbar,
+.custom-scroll-bar-select ul::-webkit-scrollbar {
+    width: 0.5rem;
+    border: 1px solid #363636;
+    border-radius: 50px;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scroll-bar-select ul::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    cursor: pointer;
+    border-radius: 0.15625rem;
+    height: 1rem;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-track,
+.custom-scroll-bar-select ul::-webkit-scrollbar-track {
+    background: #191a1c;
+    border: 1px solid #363636;
+}

@@ -9,9 +9,13 @@
     "count": "{{amount}} NFTs"
   },
   "sort": {
-    "priceHighToLow": "Price: High to Low",
-    "priceLowToHigh": "Price: Low to High",
-    "recentlyListed": "Recently Listed"
+    "priceHighToLow": "Price: Descending",
+    "priceLowToHigh": "Price: Ascending",
+    "recentlyListed": "Recently Listed",
+    "rarityLowToHigh": "Rarity: Ascending",
+    "rarityHighToLow": "Rarity: Descending",
+    "lastSaleLowToHigh": "Last Sale: Ascending",
+    "lastSaleHighToLow": "Last Sale: Descending"
   },
   "collection": "Collection",
   "globalFloor": "Global Floor",

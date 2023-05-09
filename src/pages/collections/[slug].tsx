@@ -44,7 +44,6 @@ import { api } from '../../infrastructure/api';
 import CollectionLayout from '../../layouts/CollectionLayout';
 import type { Collection, CollectionNftsData } from '../../typings';
 import type { Nft } from '../../typings';
-import { OrderDirection } from '../../typings/index.d';
 
 const PAGE_LIMIT = 24;
 
@@ -104,18 +103,20 @@ export async function getServerSideProps({ locale, params, res }: GetServerSideP
 }
 
 enum SortType {
-  PriceLowToHigh = 'price',
+  Price = 'price',
   RecentlyListed = 'timestamp',
+  Rarity = 'moonrank',
+  LastSale = 'last_sale_price',
 }
 
 interface CollectionNFTForm {
   attributes: { [key: string]: { type: string; values: string[] } };
-  sortBySelect: SortType;
+  sortBySelect: string;
 }
 
 interface SortOption {
   label: string;
-  value: SortType;
+  value: string;
 }
 
 type CollectionNftsProps = {
@@ -128,12 +129,32 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const sortOptions: SortOption[] = [
     {
-      value: SortType.PriceLowToHigh,
+      value: `${SortType.Price}:asc`,
       label: t('sort.priceLowToHigh', { ns: 'collection' }),
     },
     {
-      value: SortType.RecentlyListed,
+      value: `${SortType.Price}:desc`,
+      label: t('sort.priceHighToLow', { ns: 'collection' }),
+    },
+    {
+      value: `${SortType.RecentlyListed}:desc`,
       label: t('sort.recentlyListed', { ns: 'collection' }),
+    },
+    {
+      value: `${SortType.Rarity}:asc`,
+      label: t('sort.rarityLowToHigh', { ns: 'collection' }),
+    },
+    {
+      value: `${SortType.Rarity}:desc`,
+      label: t('sort.rarityHighToLow', { ns: 'collection' }),
+    },
+    {
+      value: `${SortType.LastSale}:asc`,
+      label: t('sort.lastSaleLowToHigh', { ns: 'collection' }),
+    },
+    {
+      value: `${SortType.LastSale}:desc`,
+      label: t('sort.lastSaleHighToLow', { ns: 'collection' }),
     },
   ];
 
@@ -258,8 +279,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   };
 
   useEffect(() => {
-    setSortBy(selectedSort);
-    setOrderBy(selectedSort === SortType.PriceLowToHigh ? OrderDirection.Asc : OrderDirection.Desc);
+    const [selectedSortBy, selectedOrderBy] = selectedSort.split(':');
+    setSortBy(selectedSortBy);
+    setOrderBy(selectedOrderBy);
   }, [selectedSort]);
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey);
@@ -367,7 +389,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                 value={value}
                 onChange={onChange}
                 options={sortOptions}
-                className="w-full md:w-40 lg:w-52"
+                className="w-full md:w-40 lg:w-60 custom-scroll-bar-select text-left"
               />
             )}
           />
@@ -382,20 +404,20 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           </div>
           <div
             className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
-            onClick={() => setCardType('grid-small')}
-          >
-            <Image
-              src={cardType === 'grid-small' ? cardGridSmallActiveIcon : cardGridSmallIcon}
-              alt="card-grid-small-icon"
-            />
-          </div>
-          <div
-            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('grid-large')}
           >
             <Image
               src={cardType === 'grid-large' ? cardGridLargeActiveIcon : cardGridLargeIcon}
               alt="card-grid-large-icon"
+            />
+          </div>
+          <div
+            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            onClick={() => setCardType('grid-small')}
+          >
+            <Image
+              src={cardType === 'grid-small' ? cardGridSmallActiveIcon : cardGridSmallIcon}
+              alt="card-grid-small-icon"
             />
           </div>
         </div>
@@ -445,6 +467,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                 <Form.Input
                                   placeholder="Min"
                                   type="number"
+                                  step={0.001}
                                   {...register('priceMin')}
                                 ></Form.Input>
                                 <Form.Error message={priceErrors.priceMin?.message} />
@@ -456,6 +479,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                 <Form.Input
                                   placeholder="Max"
                                   type="number"
+                                  step={0.001}
                                   {...register('priceMax')}
                                 ></Form.Input>
                                 <Form.Error message={priceErrors.priceMax?.message} />

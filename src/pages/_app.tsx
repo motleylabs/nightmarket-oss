@@ -100,7 +100,6 @@ function ReportHeader() {
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
-            <Icon.Sol defaultColor="#FFFFFF" />
             <span className="font-semibold text-white">{`$${(
               overallStat.marketCap / 1000000
             ).toFixed(2)}M`}</span>
