@@ -2,6 +2,7 @@ import { format, roundToNearestMinutes } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
+import { TailSpin } from 'react-loader-spinner';
 import {
   CartesianGrid,
   Line,
@@ -11,7 +12,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TailSpin } from 'react-loader-spinner';
 
 import { DateRangeOption } from '../../modules/time';
 import type { DataPoint } from '../../typings';
