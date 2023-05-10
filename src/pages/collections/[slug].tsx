@@ -624,8 +624,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                         hasMore={hasNextPage}
                         gap={6}
                         grid={{
-                          [ListGridSize.Default]: [1, 2, 2],
-                          [ListGridSize.Small]: [1, 2, 2],
+                          [ListGridSize.Default]: [1, 1, 2],
+                          [ListGridSize.Small]: [1, 1, 2],
                           [ListGridSize.Medium]: [1, 2, 3],
                           [ListGridSize.Large]: [2, 3, 4],
                           [ListGridSize.ExtraLarge]: [3, 4, 6],
