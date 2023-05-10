@@ -2,14 +2,15 @@ import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import type { ReactNode } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import type { ActivityType } from '../../../components/Activity';
 import { Activity } from '../../../components/Activity';
 import { useActivities } from '../../../hooks/nft/useActivities';
+import { useAction } from '../../../hooks/useAction';
 import { api } from '../../../infrastructure/api';
 import NftLayout from '../../../layouts/NftLayout';
-import type { Nft } from '../../../typings';
+import type { ActivityEvent, Nft } from '../../../typings';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
   try {
@@ -34,14 +35,44 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
   }
 }
 
-export default function NftActivity() {
+interface NftActivityPageProps {
+  nft: Nft;
+}
+
+export default function NftActivity({ nft }: NftActivityPageProps) {
   const { t } = useTranslation('common');
 
-  const { data, isValidating } = useActivities();
+  const { data, isValidating, mutate } = useActivities();
 
   const isLoading = !data && isValidating;
 
   const activities = useMemo(() => data?.activities ?? [], [data?.activities]);
+
+  const { on, off } = useAction();
+
+  const addActivity = (event: Event) => {
+    const newActivityEvent: ActivityEvent = (event as CustomEvent).detail;
+
+    if (newActivityEvent.mint === nft.mintAddress) {
+      if (!isLoading && !isValidating && !!data) {
+        mutate(
+          {
+            activities: [newActivityEvent.activity, ...activities],
+            hasNextPage: false,
+          },
+          { revalidate: false }
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    on('activity', addActivity);
+
+    return () => {
+      off('activity', addActivity);
+    };
+  });
 
   if (isLoading) {
     return (
