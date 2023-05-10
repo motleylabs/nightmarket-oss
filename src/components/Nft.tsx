@@ -250,7 +250,7 @@ export function Preview({
                 <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
                   {t('lastSale', { ns: 'common' })}
                   <div className="flex flex-row items-center gap-1">
-                    <Icon.Sol className="flex h-3 w-3 pt-0.5" />
+                    <Icon.Sol className="flex h-3 w-3" />
                     {getSolFromLamports(nft.lastSale.price, 0, 3)}
                   </div>
                 </span>
