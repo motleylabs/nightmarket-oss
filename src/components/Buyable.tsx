@@ -204,19 +204,23 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       {t('buyable.floorPrice', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {getSolFromLamports(miniCollection.floorPrice, 0, 2)}
+                      <Icon.Sol />
+                      &nbsp;
+                      {getSolFromLamports(miniCollection.floorPrice, 0, 2)}
                     </p>
                   </div>
                 )}
                 {nft && listing && (
-                  <div>
+                  <div className="flex flex-col gap-2">
                     <div className="flex flex-row justify-between">
                       <p className="text-base font-medium text-gray-300">
                         {t('buyable.listPrice', { ns: 'common' })}
                       </p>
                       {/* TODO: sort for lowest listing thats not expired */}
                       <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                        <Icon.Sol /> {getSolFromLamports(nftPrice, 0, 3)}
+                        <Icon.Sol />
+                        &nbsp;
+                        {getSolFromLamports(nftPrice, 0, 3)}
                       </p>
                     </div>
                     <div className="flex flex-row justify-between">
@@ -224,7 +228,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                         {t('royalties', { ns: 'nft' })}
                       </p>
                       <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
-                        <Icon.Sol />{' '}
+                        <Icon.Sol />
+                        &nbsp;
                         <span>
                           {getSolFromLamports(totalRoyalties, 0, 3)} (
                           {nft.sellerFeeBasisPoints / 100}%)
@@ -237,7 +242,8 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                           {t('buyable.marketplaceFee', { ns: 'common' })}
                         </p>
                         <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
-                          <Icon.Sol />{' '}
+                          <Icon.Sol />
+                          &nbsp;
                           <span>
                             {getSolFromLamports(totalMarketplaceFee, 0, 3)} (
                             {auctionHouse.sellerFeeBasisPoints / 100}%)
@@ -250,7 +256,9 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                         {t('total', { ns: 'nft' })}
                       </p>
                       <div className="text-base font-medium text-white flex flex-row justify-center items-center">
-                        <Icon.Sol /> <span>{getSolFromLamports(totalPrice, 0, 3)}</span>
+                        <Icon.Sol />
+                        &nbsp;
+                        <span>{getSolFromLamports(totalPrice, 0, 3)}</span>
                       </div>
                     </div>
                   </div>
@@ -261,7 +269,9 @@ export function Buyable({ children, connected = false }: BuyableProps) {
                       {t('buyable.currentBalance', { ns: 'common' })}
                     </p>
                     <p className="flex flex-row items-center text-base font-medium text-gray-300">
-                      <Icon.Sol /> {getSolFromLamports(balance ?? 0, 0, 3)}
+                      <Icon.Sol />
+                      &nbsp;
+                      {getSolFromLamports(balance ?? 0, 0, 3)}
                     </p>
                   </div>
                 )}
