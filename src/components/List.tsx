@@ -135,7 +135,7 @@ export function List<T>({
     <>
       {!!data && data.length > 0 ? (
         <InfiniteScroll
-          dataLength={data?.length ?? 0}
+          dataLength={data.length ?? 0}
           next={() => {
             if (!!onLoadMore) onLoadMore();
           }}

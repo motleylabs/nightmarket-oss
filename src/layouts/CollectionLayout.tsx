@@ -278,7 +278,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             )}
           </div>
         </div>
-        <Overview.Tabs>
+        <Overview.Tabs mode="collection">
           <Overview.Tab
             label={t('nfts', { ns: 'collection' })}
             href={`/collections/${collection.slug}`}
