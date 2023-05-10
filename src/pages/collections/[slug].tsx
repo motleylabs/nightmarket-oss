@@ -247,7 +247,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     if (listingOnly) {
       pillItems.unshift({
         key: 'sale',
-        label: `For sale`,
+        label: `For Sale`,
       });
     }
 
@@ -419,7 +419,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           <div className="mt-4 flex w-full flex-col gap-6">
             {open && selectedAttributes.length > 0 && (
               <div className="gap-1">
-                <span className="text-gray-300 text-[12px]">Attributes:</span>
+                <span className="text-gray-300 text-[12px]">Filters:</span>
                 <Sidebar.Pills
                   items={selectedAttributes}
                   onRemove={onRemovePill}
@@ -597,7 +597,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             {!open && selectedAttributes.length > 0 && (
               <div className="gap-1 flex items-center">
                 <span className="mb-4 mt-4 flex flex-wrap gap-2 md:mb-2 mr-1 text-gray-300 text-[12px]">
-                  Attributes:
+                  Filters:
                 </span>
                 <Sidebar.Pills
                   items={selectedAttributes}
