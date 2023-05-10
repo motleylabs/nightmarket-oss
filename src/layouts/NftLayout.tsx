@@ -667,7 +667,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               {publicKey && (
                 <Overview.Form.Point label={t('walletBalance', { ns: 'nft' })}>
                   <Icon.Sol />
-                  {balance ?? 0}
+                  {getSolFromLamports(balance ?? 0, 0, 3)}
                 </Overview.Form.Point>
               )}
             </Overview.Form.Points>

@@ -36,6 +36,7 @@ The frontend talks to [andromeda](https://github.com/motleylabs/andromeda), our 
 
 
 ## Video Overview
+Here we have a walkthrough video of the structure of the codebase and how you can start developing!
 
 [![Night Market Codebase Review](https://cdn.loom.com/sessions/thumbnails/df21609222da4259bf9353b8f8a885ff-with-play.gif)](https://www.loom.com/embed/df21609222da4259bf9353b8f8a885ff)
 

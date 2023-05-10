@@ -11,14 +11,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { TailSpin } from 'react-loader-spinner';
 
 import { DateRangeOption } from '../../modules/time';
 import type { DataPoint } from '../../typings';
 import { CustomLineChartTooltip } from './Chart';
-
-const TailSpin = dynamic(() => import('react-loader-spinner').then((mod) => mod.TailSpin), {
-  ssr: false,
-});
 
 const tickGapDict = {
   [DateRangeOption.DAY]: 30,

@@ -214,7 +214,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
                     {t('offerable.currentBalance', { ns: 'common' })}
                   </p>
                   <p className="flex flex-row items-center gap-1 text-base font-medium text-gray-300">
-                    <Icon.Sol /> {balance ?? 0}
+                    <Icon.Sol /> {getSolFromLamports(balance ?? 0, 0, 3)}
                   </p>
                 </div>
               </section>
