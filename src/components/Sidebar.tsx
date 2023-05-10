@@ -59,7 +59,7 @@ function SidebarControl({
               />
             )}
           </button>
-          {isLive !== undefined && (
+          {isLive !== undefined && process.env.NEXT_PUBLIC_LIVE_DATA_TOGGLE === "true" && (
             <div className="flex items-center ml-3 min-w-[150px]">
               <Toggle
                 classes="mr-3"
