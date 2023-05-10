@@ -34,53 +34,59 @@ function SidebarControl({
   setIsLive,
   refresh,
 }: SidebarControlProps) {
-  if (!show) return null;
-
   return (
     <div className="relative flex items-center">
-      <button
-        type="button"
-        className={clsx(
-          'flex items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
-          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
-          open && ''
-        )}
-        onClick={onChange}
-      >
-        {open && (
-          <ChevronRightIcon className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')} />
-        )}
-        <span className={clsx('pl-2', open && 'mr-2')}>{label}</span>
-        {!open && (
-          <ChevronRightIcon
-            className={clsx('ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0')}
-          />
-        )}
-      </button>
-      {isLive !== undefined && (
-        <div className="flex items-center ml-3 min-w-[150px]">
-          <Toggle
-            classes="mr-3"
-            value={isLive}
-            onChange={(val) => {
-              if (!!setIsLive) setIsLive(val);
-            }}
-          />
-          <p className="text-white whitespace-nowrap mr-1">Live data</p>
-          {isLive && (
-            <div className="w-[24px] h-[24px] flex items-center">
-              <Image src={liveIcon} alt="live-icon" />
+      {show ? (
+        <>
+          <button
+            type="button"
+            className={clsx(
+              'flex items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
+              'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
+              open && ''
+            )}
+            onClick={onChange}
+          >
+            {open && (
+              <ChevronRightIcon
+                className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')}
+              />
+            )}
+            <span className={clsx('pl-2', open && 'mr-2')}>{label}</span>
+            {!open && (
+              <ChevronRightIcon
+                className={clsx('ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0')}
+              />
+            )}
+          </button>
+          {isLive !== undefined && (
+            <div className="flex items-center ml-3 min-w-[150px]">
+              <Toggle
+                classes="mr-3"
+                value={isLive}
+                onChange={(val) => {
+                  if (!!setIsLive) setIsLive(val);
+                }}
+              />
+              <p className="text-white whitespace-nowrap mr-1">Live data</p>
+              {isLive && (
+                <div className="w-[24px] h-[24px] flex items-center">
+                  <Image src={liveIcon} alt="live-icon" />
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
-      {!!refresh && (
-        <div
-          className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
-          onClick={refresh}
-        >
-          <Image src={refreshIcon} alt="refresh-icon" />
-        </div>
+          {!!refresh && (
+            <div
+              className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+              onClick={refresh}
+            >
+              <Image src={refreshIcon} alt="refresh-icon" />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="bg-gray-800 w-[115px] h-[60px] rounded-full animate-pulse"></div>
       )}
     </div>
   );
