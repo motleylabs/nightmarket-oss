@@ -47,12 +47,12 @@ function AttributeOptionHeader({
 }): JSX.Element {
   return (
     <>
-      <span className="font-semibold capitalize text-white">{group.name}</span>
+      <span className="font-semibold capitalize text-gray-300">{group.name}</span>
       <div className="flex items-center ">
         {isOpen ? (
-          <ChevronUpIcon width={24} height={24} className="text-white" />
+          <ChevronUpIcon width={16} height={16} className="text-white" />
         ) : (
-          <ChevronDownIcon width={24} height={24} className="text-white" />
+          <ChevronDownIcon width={16} height={16} className="text-white" />
         )}
       </div>
     </>

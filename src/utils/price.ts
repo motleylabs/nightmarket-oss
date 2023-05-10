@@ -24,6 +24,19 @@ export function formatAsSOL(price: BN): number {
   return toSol(price.toNumber());
 }
 
+export function getRoundedValue(value: number, round: number): number {
+  if (round > 0) {
+    let multiplied = Math.round(value * 10 ** round);
+    while (multiplied === 0) {
+      round += 1;
+      multiplied = Math.round(value * 10 ** round);
+    }
+    return multiplied / 10 ** round;
+  }
+
+  return value;
+}
+
 export function getSolFromLamports(price: number | string, decimals = 0, round = 0): number {
   let value = Number(price) / LAMPORTS_PER_SOL;
   if (value === 0) {
@@ -34,15 +47,7 @@ export function getSolFromLamports(price: number | string, decimals = 0, round =
     value = value / 10 ** decimals;
   }
 
-  if (round > 0) {
-    let multiplied = Math.round(value * 10 ** round);
-    while (multiplied === 0) {
-      round += 1;
-      multiplied = Math.round(value * 10 ** round);
-    }
-    value = multiplied / 10 ** round;
-  }
-  return value;
+  return getRoundedValue(value, round);
 }
 
 export function getExtendedSolFromLamports(price: string, decimals = 3, round = 2): string {
@@ -51,6 +56,21 @@ export function getExtendedSolFromLamports(price: string, decimals = 3, round = 
     return `${getSolFromLamports(price, 0, round)}`;
   } else {
     return `${getSolFromLamports(price, decimals, round)} K`;
+  }
+}
+
+export function getMegaValue(strVal: string): string {
+  const val = Number(strVal);
+  if (val === 0) {
+    return `0`;
+  } else if (val < 1) {
+    return `${val}`;
+  } else if (val < 1000) {
+    const multiplied = Math.round(val * 10 ** 3) / 10 ** 6;
+    return `${getRoundedValue(multiplied, 2)} K`;
+  } else {
+    const multiplied = Math.round(val * 10 ** 3) / 10 ** 9;
+    return `${getRoundedValue(multiplied, 2)} M`;
   }
 }
 

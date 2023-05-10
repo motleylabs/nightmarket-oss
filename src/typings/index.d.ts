@@ -133,6 +133,9 @@ export type Collection = {
   statistics: CollectionStatistics;
   isVerified: boolean;
   symbol: string;
+  twitter: string | null;
+  discord: string | null;
+  website: string | null;
   verifiedCollectionAddress: string;
 };
 
@@ -171,6 +174,7 @@ export type CollectionStatistics = {
   holders: number;
   listed1d: string;
   marketCap: string;
+  marketCapSol: string;
   supply: number;
   volume1d: string;
 };

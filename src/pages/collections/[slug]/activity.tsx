@@ -108,59 +108,60 @@ export default function CollectionActivity(): JSX.Element {
           />
         </div>
       </Toolbar>
-      { activities.length === 0 ?
-        isLoading &&
+      {activities.length === 0 ? (
+        isLoading && (
           <div className="flex flex-col gap-4 px-4">
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
           </div>
-        : 
-          <InfiniteScroll
-            dataLength={activities.length}
-            next={onShowMoreActivities}
-            hasMore={hasNextPage}
-            loader={
-              <>
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-              </>
-            }
-            className="flex flex-col gap-4 px-4 pt-4 md:px-8"
-          >
-            {activities.map((activity, i) => (
-              <Activity
-                avatar={
-                  <Link
-                    className="cursor-pointer transition hover:scale-[1.02]"
-                    href={`/nfts/${activity.mint}`}
-                  >
-                    <Avatar src={activity.image} size={AvatarSize.Standard} />
-                  </Link>
-                }
-                type={activity.activityType as ActivityType}
-                key={`${activity.mint}-${i}}`}
-                meta={
-                  <Activity.Meta
-                    title={<Activity.Tag />}
-                    marketplaceAddress={activity.martketplaceProgramAddress}
-                    auctionHouseAddress={activity.auctionHouseAddress}
-                  />
-                }
-                source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
-              >
-                <Activity.Price amount={Number(activity.price)} />
-                <Activity.Timestamp
-                  signature={activity.signature}
-                  timeSince={activity.blockTimestamp}
+        )
+      ) : (
+        <InfiniteScroll
+          dataLength={activities.length}
+          next={onShowMoreActivities}
+          hasMore={hasNextPage}
+          loader={
+            <>
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+            </>
+          }
+          className="flex flex-col gap-4 px-4 pt-4 md:px-8"
+        >
+          {activities.map((activity, i) => (
+            <Activity
+              avatar={
+                <Link
+                  className="cursor-pointer transition hover:scale-[1.02]"
+                  href={`/nfts/${activity.mint}`}
+                >
+                  <Avatar src={activity.image} size={AvatarSize.Standard} />
+                </Link>
+              }
+              type={activity.activityType as ActivityType}
+              key={`${activity.mint}-${i}}`}
+              meta={
+                <Activity.Meta
+                  title={<Activity.Tag />}
+                  marketplaceAddress={activity.martketplaceProgramAddress}
+                  auctionHouseAddress={activity.auctionHouseAddress}
                 />
-              </Activity>
-            ))}
-          </InfiniteScroll>
-      }
+              }
+              source={<Activity.Wallet seller={activity.seller} buyer={activity.buyer} />}
+            >
+              <Activity.Price amount={Number(activity.price)} />
+              <Activity.Timestamp
+                signature={activity.signature}
+                timeSince={activity.blockTimestamp}
+              />
+            </Activity>
+          ))}
+        </InfiniteScroll>
+      )}
     </>
   );
 }
