@@ -19,27 +19,30 @@ interface SidebarControlProps {
 }
 
 function SidebarControl({ open, label, onChange, show = true }: SidebarControlProps) {
-  if (!show) return null;
-
   return (
     <div className="relative">
-      <button
-        type="button"
-        className={clsx(
-          'flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
-          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
-          open && ''
-        )}
-        onClick={onChange}
-      >
-        <span className="pl-2">{label}</span>
-        <ChevronRightIcon
+      { show ?
+        <button
+          type="button"
           className={clsx(
-            'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
-            open && 'md:rotate-180'
+            'flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
+            'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
+            open && ''
           )}
-        />
-      </button>
+          onClick={onChange}
+        >
+          <span className="pl-2">{label}</span>
+          <ChevronRightIcon
+            className={clsx(
+              'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
+              open && 'md:rotate-180'
+            )}
+          />
+        </button>
+        :
+        <div className="bg-gray-800 w-[115px] h-[60px] rounded-full animate-pulse">
+        </div>
+      }
     </div>
   );
 }
