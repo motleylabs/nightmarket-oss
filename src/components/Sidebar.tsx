@@ -36,7 +36,7 @@ function SidebarControl({
 }: SidebarControlProps) {
   return (
     <div className="relative flex items-center">
-      { show ? 
+      {show ? (
         <>
           <button
             type="button"
@@ -48,7 +48,9 @@ function SidebarControl({
             onClick={onChange}
           >
             {open && (
-              <ChevronRightIcon className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')} />
+              <ChevronRightIcon
+                className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')}
+              />
             )}
             <span className={clsx('pl-2', open && 'mr-2')}>{label}</span>
             {!open && (
@@ -83,10 +85,9 @@ function SidebarControl({
             </div>
           )}
         </>
-      :
-        <div className="bg-gray-800 w-[115px] h-[60px] rounded-full animate-pulse">
-        </div>
-      }
+      ) : (
+        <div className="bg-gray-800 w-[115px] h-[60px] rounded-full animate-pulse"></div>
+      )}
     </div>
   );
 }
