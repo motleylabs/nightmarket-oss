@@ -55,7 +55,7 @@ function EnforcedBadge({ isEnforced }: EnforcedBadgeProps) {
       content={<p>{t('collection.enforced', { ns: 'common' })}</p>}
       className="max-w-[12rem] text-center"
     >
-      <Icon.Enforced />
+      <Icon.Enforced className="mx-1" />
     </Tooltip>
   );
 }
@@ -174,28 +174,27 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               <div className="flex w-full justify-center md:justify-start">
                 <Overview.Title>{collection.name}</Overview.Title>
                 <VerifiedBadge isVerified={true} />
+                <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
               </div>
-              <div className="flex justify-center text-gray-300 md:justify-start gap-3">
-                {!collection.twitter && !collection.website && !collection.discord && (
-                  <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
-                )}
-                {!!collection.twitter && (
-                  <Link href={collection.twitter} target="_blank">
-                    <Icon.Twitter className="h-7 w-7" />
-                  </Link>
-                )}
-                {!!collection.website && (
-                  <Link href={collection.website} target="_blank">
-                    <Icon.Web className="h-7 w-7" />
-                  </Link>
-                )}
-                {!!collection.discord && (
-                  <Link href={collection.discord} target="_blank">
-                    <Icon.Discord className="h-7 w-7" />
-                  </Link>
-                )}
-              </div>
-
+              { (!!collection.twitter || !!collection.website || !!collection.discord) && 
+                <div className="flex justify-center text-gray-300 md:justify-start gap-3">                
+                  {!!collection.twitter && (
+                    <Link href={collection.twitter} target="_blank">
+                      <Icon.Twitter className="h-7 w-7" />
+                    </Link>
+                  )}
+                  {!!collection.website && (
+                    <Link href={collection.website} target="_blank">
+                      <Icon.Web className="h-7 w-7" />
+                    </Link>
+                  )}
+                  {!!collection.discord && (
+                    <Link href={collection.discord} target="_blank">
+                      <Icon.Discord className="h-7 w-7" />
+                    </Link>
+                  )}
+                </div>
+              }
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',
