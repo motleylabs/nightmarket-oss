@@ -417,17 +417,6 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       <Sidebar.Page open={open}>
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
-            {open && selectedAttributes.length > 0 && (
-              <div className="gap-1">
-                <span className="text-gray-300 text-[12px]">Filters:</span>
-                <Sidebar.Pills
-                  items={selectedAttributes}
-                  onRemove={onRemovePill}
-                  onClear={onClearPills}
-                  clearButtonFirst={false}
-                />
-              </div>
-            )}
             <div className="flex flex-col gap-2">
               {collection.attributes.length == 0 ? (
                 <>
@@ -594,7 +583,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
         </Sidebar.Panel>
         <Sidebar.Content>
           <>
-            {!open && selectedAttributes.length > 0 && (
+            {selectedAttributes.length > 0 && (
               <div className="gap-1 flex items-center">
                 <span className="mb-4 mt-4 flex flex-wrap gap-2 md:mb-2 mr-1 text-gray-300 text-[12px]">
                   Filters:
