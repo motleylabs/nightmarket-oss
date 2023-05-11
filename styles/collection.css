@@ -91,3 +91,14 @@
     background: #191a1c;
     border: 1px solid #363636;
 }
+
+.no-arrow-input input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.no-arrow-input input[type=number]::-webkit-inner-spin-button, 
+.no-arrow-input input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+}
