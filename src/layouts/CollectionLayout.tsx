@@ -176,8 +176,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                 <VerifiedBadge isVerified={true} />
                 <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
               </div>
-              { (!!collection.twitter || !!collection.website || !!collection.discord) && 
-                <div className="flex justify-center text-gray-300 md:justify-start gap-3">                
+              {(!!collection.twitter || !!collection.website || !!collection.discord) && (
+                <div className="flex justify-center text-gray-300 md:justify-start gap-3">
                   {!!collection.twitter && (
                     <Link href={collection.twitter} target="_blank">
                       <Icon.Twitter className="h-7 w-7" />
@@ -194,7 +194,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                     </Link>
                   )}
                 </div>
-              }
+              )}
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',

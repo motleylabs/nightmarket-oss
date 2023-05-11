@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+
+/* eslint-disable react/jsx-no-useless-fragment */
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
@@ -164,12 +166,21 @@ Search.Input = SearchInput;
 interface SearchResultsProps {
   searching: boolean;
   children: ReactNode;
-  error?: unknown;
+  mode: string;
+  setMode: React.Dispatch<React.SetStateAction<string>>;
   hasResults: boolean;
+  error?: unknown;
   enabled?: boolean;
 }
 
-function SearchResults({ searching, children, hasResults, enabled = false }: SearchResultsProps) {
+function SearchResults({
+  searching,
+  children,
+  hasResults,
+  mode,
+  setMode,
+  enabled = false,
+}: SearchResultsProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -184,6 +195,32 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
         className={clsx('fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto block max-w-4xl')}
       >
         <div className="scrollbar-thumb-rounded-full absolute top-4 z-50 h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-700 md:top-10 md:max-h-96">
+          <div className="mb-2 border-b border-gray-700 pt-4 text-base font-medium text-gray-300 flex">
+            <span
+              onClick={() => setMode('collection')}
+              className={`px-2 mr-2 pb-2 ${
+                mode === 'collection' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.collection', { ns: 'common' })}
+            </span>
+            <span
+              onClick={() => setMode('nft')}
+              className={`px-2 mr-2 pb-2 ${
+                mode === 'nft' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.nfts', { ns: 'common' })}
+            </span>
+            <span
+              onClick={() => setMode('profile')}
+              className={`px-2 pb-2 ${
+                mode === 'profile' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.profiles', { ns: 'common' })}
+            </span>
+          </div>
           {searching ? (
             <>
               <SearchLoadingItem />
@@ -194,10 +231,8 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
           ) : hasResults ? (
             children
           ) : enabled ? (
-            <div className="flex h-6 w-full items-center justify-center">
-              <p className="m-0 text-center text-base font-medium">
-                {t('search.empty', { ns: 'common' })}
-              </p>
+            <div className="w-full text-center text-gray-300 my-2">
+              {t('search.empty', { ns: 'common' })}
             </div>
           ) : (
             <>
@@ -215,22 +250,22 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
 Search.Results = SearchResults;
 
 interface SearchGroupProps<T> {
-  title: string;
   children: (data: { result: T | undefined }) => ReactNode;
   result?: T;
 }
 
-function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>) {
-  if ((result instanceof Array && result.length === 0) || result == null) {
-    return null;
-  }
+function SearchGroup<T>({ children, result }: SearchGroupProps<T>) {
+  const { t } = useTranslation('common');
 
   return (
     <>
-      <h6 className="mb-2 border-b border-gray-700 pt-4 pb-2 text-base font-medium text-gray-300">
-        {title}
-      </h6>
-      {children({ result })}
+      {(result instanceof Array && result.length === 0) || result == null ? (
+        <div className="w-full text-center text-gray-300 my-2">
+          {t('search.empty', { ns: 'common' })}
+        </div>
+      ) : (
+        children({ result })
+      )}
     </>
   );
 }

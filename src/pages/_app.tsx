@@ -153,6 +153,7 @@ function NavigationBar() {
   }, [showNav]);
 
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
+  const [showMode, setShowMode] = useState<string>('collection');
 
   const expandedSearchRef = useRef<HTMLDivElement | null>(null);
   useOutsideAlert(
@@ -247,61 +248,59 @@ function NavigationBar() {
                   searching={searching}
                   hasResults={hasResults}
                   enabled={searchTerm.length > 2}
+                  mode={showMode}
+                  setMode={setShowMode}
                 >
-                  <Search.Group<StatSearch[]>
-                    title={t('search.collection', { ns: 'common' })}
-                    result={results.collections}
-                  >
-                    {({ result }) => {
-                      if (!result) return null;
+                  {showMode === 'collection' && (
+                    <Search.Group<StatSearch[]> result={results.collections}>
+                      {({ result }) => {
+                        if (!result) return null;
 
-                      return result.map((collection, i) => (
-                        <Search.Collection
-                          value={collection}
-                          key={`search-collection-${collection.slug}-${i}`}
-                          image={collection.imgURL || DEFAULT_IMAGE}
-                          name={collection.name}
-                          slug={collection.slug}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<StatSearch[]>
-                    title={t('search.profiles', { ns: 'common' })}
-                    result={results.profiles}
-                  >
-                    {({ result }) => {
-                      if (!result) return null;
+                        return result.map((collection, i) => (
+                          <Search.Collection
+                            value={collection}
+                            key={`search-collection-${collection.slug}-${i}`}
+                            image={collection.imgURL || DEFAULT_IMAGE}
+                            name={collection.name}
+                            slug={collection.slug}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                  )}
+                  {showMode === 'profile' && (
+                    <Search.Group<StatSearch[]> result={results.profiles}>
+                      {({ result }) => {
+                        if (!result) return null;
 
-                      return result.map((profile, i) => (
-                        <Search.Profile
-                          value={profile}
-                          key={`search-profile-${profile.slug}-${i}`}
-                          image={profile.imgURL || DEFAULT_IMAGE}
-                          name={profile.name as string}
-                          slug={profile.slug}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<Nft>
-                    title={t('search.nfts', { ns: 'common' })}
-                    result={results?.nft}
-                  >
-                    {({ result: nft }) => {
-                      if (!nft) return null;
-
-                      return (
-                        <Search.MintAddress
-                          value={nft}
-                          image={getAssetURL(nft.image, AssetSize.XSmall)}
-                          slug={nft.mintAddress}
-                          name={nft.name}
-                          creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
-                        />
-                      );
-                    }}
-                  </Search.Group>
+                        return result.map((profile, i) => (
+                          <Search.Profile
+                            value={profile}
+                            key={`search-profile-${profile.slug}-${i}`}
+                            image={profile.imgURL || DEFAULT_IMAGE}
+                            name={profile.name as string}
+                            slug={profile.slug}
+                          />
+                        ));
+                      }}
+                    </Search.Group>
+                  )}
+                  {showMode === 'nft' && (
+                    <Search.Group<Nft> result={results?.nft}>
+                      {({ result: nft }) => {
+                        if (!nft) return null;
+                        return (
+                          <Search.MintAddress
+                            value={nft}
+                            image={getAssetURL(nft.image, AssetSize.XSmall)}
+                            slug={nft.mintAddress}
+                            name={nft.name}
+                            creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
+                          />
+                        );
+                      }}
+                    </Search.Group>
+                  )}
                 </Search.Results>
               </div>
             </Search>
