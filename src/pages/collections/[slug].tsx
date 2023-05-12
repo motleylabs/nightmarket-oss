@@ -450,8 +450,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                               {...register('priceMin', {
                                 min: 0,
                                 validate: () =>
-                                  typeof getValues('priceMax') === 'string' ||
-                                  getValues('priceMin') <= getValues('priceMax'),
+                                  `${getValues('priceMax')}` === '' ||
+                                  Number(getValues('priceMin')) <= Number(getValues('priceMax')),
                               })}
                               onKeyPress={(e) => {
                                 if (e.key === 'e' || e.key === '-') {
