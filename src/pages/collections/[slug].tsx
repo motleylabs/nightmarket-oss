@@ -418,168 +418,158 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
         <Sidebar.Panel onChange={toggleSidebar}>
           <div className="mt-4 flex w-full flex-col gap-6">
             <div className="flex flex-col gap-2">
-              {collection.attributes.length == 0 ? (
-                <>
-                  <Attribute.Skeleton />
-                  <Attribute.Skeleton />
-                  <Attribute.Skeleton />
-                  <Attribute.Skeleton />
-                  <Attribute.Skeleton />
-                </>
-              ) : (
-                <>
-                  <Disclosure defaultOpen={true}>
-                    {({ open }) => (
-                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
-                        <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
-                          <span className="font-semibold capitalize text-white">Price range</span>
-                          <div className="flex items-center ">
-                            {open ? (
-                              <ChevronUpIcon width={20} height={20} className="text-white" />
-                            ) : (
-                              <ChevronDownIcon width={20} height={20} className="text-white" />
-                            )}
-                          </div>
-                        </Disclosure.Button>
-                        <Disclosure.Panel className={'mt-3 mb-2'}>
-                          <Form onSubmit={handlePriceSubmit(handlePriceFilter)}>
-                            <div className="flex">
-                              <div>
-                                <Form.Input
-                                  placeholder="Min"
-                                  type="number"
-                                  step={0.001}
-                                  className="no-arrow-input"
-                                  {...register('priceMin')}
-                                ></Form.Input>
-                                <Form.Error message={priceErrors.priceMin?.message} />
-                              </div>
-                              <div className="relative items-center w-[20px] mx-2">
-                                <span className="absolute top-1/2 w-full border-[1px] border-gray-700"></span>
-                              </div>
-                              <div>
-                                <Form.Input
-                                  placeholder="Max"
-                                  type="number"
-                                  step={0.001}
-                                  className="no-arrow-input"
-                                  {...register('priceMax')}
-                                ></Form.Input>
-                                <Form.Error message={priceErrors.priceMax?.message} />
-                              </div>
-                            </div>
-                            <Button
-                              className="mt-3 w-full"
-                              htmlType="submit"
-                              size={ButtonSize.Large}
-                              background={ButtonBackground.Slate}
-                              border={ButtonBorder.Gradient}
-                              color={ButtonColor.Gradient}
-                            >
-                              {t('apply', { ns: 'collection' })}
-                            </Button>
-                          </Form>
-                        </Disclosure.Panel>
+              <Disclosure defaultOpen={true}>
+                {({ open }) => (
+                  <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                    <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
+                      <span className="font-semibold capitalize text-white">Price range</span>
+                      <div className="flex items-center ">
+                        {open ? (
+                          <ChevronUpIcon width={20} height={20} className="text-white" />
+                        ) : (
+                          <ChevronDownIcon width={20} height={20} className="text-white" />
+                        )}
                       </div>
-                    )}
-                  </Disclosure>
-                  <Disclosure defaultOpen={true}>
-                    {({ open }) => (
-                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
-                        <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
-                          <span className="font-semibold capitalize text-white">Listing type</span>
-                          <div className="flex items-center ">
-                            {open ? (
-                              <ChevronUpIcon width={20} height={20} className="text-white" />
-                            ) : (
-                              <ChevronDownIcon width={20} height={20} className="text-white" />
-                            )}
+                    </Disclosure.Button>
+                    <Disclosure.Panel className={'mt-3 mb-2'}>
+                      <Form onSubmit={handlePriceSubmit(handlePriceFilter)}>
+                        <div className="flex">
+                          <div>
+                            <Form.Input
+                              placeholder="Min"
+                              type="number"
+                              step={0.001}
+                              className="no-arrow-input"
+                              {...register('priceMin')}
+                            ></Form.Input>
+                            <Form.Error message={priceErrors.priceMin?.message} />
                           </div>
-                        </Disclosure.Button>
-                        <Disclosure.Panel className={'mt-3 mb-2'}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-white whitespace-nowrap mr-1 text-[14px]">
-                              For Sale
-                            </span>
-                            <Toggle value={listingOnly} onChange={setListingOnly} />
+                          <div className="relative items-center w-[20px] mx-2">
+                            <span className="absolute top-1/2 w-full border-[1px] border-gray-700"></span>
                           </div>
-                          <div className="flex items-center justify-between mt-3">
-                            <span className="text-white whitespace-nowrap mr-1 text-[14px]">
-                              Night Market Only
-                            </span>
-                            <Toggle value={nightmarketOnly} onChange={setNightmarketOnly} />
+                          <div>
+                            <Form.Input
+                              placeholder="Max"
+                              type="number"
+                              step={0.001}
+                              className="no-arrow-input"
+                              {...register('priceMax')}
+                            ></Form.Input>
+                            <Form.Error message={priceErrors.priceMax?.message} />
                           </div>
-                        </Disclosure.Panel>
+                        </div>
+                        <Button
+                          className="mt-3 w-full"
+                          htmlType="submit"
+                          size={ButtonSize.Large}
+                          background={ButtonBackground.Slate}
+                          border={ButtonBorder.Gradient}
+                          color={ButtonColor.Gradient}
+                        >
+                          {t('apply', { ns: 'collection' })}
+                        </Button>
+                      </Form>
+                    </Disclosure.Panel>
+                  </div>
+                )}
+              </Disclosure>
+              <Disclosure defaultOpen={true}>
+                {({ open }) => (
+                  <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                    <Disclosure.Button className="flex w-full items-center justify-between py-[8px]">
+                      <span className="font-semibold capitalize text-white">Listing type</span>
+                      <div className="flex items-center ">
+                        {open ? (
+                          <ChevronUpIcon width={20} height={20} className="text-white" />
+                        ) : (
+                          <ChevronDownIcon width={20} height={20} className="text-white" />
+                        )}
                       </div>
-                    )}
-                  </Disclosure>
-                  <Disclosure defaultOpen={true}>
-                    {({ open }) => (
-                      <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
-                        <Disclosure.Button className="flex w-full items-center justify-between pb-3 py-[8px] border-b-[1px] border-[#323137]">
-                          <span className="font-semibold capitalize text-white">Attributes</span>
-                          <div className="flex items-center ">
-                            {open ? (
-                              <ChevronUpIcon width={20} height={20} className="text-white" />
-                            ) : (
-                              <ChevronDownIcon width={20} height={20} className="text-white" />
-                            )}
-                          </div>
-                        </Disclosure.Button>
-                        <Disclosure.Panel className={'mt-3 space-y-4'}>
-                          {collection.attributes.map((group) => (
-                            <div
-                              key={`attribute-group-${group.name}`}
-                              className="w-full rounded-2xl py-1"
-                            >
-                              <Disclosure>
-                                {({ open }) => (
-                                  <>
-                                    <Disclosure.Button className="flex w-full items-center justify-between">
-                                      <Attribute.Header group={group} isOpen={open} />
-                                    </Disclosure.Button>
-                                    <Disclosure.Panel className={'mt-6 space-y-4'}>
-                                      {group.values.map((valueItem) => (
-                                        <Attribute.Option
-                                          key={`attribute-${group.name}-${valueItem.value}`}
-                                          variant={valueItem.value}
-                                          count={valueItem.counts}
-                                          percent={valueItem.percent}
-                                          selected={attributes[group.name]?.values?.includes(
-                                            valueItem.value
-                                          )}
-                                          onClick={() => {
-                                            setValue('attributes', {
-                                              ...attributes,
-                                              [group.name]: {
-                                                type: group.type,
-                                                values: attributes[group.name]?.values?.includes(
-                                                  valueItem.value
-                                                )
-                                                  ? attributes[group.name]?.values?.filter(
-                                                      (a) => a !== valueItem.value
-                                                    )
-                                                  : [
-                                                      ...(attributes[group.name]?.values ?? []),
-                                                      valueItem.value,
-                                                    ],
-                                              },
-                                            });
-                                          }}
-                                        />
-                                      ))}
-                                    </Disclosure.Panel>
-                                  </>
-                                )}
-                              </Disclosure>
-                            </div>
-                          ))}
-                        </Disclosure.Panel>
+                    </Disclosure.Button>
+                    <Disclosure.Panel className={'mt-3 mb-2'}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white whitespace-nowrap mr-1 text-[14px]">
+                          For Sale
+                        </span>
+                        <Toggle value={listingOnly} onChange={setListingOnly} />
                       </div>
-                    )}
-                  </Disclosure>
-                </>
-              )}
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-white whitespace-nowrap mr-1 text-[14px]">
+                          Night Market Only
+                        </span>
+                        <Toggle value={nightmarketOnly} onChange={setNightmarketOnly} />
+                      </div>
+                    </Disclosure.Panel>
+                  </div>
+                )}
+              </Disclosure>
+              { collection.attributes.length > 0 &&
+                <Disclosure defaultOpen={true}>
+                  {({ open }) => (
+                    <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
+                      <Disclosure.Button className="flex w-full items-center justify-between pb-3 py-[8px] border-b-[1px] border-[#323137]">
+                        <span className="font-semibold capitalize text-white">Attributes</span>
+                        <div className="flex items-center ">
+                          {open ? (
+                            <ChevronUpIcon width={20} height={20} className="text-white" />
+                          ) : (
+                            <ChevronDownIcon width={20} height={20} className="text-white" />
+                          )}
+                        </div>
+                      </Disclosure.Button>
+                      <Disclosure.Panel className={'mt-3 space-y-4'}>
+                        {collection.attributes.map((group) => (
+                          <div
+                            key={`attribute-group-${group.name}`}
+                            className="w-full rounded-2xl py-1"
+                          >
+                            <Disclosure>
+                              {({ open }) => (
+                                <>
+                                  <Disclosure.Button className="flex w-full items-center justify-between">
+                                    <Attribute.Header group={group} isOpen={open} />
+                                  </Disclosure.Button>
+                                  <Disclosure.Panel className={'mt-6 space-y-4'}>
+                                    {group.values.map((valueItem) => (
+                                      <Attribute.Option
+                                        key={`attribute-${group.name}-${valueItem.value}`}
+                                        variant={valueItem.value}
+                                        count={valueItem.counts}
+                                        percent={valueItem.percent}
+                                        selected={attributes[group.name]?.values?.includes(
+                                          valueItem.value
+                                        )}
+                                        onClick={() => {
+                                          setValue('attributes', {
+                                            ...attributes,
+                                            [group.name]: {
+                                              type: group.type,
+                                              values: attributes[group.name]?.values?.includes(
+                                                valueItem.value
+                                              )
+                                                ? attributes[group.name]?.values?.filter(
+                                                    (a) => a !== valueItem.value
+                                                  )
+                                                : [
+                                                    ...(attributes[group.name]?.values ?? []),
+                                                    valueItem.value,
+                                                  ],
+                                            },
+                                          });
+                                        }}
+                                      />
+                                    ))}
+                                  </Disclosure.Panel>
+                                </>
+                              )}
+                            </Disclosure>
+                          </div>
+                        ))}
+                      </Disclosure.Panel>
+                    </div>
+                  )}
+                </Disclosure>
+              }                             
             </div>
           </div>
         </Sidebar.Panel>
