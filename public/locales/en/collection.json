@@ -35,6 +35,8 @@
     "byListingsCount": "By Listings Count"
   },
   "search": "Search...",
+  "empty": "No matches found",
+  "priceMinMaxCompare": "Price range max must be larger than price range min.",
   "showMoreCollections": "Show more collections",
   "floorPrice": "Floor Price",
   "estimatedValue": "Est. Value",

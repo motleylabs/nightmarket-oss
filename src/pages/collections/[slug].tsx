@@ -2,6 +2,7 @@
 import { Disclosure } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { useWindowSize } from '@react-hook/window-size';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 import type { GetServerSidePropsContext } from 'next';
@@ -126,6 +127,7 @@ type CollectionNftsProps = {
 export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { t } = useTranslation(['collection', 'common']);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [windowWidth] = useWindowSize();
 
   const sortOptions: SortOption[] = [
     {
@@ -198,6 +200,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     formState: { errors: priceErrors },
     handleSubmit: handlePriceSubmit,
     reset: resetPrice,
+    getValues,
   } = useForm<PriceFilterForm>();
 
   const handlePriceFilter = async (form: PriceFilterForm) => {
@@ -289,6 +292,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
   const [cardType, setCardType] = useState<string>('grid-small');
+
+  useEffect(() => {
+    setCardType(windowWidth > 640 ? 'grid-small' : 'grid-large');
+  }, [windowWidth]);
 
   const onShowMoreNfts = () => {
     setSize((oldSize) => oldSize + 1);
@@ -404,7 +411,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             />
           </div>
           <div
-            className="sm:ml-3 ml-1 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            className="sm:ml-3 ml-1 sm:flex sm:flex-none hidden items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('grid-small')}
           >
             <Image
@@ -440,7 +447,17 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                               type="number"
                               step={0.001}
                               className="no-arrow-input"
-                              {...register('priceMin')}
+                              {...register('priceMin', {
+                                min: 0,
+                                validate: () =>
+                                  typeof getValues('priceMax') === 'string' ||
+                                  getValues('priceMin') <= getValues('priceMax'),
+                              })}
+                              onKeyPress={(e) => {
+                                if (e.key === 'e' || e.key === '-') {
+                                  e.preventDefault();
+                                }
+                              }}
                             ></Form.Input>
                             <Form.Error message={priceErrors.priceMin?.message} />
                           </div>
@@ -454,10 +471,20 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                               step={0.001}
                               className="no-arrow-input"
                               {...register('priceMax')}
+                              onKeyPress={(e) => {
+                                if (e.key === 'e' || e.key === '-') {
+                                  e.preventDefault();
+                                }
+                              }}
                             ></Form.Input>
                             <Form.Error message={priceErrors.priceMax?.message} />
                           </div>
                         </div>
+                        {!!priceErrors.priceMin && priceErrors.priceMin.type === 'validate' && (
+                          <div className="mt-1">
+                            <Form.Error message={t('priceMinMaxCompare', { ns: 'collection' })} />
+                          </div>
+                        )}
                         <Button
                           className="mt-3 w-full"
                           htmlType="submit"
@@ -503,7 +530,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                   </div>
                 )}
               </Disclosure>
-              { collection.attributes.length > 0 &&
+              {collection.attributes.length > 0 && (
                 <Disclosure defaultOpen={true}>
                   {({ open }) => (
                     <div className="bg-gray-800 px-[20px] py-[12px] rounded-2xl">
@@ -569,7 +596,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                     </div>
                   )}
                 </Disclosure>
-              }                             
+              )}
             </div>
           </div>
         </Sidebar.Panel>
@@ -594,7 +621,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                   {({ buyNow }) =>
                     isNotFound ? (
                       <div className="text-gray-200 my-6 w-full flex justify-center">
-                        No matches found
+                        {t('empty', { ns: 'collection' })}
                       </div>
                     ) : (
                       <List
@@ -605,7 +632,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                         hasMore={hasNextPage}
                         gap={6}
                         grid={{
-                          [ListGridSize.Default]: [1, 1, 2],
+                          [ListGridSize.Default]: [1, 2, 2],
                           [ListGridSize.Small]: [1, 1, 2],
                           [ListGridSize.Medium]: [1, 2, 3],
                           [ListGridSize.Large]: [2, 3, 4],
