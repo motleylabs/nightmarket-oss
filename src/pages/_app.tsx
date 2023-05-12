@@ -263,6 +263,7 @@ function NavigationBar() {
                             image={collection.imgURL || DEFAULT_IMAGE}
                             name={collection.name}
                             slug={collection.slug}
+                            isVerified={collection.isVerified}
                           />
                         ));
                       }}

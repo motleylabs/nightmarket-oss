@@ -15,6 +15,7 @@ import { SearchMode } from '../hooks/globalsearch';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
+import { VerifiedBadge } from '../layouts/CollectionLayout';
 
 type Input = FC;
 type Group = FC;
@@ -276,9 +277,10 @@ type SearchResultProps = {
   image?: string;
   name?: string;
   value?: StatSearch | Nft;
+  isVerified?: boolean;
 };
 
-function CollectionSearchResult({ name, image, value, slug }: SearchResultProps) {
+function CollectionSearchResult({ name, image, value, slug, isVerified }: SearchResultProps) {
   const { push } = useRouter();
 
   return (
@@ -303,7 +305,10 @@ function CollectionSearchResult({ name, image, value, slug }: SearchResultProps)
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
-            <p className="m-0 text-sm font-bold">{name}</p>
+            <p className="m-0 text-md font-bold flex items-center">
+              {name} 
+              { isVerified !== undefined && isVerified && <VerifiedBadge width={30} height={30} isVerified={true} /> }
+            </p>
           </div>
         </div>
       )}

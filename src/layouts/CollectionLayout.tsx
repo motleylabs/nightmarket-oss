@@ -21,9 +21,11 @@ import { Overview } from './../components/Overview';
 interface VerifiedBadgeProps {
   isVerified: boolean;
   className?: string;
+  width?: number;
+  height?: number;
 }
 
-export function VerifiedBadge({ isVerified, className = '' }: VerifiedBadgeProps) {
+export function VerifiedBadge({ isVerified, className = '', width, height }: VerifiedBadgeProps) {
   const { t } = useTranslation(['common']);
 
   if (!isVerified) return null;
@@ -35,7 +37,7 @@ export function VerifiedBadge({ isVerified, className = '' }: VerifiedBadgeProps
       className="max-w-[12rem] text-center"
       wrapperClass={clsx('flex items-center ml-1', className)}
     >
-      <Icon.Verified />
+      <Icon.Verified width={width} height={height}/>
     </Tooltip>
   );
 }

@@ -327,7 +327,7 @@ Icon.Web = WebIcon;
 
 function SauceIcon({ className = 'h-4 w-auto' }: IconProps) {
   return (
-    <svg className="h-4 w-auto" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M15.7414 8.09734C15.7414 12.1876 12.4395 15.5 8.3707 15.5C4.30188 15.5 1 12.1876 1 8.09734C1 4.00704 4.30188 0.694656 8.3707 0.694656C12.4395 0.694656 15.7414 4.00704 15.7414 8.09734Z"
         fill="#17161C"
@@ -802,13 +802,13 @@ function FailedIcon({ className = 'h-4' }: IconProps) {
 
 Icon.Failed = FailedIcon;
 
-function VerifiedIcon({ className = '' }: IconProps) {
+function VerifiedIcon({ className = '', width, height }: IconProps) {
   return (
     <svg
       className={className}
       xmlns="http://www.w3.org/2000/svg"
-      width={40}
-      height={40}
+      width={width ?? 40}
+      height={height ?? 40}
       viewBox="0 0 32 32"
       fill="none"
     >
