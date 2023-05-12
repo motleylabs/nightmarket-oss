@@ -164,7 +164,7 @@ export function List<T>({
                 <tr className="bg-transparent w-full">
                   <th
                     onClick={() => sort('name')}
-                    className="text-[12px] text-gray-300 text-left px-3 cursor-pointer 2xl:w-[20%] xl:w-[26%] lg:w-[30%] md:w-[39%] sm:w-[45%] w-[30%]"
+                    className="text-[12px] text-gray-300 text-left px-3 cursor-pointer 2xl:w-[20%] xl:w-[26%] lg:w-[30%] md:w-[39%] sm:w-[45%] w-[40%]"
                   >
                     <span className="flex items-center">
                       NFT &nbsp;
@@ -195,7 +195,7 @@ export function List<T>({
                   </th>
                   <th
                     onClick={() => sort('marketplace')}
-                    className="text-[12px] text-gray-300 text-left cursor-pointer xl:w-[10%] lg:w-[12%] md:w-[22%] sm:w-[19%] w-[24%]"
+                    className="text-[12px] text-gray-300 text-left cursor-pointer xl:w-[10%] lg:w-[12%] md:w-[22%] sm:w-[19%] w-[24%] sm:table-cell hidden"
                   >
                     <span className="flex items-center">
                       Market &nbsp;

@@ -12,10 +12,10 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import { DebounceInput } from 'react-debounce-input';
 
 import { SearchMode } from '../hooks/globalsearch';
+import { VerifiedBadge } from '../layouts/CollectionLayout';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
-import { VerifiedBadge } from '../layouts/CollectionLayout';
 
 type Input = FC;
 type Group = FC;
@@ -305,10 +305,12 @@ function CollectionSearchResult({ name, image, value, slug, isVerified }: Search
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
-            <p className="m-0 text-md font-bold flex items-center">
-              {name} 
-              { isVerified !== undefined && isVerified && <VerifiedBadge width={30} height={30} isVerified={true} /> }
-            </p>
+            <div className="m-0 flex items-center">
+              <span className="text-md text-white">{name}</span>
+              {isVerified !== undefined && isVerified && (
+                <VerifiedBadge width={30} height={30} isVerified={true} />
+              )}
+            </div>
           </div>
         </div>
       )}

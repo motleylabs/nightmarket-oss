@@ -37,7 +37,7 @@ export function VerifiedBadge({ isVerified, className = '', width, height }: Ver
       className="max-w-[12rem] text-center"
       wrapperClass={clsx('flex items-center ml-1', className)}
     >
-      <Icon.Verified width={width} height={height}/>
+      <Icon.Verified width={width} height={height} />
     </Tooltip>
   );
 }

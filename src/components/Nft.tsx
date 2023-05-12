@@ -153,7 +153,7 @@ export function Preview({
                 </div>
               )}
             </div>
-            <div className="z-20 p-4">
+            <div className="z-20 py-4 sm:px-4 px-3">
               <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
                 {nft?.image && showCollectionThumbnail && (
                   <Img
@@ -163,12 +163,15 @@ export function Preview({
                     className="aspect-square w-4 rounded-sm object-cover"
                   />
                 )}
-                <span className="truncate">{nft.name}</span>
+                <span className="truncate sm:block hidden">{nft.name}</span>
+                <span className="truncate sm:hidden block">
+                  {nft.name.split('#').length > 1 ? ` #${nft.name.split('#')[1]}` : nft.name}
+                </span>
               </div>
             </div>
           </Link>
 
-          <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4">
+          <div className="relative flex max-h-[38px] flex-row items-center justify-between sm:px-4 px-3">
             {isOwner ? (
               !!listing ? (
                 <>
@@ -245,7 +248,7 @@ export function Preview({
           </div>
 
           {!!nft.lastSale ? (
-            <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4 pt-1">
+            <div className="relative flex max-h-[38px] flex-row items-center justify-between sm:px-4 px-3 pt-1">
               <div className="w-full">
                 <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
                   {t('lastSale', { ns: 'common' })}
@@ -285,7 +288,10 @@ export function Preview({
                 )}
               />
             </div>
-            <span className="hidden sm:block">{nft.name}</span>
+            <span className="sm:block hidden">{nft.name}</span>
+            <span className="sm:hidden block max-w-[120px] truncate">
+              {nft.name.split('#').length > 1 ? ` #${nft.name.split('#')[1]}` : nft.name}
+            </span>
           </td>
           <td className="xl:table-cell hidden">{nft.moonrankRank}</td>
           <td>
@@ -297,7 +303,7 @@ export function Preview({
               '-'
             )}
           </td>
-          <td>
+          <td className="sm:table-cell hidden">
             {!!listing && !!marketplace ? (
               <div className="items-center justify-start my-1 gap-1 text-lg">
                 <img
