@@ -234,7 +234,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     if (priceFilter.min !== '' || priceFilter.max !== '') {
       pillItems.unshift({
         key: 'price',
-        label: `price: ${priceFilter.min !== '' ? priceFilter.min : '0'} -> ${
+        label: `Price: ${priceFilter.min !== '' ? priceFilter.min : '0'} -> ${
           priceFilter.max !== '' ? priceFilter.max : 'Infinity'
         }`,
       });
