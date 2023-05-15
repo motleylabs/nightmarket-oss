@@ -270,37 +270,57 @@ function NavigationBar() {
                     </Search.Group>
                   )}
                   {showMode === 'profile' && (
-                    <Search.Group<StatSearch[]> result={results.profiles}>
-                      {({ result }) => {
-                        if (!result) return null;
+                    <>
+                      <div className="my-3 sm:flex block px-2">
+                        <div className="text-md text-white">
+                          Search by Wallet Address:
+                        </div>
+                        <div className="text-md text-white sm:ml-1">
+                          { searchTerm }
+                        </div>
+                      </div>
+                      <Search.Group<StatSearch[]> result={results.profiles}>
+                        {({ result }) => {
+                          if (!result) return null;
 
-                        return result.map((profile, i) => (
-                          <Search.Profile
-                            value={profile}
-                            key={`search-profile-${profile.slug}-${i}`}
-                            image={profile.imgURL || DEFAULT_IMAGE}
-                            name={profile.name as string}
-                            slug={profile.slug}
-                          />
-                        ));
-                      }}
-                    </Search.Group>
+                          return result.map((profile, i) => (
+                            <Search.Profile
+                              value={profile}
+                              key={`search-profile-${profile.slug}-${i}`}
+                              image={profile.imgURL || DEFAULT_IMAGE}
+                              name={profile.name as string}
+                              slug={profile.slug}
+                            />
+                          ));
+                        }}
+                      </Search.Group>
+                    </>
                   )}
                   {showMode === 'nft' && (
-                    <Search.Group<Nft> result={results?.nft}>
-                      {({ result: nft }) => {
-                        if (!nft) return null;
-                        return (
-                          <Search.MintAddress
-                            value={nft}
-                            image={getAssetURL(nft.image, AssetSize.XSmall)}
-                            slug={nft.mintAddress}
-                            name={nft.name}
-                            creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
-                          />
-                        );
-                      }}
-                    </Search.Group>
+                    <>
+                      <div className="my-3 sm:flex block px-2">
+                        <div className="text-md text-white">
+                          Search by Token Address:
+                        </div>
+                        <div className="text-md text-white sm:ml-1">
+                          { searchTerm }
+                        </div>
+                      </div>
+                      <Search.Group<Nft> result={results?.nft}>
+                        {({ result: nft }) => {
+                          if (!nft) return null;
+                          return (
+                            <Search.MintAddress
+                              value={nft}
+                              image={getAssetURL(nft.image, AssetSize.XSmall)}
+                              slug={nft.mintAddress}
+                              name={nft.name}
+                              creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
+                            />
+                          );
+                        }}
+                      </Search.Group>
+                    </>
                   )}
                 </Search.Results>
               </div>
