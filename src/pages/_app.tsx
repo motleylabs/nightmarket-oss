@@ -169,7 +169,8 @@ function NavigationBar() {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, setSearchTerm, results, searching, hasResults } = useGlobalSearch();
+  const { updateSearch, searchTerm, setSearchTerm, results, searching, hasResults } =
+    useGlobalSearch();
 
   const searchPlaceholder = useCallback(
     (open: boolean) =>
@@ -235,7 +236,7 @@ function NavigationBar() {
                   )}
                 >
                   <Search.Input
-                    comboOpened={comboOpened}                    
+                    comboOpened={comboOpened}
                     onChange={(e) => {
                       updateSearch(e);
                     }}

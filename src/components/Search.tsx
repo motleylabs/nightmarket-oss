@@ -113,22 +113,24 @@ function SearchInput({
   placeholder,
 }: SearchInputProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchKeyboardPrompt = useMemo(() => comboOpened ? 'esc' : '/', [comboOpened]);
+  const searchKeyboardPrompt = useMemo(() => (comboOpened ? 'esc' : '/'), [comboOpened]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!comboOpened) {
-      if (e.key === searchKeyboardPrompt) {
-        e.preventDefault();
-        e.stopPropagation();
-        searchInputRef.current?.click();
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!comboOpened) {
+        if (e.key === searchKeyboardPrompt) {
+          e.preventDefault();
+          e.stopPropagation();
+          searchInputRef.current?.click();
+        }
       }
-    }
-  }, [comboOpened, searchKeyboardPrompt]);
+    },
+    [comboOpened, searchKeyboardPrompt]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
-
 
   return (
     <div className={clsx('group relative block w-full transition-all', className)}>
@@ -155,11 +157,11 @@ function SearchInput({
         element={Combobox.Input}
         autoFocus={autofocus}
         onKeyDown={(e) => {
-          if(e.key === "Escape") {
-            if(searchInputRef.current) {
-              searchInputRef.current.value = "";
+          if (e.key === 'Escape') {
+            if (searchInputRef.current) {
+              searchInputRef.current.value = '';
               searchInputRef.current.blur();
-              setValue("");
+              setValue('');
             }
           }
         }}
