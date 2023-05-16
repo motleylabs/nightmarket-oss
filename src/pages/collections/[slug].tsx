@@ -217,7 +217,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setPriceFilter(updatedFilter);
   };
 
-  const [listingOnly, setListingOnly] = useState<boolean>(false);
+  const [listingOnly, setListingOnly] = useState<boolean>(true);
   const [nightmarketOnly, setNightmarketOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('price');
   const [orderBy, setOrderBy] = useState<string>('asc');
