@@ -171,6 +171,14 @@ function NavigationBar() {
 
   const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
 
+  const searchPlaceholder = useCallback(
+    (open: boolean) =>
+      open
+        ? t(`search.placeholder.${showMode}`, { ns: 'common' })
+        : t(`search.placeholder.collection`, { ns: 'common' }),
+    [showMode, t]
+  );
+
   return (
     <>
       <ReportHeader />
@@ -218,112 +226,114 @@ function NavigationBar() {
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
             </button>
             <Search>
-              <div
-                ref={expandedSearchRef}
-                className={clsx(
-                  'fixed w-full md:relative',
-                  searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
-                )}
-              >
-                <Search.Input
-                  onChange={(e) => {
-                    updateSearch(e);
-                  }}
-                  value={searchTerm}
-                  className="mx-auto hidden w-full max-w-4xl md:block"
-                  autofocus={false}
-                />
-
-                {searchExpanded && (
+              {(comboOpened) => (
+                <div
+                  ref={expandedSearchRef}
+                  className={clsx(
+                    'fixed w-full md:relative',
+                    searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
+                  )}
+                >
                   <Search.Input
                     onChange={(e) => {
                       updateSearch(e);
                     }}
                     value={searchTerm}
-                    autofocus={true}
-                    className="md:hidden"
+                    className="mx-auto hidden w-full max-w-4xl md:block"
+                    autofocus={false}
+                    placeholder={searchPlaceholder(comboOpened)}
                   />
-                )}
-                <Search.Results
-                  searching={searching}
-                  hasResults={hasResults}
-                  enabled={searchTerm.length > 2}
-                  mode={showMode}
-                  setMode={setShowMode}
-                >
-                  {showMode === 'collection' && (
-                    <Search.Group<StatSearch[]> result={results.collections}>
-                      {({ result }) => {
-                        if (!result) return null;
 
-                        return result.map((collection, i) => (
-                          <Search.Collection
-                            value={collection}
-                            key={`search-collection-${collection.slug}-${i}`}
-                            image={collection.imgURL || DEFAULT_IMAGE}
-                            name={collection.name}
-                            slug={collection.slug}
-                            isVerified={collection.isVerified}
-                          />
-                        ));
+                  {searchExpanded && (
+                    <Search.Input
+                      onChange={(e) => {
+                        updateSearch(e);
                       }}
-                    </Search.Group>
+                      value={searchTerm}
+                      autofocus={true}
+                      className="md:hidden"
+                      placeholder={searchPlaceholder(comboOpened)}
+                    />
                   )}
-                  {showMode === 'profile' && (
-                    <>
-                      <div className="my-3 sm:flex block px-2">
-                        <div className="text-md text-white">
-                          Search by Wallet Address:
-                        </div>
-                        <div className="text-md text-white sm:ml-1">
-                          { searchTerm }
-                        </div>
-                      </div>
-                      <Search.Group<StatSearch[]> result={results.profiles}>
+
+                  <Search.Results
+                    searching={searching}
+                    hasResults={hasResults}
+                    mode={showMode}
+                    setMode={setShowMode}
+                  >
+                    {showMode === 'collection' && (
+                      <Search.Group<StatSearch[]> result={results.collections}>
                         {({ result }) => {
                           if (!result) return null;
 
-                          return result.map((profile, i) => (
-                            <Search.Profile
-                              value={profile}
-                              key={`search-profile-${profile.slug}-${i}`}
-                              image={profile.imgURL || DEFAULT_IMAGE}
-                              name={profile.name as string}
-                              slug={profile.slug}
+                          return result.map((collection, i) => (
+                            <Search.Collection
+                              value={collection}
+                              key={`search-collection-${collection.slug}-${i}`}
+                              image={collection.imgURL || DEFAULT_IMAGE}
+                              name={collection.name ?? 'Unknown'}
+                              slug={collection.slug ?? 'Unknown'}
+                              isVerified={collection.isVerified ?? false}
                             />
                           ));
                         }}
                       </Search.Group>
-                    </>
-                  )}
-                  {showMode === 'nft' && (
-                    <>
-                      <div className="my-3 sm:flex block px-2">
-                        <div className="text-md text-white">
-                          Search by Token Address:
-                        </div>
-                        <div className="text-md text-white sm:ml-1">
-                          { searchTerm }
-                        </div>
-                      </div>
-                      <Search.Group<Nft> result={results?.nft}>
-                        {({ result: nft }) => {
-                          if (!nft) return null;
-                          return (
-                            <Search.MintAddress
-                              value={nft}
-                              image={getAssetURL(nft.image, AssetSize.XSmall)}
-                              slug={nft.mintAddress}
-                              name={nft.name}
-                              creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
-                            />
-                          );
-                        }}
-                      </Search.Group>
-                    </>
-                  )}
-                </Search.Results>
-              </div>
+                    )}
+                    {showMode === 'profile' && (
+                      <>
+                        {!results.profiles ||
+                          (results.profiles.length === 0 && (
+                            <div className="my-3 sm:flex block px-2">
+                              <div className="text-md text-white">Search by Wallet Address:</div>
+                              <div className="text-md text-white sm:ml-1">{searchTerm}</div>
+                            </div>
+                          ))}
+
+                        <Search.Group<StatSearch[]> result={results.profiles}>
+                          {({ result }) => {
+                            if (!result) return null;
+
+                            return result.map((profile, i) => (
+                              <Search.Profile
+                                value={profile}
+                                key={`search-profile-${profile.slug}-${i}`}
+                                image={profile.imgURL || DEFAULT_IMAGE}
+                                name={profile.name as string}
+                                slug={profile.slug ?? ''}
+                              />
+                            ));
+                          }}
+                        </Search.Group>
+                      </>
+                    )}
+                    {showMode === 'nft' && (
+                      <>
+                        {!results.nft && (
+                          <div className="my-3 sm:flex block px-2">
+                            <div className="text-md text-white">Search by Token Address:</div>
+                            <div className="text-md text-white sm:ml-1">{searchTerm}</div>
+                          </div>
+                        )}
+                        <Search.Group<Nft> result={results?.nft}>
+                          {({ result: nft }) => {
+                            if (!nft) return null;
+                            return (
+                              <Search.MintAddress
+                                value={nft}
+                                image={getAssetURL(nft.image, AssetSize.XSmall)}
+                                slug={nft.mintAddress}
+                                name={nft.name}
+                                creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
+                              />
+                            );
+                          }}
+                        </Search.Group>
+                      </>
+                    )}
+                  </Search.Results>
+                </div>
+              )}
             </Search>
           </div>
           {/* Connect and Mobile Menu */}

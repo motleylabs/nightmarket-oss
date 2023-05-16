@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import type { GlobalSearchData, Nft } from '../typings';
 import type { StatSearchData } from '../typings';
 import { debounce } from '../utils/debounce';
+import { useTrendingSearch } from './collection/useTrendingSearch';
 
 const TOKEN_LENGTH = 44;
 
@@ -43,6 +44,9 @@ export default function useGlobalSearch(): GlobalSearchContext {
     [debouncedUpdateSearch]
   );
 
+  const { data: trendingCollections, isValidating: isValidatingTrendingCollections } =
+    useTrendingSearch(searchTerm);
+
   const { data: collections, isValidating: isValidatingCollections } = useSWR<StatSearchData>(
     searchTerm
       ? `/stat/search?keyword=${searchTerm}&mode=${SearchMode.Collection}${defaultQueryData}`
@@ -63,21 +67,39 @@ export default function useGlobalSearch(): GlobalSearchContext {
   );
 
   const isLoading =
-    (!collections && isValidatingCollections) ||
+    (!searchTerm && !trendingCollections && isValidatingTrendingCollections) ||
+    (!!searchTerm && !collections && isValidatingCollections) ||
     (!profiles && isValidatingProfiles) ||
     (!nft && isValidatingNft);
 
   return {
     searchTerm,
     hasResults:
-      !isLoading && (!!collections?.results?.length || !!profiles?.results?.length || !!nft),
+      !isLoading &&
+      ((!!searchTerm && !!collections?.results?.length) ||
+        (!searchTerm && !!trendingCollections?.trends.length) ||
+        !!profiles?.results?.length ||
+        !!nft),
     searching: isLoading,
     results: {
       nft: nft ? { searchType: SearchMode.Nft, ...nft } : undefined,
       profiles: profiles
         ? profiles.results.map((p) => ({ ...p, searchType: SearchMode.Profile }))
         : [],
-      collections: collections
+      collections: !searchTerm
+        ? trendingCollections
+          ? trendingCollections.trends.map((c) => ({
+              imgURL: c.collection.image,
+              isVerified: c.collection.isVerified,
+              name: c.collection.name,
+              slug: c.collection.slug,
+              volume1d: c.volume1d,
+              address: '',
+              twitter: '',
+              searchType: SearchMode.Collection,
+            }))
+          : []
+        : collections
         ? collections.results.map((c) => ({ ...c, searchType: SearchMode.Collection }))
         : [],
     },

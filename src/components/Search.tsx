@@ -27,7 +27,7 @@ type ProfileItem = FC;
 type NftItem = FC;
 
 interface SearchProps {
-  children: ReactNode;
+  children: (open: boolean) => ReactNode;
   Input?: Input;
   Group?: Group;
   Header?: Header;
@@ -40,7 +40,6 @@ interface SearchProps {
 
 export default function Search({ children }: SearchProps) {
   const [selected, setSelected] = useState<(StatSearch & Nft) | null>(null);
-
   const router = useRouter();
 
   return (
@@ -49,7 +48,7 @@ export default function Search({ children }: SearchProps) {
       onChange={(selection) => {
         if (!selection) {
           // TODO: have a fallback to view these
-          console.error('Missing verified collectiona address');
+          console.error('Missing verified collection address');
           return;
         }
 
@@ -71,13 +70,28 @@ export default function Search({ children }: SearchProps) {
         }
       }}
     >
-      {children}
+      {({ open }) => (
+        <>
+          <Combobox.Button
+            className="md:w-full w-0"
+            onClick={(e) => {
+              if (open) {
+                e.preventDefault();
+              }
+            }}
+            as="div"
+          >
+            {children(open)}
+          </Combobox.Button>
+        </>
+      )}
     </Combobox>
   );
 }
 
 interface SearchInputProps {
   value: string;
+  placeholder: string;
   className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: () => void;
@@ -100,8 +114,15 @@ const getOs = (): string => {
   return os[0] ?? '';
 };
 
-function SearchInput({ onChange, onFocus, onBlur, value, autofocus, className }: SearchInputProps) {
-  const { t } = useTranslation('common');
+function SearchInput({
+  onChange,
+  onFocus,
+  onBlur,
+  value,
+  autofocus,
+  className,
+  placeholder,
+}: SearchInputProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
 
@@ -136,7 +157,7 @@ function SearchInput({ onChange, onFocus, onBlur, value, autofocus, className }:
         <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
       </button>
       <DebounceInput
-        minLength={2}
+        minLength={1}
         debounceTimeout={300}
         autoComplete="off"
         autoCorrect="off"
@@ -145,7 +166,7 @@ function SearchInput({ onChange, onFocus, onBlur, value, autofocus, className }:
         onFocus={onFocus}
         onBlur={onBlur}
         value={value}
-        placeholder={t('search.placeholder', { ns: 'common' })}
+        placeholder={placeholder}
         onChange={onChange}
         inputRef={searchInputRef}
         element={Combobox.Input}
@@ -174,14 +195,7 @@ interface SearchResultsProps {
   enabled?: boolean;
 }
 
-function SearchResults({
-  searching,
-  children,
-  hasResults,
-  mode,
-  setMode,
-  enabled = false,
-}: SearchResultsProps) {
+function SearchResults({ searching, children, mode, setMode }: SearchResultsProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -229,19 +243,8 @@ function SearchResults({
               <SearchLoadingItem />
               <SearchLoadingItem variant="circle" />
             </>
-          ) : hasResults ? (
-            children
-          ) : enabled ? (
-            <div className="w-full text-center text-gray-300 my-2">
-              {t('search.empty', { ns: 'common' })}
-            </div>
           ) : (
-            <>
-              <SearchLoadingItem />
-              <SearchLoadingItem variant="circle" />
-              <SearchLoadingItem />
-              <SearchLoadingItem variant="circle" />
-            </>
+            children
           )}
         </div>
       </Combobox.Options>
@@ -256,19 +259,7 @@ interface SearchGroupProps<T> {
 }
 
 function SearchGroup<T>({ children, result }: SearchGroupProps<T>) {
-  const { t } = useTranslation('common');
-
-  return (
-    <>
-      {(result instanceof Array && result.length === 0) || result == null ? (
-        <div className="w-full text-center text-gray-300 my-2">
-          {t('search.empty', { ns: 'common' })}
-        </div>
-      ) : (
-        children({ result })
-      )}
-    </>
-  );
+  return <>{result instanceof Array && result.length > 0 && children({ result })}</>;
 }
 Search.Group = SearchGroup;
 

@@ -24,13 +24,13 @@ export type OverallStat = {
 };
 
 export type StatSearch = {
-  address: string;
-  imgURL: string;
-  isVerified: boolean;
-  name: string;
-  slug: string;
-  twitter: string;
-  volume1d: number;
+  address: string | null;
+  imgURL: string | null;
+  isVerified: boolean | null;
+  name: string | null;
+  slug: string | null;
+  twitter: string | null;
+  volume1d: string | null;
 } & SearchType;
 
 export type StatSearchData = {
