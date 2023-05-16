@@ -7,7 +7,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import type { FC, ReactNode } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 
@@ -90,7 +90,9 @@ export default function Search({ children }: SearchProps) {
 }
 
 interface SearchInputProps {
+  comboOpened: boolean;
   value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
   className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -99,59 +101,40 @@ interface SearchInputProps {
   autofocus?: boolean;
 }
 
-const getOs = (): string => {
-  const os: string[] = [];
-  if ((global as unknown as { window?: { navigator: { platform: string } } }).window) {
-    const platform = (global as unknown as { window: { navigator: { platform: string } } }).window
-      .navigator.platform;
-    if (platform.indexOf('Win32') >= 0) {
-      os.push('Win32');
-    }
-    if (platform.indexOf('Mac') >= 0) {
-      os.push('Mac');
-    }
-  }
-  return os[0] ?? '';
-};
-
 function SearchInput({
+  comboOpened,
   onChange,
   onFocus,
   onBlur,
   value,
+  setValue,
   autofocus,
   className,
   placeholder,
 }: SearchInputProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
+  const searchKeyboardPrompt = useMemo(() => comboOpened ? 'esc' : '/', [comboOpened]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!comboOpened) {
+      if (e.key === searchKeyboardPrompt) {
+        e.preventDefault();
+        e.stopPropagation();
+        searchInputRef.current?.click();
+      }
+    }
+  }, [comboOpened, searchKeyboardPrompt]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    const os = getOs();
-    if (os === 'Win32') {
-      setSearchKeyboardPrompt('CTRL + K');
-    }
-  }, []);
+  }, [handleKeyDown]);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (!e.metaKey) return;
-    switch (e.key) {
-      case 'k':
-        e.preventDefault();
-        e.stopPropagation();
-        searchInputRef.current?.focus();
-        return;
-      default:
-        return;
-    }
-  };
 
   return (
     <div className={clsx('group relative block w-full transition-all', className)}>
       <button
         type="button"
-        onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
+        onClick={useCallback(() => searchInputRef?.current?.click(), [searchInputRef])}
         className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
       >
         <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
@@ -171,6 +154,15 @@ function SearchInput({
         inputRef={searchInputRef}
         element={Combobox.Input}
         autoFocus={autofocus}
+        onKeyDown={(e) => {
+          if(e.key === "Escape") {
+            if(searchInputRef.current) {
+              searchInputRef.current.value = "";
+              searchInputRef.current.blur();
+              setValue("");
+            }
+          }
+        }}
       />
       <button
         type="button"

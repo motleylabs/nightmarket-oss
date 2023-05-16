@@ -21,6 +21,7 @@ type OnUpdateSearch = (evt: React.ChangeEvent<HTMLInputElement>) => void;
 
 interface GlobalSearchContext {
   searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   hasResults: boolean;
   updateSearch: OnUpdateSearch;
   searching: boolean;
@@ -74,6 +75,7 @@ export default function useGlobalSearch(): GlobalSearchContext {
 
   return {
     searchTerm,
+    setSearchTerm,
     hasResults:
       !isLoading &&
       ((!!searchTerm && !!collections?.results?.length) ||

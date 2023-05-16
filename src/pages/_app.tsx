@@ -169,7 +169,7 @@ function NavigationBar() {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
+  const { updateSearch, searchTerm, setSearchTerm, results, searching, hasResults } = useGlobalSearch();
 
   const searchPlaceholder = useCallback(
     (open: boolean) =>
@@ -235,10 +235,12 @@ function NavigationBar() {
                   )}
                 >
                   <Search.Input
+                    comboOpened={comboOpened}                    
                     onChange={(e) => {
                       updateSearch(e);
                     }}
                     value={searchTerm}
+                    setValue={setSearchTerm}
                     className="mx-auto hidden w-full max-w-4xl md:block"
                     autofocus={false}
                     placeholder={searchPlaceholder(comboOpened)}
@@ -246,10 +248,12 @@ function NavigationBar() {
 
                   {searchExpanded && (
                     <Search.Input
+                      comboOpened={comboOpened}
                       onChange={(e) => {
                         updateSearch(e);
                       }}
                       value={searchTerm}
+                      setValue={setSearchTerm}
                       autofocus={true}
                       className="md:hidden"
                       placeholder={searchPlaceholder(comboOpened)}
