@@ -47,6 +47,7 @@ import {
 } from '../utils/transactions';
 import useLogin from './login';
 import { useCachedBuddy } from './referrals';
+import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 
 export const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
@@ -104,125 +105,17 @@ export function useListNft(): ListNftContext {
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
-    const authority = new PublicKey(auctionHouse.authority);
-    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const txRes: TxRes = await nightmarketClient.CreateListing(
+      new PublicKey(nft.mintAddress),
+      Number(amount),
+      publicKey
+    )
 
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const token = auctionHouse.rewardCenter.tokenMint;
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      tokenMint,
-      new PublicKey(nft.owner)
-    );
-
-    const [sellerTradeState, tradeStateBump] =
-      await RewardCenterProgram.findAuctioneerTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        associatedTokenAccount,
-        treasuryMint,
-        tokenMint,
-        1
-      );
-
-    const [programAsSigner, programAsSignerBump] =
-      await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-    const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      associatedTokenAccount,
-      treasuryMint,
-      tokenMint,
-      0,
-      1
-    );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [listingAddress] = await RewardCenterProgram.findListingAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
-    );
-
-    const accounts: CreateListingInstructionAccounts = {
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      listing: listingAddress,
-      rewardCenter: rewardCenter,
-      wallet: publicKey,
-      tokenAccount: associatedTokenAccount,
-      metadata: metadata,
-      authority: authority,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: auctionHouseFeeAccount,
-      sellerTradeState: sellerTradeState,
-      freeSellerTradeState: freeTradeState,
-      ahAuctioneerPda: auctioneer,
-      programAsSigner: programAsSigner,
-    };
-
-    if (nft.tokenStandard === 'ProgrammableNonFungible') {
-      const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
-      const remainingAccounts: AccountMeta[] = [];
-      remainingAccounts.push(pnftAccounts.metadataProgram);
-      remainingAccounts.push(pnftAccounts.delegateRecord);
-      remainingAccounts.push(pnftAccounts.tokenRecord);
-      remainingAccounts.push(pnftAccounts.tokenMint);
-      remainingAccounts.push(pnftAccounts.edition);
-      remainingAccounts.push(pnftAccounts.authRulesProgram);
-      remainingAccounts.push(pnftAccounts.authRules);
-      remainingAccounts.push(pnftAccounts.sysvarInstructions);
-      accounts.anchorRemainingAccounts = remainingAccounts;
+    if(!!txRes.err) {
+      toast(txRes.err, { type: 'error' });
+      return null;
     }
-
-    const args: CreateListingInstructionArgs = {
-      createListingParams: {
-        price: buyerPrice,
-        tokenSize: 1,
-        tradeStateBump,
-        freeTradeStateBump,
-        programAsSignerBump: programAsSignerBump,
-      },
-    };
-
-    const instruction = createCreateListingInstruction(accounts, args);
-    // patch metadata account to writable for AH / RWD
-    for (let i = 0; i < instruction.keys.length; i++) {
-      if (instruction.keys[i].pubkey.equals(metadata)) {
-        instruction.keys[i].isWritable = true;
-      }
-    }
-
-    const sellerRewardTokenAccount = getAssociatedTokenAddressSync(token, publicKey);
-
-    const sellerATAInstruction = createAssociatedTokenAccountInstruction(
-      publicKey,
-      sellerRewardTokenAccount,
-      publicKey,
-      token
-    );
-
-    const sellerATAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
-
-    const arrayOfInstructions = new Array<TransactionInstruction>();
-
-    if (!sellerATAInfo) {
-      arrayOfInstructions.push(sellerATAInstruction);
-    }
-
-    arrayOfInstructions.push(instruction);
-
-    const culIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
-    arrayOfInstructions.push(culIx);
-    const cupIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 });
-    arrayOfInstructions.push(cupIx);
 
     const transactions: VersionedTransaction[] = [];
     let listingTxIndex = 0;
@@ -238,7 +131,7 @@ export function useListNft(): ListNftContext {
     const messageV0 = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: blockhash,
-      instructions: arrayOfInstructions,
+      instructions: txRes.ixs,
     }).compileToV0Message();
     const transactionV0 = new VersionedTransaction(messageV0);
 
