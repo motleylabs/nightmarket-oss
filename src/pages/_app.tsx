@@ -172,14 +172,6 @@ function NavigationBar() {
   const { updateSearch, searchTerm, setSearchTerm, results, searching, hasResults } =
     useGlobalSearch();
 
-  const searchPlaceholder = useCallback(
-    (open: boolean) =>
-      open
-        ? t(`search.placeholder.${showMode}`, { ns: 'common' })
-        : t(`search.placeholder.collection`, { ns: 'common' }),
-    [showMode, t]
-  );
-
   return (
     <>
       <ReportHeader />
@@ -244,7 +236,7 @@ function NavigationBar() {
                     setValue={setSearchTerm}
                     className="mx-auto hidden w-full max-w-4xl md:block"
                     autofocus={false}
-                    placeholder={searchPlaceholder(comboOpened)}
+                    placeholder={t(`search.placeholder`, { ns: 'common' })}
                   />
 
                   {searchExpanded && (
@@ -257,7 +249,7 @@ function NavigationBar() {
                       setValue={setSearchTerm}
                       autofocus={true}
                       className="md:hidden"
-                      placeholder={searchPlaceholder(comboOpened)}
+                      placeholder={t(`search.placeholder`, { ns: 'common' })}
                     />
                   )}
 

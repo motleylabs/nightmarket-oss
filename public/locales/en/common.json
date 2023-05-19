@@ -22,11 +22,7 @@
     "profiles": "Profiles",
     "wallet": "Wallet",
     "nfts": "NFTs",
-    "placeholder": {
-      "collection": "Search for collections",
-      "nft": "Search by token address",
-      "profile": "Search by twitter or wallet"
-    },
+    "placeholder": "Search for collections, NFTs or profiles...",
     "empty": "No results found"
   },
   "profileMenu": {
