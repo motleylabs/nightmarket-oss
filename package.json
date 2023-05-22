@@ -24,7 +24,7 @@
     "@ladderlabs/buddylink": "^0.1.6",
     "@metaplex-foundation/mpl-token-metadata": "^2.11.0",
     "@motleylabs/mtly-auction-house": "^2.5.6",
-    "@motleylabs/mtly-nightmarket": "^1.0.5",
+    "@motleylabs/mtly-nightmarket": "^1.0.7",
     "@motleylabs/mtly-reward-center": "^0.2.8",
     "@project-serum/anchor": "^0.26.0",
     "@react-hook/window-size": "^3.1.1",

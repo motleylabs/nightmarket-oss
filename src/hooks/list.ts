@@ -1,22 +1,7 @@
-import type {
-  CreateListingInstructionAccounts,
-  CreateListingInstructionArgs
-} from '@motleylabs/mtly-reward-center';
-import {
-  createCreateListingInstruction
-} from '@motleylabs/mtly-reward-center';
-import {
-  createAssociatedTokenAccountInstruction,
-  getAssociatedTokenAddressSync,
-} from '@solana/spl-token';
+import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 import { useConnection } from '@solana/wallet-adapter-react';
 import type { TransactionInstruction } from '@solana/web3.js';
-import {
-  PublicKey,
-  Transaction,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
@@ -26,13 +11,10 @@ import { toast } from 'react-toastify';
 
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
-import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports, toSol } from '../modules/sol';
 import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs, Nft, AuctionHouse, ActionInfo } from '../typings';
-import { getMetadataAccount } from '../utils/metaplex';
-import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import {
   buildTransaction,
@@ -41,7 +23,6 @@ import {
 } from '../utils/transactions';
 import useLogin from './login';
 import { useCachedBuddy } from './referrals';
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 
 export const TX_INTERVAL = 500; //milliseconds to wait between sending tx batches
 
@@ -99,14 +80,14 @@ export function useListNft(): ListNftContext {
 
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
-    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const txRes: TxRes = await nightmarketClient.CreateListing(
       new PublicKey(nft.mintAddress),
       Number(amount),
       publicKey
-    )
+    );
 
-    if(!!txRes.err) {
+    if (!!txRes.err) {
       toast(txRes.err, { type: 'error' });
       return null;
     }
@@ -217,10 +198,6 @@ interface BulkListingForm extends BulkListNftForm {
 interface BulkListPending {
   nft: Nft;
   instructionData: {
-    listingAddress: PublicKey;
-    sellerTradeState: PublicKey;
-    tradeStateBump: number;
-    buyerPrice: number;
     arrayPosition: number;
   };
 }
@@ -271,12 +248,7 @@ export function useBulkListing(): BulkListContext {
 
     setListingBulk(true);
 
-    const LISTINGS_PER_TX = 3; // >3 is too large
-
-    const auctionHouseAddress = new PublicKey(config.auctionHouse);
-    const authority = new PublicKey(auctionHouse.authority);
-    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
+    const LISTINGS_PER_TX = 3;
 
     // create instruction list (and listed nfts with associated data for the cache)
     const pendingTxInstructions: TransactionInstruction[] = [];
@@ -303,105 +275,23 @@ export function useBulkListing(): BulkListContext {
             throw new Error('Auction house information is invalid');
 
           const basePrice = useGlobalPrice ? globalBulkPrice : amounts[nft.mintAddress];
-          const buyerPrice = toLamports(Number(basePrice));
-          const tokenMint = new PublicKey(nft.mintAddress);
-          const metadata = getMetadataAccount(tokenMint);
-          const token = auctionHouse.rewardCenter.tokenMint;
-          const associatedTokenAccount = getAssociatedTokenAddressSync(
-            tokenMint,
-            new PublicKey(nft.owner)
+          const nightmarketClient = new NightmarketClient(
+            process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? ''
           );
-          const [sellerTradeState, tradeStateBump] =
-            await RewardCenterProgram.findAuctioneerTradeStateAddress(
-              publicKey,
-              auctionHouseAddress,
-              associatedTokenAccount,
-              treasuryMint,
-              tokenMint,
-              1
-            );
-
-          const [programAsSigner, programAsSignerBump] =
-            await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-          const [freeTradeState, freeTradeStateBump] =
-            await AuctionHouseProgram.findTradeStateAddress(
-              publicKey,
-              auctionHouseAddress,
-              associatedTokenAccount,
-              treasuryMint,
-              tokenMint,
-              0,
-              1
-            );
-
-          const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(
-            auctionHouseAddress
-          );
-
-          const [listingAddress] = await RewardCenterProgram.findListingAddress(
+          const txRes: TxRes = await nightmarketClient.CreateListing(
+            new PublicKey(nft.mintAddress),
+            Number(basePrice),
             publicKey,
-            metadata,
-            rewardCenter
+            false
           );
 
-          const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-            auctionHouseAddress,
-            rewardCenter
-          );
-
-          const accounts: CreateListingInstructionAccounts = {
-            auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-            listing: listingAddress,
-            rewardCenter: rewardCenter,
-            wallet: publicKey,
-            tokenAccount: associatedTokenAccount,
-            metadata: metadata,
-            authority: authority,
-            auctionHouse: auctionHouseAddress,
-            auctionHouseFeeAccount: auctionHouseFeeAccount,
-            sellerTradeState: sellerTradeState,
-            freeSellerTradeState: freeTradeState,
-            ahAuctioneerPda: auctioneer,
-            programAsSigner: programAsSigner,
-          };
-
-          const args: CreateListingInstructionArgs = {
-            createListingParams: {
-              price: buyerPrice,
-              tokenSize: 1,
-              tradeStateBump,
-              freeTradeStateBump,
-              programAsSignerBump: programAsSignerBump,
-            },
-          };
-
-          const instruction = createCreateListingInstruction(accounts, args);
-
-          const sellerRewardTokenAccount = getAssociatedTokenAddressSync(token, publicKey);
-
-          const sellerATAInstruction = createAssociatedTokenAccountInstruction(
-            publicKey,
-            sellerRewardTokenAccount,
-            publicKey,
-            token
-          );
-          const sellerATAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
-
-          if (!sellerATAInfo) {
-            //We should probably only do this once? but not sure where else to put it since it requires individual token information
-            pendingTxInstructions.push(sellerATAInstruction);
+          if (!!txRes.err) {
+            throw txRes.err;
           }
-
-          pendingTxInstructions.push(instruction);
 
           return {
             nft,
             instructionData: {
-              listingAddress,
-              sellerTradeState,
-              tradeStateBump,
-              buyerPrice,
               arrayPosition: pendingTxInstructions.length - 1,
             },
           };
@@ -442,13 +332,6 @@ export function useBulkListing(): BulkListContext {
           updateListing.push(instruction);
         }
       }
-
-      updateListing.map(({ instructionData }) => {
-        const { listingAddress, sellerTradeState, tradeStateBump, buyerPrice } = instructionData;
-
-        // eslint-disable-next-line no-console
-        console.log(listingAddress, sellerTradeState, tradeStateBump, buyerPrice);
-      });
     } catch (e) {
       throw e;
     } finally {
@@ -539,21 +422,21 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
-    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const txRes: TxRes = await nightmarketClient.UpdateListing(
       new PublicKey(nft.mintAddress),
       Number(amount),
       publicKey
-    )
+    );
 
-    if(!!txRes.err) {
+    if (!!txRes.err) {
       toast(txRes.err, { type: 'error' });
       return null;
     }
 
     const tx = new Transaction();
     tx.add(...txRes.ixs);
-    
+
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
@@ -655,13 +538,13 @@ export function useCloseListing({
     }
     setClosing(true);
 
-    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const txRes: TxRes = await nightmarketClient.CloseListing(
       new PublicKey(nft.mintAddress),
       publicKey
-    )
+    );
 
-    if(!!txRes.err) {
+    if (!!txRes.err) {
       toast(txRes.err, { type: 'error' });
       return null;
     }

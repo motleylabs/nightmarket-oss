@@ -98,7 +98,7 @@ export function List<T>({
 
   return (
     <>
-      { !!data && data.length > 0 ? 
+      {!!data && data.length > 0 ? (
         <InfiniteScroll
           dataLength={data.length}
           next={() => {
@@ -116,18 +116,21 @@ export function List<T>({
         >
           {data?.map(render)}
         </InfiniteScroll>
-        :
-        loading &&
-          <div className={clsx(
-            `grid gap-4 pt-4 md:gap-${gap}`,
-            expanded ? openClassNames : closedClassNames,
-            className
-          )}>
+      ) : (
+        loading && (
+          <div
+            className={clsx(
+              `grid gap-4 pt-4 md:gap-${gap}`,
+              expanded ? openClassNames : closedClassNames,
+              className
+            )}
+          >
             {[...Array(activeGridSize * 2)].map((_, index) => (
               <Skeleton key={index} />
             ))}
           </div>
-      }
+        )
+      )}
     </>
   );
 }
