@@ -331,7 +331,7 @@ export default function useBuyNow(): BuyContext {
             auctionHouseProgram: config.auctionHouseProgram ?? '',
             blockTimestamp,
             price: curListing.price,
-            signature: settledSignedTxs.fulfilled[buyTxIndex],
+            signature: settledSignedTxs.fulfilled[buyTxIndex].tx,
             userAddress: publicKey?.toBase58() ?? '',
           };
         }

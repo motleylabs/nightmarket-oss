@@ -280,7 +280,7 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
         toast('Your offer is in', { type: 'success' });
 
         if (offerIndex < settledSignedTxs.fulfilled.length) {
-          signature = settledSignedTxs.fulfilled[offerIndex];
+          signature = settledSignedTxs.fulfilled[offerIndex].tx;
         }
       }
 
@@ -1055,7 +1055,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
             auctionHouseProgram: config.auctionHouseProgram ?? '',
             blockTimestamp,
             price: offer.price,
-            signature: settledSignedTxs.fulfilled[acceptOfferIndex],
+            signature: settledSignedTxs.fulfilled[acceptOfferIndex].tx,
             userAddress: offer.buyer,
           };
         }

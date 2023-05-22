@@ -1,11 +1,13 @@
 import type { WalletContextState } from '@solana/wallet-adapter-react';
-import type {
+import {
+  AddressLookupTableAccount,
   Commitment,
   Connection,
   Keypair,
   PublicKey,
   SignatureStatus,
   TransactionInstruction,
+  TransactionMessage,
   TransactionSignature,
   VersionedTransaction,
 } from '@solana/web3.js';
@@ -18,6 +20,7 @@ interface BuildTransactionProps {
   blockhash: string;
   instructions: TransactionInstruction[];
   payer: PublicKey;
+  alts?: AddressLookupTableAccount[];
 }
 
 const DEFAULT_TIMEOUT = 30000;
@@ -108,6 +111,33 @@ export async function queueTransactionSign({
   return pendingSigned;
 }
 
+export async function buildVersionedTransaction({
+  instructionsPerTransactions,
+  blockhash,
+  instructions,
+  payer,
+  alts
+}: BuildTransactionProps): Promise<VersionedTransaction[]> {
+  const ixChunks = chunk(instructions, instructionsPerTransactions);
+
+  const pendingTransactions: VersionedTransaction[] = [];
+  const culIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 1400000 });
+
+  for (let i = 0; i < ixChunks.length; i++) {
+    const messageV0 = new TransactionMessage({
+      payerKey: payer,
+      recentBlockhash: blockhash,
+      instructions: [culIx, ...ixChunks[i]],
+    }).compileToV0Message(alts);
+
+    const transactionV0 = new VersionedTransaction(messageV0);
+
+    pendingTransactions.push(transactionV0);
+  }
+
+  return pendingTransactions;
+}
+
 interface QueueVersionedTransactionSignProps {
   transactions: VersionedTransaction[];
   signTransaction: <T extends VersionedTransaction>(transaction: T) => Promise<T>;
@@ -145,7 +175,7 @@ export async function queueVersionedTransactionSign({
   const pendingSigned = await Promise.allSettled(
     signedTxs.map((tx, i, allTx) => {
       // send all tx in intervals to avoid overloading the network
-      return new Promise<string>((resolve, reject) => {
+      return new Promise<{ tx: string; id: number }>((resolve, reject) => {
         setTimeout(() => {
           // eslint-disable-next-line no-console
           console.log(`Requesting Transaction ${i + 1}/${allTx.length}`);
@@ -169,7 +199,7 @@ export async function queueVersionedTransactionSign({
                 throw new Error('Transaction failed: Custom instruction error');
               }
 
-              resolve(txHash);
+              resolve({ tx: txHash, id: i });
             })
             .catch((e) => {
               reject(e);

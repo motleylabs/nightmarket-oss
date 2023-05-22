@@ -17,8 +17,7 @@ import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs, Nft, AuctionHouse, ActionInfo } from '../typings';
 import { reduceSettledPromise } from '../utils/promises';
 import {
-  buildTransaction,
-  queueTransactionSign,
+  buildVersionedTransaction,
   queueVersionedTransactionSign,
 } from '../utils/transactions';
 import useLogin from './login';
@@ -139,7 +138,7 @@ export function useListNft(): ListNftContext {
             auctionHouseProgram: config.auctionHouseProgram ?? '',
             blockTimestamp,
             price: `${buyerPrice}`,
-            signature: settledSignedTxs.fulfilled[listingTxIndex],
+            signature: settledSignedTxs.fulfilled[listingTxIndex].tx,
             userAddress: publicKey?.toBase58() ?? '',
           };
         }
@@ -248,7 +247,7 @@ export function useBulkListing(): BulkListContext {
 
     setListingBulk(true);
 
-    const LISTINGS_PER_TX = 3;
+    const LISTINGS_PER_TX = 2;
 
     // create instruction list (and listed nfts with associated data for the cache)
     const pendingTxInstructions: TransactionInstruction[] = [];
@@ -284,10 +283,12 @@ export function useBulkListing(): BulkListContext {
             publicKey,
             false
           );
-
+  
           if (!!txRes.err) {
             throw txRes.err;
           }
+
+          pendingTxInstructions.push(...txRes.ixs);
 
           return {
             nft,
@@ -304,16 +305,20 @@ export function useBulkListing(): BulkListContext {
 
       // Batch up the listing instructions into transactions
       const { blockhash } = await connection.getLatestBlockhash();
+      const lookupTableAccount = await connection
+        .getAddressLookupTable(new PublicKey(config.addressLookupTable))
+        .then(res => res.value);
 
-      const pendingTransactions = await buildTransaction({
+      const versionedTxs = await buildVersionedTransaction({
         blockhash,
         instructions: pendingTxInstructions,
         instructionsPerTransactions: LISTINGS_PER_TX,
         payer: publicKey,
+        alts: !!lookupTableAccount ? [lookupTableAccount] : []
       });
 
-      const pendingSigned = await queueTransactionSign({
-        transactions: pendingTransactions,
+      const pendingSigned = await queueVersionedTransactionSign({
+        transactions: versionedTxs,
         signTransaction,
         signAllTransactions,
         connection,

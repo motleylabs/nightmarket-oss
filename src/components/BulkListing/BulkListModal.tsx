@@ -72,6 +72,7 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
       });
       if (fulfilled.length) {
         setSuccess(fulfilled);
+        setOpen(false);
       }
       setFailed(selected.filter((nft) => !fulfilled.includes(nft)));
     } catch (e) {
