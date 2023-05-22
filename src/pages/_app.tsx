@@ -294,10 +294,9 @@ function NavigationBar() {
                             return result.map((profile, i) => (
                               <Search.Profile
                                 value={profile}
-                                key={`search-profile-${profile.slug}-${i}`}
-                                image={profile.imgURL || DEFAULT_IMAGE}
-                                name={profile.name as string}
-                                slug={profile.slug ?? ''}
+                                key={`search-profile-${profile.address}-${i}`}
+                                name={profile.twitter as string}
+                                slug={profile.address ?? ''}
                               />
                             ));
                           }}

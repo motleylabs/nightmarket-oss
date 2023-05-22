@@ -13,6 +13,7 @@ import { DebounceInput } from 'react-debounce-input';
 
 import { SearchMode } from '../hooks/globalsearch';
 import { VerifiedBadge } from '../layouts/CollectionLayout';
+import { shortenAddress } from '../modules/address';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
@@ -357,7 +358,7 @@ Search.MintAddress = MintAddressSearchResult;
 
 type ProfileSearchResultProps = SearchResultProps;
 
-function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultProps) {
+function ProfileSearchResult({ value, slug, name }: ProfileSearchResultProps) {
   const router = useRouter();
 
   return (
@@ -378,13 +379,17 @@ function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultPr
           <div className="flex flex-row items-center gap-6">
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <Img
-                fallbackSrc="/images/placeholder.png"
-                src={getAssetURL(image, AssetSize.XSmall)}
+                src="/images/moon.svg"
                 alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />
             </div>
-            {name && <p className="m-0 text-sm font-bold text-white">{name}</p>}
+            <div>
+              {name && <p className="m-0 text-md font-bold text-white">{name}</p>}
+              {slug && (
+                <p className="m-0 text-sm font-bold text-gray-300">{shortenAddress(slug)}</p>
+              )}
+            </div>
           </div>
         </div>
       )}

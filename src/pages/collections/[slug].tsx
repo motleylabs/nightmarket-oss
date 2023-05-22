@@ -294,7 +294,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const [cardType, setCardType] = useState<string>('grid-small');
 
   useEffect(() => {
-    if(windowWidth <= 640 && cardType === 'grid-small') {
+    if (windowWidth <= 640 && cardType === 'grid-small') {
       setCardType('grid-large');
     }
   }, [windowWidth]);
