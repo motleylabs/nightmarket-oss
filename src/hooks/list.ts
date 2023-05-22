@@ -1,23 +1,17 @@
 import type {
   CreateListingInstructionAccounts,
-  CreateListingInstructionArgs,
-  CloseListingInstructionAccounts,
-  UpdateListingInstructionAccounts,
-  UpdateListingInstructionArgs,
+  CreateListingInstructionArgs
 } from '@motleylabs/mtly-reward-center';
 import {
-  createCreateListingInstruction,
-  createCloseListingInstruction,
-  createUpdateListingInstruction,
+  createCreateListingInstruction
 } from '@motleylabs/mtly-reward-center';
 import {
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddressSync,
 } from '@solana/spl-token';
 import { useConnection } from '@solana/wallet-adapter-react';
-import type { TransactionInstruction, AccountMeta } from '@solana/web3.js';
+import type { TransactionInstruction } from '@solana/web3.js';
 import {
-  ComputeBudgetProgram,
   PublicKey,
   Transaction,
   TransactionMessage,
@@ -37,7 +31,7 @@ import { toLamports, toSol } from '../modules/sol';
 import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs, Nft, AuctionHouse, ActionInfo } from '../typings';
-import { getMetadataAccount, getPNFTAccounts } from '../utils/metaplex';
+import { getMetadataAccount } from '../utils/metaplex';
 import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import {
@@ -545,42 +539,21 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     }
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const txRes: TxRes = await nightmarketClient.UpdateListing(
+      new PublicKey(nft.mintAddress),
+      Number(amount),
+      publicKey
+    )
 
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      tokenMint,
-      new PublicKey(nft.owner)
-    );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [listingAddress] = await RewardCenterProgram.findListingAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
-    const accounts: UpdateListingInstructionAccounts = {
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      listing: listingAddress,
-      rewardCenter: rewardCenter,
-      wallet: publicKey,
-      tokenAccount: associatedTokenAccount,
-      metadata: metadata,
-      auctionHouse: auctionHouseAddress,
-    };
-
-    const args: UpdateListingInstructionArgs = {
-      updateListingParams: {
-        newPrice: buyerPrice,
-      },
-    };
-
-    const instruction = createUpdateListingInstruction(accounts, args);
+    if(!!txRes.err) {
+      toast(txRes.err, { type: 'error' });
+      return null;
+    }
 
     const tx = new Transaction();
-    tx.add(instruction);
+    tx.add(...txRes.ixs);
+    
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
@@ -682,81 +655,19 @@ export function useCloseListing({
     }
     setClosing(true);
 
-    const auctionHouseAddress = new PublicKey(config.auctionHouse);
-    const authority = new PublicKey(auctionHouse.authority);
-    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      tokenMint,
-      new PublicKey(nft.owner)
-    );
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "");
+    const txRes: TxRes = await nightmarketClient.CloseListing(
+      new PublicKey(nft.mintAddress),
+      publicKey
+    )
 
-    const [sellerTradeState] = await RewardCenterProgram.findAuctioneerTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      associatedTokenAccount,
-      treasuryMint,
-      tokenMint,
-      1
-    );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [listingAddress] = await RewardCenterProgram.findListingAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
-    );
-
-    const accounts: CloseListingInstructionAccounts = {
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-      listing: listingAddress,
-      rewardCenter: rewardCenter,
-      wallet: publicKey,
-      tokenAccount: associatedTokenAccount,
-      metadata: metadata,
-      authority: authority,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: auctionHouseFeeAccount,
-      tokenMint,
-      tradeState: sellerTradeState,
-      ahAuctioneerPda: auctioneer,
-    };
-
-    if (nft.tokenStandard === 'ProgrammableNonFungible') {
-      const [programAsSigner] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-      const pnftAccounts = await getPNFTAccounts(connection, publicKey, programAsSigner, tokenMint);
-      const remainingAccounts: AccountMeta[] = [];
-      remainingAccounts.push(pnftAccounts.metadataProgram);
-      remainingAccounts.push(pnftAccounts.delegateRecord);
-      remainingAccounts.push(pnftAccounts.programAsSigner);
-      remainingAccounts.push({ isSigner: false, isWritable: true, pubkey: metadata });
-      remainingAccounts.push(pnftAccounts.edition);
-      remainingAccounts.push(pnftAccounts.tokenRecord);
-      remainingAccounts.push(pnftAccounts.tokenMint);
-      remainingAccounts.push(pnftAccounts.authRulesProgram);
-      remainingAccounts.push(pnftAccounts.authRules);
-      remainingAccounts.push(pnftAccounts.sysvarInstructions);
-      remainingAccounts.push(pnftAccounts.systemProgram);
-      accounts.anchorRemainingAccounts = remainingAccounts;
+    if(!!txRes.err) {
+      toast(txRes.err, { type: 'error' });
+      return null;
     }
 
-    const instruction = createCloseListingInstruction(accounts);
-
     const tx = new Transaction();
-    tx.add(instruction);
-
-    const culIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
-    tx.add(culIx);
-    const cupIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1000 });
-    tx.add(cupIx);
+    tx.add(...txRes.ixs);
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
