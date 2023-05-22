@@ -116,7 +116,7 @@ export async function buildVersionedTransaction({
   blockhash,
   instructions,
   payer,
-  alts
+  alts,
 }: BuildTransactionProps): Promise<VersionedTransaction[]> {
   const ixChunks = chunk(instructions, instructionsPerTransactions);
 

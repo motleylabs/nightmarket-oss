@@ -16,10 +16,7 @@ import { useAuctionHouseContext } from '../providers/AuctionHouseProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ErrorWithLogs, Nft, AuctionHouse, ActionInfo } from '../typings';
 import { reduceSettledPromise } from '../utils/promises';
-import {
-  buildVersionedTransaction,
-  queueVersionedTransactionSign,
-} from '../utils/transactions';
+import { buildVersionedTransaction, queueVersionedTransactionSign } from '../utils/transactions';
 import useLogin from './login';
 import { useCachedBuddy } from './referrals';
 
@@ -283,7 +280,7 @@ export function useBulkListing(): BulkListContext {
             publicKey,
             false
           );
-  
+
           if (!!txRes.err) {
             throw txRes.err;
           }
@@ -307,14 +304,14 @@ export function useBulkListing(): BulkListContext {
       const { blockhash } = await connection.getLatestBlockhash();
       const lookupTableAccount = await connection
         .getAddressLookupTable(new PublicKey(config.addressLookupTable))
-        .then(res => res.value);
+        .then((res) => res.value);
 
       const versionedTxs = await buildVersionedTransaction({
         blockhash,
         instructions: pendingTxInstructions,
         instructionsPerTransactions: LISTINGS_PER_TX,
         payer: publicKey,
-        alts: !!lookupTableAccount ? [lookupTableAccount] : []
+        alts: !!lookupTableAccount ? [lookupTableAccount] : [],
       });
 
       const pendingSigned = await queueVersionedTransactionSign({
