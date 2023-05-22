@@ -2,8 +2,8 @@ import { useTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 import { TailSpin } from 'react-loader-spinner';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 
 import type { DataPoint } from '../../typings';
 import { CustomLineChartTooltip } from './Chart';
