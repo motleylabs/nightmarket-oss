@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { Popover, Transition } from '@headlessui/react';
 import { Bars3Icon, CheckIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
@@ -47,8 +48,7 @@ import { AuctionHouseContextProvider } from '../providers/AuctionHouseProvider';
 import BulkListProvider from '../providers/BulkListProvider';
 import CurrencyProvider from '../providers/CurrencyProvider';
 import { WalletContextProvider, useWalletContext } from '../providers/WalletContextProvider';
-import type { Nft, OverallStat, RPCReport, StatSearch } from '../typings/index.js';
-import { getAssetURL, AssetSize } from '../utils/assets';
+import type { OverallStat, RPCReport, StatSearch } from '../typings/index.js';
 import { getCookie, setCookie } from '../utils/cookies';
 import { getSolFromLamports } from '../utils/price';
 import { hideTokenDetails } from '../utils/tokens';
@@ -282,7 +282,9 @@ function NavigationBar() {
                         {!results.profiles ||
                           (results.profiles.length === 0 && (
                             <div className="my-3 sm:flex block px-2">
-                              <div className="text-md text-white">Search by Wallet Address:</div>
+                              <div className="text-md text-white">
+                                {t('search.profileLabel', { ns: 'common' })}
+                              </div>
                               <div className="text-md text-white sm:ml-1">{searchTerm}</div>
                             </div>
                           ))}
@@ -305,26 +307,24 @@ function NavigationBar() {
                     )}
                     {showMode === 'nft' && (
                       <>
-                        {!results.nft && (
+                        {!results.nft ? (
                           <div className="my-3 sm:flex block px-2">
-                            <div className="text-md text-white">Search by Token Address:</div>
+                            <div className="text-md text-white">
+                              {t('search.nftLabel', { ns: 'common' })}
+                            </div>
                             <div className="text-md text-white sm:ml-1">{searchTerm}</div>
                           </div>
+                        ) : (
+                          <>
+                            <Search.MintAddress
+                              value={results.nft}
+                              image={results.nft.image}
+                              slug={results.nft.mintAddress}
+                              name={results.nft.name}
+                              creator={results.nft.owner ? hideTokenDetails(results.nft.owner) : ''}
+                            />
+                          </>
                         )}
-                        <Search.Group<Nft> result={results?.nft}>
-                          {({ result: nft }) => {
-                            if (!nft) return null;
-                            return (
-                              <Search.MintAddress
-                                value={nft}
-                                image={getAssetURL(nft.image, AssetSize.XSmall)}
-                                slug={nft.mintAddress}
-                                name={nft.name}
-                                creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
-                              />
-                            );
-                          }}
-                        </Search.Group>
                       </>
                     )}
                   </Search.Results>

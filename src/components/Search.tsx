@@ -337,7 +337,7 @@ function MintAddressSearchResult({
               fallbackSrc="/images/moon.svg"
               src={getAssetURL(image, AssetSize.XSmall)}
               alt={name || slug}
-              className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
+              className="object-cover h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
           </div>
