@@ -285,7 +285,7 @@ function NavigationBar() {
                               <div className="text-md text-white">
                                 {t('search.profileLabel', { ns: 'common' })}
                               </div>
-                              <div className="text-md text-white sm:ml-1">{searchTerm}</div>
+                              <div className="text-md text-white sm:ml-1 truncate">{searchTerm}</div>
                             </div>
                           ))}
 
@@ -312,7 +312,7 @@ function NavigationBar() {
                             <div className="text-md text-white">
                               {t('search.nftLabel', { ns: 'common' })}
                             </div>
-                            <div className="text-md text-white sm:ml-1">{searchTerm}</div>
+                            <div className="text-md text-white sm:ml-1 truncate">{searchTerm}</div>
                           </div>
                         ) : (
                           <>
