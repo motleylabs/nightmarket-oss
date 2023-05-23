@@ -148,7 +148,6 @@ function SearchInput({
         autoComplete="off"
         autoCorrect="off"
         className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all focus:border-white focus:placeholder-gray-400 focus:outline-none hover:border-white md:py-2"
-        type="search"
         onFocus={onFocus}
         onBlur={onBlur}
         value={value}
