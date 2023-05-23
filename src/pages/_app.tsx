@@ -260,22 +260,35 @@ function NavigationBar() {
                     setMode={setShowMode}
                   >
                     {showMode === 'collection' && (
-                      <Search.Group<StatSearch[]> result={results.collections}>
-                        {({ result }) => {
-                          if (!result) return null;
+                      <>
+                        {!results.collections ||
+                          (results.collections.length === 0 && (
+                            <div className="my-3 sm:flex block px-2">
+                              <div className="text-md text-white">
+                                {t('search.collectionLabel', { ns: 'common' })}
+                              </div>
+                              <div className="text-md text-white sm:ml-1 truncate">
+                                {searchTerm}
+                              </div>
+                            </div>
+                          ))}
+                        <Search.Group<StatSearch[]> result={results.collections}>
+                          {({ result }) => {
+                            if (!result) return null;
 
-                          return result.map((collection, i) => (
-                            <Search.Collection
-                              value={collection}
-                              key={`search-collection-${collection.slug}-${i}`}
-                              image={collection.imgURL || DEFAULT_IMAGE}
-                              name={collection.name ?? 'Unknown'}
-                              slug={collection.slug ?? 'Unknown'}
-                              isVerified={collection.isVerified ?? false}
-                            />
-                          ));
-                        }}
-                      </Search.Group>
+                            return result.map((collection, i) => (
+                              <Search.Collection
+                                value={collection}
+                                key={`search-collection-${collection.slug}-${i}`}
+                                image={collection.imgURL || DEFAULT_IMAGE}
+                                name={collection.name ?? 'Unknown'}
+                                slug={collection.slug ?? 'Unknown'}
+                                isVerified={collection.isVerified ?? false}
+                              />
+                            ));
+                          }}
+                        </Search.Group>
+                      </>
                     )}
                     {showMode === 'profile' && (
                       <>
@@ -285,7 +298,9 @@ function NavigationBar() {
                               <div className="text-md text-white">
                                 {t('search.profileLabel', { ns: 'common' })}
                               </div>
-                              <div className="text-md text-white sm:ml-1 truncate">{searchTerm}</div>
+                              <div className="text-md text-white sm:ml-1 truncate">
+                                {searchTerm}
+                              </div>
                             </div>
                           ))}
 
