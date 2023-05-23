@@ -296,9 +296,23 @@ export function Preview({
           <td className="xl:table-cell hidden">{nft.moonrankRank}</td>
           <td>
             {!!listing ? (
-              <span className="flex items-center gap-1">
-                <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
-              </span>
+              <>
+                <span className="flex items-center gap-1">
+                  <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                  {!!marketplace ? (
+                    <div className="sm:hidden block items-center justify-start my-1">
+                      <img
+                        src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
+                        className="h-5 w-auto object-fill"
+                        alt={t('logo', { ns: 'nft', market: marketplace.name })}
+                        title={t('listedOn', { ns: 'nft', market: marketplace.name })}
+                      />
+                    </div>
+                  ) : (
+                    '-'
+                  )}
+                </span>
+              </>
             ) : (
               '-'
             )}
