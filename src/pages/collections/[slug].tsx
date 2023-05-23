@@ -606,14 +606,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
           <>
             {selectedAttributes.length > 0 && (
               <div className="gap-1 flex items-center">
-                <span className="mb-4 mt-4 flex flex-wrap gap-2 md:mb-2 mr-1 text-gray-300 text-[12px]">
-                  Filters:
-                </span>
                 <Sidebar.Pills
                   items={selectedAttributes}
                   onRemove={onRemovePill}
                   onClear={onClearPills}
-                  clearButtonFirst={true}
+                  clearButtonFirst={false}
                 />
               </div>
             )}
