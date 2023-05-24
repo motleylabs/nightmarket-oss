@@ -521,13 +521,14 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                   </Overview.Form.Point>
                 )}
                 {nft && listing && (
-                  <div>
+                  <>
                     <Overview.Form.Point label={t('buyable.listPrice', { ns: 'common' })}>
                       <Icon.Sol /> {getSolFromLamports(nftPrice, 0, 3)}
                     </Overview.Form.Point>
                     <Overview.Form.Point label={t('royalties', { ns: 'nft' })}>
                       <div className="text-base font-medium text-gray-300 flex flex-row justify-center items-center">
-                        <Icon.Sol />{' '}
+                        <Icon.Sol />
+                        &nbsp;
                         <span>
                           {getSolFromLamports(totalRoyalties, 0, 3)} (
                           {nft.sellerFeeBasisPoints / 100}%)
@@ -548,7 +549,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
                     <Overview.Form.Point label={t('total', { ns: 'nft' })} className="text-white">
                       <Icon.Sol /> {getSolFromLamports(totalPrice, 0, 3)}
                     </Overview.Form.Point>
-                  </div>
+                  </>
                 )}
                 <Overview.Form.Point label={t('buyable.currentBalance', { ns: 'common' })}>
                   <Icon.Sol /> {getSolFromLamports(balance ?? 0, 0, 3)}
@@ -720,6 +721,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               <Form.Input
                 icon={<Icon.Sol />}
                 autoFocus
+                autoComplete="off"
                 error={offerFormState.errors.amount}
                 {...registerListNft('amount', {
                   required: true,

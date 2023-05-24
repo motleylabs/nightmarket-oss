@@ -1,15 +1,19 @@
 /* eslint-disable no-console */
+
+/* eslint-disable react/jsx-no-useless-fragment */
 import { Combobox, Transition } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import type { FC, ReactNode } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 
 import { SearchMode } from '../hooks/globalsearch';
+import { VerifiedBadge } from '../layouts/CollectionLayout';
+import { shortenAddress } from '../modules/address';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
@@ -24,7 +28,7 @@ type ProfileItem = FC;
 type NftItem = FC;
 
 interface SearchProps {
-  children: ReactNode;
+  children: (open: boolean) => ReactNode;
   Input?: Input;
   Group?: Group;
   Header?: Header;
@@ -37,7 +41,6 @@ interface SearchProps {
 
 export default function Search({ children }: SearchProps) {
   const [selected, setSelected] = useState<(StatSearch & Nft) | null>(null);
-
   const router = useRouter();
 
   return (
@@ -46,7 +49,7 @@ export default function Search({ children }: SearchProps) {
       onChange={(selection) => {
         if (!selection) {
           // TODO: have a fallback to view these
-          console.error('Missing verified collectiona address');
+          console.error('Missing verified collection address');
           return;
         }
 
@@ -68,13 +71,30 @@ export default function Search({ children }: SearchProps) {
         }
       }}
     >
-      {children}
+      {({ open }) => (
+        <>
+          <Combobox.Button
+            className="md:w-full w-0"
+            onClick={(e) => {
+              if (open) {
+                e.preventDefault();
+              }
+            }}
+            as="div"
+          >
+            {children(open)}
+          </Combobox.Button>
+        </>
+      )}
     </Combobox>
   );
 }
 
 interface SearchInputProps {
+  comboOpened: boolean;
   value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+  placeholder: string;
   className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: () => void;
@@ -82,71 +102,69 @@ interface SearchInputProps {
   autofocus?: boolean;
 }
 
-const getOs = (): string => {
-  const os: string[] = [];
-  if ((global as unknown as { window?: { navigator: { platform: string } } }).window) {
-    const platform = (global as unknown as { window: { navigator: { platform: string } } }).window
-      .navigator.platform;
-    if (platform.indexOf('Win32') >= 0) {
-      os.push('Win32');
-    }
-    if (platform.indexOf('Mac') >= 0) {
-      os.push('Mac');
-    }
-  }
-  return os[0] ?? '';
-};
-
-function SearchInput({ onChange, onFocus, onBlur, value, autofocus, className }: SearchInputProps) {
-  const { t } = useTranslation('common');
+function SearchInput({
+  comboOpened,
+  onChange,
+  onFocus,
+  onBlur,
+  value,
+  setValue,
+  autofocus,
+  className,
+  placeholder,
+}: SearchInputProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [searchKeyboardPrompt, setSearchKeyboardPrompt] = useState('CMD + K');
+  const searchKeyboardPrompt = useMemo(() => (comboOpened ? 'esc' : '/'), [comboOpened]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!comboOpened) {
+        if (e.key === searchKeyboardPrompt) {
+          e.preventDefault();
+          e.stopPropagation();
+          searchInputRef.current?.click();
+        }
+      }
+    },
+    [comboOpened, searchKeyboardPrompt]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    const os = getOs();
-    if (os === 'Win32') {
-      setSearchKeyboardPrompt('CTRL + K');
-    }
-  }, []);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (!e.metaKey) return;
-    switch (e.key) {
-      case 'k':
-        e.preventDefault();
-        e.stopPropagation();
-        searchInputRef.current?.focus();
-        return;
-      default:
-        return;
-    }
-  };
+  }, [handleKeyDown]);
 
   return (
     <div className={clsx('group relative block w-full transition-all', className)}>
       <button
         type="button"
-        onClick={useCallback(() => searchInputRef?.current?.focus(), [searchInputRef])}
+        onClick={useCallback(() => searchInputRef?.current?.click(), [searchInputRef])}
         className="absolute left-4 flex h-full cursor-pointer items-center rounded-full transition-all duration-300 ease-in-out hover:scale-105"
       >
         <MagnifyingGlassIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
       </button>
       <DebounceInput
-        minLength={2}
+        minLength={1}
         debounceTimeout={300}
         autoComplete="off"
         autoCorrect="off"
         className="block w-full rounded-full border-2 border-gray-900 bg-transparent py-2 pl-12 pr-6 text-base text-white transition-all focus:border-white focus:placeholder-gray-400 focus:outline-none hover:border-white md:py-2"
-        type="search"
         onFocus={onFocus}
         onBlur={onBlur}
         value={value}
-        placeholder={t('search.placeholder', { ns: 'common' })}
+        placeholder={placeholder}
         onChange={onChange}
         inputRef={searchInputRef}
         element={Combobox.Input}
         autoFocus={autofocus}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            if (searchInputRef.current) {
+              searchInputRef.current.value = '';
+              searchInputRef.current.blur();
+              setValue('');
+            }
+          }
+        }}
       />
       <button
         type="button"
@@ -164,12 +182,14 @@ Search.Input = SearchInput;
 interface SearchResultsProps {
   searching: boolean;
   children: ReactNode;
-  error?: unknown;
+  mode: string;
+  setMode: React.Dispatch<React.SetStateAction<string>>;
   hasResults: boolean;
+  error?: unknown;
   enabled?: boolean;
 }
 
-function SearchResults({ searching, children, hasResults, enabled = false }: SearchResultsProps) {
+function SearchResults({ searching, children, mode, setMode }: SearchResultsProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -184,6 +204,32 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
         className={clsx('fixed left-0 right-0 top-12 bottom-0 z-40 mx-auto block max-w-4xl')}
       >
         <div className="scrollbar-thumb-rounded-full absolute top-4 z-50 h-[calc(100vh-45px)] w-full gap-6 overflow-y-scroll rounded-md bg-gray-900 p-4 shadow-lg shadow-black transition ease-in-out scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-700 md:top-10 md:max-h-96">
+          <div className="mb-2 border-b border-gray-700 pt-4 text-base font-medium text-gray-300 flex">
+            <span
+              onClick={() => setMode('collection')}
+              className={`px-2 mr-2 pb-2 ${
+                mode === 'collection' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.collection', { ns: 'common' })}
+            </span>
+            <span
+              onClick={() => setMode('nft')}
+              className={`px-2 mr-2 pb-2 ${
+                mode === 'nft' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.nfts', { ns: 'common' })}
+            </span>
+            <span
+              onClick={() => setMode('profile')}
+              className={`px-2 pb-2 ${
+                mode === 'profile' ? 'border-b border-white text-white' : 'cursor-pointer'
+              }`}
+            >
+              {t('search.profiles', { ns: 'common' })}
+            </span>
+          </div>
           {searching ? (
             <>
               <SearchLoadingItem />
@@ -191,21 +237,8 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
               <SearchLoadingItem />
               <SearchLoadingItem variant="circle" />
             </>
-          ) : hasResults ? (
-            children
-          ) : enabled ? (
-            <div className="flex h-6 w-full items-center justify-center">
-              <p className="m-0 text-center text-base font-medium">
-                {t('search.empty', { ns: 'common' })}
-              </p>
-            </div>
           ) : (
-            <>
-              <SearchLoadingItem />
-              <SearchLoadingItem variant="circle" />
-              <SearchLoadingItem />
-              <SearchLoadingItem variant="circle" />
-            </>
+            children
           )}
         </div>
       </Combobox.Options>
@@ -215,24 +248,12 @@ function SearchResults({ searching, children, hasResults, enabled = false }: Sea
 Search.Results = SearchResults;
 
 interface SearchGroupProps<T> {
-  title: string;
   children: (data: { result: T | undefined }) => ReactNode;
   result?: T;
 }
 
-function SearchGroup<T>({ title, children, result }: SearchGroupProps<T>) {
-  if ((result instanceof Array && result.length === 0) || result == null) {
-    return null;
-  }
-
-  return (
-    <>
-      <h6 className="mb-2 border-b border-gray-700 pt-4 pb-2 text-base font-medium text-gray-300">
-        {title}
-      </h6>
-      {children({ result })}
-    </>
-  );
+function SearchGroup<T>({ children, result }: SearchGroupProps<T>) {
+  return <>{result instanceof Array && result.length > 0 && children({ result })}</>;
 }
 Search.Group = SearchGroup;
 
@@ -241,9 +262,10 @@ type SearchResultProps = {
   image?: string;
   name?: string;
   value?: StatSearch | Nft;
+  isVerified?: boolean;
 };
 
-function CollectionSearchResult({ name, image, value, slug }: SearchResultProps) {
+function CollectionSearchResult({ name, image, value, slug, isVerified }: SearchResultProps) {
   const { push } = useRouter();
 
   return (
@@ -268,7 +290,12 @@ function CollectionSearchResult({ name, image, value, slug }: SearchResultProps)
               alt={name || slug}
               className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
             />
-            <p className="m-0 text-sm font-bold">{name}</p>
+            <div className="m-0 flex items-center">
+              <span className="text-md text-white">{name}</span>
+              {isVerified !== undefined && isVerified && (
+                <VerifiedBadge width={30} height={30} isVerified={true} />
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -309,7 +336,7 @@ function MintAddressSearchResult({
               fallbackSrc="/images/moon.svg"
               src={getAssetURL(image, AssetSize.XSmall)}
               alt={name || slug}
-              className="aspect-square h-10 w-10 overflow-hidden rounded-md text-sm"
+              className="object-cover h-10 w-10 overflow-hidden rounded-md text-sm"
             />
             <p className="m-0 text-sm font-bold">{name}</p>
           </div>
@@ -330,7 +357,7 @@ Search.MintAddress = MintAddressSearchResult;
 
 type ProfileSearchResultProps = SearchResultProps;
 
-function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultProps) {
+function ProfileSearchResult({ value, slug, name }: ProfileSearchResultProps) {
   const router = useRouter();
 
   return (
@@ -351,13 +378,17 @@ function ProfileSearchResult({ image, slug, value, name }: ProfileSearchResultPr
           <div className="flex flex-row items-center gap-6">
             <div className="flex h-10 w-10 overflow-clip rounded-full bg-gray-700">
               <Img
-                fallbackSrc="/images/placeholder.png"
-                src={getAssetURL(image, AssetSize.XSmall)}
+                src="/images/moon.svg"
                 alt={`profile-${slug}`}
                 className="min-h-full min-w-full object-cover"
               />
             </div>
-            {name && <p className="m-0 text-sm font-bold text-white">{name}</p>}
+            <div>
+              {name && <p className="m-0 text-md font-bold text-white">{name}</p>}
+              {slug && (
+                <p className="m-0 text-sm font-bold text-gray-300">{shortenAddress(slug)}</p>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { Popover, Transition } from '@headlessui/react';
 import { Bars3Icon, CheckIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
@@ -47,8 +48,7 @@ import { AuctionHouseContextProvider } from '../providers/AuctionHouseProvider';
 import BulkListProvider from '../providers/BulkListProvider';
 import CurrencyProvider from '../providers/CurrencyProvider';
 import { WalletContextProvider, useWalletContext } from '../providers/WalletContextProvider';
-import type { Nft, OverallStat, RPCReport, StatSearch } from '../typings/index.js';
-import { getAssetURL, AssetSize } from '../utils/assets';
+import type { OverallStat, RPCReport, StatSearch } from '../typings/index.js';
 import { getCookie, setCookie } from '../utils/cookies';
 import { getSolFromLamports } from '../utils/price';
 import { hideTokenDetails } from '../utils/tokens';
@@ -99,7 +99,6 @@ function ReportHeader() {
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
-            <Icon.Sol defaultColor="#FFFFFF" />
             <span className="font-semibold text-white">{`$${(
               overallStat.marketCap / 1000000
             ).toFixed(2)}M`}</span>
@@ -112,7 +111,6 @@ function ReportHeader() {
           <EmptyBox />
         ) : (
           <div className="flex items-center gap-2">
-            <Icon.Sol defaultColor="#FFFFFF" />
             <span className="font-semibold text-white">{`${(
               overallStat.volume1d /
               rpcReport.solPrice /
@@ -155,6 +153,7 @@ function NavigationBar() {
   }, [showNav]);
 
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
+  const [showMode, setShowMode] = useState<string>('collection');
 
   const expandedSearchRef = useRef<HTMLDivElement | null>(null);
   useOutsideAlert(
@@ -170,7 +169,8 @@ function NavigationBar() {
 
   const { t } = useTranslation('common');
 
-  const { updateSearch, searchTerm, results, searching, hasResults } = useGlobalSearch();
+  const { updateSearch, searchTerm, setSearchTerm, results, searching, hasResults } =
+    useGlobalSearch();
 
   return (
     <>
@@ -219,93 +219,132 @@ function NavigationBar() {
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-300" aria-hidden="true" />
             </button>
             <Search>
-              <div
-                ref={expandedSearchRef}
-                className={clsx(
-                  'fixed w-full md:relative',
-                  searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
-                )}
-              >
-                <Search.Input
-                  onChange={(e) => {
-                    updateSearch(e);
-                  }}
-                  value={searchTerm}
-                  className="mx-auto hidden w-full max-w-4xl md:block"
-                  autofocus={false}
-                />
-
-                {searchExpanded && (
+              {(comboOpened) => (
+                <div
+                  ref={expandedSearchRef}
+                  className={clsx(
+                    'fixed w-full md:relative',
+                    searchExpanded ? ' inset-0  h-14  px-4 py-2' : ''
+                  )}
+                >
                   <Search.Input
+                    comboOpened={comboOpened}
                     onChange={(e) => {
                       updateSearch(e);
                     }}
                     value={searchTerm}
-                    autofocus={true}
-                    className="md:hidden"
+                    setValue={setSearchTerm}
+                    className="mx-auto hidden w-full max-w-4xl md:block"
+                    autofocus={false}
+                    placeholder={t(`search.placeholder`, { ns: 'common' })}
                   />
-                )}
-                <Search.Results
-                  searching={searching}
-                  hasResults={hasResults}
-                  enabled={searchTerm.length > 2}
-                >
-                  <Search.Group<StatSearch[]>
-                    title={t('search.collection', { ns: 'common' })}
-                    result={results.collections}
-                  >
-                    {({ result }) => {
-                      if (!result) return null;
 
-                      return result.map((collection, i) => (
-                        <Search.Collection
-                          value={collection}
-                          key={`search-collection-${collection.slug}-${i}`}
-                          image={collection.imgURL || DEFAULT_IMAGE}
-                          name={collection.name}
-                          slug={collection.slug}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<StatSearch[]>
-                    title={t('search.profiles', { ns: 'common' })}
-                    result={results.profiles}
-                  >
-                    {({ result }) => {
-                      if (!result) return null;
+                  {searchExpanded && (
+                    <Search.Input
+                      comboOpened={comboOpened}
+                      onChange={(e) => {
+                        updateSearch(e);
+                      }}
+                      value={searchTerm}
+                      setValue={setSearchTerm}
+                      autofocus={true}
+                      className="md:hidden"
+                      placeholder={t(`search.placeholder`, { ns: 'common' })}
+                    />
+                  )}
 
-                      return result.map((profile, i) => (
-                        <Search.Profile
-                          value={profile}
-                          key={`search-profile-${profile.slug}-${i}`}
-                          image={profile.imgURL || DEFAULT_IMAGE}
-                          name={profile.name as string}
-                          slug={profile.slug}
-                        />
-                      ));
-                    }}
-                  </Search.Group>
-                  <Search.Group<Nft>
-                    title={t('search.nfts', { ns: 'common' })}
-                    result={results?.nft}
+                  <Search.Results
+                    searching={searching}
+                    hasResults={hasResults}
+                    mode={showMode}
+                    setMode={setShowMode}
                   >
-                    {({ result: nft }) => {
-                      if (!nft) return null;
+                    {showMode === 'collection' && (
+                      <>
+                        {!results.collections ||
+                          (results.collections.length === 0 && (
+                            <div className="my-3 sm:flex block px-2">
+                              <div className="text-md text-gray-300">
+                                {t('search.collectionLabel', { ns: 'common' })}
+                              </div>
+                              <div className="text-md text-white sm:ml-1 truncate">
+                                {searchTerm}
+                              </div>
+                            </div>
+                          ))}
+                        <Search.Group<StatSearch[]> result={results.collections}>
+                          {({ result }) => {
+                            if (!result) return null;
 
-                      return (
-                        <Search.MintAddress
-                          value={nft}
-                          image={getAssetURL(nft.image, AssetSize.XSmall)}
-                          slug={nft.mintAddress}
-                          name={nft.name}
-                          creator={nft.owner ? hideTokenDetails(nft.owner) : ''}
-                        />
-                      );
-                    }}
-                  </Search.Group>
-                </Search.Results>
-              </div>
+                            return result.map((collection, i) => (
+                              <Search.Collection
+                                value={collection}
+                                key={`search-collection-${collection.slug}-${i}`}
+                                image={collection.imgURL || DEFAULT_IMAGE}
+                                name={collection.name ?? 'Unknown'}
+                                slug={collection.slug ?? 'Unknown'}
+                                isVerified={collection.isVerified ?? false}
+                              />
+                            ));
+                          }}
+                        </Search.Group>
+                      </>
+                    )}
+                    {showMode === 'profile' && (
+                      <>
+                        {!results.profiles ||
+                          (results.profiles.length === 0 && (
+                            <div className="my-3 sm:flex block px-2">
+                              <div className="text-md text-gray-300">
+                                {t('search.profileLabel', { ns: 'common' })}
+                              </div>
+                              <div className="text-md text-white sm:ml-1 truncate">
+                                {searchTerm}
+                              </div>
+                            </div>
+                          ))}
+
+                        <Search.Group<StatSearch[]> result={results.profiles}>
+                          {({ result }) => {
+                            if (!result) return null;
+
+                            return result.map((profile, i) => (
+                              <Search.Profile
+                                value={profile}
+                                key={`search-profile-${profile.address}-${i}`}
+                                name={profile.twitter as string}
+                                slug={profile.address ?? ''}
+                              />
+                            ));
+                          }}
+                        </Search.Group>
+                      </>
+                    )}
+                    {showMode === 'nft' && (
+                      <>
+                        {!results.nft ? (
+                          <div className="my-3 sm:flex block px-2">
+                            <div className="text-md text-gray-300">
+                              {t('search.nftLabel', { ns: 'common' })}
+                            </div>
+                            <div className="text-md text-white sm:ml-1 truncate">{searchTerm}</div>
+                          </div>
+                        ) : (
+                          <>
+                            <Search.MintAddress
+                              value={results.nft}
+                              image={results.nft.image}
+                              slug={results.nft.mintAddress}
+                              name={results.nft.name}
+                              creator={results.nft.owner ? hideTokenDetails(results.nft.owner) : ''}
+                            />
+                          </>
+                        )}
+                      </>
+                    )}
+                  </Search.Results>
+                </div>
+              )}
             </Search>
           </div>
           {/* Connect and Mobile Menu */}

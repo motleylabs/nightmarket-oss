@@ -18,7 +18,7 @@ const VALID_IMAGE_SIZES = [
 
 const ASSET_BASE = 'https://assets.nightmarket.io/';
 
-export function getAssetURL(url: string | undefined, size: AssetSize): string {
+export function getImgOptAssetURL(url: string | undefined, size: AssetSize): string {
   if (!url) {
     return '';
   }
@@ -26,4 +26,16 @@ export function getAssetURL(url: string | undefined, size: AssetSize): string {
   const encoded = encodeURIComponent(url);
   const validSize = VALID_IMAGE_SIZES.indexOf(size) > -1 ? size : 0;
   return `${ASSET_BASE}?url=${encoded}&width=${validSize}`;
+}
+
+const CF_ASSET_BASE = 'https://assets.nightmarket.io/';
+
+export function getAssetURL(url: string | undefined, size: AssetSize): string {
+  if (!url) {
+    return '';
+  }
+
+  const encoded = encodeURIComponent(url);
+  const validSize = VALID_IMAGE_SIZES.indexOf(size) > -1 ? size : 0;
+  return `${CF_ASSET_BASE}cdn-cgi/image/width=${validSize}/${encoded}`;
 }

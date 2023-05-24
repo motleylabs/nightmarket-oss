@@ -149,7 +149,7 @@ function ProfileLayout({ children, nfts, collections }: ProfileLayout): JSX.Elem
         </div>
       </section>
       <div className="w-full overflow-auto md:overflow-visible">
-        <Overview.Tabs className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
+        <Overview.Tabs mode="profile" className="md:min-w-auto min-w-[384px] grid-cols-auto-85">
           <Overview.Tab
             label={t('nfts', { ns: 'profile' })}
             href={`/profiles/${query.address}`}

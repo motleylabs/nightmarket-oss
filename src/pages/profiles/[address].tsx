@@ -194,7 +194,12 @@ export default function ProfileCollected({ offers }: Props) {
         <Sidebar.Content>
           <>
             {pillItems.length > 0 && (
-              <Sidebar.Pills items={pillItems} onRemove={onRemovePill} onClear={onClearPills} />
+              <Sidebar.Pills
+                clearButtonFirst={false}
+                items={pillItems}
+                onRemove={onRemovePill}
+                onClear={onClearPills}
+              />
             )}
 
             <Offerable connected={Boolean(address)}>
@@ -207,22 +212,24 @@ export default function ProfileCollected({ offers }: Props) {
 
                     return (
                       <List
+                        cardType="grid"
                         expanded={open}
                         data={filteredNfts}
                         loading={isLoading}
                         gap={6}
                         hasMore={false}
                         grid={{
-                          [ListGridSize.Default]: [2, 2],
-                          [ListGridSize.Small]: [2, 2],
-                          [ListGridSize.Medium]: [2, 3],
-                          [ListGridSize.Large]: [3, 4],
-                          [ListGridSize.ExtraLarge]: [4, 6],
-                          [ListGridSize.Jumbo]: [6, 8],
+                          [ListGridSize.Default]: [1, 2, 2],
+                          [ListGridSize.Small]: [1, 2, 2],
+                          [ListGridSize.Medium]: [1, 2, 3],
+                          [ListGridSize.Large]: [2, 3, 4],
+                          [ListGridSize.ExtraLarge]: [3, 4, 6],
+                          [ListGridSize.Jumbo]: [4, 6, 8],
                         }}
                         skeleton={Preview.Skeleton}
                         render={(nft, i) => (
                           <Preview
+                            cardType="grid"
                             key={`${nft.mintAddress}-${i}`}
                             link={`/nfts/${nft.mintAddress}`}
                             onMakeOffer={() => makeOffer(nft, miniCollection(nft.projectId))}

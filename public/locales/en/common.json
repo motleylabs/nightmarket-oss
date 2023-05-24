@@ -23,7 +23,10 @@
     "wallet": "Wallet",
     "nfts": "NFTs",
     "placeholder": "Search for collections, NFTs or profiles...",
-    "empty": "No results found"
+    "empty": "No results found",
+    "nftLabel": "No NFTs match search:",
+    "profileLabel": "No wallets or Twitter profiles match search:",
+    "collectionLabel": "No collections match search:"
   },
   "profileMenu": {
     "collected": "Collected NFTs",

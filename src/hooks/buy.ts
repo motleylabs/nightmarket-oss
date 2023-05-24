@@ -105,10 +105,6 @@ export default function useBuyNow(): BuyContext {
         1
       );
 
-    if (!!curListing.tradeState && sellerTradeState.toBase58() !== curListing.tradeState) {
-      throw new Error('trade state address does not match');
-    }
-
     setBuying(true);
     const listedPrice = Number(curListing.price);
     const seller = new PublicKey(nft.owner);

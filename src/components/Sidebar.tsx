@@ -2,10 +2,14 @@ import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
-import type { ReactNode } from 'react';
+import Image from 'next/image';
+import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { Children, cloneElement } from 'react';
 
+import liveIcon from '../../public/images/live-light.svg';
+import refreshIcon from '../../public/images/refresh.svg';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
+import { Toggle } from './Toggle';
 
 export function Sidebar(): JSX.Element {
   return <div></div>;
@@ -16,30 +20,74 @@ interface SidebarControlProps {
   open: boolean;
   onChange: () => void;
   show?: boolean;
+  isLive?: boolean;
+  setIsLive?: Dispatch<SetStateAction<boolean>>;
+  refresh?: () => void;
 }
 
-function SidebarControl({ open, label, onChange, show = true }: SidebarControlProps) {
-  if (!show) return null;
-
+function SidebarControl({
+  open,
+  label,
+  onChange,
+  show = true,
+  isLive = undefined,
+  setIsLive,
+  refresh,
+}: SidebarControlProps) {
   return (
-    <div className="relative">
-      <button
-        type="button"
-        className={clsx(
-          'flex w-full flex-grow items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
-          'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
-          open && ''
-        )}
-        onClick={onChange}
-      >
-        <span className="pl-2">{label}</span>
-        <ChevronRightIcon
-          className={clsx(
-            'ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0',
-            open && 'md:rotate-180'
+    <div className="relative flex items-center">
+      {show ? (
+        <>
+          <button
+            type="button"
+            className={clsx(
+              'flex items-center justify-between rounded-full border border-gray-800 bg-gray-800 py-4 px-4 text-white transition enabled:hover:border-white',
+              'enabled:hover:border-white disabled:text-gray-400 md:relative md:bottom-0 md:left-0 md:ml-0',
+              open && ''
+            )}
+            onClick={onChange}
+          >
+            {open && (
+              <ChevronRightIcon
+                className={clsx('h-5 w-5 rotate-90 md:inline-block md:rotate-180')}
+              />
+            )}
+            <span className={clsx('pl-2', open && 'mr-2')}>{label}</span>
+            {!open && (
+              <ChevronRightIcon
+                className={clsx('ml-2 h-5 w-5 rotate-90 md:inline-block md:rotate-0')}
+              />
+            )}
+          </button>
+          {isLive !== undefined && process.env.NEXT_PUBLIC_LIVE_DATA_TOGGLE === 'true' && (
+            <div className="flex items-center ml-3 min-w-[150px]">
+              <Toggle
+                classes="mr-3"
+                value={isLive}
+                onChange={(val) => {
+                  if (!!setIsLive) setIsLive(val);
+                }}
+              />
+              <p className="text-white whitespace-nowrap mr-1">Live data</p>
+              {isLive && (
+                <div className="w-[24px] h-[24px] flex items-center">
+                  <Image src={liveIcon} alt="live-icon" />
+                </div>
+              )}
+            </div>
           )}
-        />
-      </button>
+          {!!refresh && (
+            <div
+              className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+              onClick={refresh}
+            >
+              <Image src={refreshIcon} alt="refresh-icon" />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="bg-gray-800 w-[115px] h-[60px] rounded-full animate-pulse"></div>
+      )}
     </div>
   );
 }
@@ -74,7 +122,7 @@ function SidebarPanel({ children, open, onChange, disabled }: SidebarPanel): JSX
     <>
       <aside
         className={clsx(
-          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 pb-24 pt-12 md:sticky md:top-[74px] md:z-0 md:max-h-[calc(100vh-74px)] md:px-0 md:pt-0',
+          'fixed inset-0 z-30 flex-shrink-0 overflow-y-auto bg-black px-4 pb-24 pt-12 md:sticky md:top-[4px] md:z-0 md:max-h-[calc(100vh-14px)] md:px-0 md:pt-0',
           'text-white scrollbar-thin scrollbar-thumb-gray-600',
           'no-scrollbar',
           open && !disabled ? 'w-full md:flex md:max-w-xs' : 'hidden'
@@ -113,16 +161,34 @@ interface SidebarPillsProps {
   onRemove: (item: PillItem) => void;
   onClear?: () => void;
   className?: string;
+  clearButtonFirst: boolean;
 }
 
-function SidebarPills({ items, onRemove, onClear, className }: SidebarPillsProps) {
+function SidebarPills({
+  items,
+  onRemove,
+  onClear,
+  className,
+  clearButtonFirst,
+}: SidebarPillsProps) {
   const { t } = useTranslation('common');
   return (
     <div className={clsx('mb-4 mt-4 flex flex-wrap gap-2 md:mb-2', className)}>
+      {clearButtonFirst && items.length > 0 && (
+        <Button
+          background={ButtonBackground.Black}
+          border={ButtonBorder.Gradient}
+          color={ButtonColor.Gradient}
+          size={ButtonSize.Tiny}
+          onClick={onClear}
+        >
+          {t('clear', { ns: 'common' })}
+        </Button>
+      )}
       {items.map((item) => {
         return <Sidebar.Pill key={item.key} pillItem={item} onRemove={() => onRemove(item)} />;
       })}
-      {items.length > 0 && (
+      {!clearButtonFirst && items.length > 0 && (
         <Button
           background={ButtonBackground.Black}
           border={ButtonBorder.Gradient}

@@ -61,58 +61,59 @@ export default function ProfileOffers() {
 
   return (
     <>
-      { offers.length === 0 ?
-        isLoading &&
+      {offers.length === 0 ? (
+        isLoading && (
           <div className="mt-24 flex flex-col gap-4 px-4">
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
             <Activity.Skeleton />
           </div>
-        : 
-          <InfiniteScroll
-            dataLength={offers.length}
-            next={onShowMoreOffers}
-            hasMore={hasNextPage}
-            loader={
-              <>
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-                <Activity.Skeleton />
-              </>
-            }
-            className="mt-20 flex flex-col gap-4 px-4 pt-4 md:px-8"
-          >
-            {offers.map((offer, i) => {
-              return (
-                <Offer
-                  nft={null}
-                  avatar={
-                    <Link
-                      className="cursor-pointer transition hover:scale-[1.02]"
-                      href={`/nfts/${offer.mint}`}
-                    >
-                      <Avatar src={offer.image as string} size={AvatarSize.Standard} />
-                    </Link>
-                  }
-                  offer={offer}
-                  key={`${offer.mint}-${i}`}
-                  onAccept={() => null}
-                  onCancel={() => null}
-                  meta={
-                    <Activity.Meta
-                      title={<Activity.Tag />}
-                      marketplaceAddress={offer.martketplaceProgramAddress}
-                      auctionHouseAddress={offer.auctionHouseAddress}
-                    />
-                  }
-                  source={<Activity.Wallet buyer={offer.buyer} />}
-                />
-              );
-            })}
-          </InfiniteScroll>
-      }
+        )
+      ) : (
+        <InfiniteScroll
+          dataLength={offers.length}
+          next={onShowMoreOffers}
+          hasMore={hasNextPage}
+          loader={
+            <>
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+              <Activity.Skeleton />
+            </>
+          }
+          className="mt-20 flex flex-col gap-4 px-4 pt-4 md:px-8"
+        >
+          {offers.map((offer, i) => {
+            return (
+              <Offer
+                nft={null}
+                avatar={
+                  <Link
+                    className="cursor-pointer transition hover:scale-[1.02]"
+                    href={`/nfts/${offer.mint}`}
+                  >
+                    <Avatar src={offer.image as string} size={AvatarSize.Standard} />
+                  </Link>
+                }
+                offer={offer}
+                key={`${offer.mint}-${i}`}
+                onAccept={() => null}
+                onCancel={() => null}
+                meta={
+                  <Activity.Meta
+                    title={<Activity.Tag />}
+                    marketplaceAddress={offer.martketplaceProgramAddress}
+                    auctionHouseAddress={offer.auctionHouseAddress}
+                  />
+                }
+                source={<Activity.Wallet buyer={offer.buyer} />}
+              />
+            );
+          })}
+        </InfiniteScroll>
+      )}
     </>
   );
 }

@@ -9,9 +9,14 @@
     "count": "{{amount}} NFTs"
   },
   "sort": {
-    "priceHighToLow": "Price: High to Low",
-    "priceLowToHigh": "Price: Low to High",
-    "recentlyListed": "Recently Listed"
+    "priceHighToLow": "Price: Descending",
+    "priceLowToHigh": "Price: Ascending",
+    "recentlyListed": "Recently Listed",
+    "rarityLowToHigh": "Rarity: Ascending",
+    "rarityHighToLow": "Rarity: Descending",
+    "lastSaleLowToHigh": "Last Sale: Ascending",
+    "lastSaleHighToLow": "Last Sale: Descending",
+    "lastUpdate": "Last Updated"
   },
   "collection": "Collection",
   "globalFloor": "Global Floor",
@@ -30,6 +35,9 @@
     "byFloorPrice": "By Floor Price",
     "byListingsCount": "By Listings Count"
   },
+  "search": "Search...",
+  "empty": "No matches found",
+  "priceMinMaxCompare": "Price range max must be larger than price range min.",
   "showMoreCollections": "Show more collections",
   "floorPrice": "Floor Price",
   "estimatedValue": "Est. Value",
@@ -43,6 +51,7 @@
   "floor": "Floor Price",
   "volume": "Total Volume",
   "nfts": "NFTs",
+  "apply": "Apply",
   "activity": "Activity",
   "analytics": "Analytics",
   "about": "About",

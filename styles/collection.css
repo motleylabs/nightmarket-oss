@@ -1,0 +1,104 @@
+.toggle-input .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.toggle-input .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-input .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #696969;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+.toggle-input .slider:before {
+    position: absolute;
+    content: '';
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #eee;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+.toggle-input input:checked + .slider {
+    background-color: #F85C04;
+}
+
+.toggle-input input:focus + .slider {
+    box-shadow: 0 0 1px #F85C04;
+}
+
+.toggle-input input:checked + .slider:before {
+    -webkit-transform: translateX(17px);
+    -ms-transform: translateX(17px);
+    transform: translateX(17px);
+}
+
+.toggle-input .slider.round {
+    border-radius: 27px;
+}
+
+.toggle-input .slider.round:before {
+    border-radius: 50%;
+}
+
+.nfts-table tr td:first-child { 
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.nfts-table tr td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.nfts-table tr td {
+    background-color: rgb(23 22 28);
+}
+
+.custom-scrollbar::-webkit-scrollbar,
+.custom-scroll-bar-select ul::-webkit-scrollbar {
+    width: 0.5rem;
+    border: 1px solid #363636;
+    border-radius: 50px;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scroll-bar-select ul::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    cursor: pointer;
+    border-radius: 0.15625rem;
+    height: 1rem;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-track,
+.custom-scroll-bar-select ul::-webkit-scrollbar-track {
+    background: #191a1c;
+    border: 1px solid #363636;
+}
+
+.no-arrow-input input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.no-arrow-input input[type=number]::-webkit-inner-spin-button, 
+.no-arrow-input input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+}
