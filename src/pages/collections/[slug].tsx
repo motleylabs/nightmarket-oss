@@ -160,7 +160,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     },
     {
       value: `last_update`,
-      label: t('sort.lastUpdate', { ns: 'collection' }),
+      label: t('sort.lastUpdateLowToHigh', { ns: 'collection' }),
     },
   ];
 

@@ -123,7 +123,15 @@ export function List<T>({
 
   const sort = (field: string) => {
     if (!!setOrderBy) {
-      setOrderBy((oldOrder) => (field !== sortBy ? 'asc' : oldOrder === 'asc' ? 'desc' : 'asc'));
+      setOrderBy((oldOrder) =>
+        field !== sortBy
+          ? field === 'timestamp'
+            ? 'desc'
+            : 'asc'
+          : oldOrder === 'asc'
+          ? 'desc'
+          : 'asc'
+      );
     }
 
     if (!!setSortBy) {
