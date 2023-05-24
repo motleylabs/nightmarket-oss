@@ -264,7 +264,7 @@ function NavigationBar() {
                         {!results.collections ||
                           (results.collections.length === 0 && (
                             <div className="my-3 sm:flex block px-2">
-                              <div className="text-md text-white">
+                              <div className="text-md text-gray-300">
                                 {t('search.collectionLabel', { ns: 'common' })}
                               </div>
                               <div className="text-md text-white sm:ml-1 truncate">
@@ -295,7 +295,7 @@ function NavigationBar() {
                         {!results.profiles ||
                           (results.profiles.length === 0 && (
                             <div className="my-3 sm:flex block px-2">
-                              <div className="text-md text-white">
+                              <div className="text-md text-gray-300">
                                 {t('search.profileLabel', { ns: 'common' })}
                               </div>
                               <div className="text-md text-white sm:ml-1 truncate">
@@ -324,7 +324,7 @@ function NavigationBar() {
                       <>
                         {!results.nft ? (
                           <div className="my-3 sm:flex block px-2">
-                            <div className="text-md text-white">
+                            <div className="text-md text-gray-300">
                               {t('search.nftLabel', { ns: 'common' })}
                             </div>
                             <div className="text-md text-white sm:ml-1 truncate">{searchTerm}</div>
