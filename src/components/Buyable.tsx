@@ -122,7 +122,10 @@ export function Buyable({ children, connected = false }: BuyableProps) {
       }
 
       setOpen(false);
-    } catch (e: unknown) {}
+    } catch (e: unknown) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
   };
 
   return (

@@ -292,6 +292,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
   const [cardType, setCardType] = useState<string>('grid-small');
+  const [nfts, setNFTs] = useState<Nft[]>([]);
 
   useEffect(() => {
     if (windowWidth <= 640 && cardType === 'grid-small') {
@@ -345,7 +346,9 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     [attributes, clearPriceFilter, setValue]
   );
 
-  const nfts: Nft[] = useMemo(() => data?.flatMap((pageData) => pageData.nfts) ?? [], [data]);
+  useEffect(() => {
+    setNFTs(data?.flatMap((pageData) => pageData.nfts) ?? []);
+  }, [data]);
 
   const isNotFound = useMemo(() => nfts.length === 0 && !isLoading, [isLoading, nfts.length]);
 
@@ -647,10 +650,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                             link={`/nfts/${nft.mintAddress}`}
                             onMakeOffer={() => makeOffer(nft, miniCollection)}
                             onBuy={() =>
-                              buyNow(nft, miniCollection, () => {
-                                nfts.splice(i, 1);
-                              })
+                              buyNow(nft, miniCollection, () =>
+                                setNFTs(nfts.filter((_, index) => index !== i))
+                              )
                             }
+                            onCancel={() => setNFTs(nfts.filter((_, index) => index !== i))}
                             nft={nft}
                             showCollectionThumbnail={false}
                             bulkSelectEnabled={false}

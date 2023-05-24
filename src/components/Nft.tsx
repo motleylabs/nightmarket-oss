@@ -36,6 +36,7 @@ interface PreviewProps {
   onMakeOffer: () => void;
   onBuy: () => void;
   onSelect?: (val: boolean) => void;
+  onCancel?: () => void;
 }
 
 export function Preview({
@@ -47,6 +48,7 @@ export function Preview({
   bulkSelectEnabled,
   onBuy,
   onSelect,
+  onCancel,
 }: PreviewProps): JSX.Element {
   const { t } = useTranslation(['common', 'home']);
   const router = useRouter();
@@ -85,6 +87,9 @@ export function Preview({
 
       if (!!sig && !!auctionHouse) {
         setNft((oldNft) => ({ ...oldNft, latestListing: null }));
+        if (!!onCancel) {
+          onCancel();
+        }
       }
     }
   };
