@@ -20,10 +20,11 @@ import type { PillItem } from '../../components/Sidebar';
 import { Sidebar } from '../../components/Sidebar';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
+import { useAction } from '../../hooks/useAction';
 import { api } from '../../infrastructure/api';
 import ProfileLayout from '../../layouts/ProfileLayout';
 import { useWalletContext } from '../../providers/WalletContextProvider';
-import type { UserNfts, Offer, UserOffersData, MiniCollection } from '../../typings';
+import type { UserNfts, Offer, UserOffersData, MiniCollection, ActivityEvent } from '../../typings';
 import { getSolFromLamports } from '../../utils/price';
 import { Collection } from './../../components/Collection';
 import { List, ListGridSize } from './../../components/List';
@@ -37,20 +38,12 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
     'buyable',
   ]);
 
-  const [{ data: nfts }, { data: offersData }] = await Promise.all([
-    api.get<UserNfts>(`/users/nfts?address=${params?.address}`),
-    api.get<UserOffersData>(`/users/offers?address=${params?.address}&limit=100&offset=0`),
-  ]);
-
-  if (nfts == null) {
-    return {
-      notFound: true,
-    };
-  }
+  const { data: offersData } = await api.get<UserOffersData>(
+    `/users/offers?address=${params?.address}&limit=100&offset=0`
+  );
 
   return {
     props: {
-      ...nfts,
       ...i18n,
       offers: offersData.activities ?? null,
     },
@@ -59,7 +52,6 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
 
 type Props = {
   offers: Offer[];
-  nfts: UserNfts['nfts'];
   collections: UserNfts['collections'];
 };
 export default function ProfileCollected({ offers }: Props) {
@@ -77,6 +69,36 @@ export default function ProfileCollected({ offers }: Props) {
     defaultValues: {
       collections: [],
     },
+  });
+
+  const { on, off } = useAction();
+
+  const checkActivity = (event: Event) => {
+    const newActivityEvent: ActivityEvent = (event as CustomEvent).detail;
+
+    if (newActivityEvent.activity.activityType === 'LISTING') {
+      if (!isLoading && !!nftsData) {
+        const nftIndex = nftsData.findIndex((nft) => nft.mintAddress === newActivityEvent.mint);
+        if (nftIndex > -1) {
+          nftsData[nftIndex].latestListing = {
+            userAddress: newActivityEvent.activity.seller ?? '',
+            price: newActivityEvent.activity.price,
+            signature: '',
+            blockTimestamp: newActivityEvent.activity.blockTimestamp,
+            auctionHouseProgram: '',
+            auctionHouseAddress: '',
+          };
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    on('activity', checkActivity);
+
+    return () => {
+      off('activity', checkActivity);
+    };
   });
 
   const miniCollection = (projectID: string): MiniCollection | null => {

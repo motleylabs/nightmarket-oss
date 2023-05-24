@@ -6,8 +6,11 @@ import { useEffect, useState } from 'react';
 import { useCurrencies } from '../../hooks/currencies';
 import type { BulkListNftForm } from '../../hooks/list';
 import { useBulkListing } from '../../hooks/list';
+import { useAction } from '../../hooks/useAction';
+import { toLamports } from '../../modules/sol';
 import { useBulkListContext } from '../../providers/BulkListProvider';
-import type { Nft } from '../../typings';
+import { useWalletContext } from '../../providers/WalletContextProvider';
+import type { ActivityEvent, Nft } from '../../typings';
 import { roundToPrecision } from '../../utils/numbers';
 import Button, { ButtonBackground } from '../Button';
 import { Form } from '../Form';
@@ -31,6 +34,7 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
   const [useGlobalPrice, setUseGlobalPrice] = useState(false);
   const [success, setSuccess] = useState<Nft[]>([]);
   const [failed, setFailed] = useState<Nft[]>([]);
+  const { publicKey } = useWalletContext();
 
   const {
     listingBulk,
@@ -48,6 +52,7 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
   }, [open, onCancelBulkListNftClick]);
 
   const totalListed = Object.keys(amounts).length;
+  const { trigger } = useAction();
 
   const total = useGlobalPrice
     ? Number(globalBulkPrice) * totalListed || 0 //catch for NaN
@@ -72,7 +77,27 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
       });
       if (fulfilled.length) {
         setSuccess(fulfilled);
-        setOpen(false);
+
+        // trigger listing activity
+        fulfilled.map((nft) => {
+          trigger('activity', {
+            mint: nft.mintAddress,
+            activity: {
+              activityType: 'LISTING',
+              buyer: null,
+              blockTimestamp: Math.floor(new Date().getTime() / 1000),
+              martketplaceProgramAddress: '',
+              auctionHouseAddress: '',
+              price: `${
+                useGlobalPrice
+                  ? toLamports(Number(form.globalBulkPrice))
+                  : toLamports(Number(form.amounts[nft.mintAddress]))
+              }`,
+              seller: publicKey?.toBase58() ?? '',
+              signature: '',
+            },
+          } as ActivityEvent);
+        });
       }
       setFailed(selected.filter((nft) => !fulfilled.includes(nft)));
     } catch (e) {
