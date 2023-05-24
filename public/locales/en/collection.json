@@ -15,7 +15,8 @@
     "rarityLowToHigh": "Rarity: Ascending",
     "rarityHighToLow": "Rarity: Descending",
     "lastSaleLowToHigh": "Last Sale: Ascending",
-    "lastSaleHighToLow": "Last Sale: Descending"
+    "lastSaleHighToLow": "Last Sale: Descending",
+    "lastUpdate": "Last Updated"
   },
   "collection": "Collection",
   "globalFloor": "Global Floor",

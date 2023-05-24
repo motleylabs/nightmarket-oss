@@ -158,6 +158,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       value: `${SortType.LastSale}:desc`,
       label: t('sort.lastSaleHighToLow', { ns: 'collection' }),
     },
+    {
+      value: `last_update`,
+      label: t('sort.lastUpdate', { ns: 'collection' }),
+    },
   ];
 
   const miniCollection = useMemo(
@@ -221,6 +225,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const [nightmarketOnly, setNightmarketOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('price');
   const [orderBy, setOrderBy] = useState<string>('asc');
+  const [lastSortBy, setLastSortBy] = useState<string>('price');
+  const [lastOrderBy, setLastOrderBy] = useState<string>('asc');
 
   const selectedAttributes: PillItem[] = useMemo(() => {
     const pillItems = Object.entries(attributes)
@@ -281,11 +287,35 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     }`;
   };
 
+  const sortBySelectCallback = useCallback(
+    (value: string) => {
+      if (value === 'last_update') {
+        setSortBy(lastSortBy);
+        setOrderBy(lastOrderBy);
+      } else {
+        const [selectedSortBy, selectedOrderBy] = value.split(':');
+        setSortBy(selectedSortBy);
+        setOrderBy(selectedOrderBy);
+        setLastSortBy(selectedSortBy);
+        setLastOrderBy(selectedOrderBy);
+      }
+    },
+    [lastOrderBy, lastSortBy]
+  );
+
   useEffect(() => {
-    const [selectedSortBy, selectedOrderBy] = selectedSort.split(':');
-    setSortBy(selectedSortBy);
-    setOrderBy(selectedOrderBy);
-  }, [selectedSort]);
+    const selectedSortExpression = `${sortBy}:${orderBy}`;
+    if (selectedSort !== selectedSortExpression) {
+      const sortIndex = sortOptions.findIndex(
+        (sortOption) => sortOption.value === selectedSortExpression
+      );
+      if (sortIndex > -1) {
+        setValue('sortBySelect', sortOptions[sortIndex].value);
+      } else {
+        setValue('sortBySelect', 'last_update');
+      }
+    }
+  }, [sortBy, orderBy]);
 
   const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey);
 
@@ -391,7 +421,10 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             render={({ field: { onChange, value } }) => (
               <Select
                 value={value}
-                onChange={onChange}
+                onChange={(e) => {
+                  sortBySelectCallback(e);
+                  onChange(e);
+                }}
                 options={sortOptions}
                 className="w-full md:w-40 lg:w-60 custom-scroll-bar-select text-left"
               />

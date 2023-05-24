@@ -53,6 +53,7 @@ export default function Select<T>(props: {
                     )
                   }
                   value={option.value}
+                  disabled={option.value === 'last_update'}
                 >
                   <span className={clsx('', {})}>{option.label}</span>
                 </Listbox.Option>
