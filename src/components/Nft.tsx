@@ -172,6 +172,7 @@ export function Preview({
                 background={ButtonBackground.Slate}
                 border={ButtonBorder.Gradient}
                 color={ButtonColor.Gradient}
+                disabled={closingListing}
               >
                 {t('cancel')}
               </Button>
