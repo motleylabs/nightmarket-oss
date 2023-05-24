@@ -90,7 +90,7 @@
   {
     "marketplaceProgramAddress": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",
     "auctionHouseAddress": null,
-    "name": "Tensor Swap",
+    "name": "Tensor",
     "link": "https://www.tensor.trade/item/{}",
     "logo": "/images/marketplaces/tensor-swap.svg",
     "buyNowEnabled": true
