@@ -413,7 +413,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
             />
           </div>
           <div
-            className="sm:ml-3 ml-1 sm:flex sm:flex-none hidden items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
+            className="sm:ml-3 ml-1 md:flex md:flex-none hidden items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
             onClick={() => setCardType('grid-small')}
           >
             <Image
@@ -632,7 +632,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                         gap={6}
                         grid={{
                           [ListGridSize.Default]: [1, 2, 2],
-                          [ListGridSize.Small]: [1, 1, 2],
+                          [ListGridSize.Small]: [1, 2, 2],
                           [ListGridSize.Medium]: [1, 2, 3],
                           [ListGridSize.Large]: [2, 3, 4],
                           [ListGridSize.ExtraLarge]: [3, 4, 6],
