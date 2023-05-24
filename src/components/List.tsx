@@ -186,7 +186,7 @@ export function List<T>({
                   </th>
                   <th
                     onClick={() => sort('price')}
-                    className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] md:w-[22%] sm:w-[19%] w-[24%]"
+                    className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] md:w-[22%] sm:w-[19%] w-[28%]"
                   >
                     <span className="flex items-center">
                       Price &nbsp;
@@ -241,7 +241,7 @@ export function List<T>({
                       />
                     </span>
                   </th>
-                  <th className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] sm:w-[17%] w-[22%]">
+                  <th className="text-[12px] text-gray-300 text-left cursor-pointer lg:w-[12%] sm:w-[17%] w-[18%]">
                     Action
                   </th>
                 </tr>
