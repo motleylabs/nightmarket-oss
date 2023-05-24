@@ -229,7 +229,7 @@ export function List<T>({
                     </span>
                   </th>
                   <th
-                    onClick={() => sort('timstamp')}
+                    onClick={() => sort('timestamp')}
                     className="text-[12px] text-gray-300 text-left cursor-pointer 2xl:w-[12%] xl:w-[18%] lg:w-[20%] lg:table-cell hidden"
                   >
                     <span className="flex items-center">
