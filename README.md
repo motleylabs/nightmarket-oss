@@ -34,12 +34,6 @@ The frontend talks to [andromeda](https://github.com/motleylabs/andromeda), our 
 - `next-18next.config.js` - Supported languages and the default language.
 - `next.config.js` - NextJS configuration containing route redirects and other NextJS extensions.
 
-
-## Video Overview
-Here we have a walkthrough video of the structure of the codebase and how you can start developing!
-
-[![Night Market Codebase Review](https://cdn.loom.com/sessions/thumbnails/df21609222da4259bf9353b8f8a885ff-with-play.gif)](https://www.loom.com/embed/df21609222da4259bf9353b8f8a885ff)
-
 ## Environment
 
 The list of required environment variables for the application. To be set through the OS environment or through .env file.
