@@ -621,6 +621,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
             </Overview.Form.Points>
             <Form.Label name={t('amount', { ns: 'nft' })}>
               <Form.Input
+                autoComplete='off'
                 icon={<Icon.Sol />}
                 error={offerFormState.errors.amount}
                 {...registerOffer('amount', { required: true })}
