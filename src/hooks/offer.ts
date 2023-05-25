@@ -1,8 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import type {
-  CreateOfferInstructionAccounts,
-  CreateOfferInstructionArgs,
   CloseOfferInstructionAccounts,
   CloseOfferInstructionArgs,
   AcceptOfferInstructionAccounts,
@@ -10,7 +8,6 @@ import type {
   CloseListingInstructionAccounts,
 } from '@motleylabs/mtly-reward-center';
 import {
-  createCreateOfferInstruction,
   createCloseOfferInstruction,
   createAcceptOfferInstruction,
   createCloseListingInstruction,
@@ -57,7 +54,6 @@ export interface OfferForm {
 
 interface MakeOfferForm extends OfferForm {
   nft: Nft;
-  auctionHouse: AuctionHouse;
 }
 
 interface MakeOfferResponse {
@@ -71,8 +67,7 @@ interface MakeOfferContext {
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
   onMakeOffer: ({
     amount,
-    nft,
-    auctionHouse,
+    nft
   }: MakeOfferForm) => Promise<MakeOfferResponse | undefined>;
   onOpenOffer: () => void;
   onCancelMakeOffer: () => void;
@@ -136,14 +131,13 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
     resolver: zodResolver(offerSchema),
   });
 
-  const onMakeOffer = async ({ amount, nft, auctionHouse }: MakeOfferForm) => {
+  const onMakeOffer = async ({ amount, nft }: MakeOfferForm) => {
     if (
       !connected ||
       !publicKey ||
       !signTransaction ||
       !nft ||
-      !nft.owner ||
-      !auctionHouse.rewardCenter
+      !nft.owner
     ) {
       throw Error('not all params provided');
     }
@@ -152,7 +146,7 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const txRes: TxRes = await nightmarketClient.CreateOffer(
       new PublicKey(nft.mintAddress),
-      toSol(amount, 0),
+      toSol(amount, 9),
       new PublicKey(nft.owner),
       publicKey
     );
@@ -254,7 +248,7 @@ interface UpdateOfferContext {
   updateOffer: boolean;
   registerUpdateOffer: UseFormRegister<OfferForm>;
   handleSubmitUpdateOffer: UseFormHandleSubmit<OfferForm>;
-  onUpdateOffer: ({ amount, nft, auctionHouse }: MakeOfferForm) => Promise<string | null>;
+  onUpdateOffer: ({ amount, nft }: MakeOfferForm) => Promise<string | null>;
   onOpenUpdateOffer: () => void;
   onCancelUpdateOffer: () => void;
   updateOfferFormState: FormState<OfferForm>;
@@ -319,123 +313,41 @@ export function useUpdateOffer(
 
   const onUpdateOffer = async ({
     amount,
-    nft,
-    auctionHouse,
+    nft
   }: MakeOfferForm): Promise<string | null> => {
-    if (!connected || !publicKey || !signTransaction || !offer || !nft || !nft.owner) {
+    if (!connected || !publicKey || !signTransaction || !nft || !offer || !nft.owner) {
       return null;
     }
-    const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const newOfferPrice = amount; // already preprocessed as lamports by zod to lamports by zod
-    const authority = new PublicKey(auctionHouse.authority);
-    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const associatedTokenAcc = getAssociatedTokenAddressSync(tokenMint, new PublicKey(nft.owner));
 
-    const [escrowPaymentAcc, escrowPaymentBump] =
-      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-    const [buyerTradeState] = await AuctionHouseProgram.findPublicBidTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      treasuryMint,
-      tokenMint,
-      Number(offer.price),
-      1
-    );
-
-    const [updatedBuyerTradeState, updatedTradeStateBump] =
-      await AuctionHouseProgram.findPublicBidTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        treasuryMint,
-        tokenMint,
-        newOfferPrice,
-        1
-      );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
-    );
-
-    const closeOfferAccounts: CloseOfferInstructionAccounts = {
-      wallet: publicKey,
-      offer: rewardsOffer,
-      treasuryMint,
-      tokenAccount: associatedTokenAcc,
-      receiptAccount: publicKey,
-      escrowPaymentAccount: escrowPaymentAcc,
-      metadata,
-      tokenMint,
-      authority,
-      rewardCenter,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: ahFeeAcc,
-      tradeState: buyerTradeState,
-      ahAuctioneerPda: auctioneer,
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-    };
-
-    const closeOfferArgs: CloseOfferInstructionArgs = {
-      closeOfferParams: {
-        escrowPaymentBump,
-      },
-    };
-
-    const closeOfferIx = createCloseOfferInstruction(closeOfferAccounts, closeOfferArgs);
-
-    // patch metadata account to writable for AH / RWD
-    for (let i = 0; i < closeOfferIx.keys.length; i++) {
-      if (closeOfferIx.keys[i].pubkey.equals(metadata)) {
-        closeOfferIx.keys[i].isWritable = true;
-      }
-    }
-
-    const createofferAccounts: CreateOfferInstructionAccounts = {
-      wallet: publicKey,
-      offer: rewardsOffer,
-      paymentAccount: publicKey,
-      transferAuthority: publicKey,
-      treasuryMint,
-      tokenAccount: associatedTokenAcc,
-      metadata,
-      escrowPaymentAccount: escrowPaymentAcc,
-      authority,
-      rewardCenter,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: ahFeeAcc,
-      buyerTradeState: updatedBuyerTradeState,
-      ahAuctioneerPda: auctioneer,
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-    };
-
-    const createOfferArgs: CreateOfferInstructionArgs = {
-      createOfferParams: {
-        tradeStateBump: updatedTradeStateBump,
-        escrowPaymentBump,
-        buyerPrice: newOfferPrice,
-        tokenSize: 1,
-      },
-    };
-
-    const createOfferIx = createCreateOfferInstruction(createofferAccounts, createOfferArgs);
-
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const tx = new Transaction();
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
-    tx.add(ix);
-    tx.add(closeOfferIx);
-    tx.add(createOfferIx);
+
+    const closeOfferRes: TxRes = await nightmarketClient.CloseOffer(
+      new PublicKey(nft.mintAddress),
+      toSol(Number(offer.price), 9),
+      new PublicKey(nft.owner),
+      publicKey
+    );
+
+    if (!!closeOfferRes.err) {
+      toast(closeOfferRes.err, { type: 'error' });
+      return null;
+    }
+    tx.add(...closeOfferRes.instructions);
+    
+    const createOfferRes: TxRes = await nightmarketClient.CreateOffer(
+      new PublicKey(nft.mintAddress),
+      toSol(amount, 9),
+      new PublicKey(nft.owner),
+      publicKey
+    );
+
+    if (!!createOfferRes.err) {
+      toast(createOfferRes.err, { type: 'error' });
+      return null;
+    }
+    tx.add(...createOfferRes.instructions);
+
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;

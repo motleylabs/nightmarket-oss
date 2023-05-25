@@ -148,7 +148,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
     }
 
     try {
-      const response = await onMakeOffer({ amount: Number(amount), nft, auctionHouse });
+      const response = await onMakeOffer({ amount: Number(amount), nft });
 
       if (!response) {
         return;
@@ -423,7 +423,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
       return;
     }
 
-    const sig = await onUpdateOffer({ amount: Number(amount), nft, auctionHouse });
+    const sig = await onUpdateOffer({ amount: Number(amount), nft });
 
     if (!!sig) {
       trigger('offer-add', {
