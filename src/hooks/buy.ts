@@ -1,15 +1,13 @@
+import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 import { useConnection } from '@solana/wallet-adapter-react';
-import {
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js';
+import { PublicKey, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
+import { toSol } from '../modules/sol';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { AuctionHouse } from '../typings';
 import type { ActionInfo, ErrorWithLogs, Nft } from '../typings';
@@ -17,8 +15,6 @@ import { reduceSettledPromise } from '../utils/promises';
 import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
 import { useCachedBuddy } from './referrals';
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
-import { toSol } from '../modules/sol';
 
 interface BuyForm {
   amount?: number;
@@ -88,7 +84,6 @@ export default function useBuyNow(): BuyContext {
       toast(txRes.err, { type: 'error' });
       return;
     }
-
 
     let buyTxIndex = 0;
     const transactions: VersionedTransaction[] = [];
