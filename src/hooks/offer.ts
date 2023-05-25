@@ -505,8 +505,8 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
     const res: TxRes = await nightmarketClient.AcceptOffer(
       new PublicKey(nft.mintAddress),
       toSol(Number(offer.price), 9),
-      new PublicKey(nft.owner),
-      publicKey
+      publicKey,
+      new PublicKey(offer.buyer)
     );
 
     if (!!res.err) {
