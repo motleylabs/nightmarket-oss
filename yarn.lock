@@ -774,10 +774,10 @@
     "@solana/web3.js" "^1.56.2"
     bn.js "^5.2.0"
 
-"@motleylabs/mtly-nightmarket@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@motleylabs/mtly-nightmarket/-/mtly-nightmarket-1.0.7.tgz#5ce386f15326dba355a1512fd945c0fff6229e0b"
-  integrity sha512-iQ7KmuAZFU6irvTKPsK2shsspF5c+/EDCx3xx1tYifypI6lEbITFIyIVPDgZkZX22FIwcqEyp4IP4Wjl4vKVmg==
+"@motleylabs/mtly-nightmarket@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@motleylabs/mtly-nightmarket/-/mtly-nightmarket-1.0.9.tgz#aeae25496675ec1904f3be44633867dc267bd577"
+  integrity sha512-BEruWxRhRit5Zu11UPo+FN3Pvxex6AoTM5PKmcxyQjG8pJTGO2dWwkY3ICAGmIBVOk0K9DwKFGhdPuc4Lp9pEA==
   dependencies:
     "@metaplex-foundation/mpl-token-metadata" "^2.11.1"
     "@motleylabs/mtly-auction-house" "^2.5.6"
@@ -1651,9 +1651,9 @@
     superstruct "^0.14.2"
 
 "@solana/web3.js@^1.76.0":
-  version "1.76.0"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.76.0.tgz#0f888e25d727d0dadf3dd8a01967347555200b2b"
-  integrity sha512-aJtF/nTs+9St+KtTK/wgVJ+SinfjYzn+3w1ygYIPw8ST6LH+qHBn8XkodgDTwlv/xzNkaVz1kkUDOZ8BPXyZWA==
+  version "1.77.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.77.0.tgz#f199453712edaedbdacb30db50b0409923b01ef2"
+  integrity sha512-APV5ru9vsWSvIPEmL6YmF20cJexcoZXRQOkKSXoKFK2yoyxMiTfAUDSxuwou3WInLzjsuh9hveWE4q2iexgpOg==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@noble/curves" "^1.0.0"

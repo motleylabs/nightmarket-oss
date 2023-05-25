@@ -102,8 +102,8 @@ export function useListNft(): ListNftContext {
     const messageV0 = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: blockhash,
-      instructions: txRes.ixs,
-    }).compileToV0Message();
+      instructions: txRes.instructions,
+    }).compileToV0Message(txRes.ltAccounts);
     const transactionV0 = new VersionedTransaction(messageV0);
 
     let newListing: ActionInfo | null = null;
@@ -285,7 +285,7 @@ export function useBulkListing(): BulkListContext {
             throw txRes.err;
           }
 
-          pendingTxInstructions.push(...txRes.ixs);
+          pendingTxInstructions.push(...txRes.instructions);
 
           return {
             nft,
@@ -437,7 +437,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     }
 
     const tx = new Transaction();
-    tx.add(...txRes.ixs);
+    tx.add(...txRes.instructions);
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -552,7 +552,7 @@ export function useCloseListing({
     }
 
     const tx = new Transaction();
-    tx.add(...txRes.ixs);
+    tx.add(...txRes.instructions);
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
