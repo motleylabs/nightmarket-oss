@@ -155,10 +155,10 @@ export default function NftOffers({ nft }: NftOfferPageProps) {
                 key={i}
                 auctionHouse={auctionHouse}
                 nft={nft}
-                onAccept={({ buyerReceiptTokenAccount }) => {
+                onAccept={({ acceptAction }) => {
                   // TODO: refresh UI after accepting offer
                   // eslint-disable-next-line no-console
-                  console.log({ buyerReceiptTokenAccount });
+                  console.log({ acceptAction });
                 }}
                 onCancel={() => null}
               />

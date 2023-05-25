@@ -376,7 +376,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
     }
 
     try {
-      const response = await onAcceptOffer({ auctionHouse, nft, listing });
+      const response = await onAcceptOffer({ auctionHouse, nft });
 
       if (!response) {
         return;

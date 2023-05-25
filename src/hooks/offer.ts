@@ -1,28 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
-import type {
-  AcceptOfferInstructionAccounts,
-  AcceptOfferInstructionArgs,
-  CloseListingInstructionAccounts,
-} from '@motleylabs/mtly-reward-center';
-import {
-  createAcceptOfferInstruction,
-  createCloseListingInstruction,
-} from '@motleylabs/mtly-reward-center';
-import {
-  createAssociatedTokenAccountInstruction,
-  getAssociatedTokenAddressSync,
-} from '@solana/spl-token';
+import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import type { AccountMeta, AddressLookupTableAccount } from '@solana/web3.js';
-import {
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-  ComputeBudgetProgram,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
 import { useCallback, useMemo, useState } from 'react';
 import type { UseFormRegister, UseFormHandleSubmit, FormState } from 'react-hook-form';
@@ -32,18 +11,14 @@ import zod from 'zod';
 
 import config from '../app.config';
 import { notifyInstructionError } from '../modules/bugsnag';
-import { RewardCenterProgram } from '../modules/reward-center';
 import { toLamports, toSol } from '../modules/sol';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ActionInfo, ErrorWithLogs, Nft, Offer, Collection, AuctionHouse } from '../typings';
-import { getPNFTAccounts, getMetadataAccount } from '../utils/metaplex';
-import { AuctionHouseProgram } from '../utils/mtly-house';
 import { reduceSettledPromise } from '../utils/promises';
 import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
 import useLogin from './login';
 import { useCachedBuddy } from './referrals';
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 
 export interface OfferForm {
   amount: number;
@@ -62,10 +37,7 @@ interface MakeOfferContext {
   makeOffer: boolean;
   registerOffer: UseFormRegister<OfferForm>;
   handleSubmitOffer: UseFormHandleSubmit<OfferForm>;
-  onMakeOffer: ({
-    amount,
-    nft
-  }: MakeOfferForm) => Promise<MakeOfferResponse | undefined>;
+  onMakeOffer: ({ amount, nft }: MakeOfferForm) => Promise<MakeOfferResponse | undefined>;
   onOpenOffer: () => void;
   onCancelMakeOffer: () => void;
   offerFormState: FormState<OfferForm>;
@@ -129,13 +101,7 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
   });
 
   const onMakeOffer = async ({ amount, nft }: MakeOfferForm) => {
-    if (
-      !connected ||
-      !publicKey ||
-      !signTransaction ||
-      !nft ||
-      !nft.owner
-    ) {
+    if (!connected || !publicKey || !signTransaction || !nft || !nft.owner) {
       throw Error('not all params provided');
     }
 
@@ -308,10 +274,7 @@ export function useUpdateOffer(
     resolver: zodResolver(offerSchema),
   });
 
-  const onUpdateOffer = async ({
-    amount,
-    nft
-  }: MakeOfferForm): Promise<string | null> => {
+  const onUpdateOffer = async ({ amount, nft }: MakeOfferForm): Promise<string | null> => {
     if (!connected || !publicKey || !signTransaction || !nft || !offer || !nft.owner) {
       return null;
     }
@@ -331,7 +294,7 @@ export function useUpdateOffer(
       return null;
     }
     tx.add(...closeOfferRes.instructions);
-    
+
     const createOfferRes: TxRes = await nightmarketClient.CreateOffer(
       new PublicKey(nft.mintAddress),
       toSol(amount, 9),
@@ -501,14 +464,10 @@ export function useCloseOffer(offer: Offer | null): CancelOfferContext {
 
 interface AcceptOfferParams {
   nft: Nft;
-  listing: ActionInfo | null;
   auctionHouse?: AuctionHouse | null;
 }
 
 export interface AcceptOfferResponse {
-  buyerTradeState: PublicKey;
-  metadata: PublicKey;
-  buyerReceiptTokenAccount: PublicKey;
   acceptAction: ActionInfo | null;
 }
 
@@ -526,7 +485,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
     wallet: address as string,
   });
 
-  const onAcceptOffer = async ({ auctionHouse, nft, listing }: AcceptOfferParams) => {
+  const onAcceptOffer = async ({ auctionHouse, nft }: AcceptOfferParams) => {
     if (
       !connected ||
       !publicKey ||
@@ -542,251 +501,18 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
 
     setAcceptingOffer(true);
 
-    const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const buyerPrice = Number(offer.price);
-    const authority = new PublicKey(auctionHouse.authority);
-    const auctionHouseFeeAccount = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const auctionHouseTreasury = new PublicKey(auctionHouse.auctionHouseTreasury);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const buyerAddress = new PublicKey(offer.buyer);
-    const token = auctionHouse.rewardCenter.tokenMint;
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      tokenMint,
-      new PublicKey(nft.owner)
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
+    const res: TxRes = await nightmarketClient.AcceptOffer(
+      new PublicKey(nft.mintAddress),
+      toSol(Number(offer.price), 9),
+      new PublicKey(nft.owner),
+      publicKey
     );
 
-    const [buyerTradeState, buyerTradeStateBump] =
-      await AuctionHouseProgram.findPublicBidTradeStateAddress(
-        buyerAddress,
-        auctionHouseAddress,
-        treasuryMint,
-        tokenMint,
-        buyerPrice,
-        1
-      );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [escrowPaymentAccount, escrowPaymentBump] =
-      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, buyerAddress);
-
-    const rewardCenterRewardTokenAccount = getAssociatedTokenAddressSync(token, rewardCenter, true);
-
-    const buyerReceiptTokenAccount = getAssociatedTokenAddressSync(tokenMint, buyerAddress);
-
-    const [sellerTradeState, sellerTradeStateBump] =
-      await RewardCenterProgram.findAuctioneerTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        associatedTokenAccount,
-        treasuryMint,
-        tokenMint,
-        1
-      );
-
-    const [programAsSigner, programAsSignerBump] =
-      await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-    const [freeSellerTradeState, freeTradeStateBump] =
-      await AuctionHouseProgram.findTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        associatedTokenAccount,
-        treasuryMint,
-        tokenMint,
-        0,
-        1
-      );
-
-    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
-      buyerAddress,
-      metadata,
-      rewardCenter
-    );
-
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
-    );
-
-    const buyerRewardTokenAccount = getAssociatedTokenAddressSync(token, buyerAddress);
-
-    const sellerRewardTokenAccount = getAssociatedTokenAddressSync(token, publicKey);
-
-    const sellerATAInstruction = createAssociatedTokenAccountInstruction(
-      publicKey,
-      sellerRewardTokenAccount,
-      publicKey,
-      token
-    );
-
-    const sellerAtAInfo = await connection.getAccountInfo(sellerRewardTokenAccount);
-
-    const acceptOfferAccounts: AcceptOfferInstructionAccounts = {
-      buyer: buyerAddress,
-      buyerRewardTokenAccount,
-      seller: publicKey,
-      sellerRewardTokenAccount,
-      offer: rewardsOffer,
-      tokenAccount: associatedTokenAccount,
-      tokenMint,
-      metadata,
-      treasuryMint,
-      sellerPaymentReceiptAccount: publicKey,
-      buyerReceiptTokenAccount,
-      authority,
-      escrowPaymentAccount,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount,
-      auctionHouseTreasury,
-      sellerTradeState,
-      buyerTradeState,
-      freeSellerTradeState,
-      rewardCenter,
-      rewardCenterRewardTokenAccount,
-      ahAuctioneerPda: auctioneer,
-      programAsSigner,
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-    };
-
-    const acceptOfferArgs: AcceptOfferInstructionArgs = {
-      acceptOfferParams: {
-        escrowPaymentBump,
-        freeTradeStateBump,
-        sellerTradeStateBump,
-        programAsSignerBump,
-        buyerTradeStateBump,
-      },
-    };
-
-    const acceptOfferIx = createAcceptOfferInstruction(acceptOfferAccounts, acceptOfferArgs);
-
-    let remainingAccounts: AccountMeta[] = [];
-
-    // find NFT creators
-    const metadataAccountInfo = await connection.getAccountInfo(metadata);
-    if (!!metadataAccountInfo) {
-      const metadataInfo = Metadata.deserialize(metadataAccountInfo.data as Buffer, 0)[0];
-      if (!!metadataInfo.data.creators) {
-        for (const creator of metadataInfo.data.creators) {
-          const creatorAccount = {
-            pubkey: new PublicKey(creator.address),
-            isSigner: false,
-            isWritable: true,
-          };
-          remainingAccounts = [...remainingAccounts, creatorAccount];
-        }
-      }
+    if (!!res.err) {
+      toast(res.err, { type: 'error' });
+      return;
     }
-
-    if (nft.tokenStandard === 'ProgrammableNonFungible') {
-      const pnftAccounts = await getPNFTAccounts(
-        connection,
-        buyerAddress,
-        programAsSigner,
-        tokenMint,
-        publicKey
-      );
-
-      remainingAccounts.push(pnftAccounts.metadataProgram);
-      remainingAccounts.push(pnftAccounts.edition);
-      remainingAccounts.push(pnftAccounts.sellerTokenRecord);
-      remainingAccounts.push(pnftAccounts.tokenRecord);
-      remainingAccounts.push(pnftAccounts.authRulesProgram);
-      remainingAccounts.push(pnftAccounts.authRules);
-      remainingAccounts.push(pnftAccounts.sysvarInstructions);
-
-      remainingAccounts.push(pnftAccounts.metadataProgram);
-      remainingAccounts.push(pnftAccounts.delegateRecord);
-      remainingAccounts.push(pnftAccounts.sellerTokenRecord);
-      remainingAccounts.push(pnftAccounts.tokenMint);
-      remainingAccounts.push(pnftAccounts.edition);
-      remainingAccounts.push(pnftAccounts.authRulesProgram);
-      remainingAccounts.push(pnftAccounts.authRules);
-      remainingAccounts.push(pnftAccounts.sysvarInstructions);
-    }
-
-    // patch metadata account to writable for AH / RWD
-    for (let i = 0; i < acceptOfferIx.keys.length; i++) {
-      if (acceptOfferIx.keys[i].pubkey.equals(metadata)) {
-        acceptOfferIx.keys[i].isWritable = true;
-      }
-    }
-
-    const keys = acceptOfferIx.keys.concat(remainingAccounts);
-
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 1000000 });
-
-    const arrayOfInstructions = new Array<TransactionInstruction>();
-
-    const lookupTableAccount = await connection
-      .getAddressLookupTable(new PublicKey(config.addressLookupTable))
-      .then((res) => res.value);
-
-    arrayOfInstructions.push(ix);
-
-    if (listing) {
-      const [listingAddress] = await RewardCenterProgram.findListingAddress(
-        publicKey,
-        metadata,
-        rewardCenter
-      );
-
-      const accounts: CloseListingInstructionAccounts = {
-        auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-        listing: listingAddress,
-        rewardCenter: rewardCenter,
-        wallet: publicKey,
-        tokenAccount: associatedTokenAccount,
-        metadata: metadata,
-        authority: authority,
-        auctionHouse: auctionHouseAddress,
-        auctionHouseFeeAccount: auctionHouseFeeAccount,
-        tokenMint,
-        tradeState: sellerTradeState,
-        ahAuctioneerPda: auctioneer,
-      };
-
-      if (nft.tokenStandard === 'ProgrammableNonFungible') {
-        const pnftAccounts = await getPNFTAccounts(
-          connection,
-          publicKey,
-          programAsSigner,
-          tokenMint
-        );
-        const remainingAccounts: AccountMeta[] = [];
-        remainingAccounts.push(pnftAccounts.metadataProgram);
-        remainingAccounts.push(pnftAccounts.delegateRecord);
-        remainingAccounts.push(pnftAccounts.programAsSigner);
-        remainingAccounts.push({ isSigner: false, isWritable: true, pubkey: metadata });
-        remainingAccounts.push(pnftAccounts.edition);
-        remainingAccounts.push(pnftAccounts.tokenRecord);
-        remainingAccounts.push(pnftAccounts.tokenMint);
-        remainingAccounts.push(pnftAccounts.authRulesProgram);
-        remainingAccounts.push(pnftAccounts.authRules);
-        remainingAccounts.push(pnftAccounts.sysvarInstructions);
-        remainingAccounts.push(pnftAccounts.systemProgram);
-        accounts.anchorRemainingAccounts = remainingAccounts;
-      }
-
-      const closeListingIx = createCloseListingInstruction(accounts);
-
-      arrayOfInstructions.push(closeListingIx);
-    }
-
-    if (!sellerAtAInfo) {
-      arrayOfInstructions.push(sellerATAInstruction);
-    }
-
-    arrayOfInstructions.push(
-      new TransactionInstruction({
-        programId: RewardCenterProgram.PUBKEY,
-        data: acceptOfferIx.data,
-        keys,
-      })
-    );
 
     const transactions: VersionedTransaction[] = [];
     let acceptOfferIndex = 0;
@@ -804,8 +530,8 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
     const messageV0 = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: blockhash,
-      instructions: arrayOfInstructions,
-    }).compileToV0Message([lookupTableAccount as AddressLookupTableAccount]);
+      instructions: res.instructions,
+    }).compileToV0Message(res.ltAccounts);
 
     const transactionV0 = new VersionedTransaction(messageV0);
 
@@ -831,7 +557,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
           const blockTimestamp = Math.floor(new Date().getTime() / 1000);
 
           acceptAction = {
-            auctionHouseAddress: auctionHouseAddress.toBase58(),
+            auctionHouseAddress: auctionHouse.address,
             auctionHouseProgram: config.auctionHouseProgram ?? '',
             blockTimestamp,
             price: offer.price,
@@ -857,7 +583,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
       throw error;
     } finally {
       setAcceptingOffer(false);
-      return { buyerTradeState, metadata, buyerReceiptTokenAccount, acceptAction };
+      return { acceptAction };
     }
   };
 

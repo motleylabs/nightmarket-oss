@@ -4,7 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { useMemo } from 'react';
 
 import config from '../app.config';
-import type { Offer, Nft, ActionInfo, AuctionHouse } from '../typings';
+import type { Offer, Nft, AuctionHouse } from '../typings';
 import type { AcceptOfferResponse } from './../hooks/offer';
 import { useCloseOffer, useAcceptOffer } from './../hooks/offer';
 import { Activity, ActivityType } from './Activity';
@@ -36,13 +36,6 @@ export default function OfferUI({
   const { closingOffer, onCloseOffer } = useCloseOffer(offer);
   const viewerAddress = useMemo(() => publicKey?.toBase58(), [publicKey]);
 
-  const listing: ActionInfo | null = useMemo(() => {
-    if (nft?.latestListing?.auctionHouseAddress === config.auctionHouse) {
-      return nft?.latestListing;
-    }
-    return null;
-  }, [nft?.latestListing]);
-
   const { onAcceptOffer, acceptingOffer } = useAcceptOffer(offer);
 
   const handleAcceptOffer = async () => {
@@ -51,7 +44,7 @@ export default function OfferUI({
     }
 
     try {
-      const response = await onAcceptOffer({ auctionHouse, nft, listing });
+      const response = await onAcceptOffer({ auctionHouse, nft });
 
       if (!response) {
         return;
