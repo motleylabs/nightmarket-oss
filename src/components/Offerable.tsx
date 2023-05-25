@@ -76,7 +76,7 @@ export function Offerable({ children, connected = false }: OfferableProps) {
     try {
       const response = await onMakeOffer({
         amount: Number(amount),
-        nft: nft
+        nft: nft,
       });
 
       if (!response) {
