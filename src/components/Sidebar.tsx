@@ -7,7 +7,7 @@ import { ReactNode, Dispatch, SetStateAction, useState } from 'react';
 import { Children, cloneElement } from 'react';
 
 import liveIcon from '../../public/images/live-light.svg';
-import refreshIcon from '../../public/images/refresh.svg';
+import Icon from '../components/Icon';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor, ButtonSize } from './Button';
 import { Toggle } from './Toggle';
 
@@ -80,16 +80,21 @@ function SidebarControl({
           )}
           {!!refresh && (
             <div
-              className={`${
-                animateRefreshButton && 'animate-refresh'
-              } ml-3 flex  flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer`}
+              className="ml-3 flex flex-none items-center justify-center rounded-full border-[1px] border-[#262626] w-[48px] h-[48px] cursor-pointer"
               onClick={() => {
                 refresh();
                 setAnimateRefreshButton(true);
               }}
-              onAnimationEnd={() => setAnimateRefreshButton(false)}
             >
-              <Image src={refreshIcon} alt="refresh-icon" />
+              <Icon.Refresh
+                className={clsx(
+                  'text-white w-7 h-7',
+                  animateRefreshButton ? 'animate-refresh' : ''
+                )}
+                onAnimationEnd={() => {
+                  setAnimateRefreshButton(false);
+                }}
+              />
             </div>
           )}
         </>
