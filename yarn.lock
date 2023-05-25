@@ -774,10 +774,10 @@
     "@solana/web3.js" "^1.56.2"
     bn.js "^5.2.0"
 
-"@motleylabs/mtly-nightmarket@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@motleylabs/mtly-nightmarket/-/mtly-nightmarket-1.0.9.tgz#aeae25496675ec1904f3be44633867dc267bd577"
-  integrity sha512-BEruWxRhRit5Zu11UPo+FN3Pvxex6AoTM5PKmcxyQjG8pJTGO2dWwkY3ICAGmIBVOk0K9DwKFGhdPuc4Lp9pEA==
+"@motleylabs/mtly-nightmarket@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@motleylabs/mtly-nightmarket/-/mtly-nightmarket-1.1.1.tgz#6fe91dd6c8a87434abe403d74507fabe370ef9e3"
+  integrity sha512-7YwARVlxBc4Y09HnaUuV/d8SeA4rJK8yaolqoEH/q0yJXwxSa5EG8yXXGFxYsCI7ZyTUQKTzlYM5xBJE3jxnCQ==
   dependencies:
     "@metaplex-foundation/mpl-token-metadata" "^2.11.1"
     "@motleylabs/mtly-auction-house" "^2.5.6"

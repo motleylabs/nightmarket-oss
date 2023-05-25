@@ -49,6 +49,7 @@ import { queueVersionedTransactionSign } from '../utils/transactions';
 import { TX_INTERVAL } from './list';
 import useLogin from './login';
 import { useCachedBuddy } from './referrals';
+import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
 
 export interface OfferForm {
   amount: number;
@@ -60,10 +61,6 @@ interface MakeOfferForm extends OfferForm {
 }
 
 interface MakeOfferResponse {
-  buyerTradeState: PublicKey;
-  metadata: PublicKey;
-  buyerTradeStateBump: number;
-  associatedTokenAccount: PublicKey;
   buyerPrice: number;
   signature: string;
 }
@@ -151,96 +148,19 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
       throw Error('not all params provided');
     }
 
-    const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = amount; // already preprocessed as lamports by zod
-    const authority = new PublicKey(auctionHouse.authority);
-    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const associatedTokenAccount = getAssociatedTokenAddressSync(
-      tokenMint,
-      new PublicKey(nft.owner)
-    );
-    const token = auctionHouse.rewardCenter.tokenMint;
-
-    const [escrowPaymentAcc, escrowPaymentBump] =
-      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-    const [buyerTradeState, buyerTradeStateBump] =
-      await AuctionHouseProgram.findPublicBidTradeStateAddress(
-        publicKey,
-        auctionHouseAddress,
-        treasuryMint,
-        tokenMint,
-        buyerPrice,
-        1
-      );
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-    const [offer] = await RewardCenterProgram.findOfferAddress(publicKey, metadata, rewardCenter);
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
+    const txRes: TxRes = await nightmarketClient.CreateOffer(
+      new PublicKey(nft.mintAddress),
+      toSol(amount, 0),
+      new PublicKey(nft.owner),
+      publicKey
     );
 
-    const accounts: CreateOfferInstructionAccounts = {
-      wallet: publicKey,
-      offer,
-      paymentAccount: publicKey,
-      transferAuthority: publicKey,
-      treasuryMint,
-      tokenAccount: associatedTokenAccount,
-      metadata,
-      escrowPaymentAccount: escrowPaymentAcc,
-      authority,
-      rewardCenter,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: ahFeeAcc,
-      buyerTradeState,
-      ahAuctioneerPda: auctioneer,
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-    };
-
-    const args: CreateOfferInstructionArgs = {
-      createOfferParams: {
-        tradeStateBump: buyerTradeStateBump,
-        escrowPaymentBump,
-        buyerPrice,
-        tokenSize: 1,
-      },
-    };
-
-    const instruction = createCreateOfferInstruction(accounts, args);
-
-    // patch metadata account to writable for AH / RWD
-    for (let i = 0; i < instruction.keys.length; i++) {
-      if (instruction.keys[i].pubkey.equals(metadata)) {
-        instruction.keys[i].isWritable = true;
-      }
+    if (!!txRes.err) {
+      toast(txRes.err, { type: 'error' });
+      return;
     }
-
-    const arrayOfInstructions = new Array<TransactionInstruction>();
-
-    const ix = ComputeBudgetProgram.setComputeUnitLimit({ units: 600000 });
-    arrayOfInstructions.push(ix);
-
-    const buyerRewardTokenAccount = getAssociatedTokenAddressSync(token, publicKey);
-
-    const buyerATAInstruction = createAssociatedTokenAccountInstruction(
-      publicKey,
-      buyerRewardTokenAccount,
-      publicKey,
-      token
-    );
-
-    const buyerAtAInfo = await connection.getAccountInfo(buyerRewardTokenAccount);
-
-    if (!buyerAtAInfo) {
-      arrayOfInstructions.push(buyerATAInstruction);
-    }
-
-    arrayOfInstructions.push(instruction);
 
     const transactions: VersionedTransaction[] = [];
     let offerIndex = 0;
@@ -256,7 +176,7 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
     const messageV0 = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: blockhash,
-      instructions: arrayOfInstructions,
+      instructions: txRes.instructions,
     }).compileToV0Message();
     const tx = new VersionedTransaction(messageV0);
 
@@ -285,10 +205,6 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
       }
 
       return {
-        buyerTradeState,
-        metadata,
-        buyerTradeStateBump,
-        associatedTokenAccount,
         buyerPrice,
         signature,
       };
