@@ -1,14 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata';
 import type {
-  CloseOfferInstructionAccounts,
-  CloseOfferInstructionArgs,
   AcceptOfferInstructionAccounts,
   AcceptOfferInstructionArgs,
   CloseListingInstructionAccounts,
 } from '@motleylabs/mtly-reward-center';
 import {
-  createCloseOfferInstruction,
   createAcceptOfferInstruction,
   createCloseListingInstruction,
 } from '@motleylabs/mtly-reward-center';
@@ -439,66 +436,21 @@ export function useCloseOffer(offer: Offer | null): CancelOfferContext {
       return null;
     }
     setClosingOffer(true);
-    const auctionHouseAddress = new PublicKey(auctionHouse.address);
-    const authority = new PublicKey(auctionHouse.authority);
-    const ahFeeAcc = new PublicKey(auctionHouse.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouse.treasuryMint);
-    const tokenMint = new PublicKey(nft.mintAddress);
-    const metadata = getMetadataAccount(tokenMint);
-    const associatedTokenAcc = getAssociatedTokenAddressSync(tokenMint, new PublicKey(nft.owner));
-
-    const [buyerTradeState] = await AuctionHouseProgram.findPublicBidTradeStateAddress(
-      publicKey,
-      auctionHouseAddress,
-      treasuryMint,
-      tokenMint,
-      Number(offer.price),
-      1
-    );
-
-    const [escrowPaymentAcc, escrowPaymentBump] =
-      await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouseAddress, publicKey);
-
-    const [rewardCenter] = await RewardCenterProgram.findRewardCenterAddress(auctionHouseAddress);
-
-    const [rewardsOffer] = await RewardCenterProgram.findOfferAddress(
-      publicKey,
-      metadata,
-      rewardCenter
-    );
-
-    const [auctioneer] = await RewardCenterProgram.findAuctioneerAddress(
-      auctionHouseAddress,
-      rewardCenter
-    );
-
-    const accounts: CloseOfferInstructionAccounts = {
-      wallet: publicKey,
-      offer: rewardsOffer,
-      treasuryMint,
-      tokenAccount: associatedTokenAcc,
-      receiptAccount: publicKey,
-      escrowPaymentAccount: escrowPaymentAcc,
-      metadata,
-      tokenMint,
-      authority,
-      rewardCenter,
-      auctionHouse: auctionHouseAddress,
-      auctionHouseFeeAccount: ahFeeAcc,
-      tradeState: buyerTradeState,
-      ahAuctioneerPda: auctioneer,
-      auctionHouseProgram: AuctionHouseProgram.PUBKEY,
-    };
-
-    const args: CloseOfferInstructionArgs = {
-      closeOfferParams: {
-        escrowPaymentBump,
-      },
-    };
-
-    const instruction = createCloseOfferInstruction(accounts, args);
+    const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const tx = new Transaction();
-    tx.add(instruction);
+
+    const closeOfferRes: TxRes = await nightmarketClient.CloseOffer(
+      new PublicKey(nft.mintAddress),
+      toSol(Number(offer.price), 9),
+      new PublicKey(nft.owner),
+      publicKey
+    );
+
+    if (!!closeOfferRes.err) {
+      toast(closeOfferRes.err, { type: 'error' });
+      return null;
+    }
+    tx.add(...closeOfferRes.instructions);
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = publicKey;
