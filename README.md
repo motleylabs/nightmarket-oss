@@ -8,7 +8,7 @@ We welcome contributions to Night Market from the community -- please open a pul
 
 Feel free to join the [Motley DAO Discord](https://discord.gg/motleydao) to talk to the team and other community members.
 
-All contributions are automatically licensed under the [GPL 3.0](https://github.com/motleylabs/nightmarket/blob/main/LICENSE).
+All contributions are automatically licensed under the [GPL 3.0](https://github.com/motleylabs/nightmarket-oss/blob/main/LICENSE).
 
 ## Overview
 
