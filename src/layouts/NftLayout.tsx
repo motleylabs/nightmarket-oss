@@ -660,6 +660,11 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               collection={collection?.name}
             />
             <Overview.Form.Points>
+              {listing && (
+                <Overview.Form.Point label={t('listingPrice', { ns: 'nft' })}>
+                  <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                </Overview.Form.Point>
+              )}
               {collection && (
                 <Overview.Form.Point label={t('currentFloor', { ns: 'nft' })}>
                   <Icon.Sol /> {getSolFromLamports(collection.statistics.floor1d, 0, 3)}
@@ -674,6 +679,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
             </Overview.Form.Points>
             <Form.Label name={t('amount', { ns: 'nft' })}>
               <Form.Input
+                autoComplete='off'
                 icon={<Icon.Sol />}
                 error={updateOfferFormState.errors.amount}
                 {...registerUpdateOffer('amount', { required: true })}
