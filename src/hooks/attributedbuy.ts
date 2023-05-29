@@ -40,6 +40,7 @@ interface AttributedBuyContext {
 }
 
 const MAE_PROGRAM_ID = new PublicKey('MAEh4YsXkNqkTKrKUZta96sPPSr3wusThnsiXjAjRP8');
+const ME_NOTARY_PROGRAM_ID = new PublicKey('NTYeYJ1wr4bpM5xo6zx5En44SvJFAd35zTxxNoERYqd');
 const SEALED_PROGRAM_IDS = [new PublicKey('M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K')];
 
 function isSealedTransaction(accounts: AccountMeta[]): boolean {
@@ -80,7 +81,11 @@ async function versionedTransactionFromBuyBuffer(
   const accounts: AccountMeta[] = parseTransactionAccounts(tx.message, loadedAddresses);
 
   if (isSealedTransaction(accounts)) {
-    return tx;
+    for (let i = 0; i < accounts.length; i++) {
+      if (accounts[i].isSigner && accounts[i].pubkey.equals(ME_NOTARY_PROGRAM_ID)) {
+        accounts[i].isSigner = false;
+      }
+    }
   }
 
   const instructions: TransactionInstruction[] = (
