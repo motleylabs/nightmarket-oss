@@ -127,7 +127,8 @@ function BulkListModal({ open, setOpen }: BulkListModalProps): JSX.Element {
         </label>
         <Form.Input
           font
-          className={clsx('h-12 sm:w-1/2')}
+          className={clsx('h-12 sm:w-1/2 bg-transparent')}
+          autoComplete="off"
           icon={<Icon.Sol defaultColor={useGlobalPrice ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           error={bulkListNftState.errors.globalBulkPrice}
           {...registerBulkListNft('globalBulkPrice', {

@@ -2,6 +2,7 @@ import React from 'react';
 
 interface IconProps {
   className?: string;
+  onAnimationEnd?: any;
   width?: number;
   height?: number;
 }
@@ -327,7 +328,7 @@ Icon.Web = WebIcon;
 
 function SauceIcon({ className = 'h-4 w-auto' }: IconProps) {
   return (
-    <svg className="h-4 w-auto" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M15.7414 8.09734C15.7414 12.1876 12.4395 15.5 8.3707 15.5C4.30188 15.5 1 12.1876 1 8.09734C1 4.00704 4.30188 0.694656 8.3707 0.694656C12.4395 0.694656 15.7414 4.00704 15.7414 8.09734Z"
         fill="#17161C"
@@ -802,13 +803,13 @@ function FailedIcon({ className = 'h-4' }: IconProps) {
 
 Icon.Failed = FailedIcon;
 
-function VerifiedIcon({ className = '' }: IconProps) {
+function VerifiedIcon({ className = '', width, height }: IconProps) {
   return (
     <svg
       className={className}
       xmlns="http://www.w3.org/2000/svg"
-      width={40}
-      height={40}
+      width={width ?? 40}
+      height={height ?? 40}
       viewBox="0 0 32 32"
       fill="none"
     >
@@ -862,3 +863,23 @@ function EnforcedIcon({ className = '' }: IconProps) {
 }
 
 Icon.Enforced = EnforcedIcon;
+
+function RefreshIcon({ className = '', onAnimationEnd = '' }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      className={className}
+      onAnimationEnd={onAnimationEnd}
+    >
+      <path
+        fill="currentColor"
+        d="M16 4c-5.11 0-9.383 3.16-11.125 7.625l1.844.75C8.176 8.64 11.71 6 16 6c3.24 0 6.134 1.59 7.938 4H20v2h7V5h-2v3.094A11.928 11.928 0 0 0 16 4zm9.28 15.625C23.824 23.36 20.29 26 16 26c-3.276 0-6.157-1.612-7.97-4H12v-2H5v7h2v-3.094C9.19 26.386 12.395 28 16 28c5.11 0 9.383-3.16 11.125-7.625l-1.844-.75z"
+      />
+    </svg>
+  );
+}
+
+Icon.Refresh = RefreshIcon;

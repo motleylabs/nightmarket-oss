@@ -1,5 +1,4 @@
 import { useTranslation } from 'next-i18next';
-import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import { TailSpin } from 'react-loader-spinner';
@@ -71,7 +70,7 @@ export function TinyLineChart(props: {
       </LineChart>
     </ResponsiveContainer>
   ) : (
-    <div className="my-auto mx-auto text-sm text-gray-300">
+    <div className="my-auto mx-auto text-sm text-gray-300 flex h-full justify-center items-center">
       {props.loading ? (
         <TailSpin
           height="20px"

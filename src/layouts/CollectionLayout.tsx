@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { subDays } from 'date-fns';
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo } from 'react';
@@ -14,15 +15,17 @@ import { useSeries } from '../hooks/collection/useSeries';
 import useMetaplex from '../hooks/metaplex';
 import type { Collection } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
-import { getExtendedSolFromLamports, getSolFromLamports } from '../utils/price';
+import { getExtendedSolFromLamports, getMegaValue, getSolFromLamports } from '../utils/price';
 import { Overview } from './../components/Overview';
 
 interface VerifiedBadgeProps {
   isVerified: boolean;
   className?: string;
+  width?: number;
+  height?: number;
 }
 
-export function VerifiedBadge({ isVerified, className = '' }: VerifiedBadgeProps) {
+export function VerifiedBadge({ isVerified, className = '', width, height }: VerifiedBadgeProps) {
   const { t } = useTranslation(['common']);
 
   if (!isVerified) return null;
@@ -34,7 +37,7 @@ export function VerifiedBadge({ isVerified, className = '' }: VerifiedBadgeProps
       className="max-w-[12rem] text-center"
       wrapperClass={clsx('flex items-center ml-1', className)}
     >
-      <Icon.Verified />
+      <Icon.Verified width={width} height={height} />
     </Tooltip>
   );
 }
@@ -54,7 +57,7 @@ function EnforcedBadge({ isEnforced }: EnforcedBadgeProps) {
       content={<p>{t('collection.enforced', { ns: 'common' })}</p>}
       className="max-w-[12rem] text-center"
     >
-      <Icon.Enforced />
+      <Icon.Enforced className="mx-1" />
     </Tooltip>
   );
 }
@@ -75,7 +78,7 @@ function CollectionFigure({
 }) {
   return (
     <div className="text-center">
-      <div className="truncate text-sm text-gray-300">{label}</div>
+      <div className="truncate text-sm text-gray-300 my-1">{label}</div>
       {loading ? (
         <div className="h-6 w-full animate-pulse rounded-md bg-gray-700 transition" />
       ) : (
@@ -112,7 +115,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
 
   const isLoading = !data && isValidating;
 
-  const memoizedData = useMemo(() => {
+  const { floorPrice, listed } = useMemo(() => {
     const timeseriesList = data?.series ?? [];
 
     const floorPrice = timeseriesList.map((t) => ({
@@ -130,7 +133,23 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
     return { floorPrice, listed };
   }, [data]);
 
-  const { floorPrice, listed } = memoizedData;
+  const minFP = useMemo(
+    () => floorPrice.reduce((acc, item) => Math.min(acc, item.amount), Infinity),
+    [floorPrice]
+  );
+  const maxFP = useMemo(
+    () => floorPrice.reduce((acc, item) => Math.max(acc, item.amount), 0),
+    [floorPrice]
+  );
+
+  const minListing = useMemo(
+    () => listed.reduce((acc, item) => Math.min(acc, item.amount), Infinity),
+    [listed]
+  );
+  const maxListing = useMemo(
+    () => listed.reduce((acc, item) => Math.max(acc, item.amount), 0),
+    [listed]
+  );
 
   return (
     <>
@@ -157,11 +176,27 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
               <div className="flex w-full justify-center md:justify-start">
                 <Overview.Title>{collection.name}</Overview.Title>
                 <VerifiedBadge isVerified={true} />
-              </div>
-              <div className="flex justify-center text-gray-300 md:justify-start">
                 <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
               </div>
-
+              {(!!collection.twitter || !!collection.website || !!collection.discord) && (
+                <div className="flex justify-center text-gray-300 md:justify-start gap-3">
+                  {!!collection.twitter && (
+                    <Link href={collection.twitter} target="_blank">
+                      <Icon.Twitter className="h-7 w-7" />
+                    </Link>
+                  )}
+                  {!!collection.website && (
+                    <Link href={collection.website} target="_blank">
+                      <Icon.Web className="h-7 w-7" />
+                    </Link>
+                  )}
+                  {!!collection.discord && (
+                    <Link href={collection.discord} target="_blank">
+                      <Icon.Discord className="h-7 w-7" />
+                    </Link>
+                  )}
+                </div>
+              )}
               <p
                 className={clsx(
                   'max-w-sm text-center text-gray-300 md:text-left',
@@ -178,7 +213,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="flex w-full gap-4 md:w-min">
               {(isLoading || floorPrice) && (
                 <Chart.Preview
-                  className="h-40 w-full md:w-36 xl:w-40"
+                  className="h-24 w-full md:w-36 xl:w-40"
                   title={t('floorPrice', { ns: 'collection' })}
                   dateRange={t('timeInterval.day', { ns: 'collection' })}
                   chart={
@@ -188,11 +223,13 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                       loading={isLoading}
                     />
                   }
+                  min={minFP}
+                  max={maxFP}
                 />
               )}
               {(isLoading || listed) && (
                 <Chart.Preview
-                  className="h-40 w-full md:w-36 xl:w-40"
+                  className="h-24 w-full md:w-36 xl:w-40"
                   title={t('listings', { ns: 'collection' })}
                   dateRange={t('timeInterval.day', { ns: 'collection' })}
                   chart={
@@ -202,6 +239,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                       loading={isLoading}
                     />
                   }
+                  min={minListing}
+                  max={maxListing}
                 />
               )}
             </div>
@@ -225,10 +264,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
                   label={t('estimatedMarketcap', { ns: 'collection' })}
                   loading={isLoading}
                 >
-                  <Icon.Sol /> {getExtendedSolFromLamports(collection.statistics.marketCap, 3, 2)}
+                  ${getMegaValue(collection.statistics.marketCap)}
                 </CollectionFigure>
                 <CollectionFigure label={t('listings', { ns: 'collection' })} loading={isLoading}>
-                  {collection.statistics.listed1d.toLocaleString()}
+                  {parseInt(collection.statistics.listed1d, 10).toLocaleString()}
                 </CollectionFigure>
                 <CollectionFigure label={t('holders', { ns: 'collection' })} loading={isLoading}>
                   {collection.statistics.holders.toLocaleString()}
@@ -240,7 +279,7 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             )}
           </div>
         </div>
-        <Overview.Tabs>
+        <Overview.Tabs mode="collection">
           <Overview.Tab
             label={t('nfts', { ns: 'collection' })}
             href={`/collections/${collection.slug}`}

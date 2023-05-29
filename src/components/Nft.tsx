@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
 import type { FormEventHandler } from 'react';
 import React from 'react';
@@ -13,6 +14,7 @@ import { useBulkListContext } from '../providers/BulkListProvider';
 import { useWalletContext } from '../providers/WalletContextProvider';
 import type { ActionInfo, Nft, Offer } from '../typings';
 import { getAssetURL, AssetSize } from '../utils/assets';
+import { formatToNow } from '../utils/date';
 import type { Marketplace } from '../utils/marketplaces';
 import { getMarketplace } from '../utils/marketplaces';
 import { getSolFromLamports } from '../utils/price';
@@ -22,15 +24,19 @@ import { Form } from './Form';
 import Icon from './Icon';
 import Img from './Image';
 
+/* eslint-disable react/jsx-no-useless-fragment */
+
 interface PreviewProps {
   nft: Nft;
   link: string;
   offers?: Offer[];
+  cardType: string;
   showCollectionThumbnail?: boolean;
   bulkSelectEnabled: boolean;
   onMakeOffer: () => void;
   onBuy: () => void;
   onSelect?: (val: boolean) => void;
+  onCancel?: () => void;
 }
 
 export function Preview({
@@ -38,11 +44,14 @@ export function Preview({
   offers,
   showCollectionThumbnail = true,
   link,
+  cardType,
   bulkSelectEnabled,
   onBuy,
   onSelect,
+  onCancel,
 }: PreviewProps): JSX.Element {
   const { t } = useTranslation(['common', 'home']);
+  const router = useRouter();
   const { selected, setSelected } = useBulkListContext();
   const { address } = useWalletContext();
   const { auctionHouse } = useAuctionHouseContext();
@@ -78,6 +87,9 @@ export function Preview({
 
       if (!!sig && !!auctionHouse) {
         setNft((oldNft) => ({ ...oldNft, latestListing: null }));
+        if (!!onCancel) {
+          onCancel();
+        }
       }
     }
   };
@@ -112,79 +124,246 @@ export function Preview({
   }, [isBulkSelected, onSelect]);
 
   return (
-    <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
-      <Link href={link}>
-        <div className="relative block overflow-hidden">
-          <Img
-            src={getAssetURL(nft.image, AssetSize.XSmall)}
-            alt={`${nft.name} detail image`}
-            className={clsx(
-              'aspect-square w-full object-cover',
-              'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
-            )}
-          />
-          {Boolean(nft.moonrankRank) && (
-            <span className="absolute left-0 top-0 z-10 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
-              <img
-                src="/images/moonrank-logo.svg"
-                className="h-2.5 w-auto object-cover"
-                alt="moonrank logo"
+    <>
+      {!cardType.includes('list') ? (
+        <div className="group overflow-clip rounded-2xl bg-gray-800 pb-4 text-white shadow-lg transition">
+          <Link href={link}>
+            <div className="relative block overflow-hidden">
+              <Img
+                src={getAssetURL(nft.image, AssetSize.XSmall)}
+                alt={`${nft.name} detail image`}
+                className={clsx(
+                  'aspect-square w-full object-cover',
+                  'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
+                )}
               />
-              {nft.moonrankRank}
-            </span>
-          )}
-          {!!listing && !!marketplace && (
-            <div className="absolute right-0 top-1 z-10 m-2 items-center justify-start my-1 gap-1 text-lg">
-              <img
-                src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
-                className="h-5 w-auto object-fill"
-                alt={t('logo', { ns: 'nft', market: marketplace.name })}
-                title={t('listedOn', { ns: 'nft', market: marketplace.name })}
+              {Boolean(nft.moonrankRank) && (
+                <span className="absolute left-0 top-0 z-10 m-2 flex items-center gap-1 rounded-full bg-gray-800 py-1 px-2 text-sm">
+                  <img
+                    src="/images/moonrank-logo.svg"
+                    className="h-2.5 w-auto object-cover"
+                    alt="moonrank logo"
+                  />
+                  {nft.moonrankRank}
+                </span>
+              )}
+              {!!listing && !!marketplace && (
+                <div className="absolute right-0 top-1 z-10 m-2 items-center justify-start my-1 gap-1 text-lg">
+                  <img
+                    src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
+                    className="h-5 w-auto object-fill"
+                    alt={t('logo', { ns: 'nft', market: marketplace.name })}
+                    title={t('listedOn', { ns: 'nft', market: marketplace.name })}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="z-20 py-4 sm:px-4 px-3">
+              <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
+                {nft?.image && showCollectionThumbnail && (
+                  <Img
+                    fallbackSrc="/images/moon.svg"
+                    src={getAssetURL(nft.image, AssetSize.XSmall)}
+                    alt={`Collection NFT image ${nft.name}`}
+                    className="aspect-square w-4 rounded-sm object-cover"
+                  />
+                )}
+                <span className="truncate sm:block hidden">{nft.name}</span>
+                <span className="truncate sm:hidden block">
+                  {nft.name.split('#').length > 1 ? ` #${nft.name.split('#')[1]}` : nft.name}
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          <div className="relative flex max-h-[38px] flex-row items-center justify-between sm:px-4 px-3">
+            {isOwner ? (
+              !!listing ? (
+                <>
+                  <span className="flex items-center justify-center gap-1 text-lg">
+                    <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                  </span>
+                  <Button
+                    onClick={handleClosing}
+                    size={ButtonSize.Small}
+                    background={ButtonBackground.Slate}
+                    border={ButtonBorder.Gradient}
+                    color={ButtonColor.Gradient}
+                  >
+                    {t('cancel')}
+                  </Button>
+                </>
+              ) : null // not listed
+            ) : !!listing ? (
+              <div className="w-full">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                  </span>
+                  {marketplace && marketplace.buyNowEnabled ? (
+                    <Button
+                      onClick={onBuy}
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('buy', { ns: 'common' })}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={onViewExternalListing}
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('View', { ns: 'common' })}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex w-full items-center justify-between gap-1">
+                {myOffer ? (
+                  <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                    {t('offerable.yourOffer', { ns: 'common' })}
+                    <div className="flex flex-row items-center gap-1">
+                      <Icon.Sol />
+                      {getSolFromLamports(myOffer.price, 0, 3)}
+                    </div>
+                  </span>
+                ) : (
+                  <div />
+                )}
+                {!myOffer && (
+                  <Link href={link}>
+                    <Button
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('View', { ns: 'common' })}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+
+          {!!nft.lastSale ? (
+            <div className="relative flex max-h-[38px] flex-row items-center justify-between sm:px-4 px-3 pt-1">
+              <div className="w-full">
+                <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                  {t('lastSale', { ns: 'common' })}
+                  <div className="flex flex-row items-center gap-1">
+                    <Icon.Sol className="flex h-3 w-3" />
+                    {getSolFromLamports(nft.lastSale.price, 0, 3)}
+                  </div>
+                </span>
+              </div>
+            </div>
+          ) : null}
+
+          {isOwner && !listing && bulkSelectEnabled ? (
+            <div className="px-4">
+              <CheckBox
+                label="Select for Bulk Listing"
+                selected={isBulkSelected}
+                onClick={handleBulkSelect}
+                containerClass="justify-center my-2"
               />
             </div>
-          )}
+          ) : null}
         </div>
-        <div className="z-20 p-4">
-          <div className="flex h-6 flex-row items-center justify-start gap-2 text-white">
-            {nft?.image && showCollectionThumbnail && (
+      ) : (
+        <tr className="text-white whitespace-nowrap p-2 rounded-lg text-[14px]">
+          <td
+            onClick={() => router.push(link)}
+            className="flex items-center py-2 px-3 cursor-pointer overflow-hidden"
+          >
+            <div className="nft-image w-[48px] h-[48px] mr-2">
               <Img
-                fallbackSrc="/images/moon.svg"
                 src={getAssetURL(nft.image, AssetSize.XSmall)}
-                alt={`Collection NFT image ${nft.name}`}
-                className="aspect-square w-4 rounded-sm object-cover"
+                alt={`${nft.name} detail image`}
+                className={clsx(
+                  'aspect-square w-full object-cover',
+                  'transition duration-100 ease-in-out group-hover:origin-center group-hover:scale-105 group-hover:ease-in'
+                )}
               />
+            </div>
+            <span className="sm:block hidden">{nft.name}</span>
+            <span className="sm:hidden block max-w-[120px] truncate">
+              {nft.name.split('#').length > 1 ? ` #${nft.name.split('#')[1]}` : nft.name}
+            </span>
+          </td>
+          <td className="xl:table-cell hidden">{nft.moonrankRank}</td>
+          <td>
+            {!!listing ? (
+              <>
+                <span className="flex items-center gap-1">
+                  <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                  {!!marketplace ? (
+                    <div className="sm:hidden block items-center justify-start my-1">
+                      <img
+                        src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
+                        className="h-5 w-auto object-fill"
+                        alt={t('logo', { ns: 'nft', market: marketplace.name })}
+                        title={t('listedOn', { ns: 'nft', market: marketplace.name })}
+                      />
+                    </div>
+                  ) : (
+                    '-'
+                  )}
+                </span>
+              </>
+            ) : (
+              '-'
             )}
-            <span className="truncate">{nft.name}</span>
-          </div>
-        </div>
-      </Link>
-
-      <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4">
-        {isOwner ? (
-          !!listing ? (
-            <>
-              <span className="flex items-center justify-center gap-1 text-lg">
-                <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
-              </span>
-              <Button
-                onClick={handleClosing}
-                size={ButtonSize.Small}
-                background={ButtonBackground.Slate}
-                border={ButtonBorder.Gradient}
-                color={ButtonColor.Gradient}
-                disabled={closingListing}
-              >
-                {t('cancel')}
-              </Button>
-            </>
-          ) : null // not listed
-        ) : !!listing ? (
-          <div className="w-full">
-            <div className="flex items-center justify-between">
+          </td>
+          <td className="sm:table-cell hidden">
+            {!!listing && !!marketplace ? (
+              <div className="items-center justify-start my-1 gap-1 text-lg">
+                <img
+                  src={isOwnMarket ? '/images/moon.svg' : marketplace.logo}
+                  className="h-5 w-auto object-fill"
+                  alt={t('logo', { ns: 'nft', market: marketplace.name })}
+                  title={t('listedOn', { ns: 'nft', market: marketplace.name })}
+                />
+              </div>
+            ) : (
+              '-'
+            )}
+          </td>
+          <td className="lg:table-cell hidden">
+            {!!nft.lastSale ? (
               <span className="flex items-center gap-1">
-                <Icon.Sol /> {getSolFromLamports(listing.price, 0, 3)}
+                <Icon.Sol /> {getSolFromLamports(nft.lastSale.price, 0, 3)}
               </span>
-              {marketplace && marketplace.buyNowEnabled ? (
+            ) : (
+              '-'
+            )}
+          </td>
+          <td className="hidden 2xl:table-cell">{!!nft.owner ? nft.owner.slice(0, 5) : '-'}</td>
+          <td className="lg:table-cell hidden">
+            {!!listing ? formatToNow(listing.blockTimestamp) : '-'}
+          </td>
+          <td>
+            {isOwner ? (
+              !!listing ? (
+                <Button
+                  onClick={handleClosing}
+                  size={ButtonSize.Small}
+                  background={ButtonBackground.Slate}
+                  border={ButtonBorder.Gradient}
+                  color={ButtonColor.Gradient}
+                >
+                  {t('cancel')}
+                </Button>
+              ) : null // not listed
+            ) : !!listing ? (
+              marketplace && marketplace.buyNowEnabled ? (
                 <Button
                   onClick={onBuy}
                   size={ButtonSize.Small}
@@ -204,63 +383,35 @@ export function Preview({
                 >
                   {t('View', { ns: 'common' })}
                 </Button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex w-full items-center justify-between gap-1">
-            {myOffer ? (
-              <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-                {t('offerable.yourOffer', { ns: 'common' })}
-                <div className="flex flex-row items-center gap-1">
-                  <Icon.Sol />
-                  {getSolFromLamports(myOffer.price, 0, 3)}
-                </div>
-              </span>
+              )
             ) : (
-              <div />
-            )}
-            {!myOffer && (
-              <Link href={link}>
-                <Button
-                  size={ButtonSize.Small}
-                  background={ButtonBackground.Slate}
-                  border={ButtonBorder.Gradient}
-                  color={ButtonColor.Gradient}
-                >
-                  {t('View', { ns: 'common' })}
-                </Button>
-              </Link>
-            )}
-          </div>
-        )}
-      </div>
-
-      {!!nft.lastSale ? (
-        <div className="relative flex max-h-[38px] flex-row items-center justify-between px-4 pt-1">
-          <div className="w-full">
-            <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
-              {t('lastSale', { ns: 'common' })}
-              <div className="flex flex-row items-center gap-1">
-                <Icon.Sol className="flex h-3 w-3 pt-0.5" />
-                {getSolFromLamports(nft.lastSale.price, 0, 3)}
+              <div className="flex w-full items-center justify-between gap-1">
+                {myOffer ? (
+                  <span className="flex flex-wrap items-center gap-1 text-sm text-gray-300">
+                    {t('offerable.yourOffer', { ns: 'common' })}
+                    <div className="flex flex-row items-center gap-1">
+                      <Icon.Sol />
+                      {getSolFromLamports(myOffer.price, 0, 3)}
+                    </div>
+                  </span>
+                ) : (
+                  <Link href={link}>
+                    <Button
+                      size={ButtonSize.Small}
+                      background={ButtonBackground.Slate}
+                      border={ButtonBorder.Gradient}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('View', { ns: 'common' })}
+                    </Button>
+                  </Link>
+                )}
               </div>
-            </span>
-          </div>
-        </div>
-      ) : null}
-
-      {isOwner && !listing && bulkSelectEnabled ? (
-        <div className="px-4">
-          <CheckBox
-            label="Select for Bulk Listing"
-            selected={isBulkSelected}
-            onClick={handleBulkSelect}
-            containerClass="justify-center my-2"
-          />
-        </div>
-      ) : null}
-    </div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 

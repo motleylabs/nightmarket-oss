@@ -1,14 +1,10 @@
 import { AuctionHouse as MtlyAuctionHouse } from '@motleylabs/mtly-auction-house';
-import {
-  PROGRAM_ID,
-  RewardCenter,
-  rewardCenterDiscriminator,
-} from '@motleylabs/mtly-reward-center';
-import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { RewardCenter } from '@motleylabs/mtly-reward-center';
 import type { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
 import type { AuctionHouse } from '../typings';
+import { RewardCenterProgram } from '../modules/reward-center';
 
 export const getAuctionHouseByAddress = async (
   connection: Connection,
@@ -37,29 +33,15 @@ export const getAuctionHouseInfo = async (
       rewardCenter: null,
     };
 
-    const rewardCenterAccounts = await connection.getProgramAccounts(PROGRAM_ID, {
-      filters: [
-        {
-          memcmp: {
-            offset: 0,
-            bytes: bs58.encode(rewardCenterDiscriminator),
-          },
-        },
-        {
-          memcmp: {
-            offset: 40,
-            bytes: address.toString(),
-          },
-        },
-      ],
-    });
+    const [rewardCenterAddress] = await RewardCenterProgram.findRewardCenterAddress(address);
+    const rewardCenterAccount = await connection.getAccountInfo(rewardCenterAddress);
 
-    let rewardCenter: RewardCenter | null = null;
+    let rewardCenter: RewardCenter | null = null; 
 
-    if (rewardCenterAccounts.length > 0) {
-      rewardCenter = RewardCenter.deserialize(rewardCenterAccounts[0].account.data, 0)[0];
+    if (!!rewardCenterAccount) {
+      rewardCenter = RewardCenter.deserialize(rewardCenterAccount.data, 0)[0];
       auctionHouse.rewardCenter = {
-        address: rewardCenterAccounts[0].pubkey,
+        address: rewardCenterAddress,
         tokenMint: rewardCenter.tokenMint,
         sellerRewardPayoutBasisPoints: rewardCenter.rewardRules.sellerRewardPayoutBasisPoints,
         payoutNumeral: rewardCenter.rewardRules.payoutNumeral,
