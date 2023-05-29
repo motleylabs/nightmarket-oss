@@ -3,8 +3,8 @@ import { RewardCenter } from '@motleylabs/mtly-reward-center';
 import type { Connection } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 
-import type { AuctionHouse } from '../typings';
 import { RewardCenterProgram } from '../modules/reward-center';
+import type { AuctionHouse } from '../typings';
 
 export const getAuctionHouseByAddress = async (
   connection: Connection,
@@ -36,7 +36,7 @@ export const getAuctionHouseInfo = async (
     const [rewardCenterAddress] = await RewardCenterProgram.findRewardCenterAddress(address);
     const rewardCenterAccount = await connection.getAccountInfo(rewardCenterAddress);
 
-    let rewardCenter: RewardCenter | null = null; 
+    let rewardCenter: RewardCenter | null = null;
 
     if (!!rewardCenterAccount) {
       rewardCenter = RewardCenter.deserialize(rewardCenterAccount.data, 0)[0];
