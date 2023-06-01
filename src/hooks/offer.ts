@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
+import { NightmarketClient, Action } from '@motleylabs/mtly-nightmarket';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
@@ -107,7 +107,7 @@ export function useMakeOffer(listing: ActionInfo | null, floorPrice?: string): M
 
     const buyerPrice = amount; // already preprocessed as lamports by zod
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const txRes: TxRes = await nightmarketClient.CreateOffer(
+    const txRes: Action = await nightmarketClient.CreateOffer(
       new PublicKey(nft.mintAddress),
       toSol(amount, 9),
       new PublicKey(nft.owner),
@@ -282,7 +282,7 @@ export function useUpdateOffer(
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const tx = new Transaction();
 
-    const closeOfferRes: TxRes = await nightmarketClient.CloseOffer(
+    const closeOfferRes: Action = await nightmarketClient.CloseOffer(
       new PublicKey(nft.mintAddress),
       toSol(Number(offer.price), 9),
       new PublicKey(nft.owner),
@@ -295,7 +295,7 @@ export function useUpdateOffer(
     }
     tx.add(...closeOfferRes.instructions);
 
-    const createOfferRes: TxRes = await nightmarketClient.CreateOffer(
+    const createOfferRes: Action = await nightmarketClient.CreateOffer(
       new PublicKey(nft.mintAddress),
       toSol(amount, 9),
       new PublicKey(nft.owner),
@@ -402,7 +402,7 @@ export function useCloseOffer(offer: Offer | null): CancelOfferContext {
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
     const tx = new Transaction();
 
-    const closeOfferRes: TxRes = await nightmarketClient.CloseOffer(
+    const closeOfferRes: Action = await nightmarketClient.CloseOffer(
       new PublicKey(nft.mintAddress),
       toSol(Number(offer.price), 9),
       new PublicKey(nft.owner),
@@ -502,7 +502,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
     setAcceptingOffer(true);
 
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const res: TxRes = await nightmarketClient.AcceptOffer(
+    const res: Action = await nightmarketClient.AcceptOffer(
       new PublicKey(nft.mintAddress),
       toSol(Number(offer.price), 9),
       publicKey,
@@ -531,7 +531,7 @@ export function useAcceptOffer(offer: Offer | null): AcceptOfferContext {
       payerKey: publicKey,
       recentBlockhash: blockhash,
       instructions: res.instructions,
-    }).compileToV0Message(res.ltAccounts);
+    }).compileToV0Message(res.altAccounts);
 
     const transactionV0 = new VersionedTransaction(messageV0);
 

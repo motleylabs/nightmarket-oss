@@ -1,4 +1,4 @@
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
+import { NightmarketClient, Action } from '@motleylabs/mtly-nightmarket';
 import { useConnection } from '@solana/wallet-adapter-react';
 import type { TransactionInstruction } from '@solana/web3.js';
 import { PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
@@ -77,7 +77,7 @@ export function useListNft(): ListNftContext {
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const txRes: TxRes = await nightmarketClient.CreateListing(
+    const txRes: Action = await nightmarketClient.CreateListing(
       new PublicKey(nft.mintAddress),
       Number(amount),
       publicKey
@@ -103,7 +103,7 @@ export function useListNft(): ListNftContext {
       payerKey: publicKey,
       recentBlockhash: blockhash,
       instructions: txRes.instructions,
-    }).compileToV0Message(txRes.ltAccounts);
+    }).compileToV0Message(txRes.altAccounts);
     const transactionV0 = new VersionedTransaction(messageV0);
 
     let newListing: ActionInfo | null = null;
@@ -274,18 +274,17 @@ export function useBulkListing(): BulkListContext {
           const nightmarketClient = new NightmarketClient(
             process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? ''
           );
-          const txRes: TxRes = await nightmarketClient.CreateListing(
+          const txRes: Action = await nightmarketClient.CreateListing(
             new PublicKey(nft.mintAddress),
             Number(basePrice),
-            publicKey,
-            false
+            publicKey
           );
 
           if (!!txRes.err) {
             throw txRes.err;
           }
 
-          pendingTxInstructions.push(...txRes.instructions);
+          pendingTxInstructions.push(...txRes.instructions.slice(0, 2));
 
           return {
             nft,
@@ -425,7 +424,7 @@ export function useUpdateListing({ listing }: UpdateListingArgs): UpdateListingC
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const buyerPrice = toLamports(Number(amount));
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const txRes: TxRes = await nightmarketClient.UpdateListing(
+    const txRes: Action = await nightmarketClient.UpdateListing(
       new PublicKey(nft.mintAddress),
       Number(amount),
       publicKey
@@ -541,7 +540,7 @@ export function useCloseListing({
     setClosing(true);
 
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const txRes: TxRes = await nightmarketClient.CloseListing(
+    const txRes: Action = await nightmarketClient.CloseListing(
       new PublicKey(nft.mintAddress),
       publicKey
     );

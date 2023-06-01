@@ -1,4 +1,4 @@
-import { NightmarketClient, TxRes } from '@motleylabs/mtly-nightmarket';
+import { NightmarketClient, Action } from '@motleylabs/mtly-nightmarket';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 
@@ -73,7 +73,7 @@ export default function useBuyNow(): BuyContext {
     setBuying(true);
     const auctionHouseAddress = new PublicKey(auctionHouse.address);
     const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? '');
-    const txRes: TxRes = await nightmarketClient.BuyListing(
+    const txRes: Action = await nightmarketClient.BuyListing(
       new PublicKey(nft.mintAddress),
       toSol(Number(curListing.price), 9),
       new PublicKey(nft.owner),
@@ -103,7 +103,7 @@ export default function useBuyNow(): BuyContext {
         payerKey: publicKey,
         recentBlockhash: blockhash,
         instructions: txRes.instructions,
-      }).compileToV0Message(txRes.ltAccounts);
+      }).compileToV0Message(txRes.altAccounts);
 
       const transactionV0 = new VersionedTransaction(messageV0);
 
