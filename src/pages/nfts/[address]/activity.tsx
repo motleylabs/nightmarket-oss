@@ -102,7 +102,7 @@ export default function NftActivity({ nft }: NftActivityPageProps) {
         {activities.map((activity, i) => (
           <Activity
             type={activity.activityType as ActivityType}
-            key={i}
+            key={`nft-activity-${i}`}
             meta={
               <Activity.Meta
                 title={<Activity.Tag />}

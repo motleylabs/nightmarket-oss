@@ -128,7 +128,7 @@ export default function ProfileActivity(): JSX.Element {
           }
           className="mt-4 flex flex-col gap-4 px-4 pt-4 md:px-8"
         >
-          {activities.map((activity) => (
+          {activities.map((activity, index) => (
             <Activity
               avatar={
                 <Link
@@ -139,7 +139,7 @@ export default function ProfileActivity(): JSX.Element {
                 </Link>
               }
               type={activity.activityType as ActivityType}
-              key={activity.mint}
+              key={`activity-${activity.mint}-${index}`}
               meta={
                 <Activity.Meta
                   title={<Activity.Tag />}
