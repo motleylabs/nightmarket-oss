@@ -15,6 +15,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  transpilePackages: [
+    'react-hotjar'
+  ]
 };
 
 module.exports = nextConfig;

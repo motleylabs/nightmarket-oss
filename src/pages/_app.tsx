@@ -27,6 +27,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { Fragment, useCallback, useRef, useState } from 'react';
+import { hotjar } from 'react-hotjar';
 import { ToastContainer } from 'react-toastify';
 import { SWRConfig, useSWRConfig } from 'swr';
 import useSWR from 'swr';
@@ -701,6 +702,13 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
       }
     }
   }, [router.query?.[COOKIE_REF]]);
+
+  useEffect(() => {
+    hotjar.initialize(
+      Number(process.env.NEXT_PUBLIC_HOTJAR_JID),
+      Number(process.env.NEXT_PUBLIC_HOTJAR_JSV)
+    );
+  }, []);
 
   const { cache } = useSWRConfig();
 
