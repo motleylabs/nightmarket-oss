@@ -159,6 +159,19 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           { ns: 'common' }
         )}`}</title>
         <meta name="description" content={collection.description} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content={`${collection.name} - Collection | ${t('header.title', { ns: 'common' })}`}
+        />
+        <meta
+          property="og:url"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/collections/${collection.slug}`}
+        />
+        <meta property="og:image" content={`${collection.image}`} />
+        <meta property="og:description" content={`${collection.description}`} />
+        <meta property="og:site_name" content={`${t('header.title', { ns: 'common' })}`} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Overview>

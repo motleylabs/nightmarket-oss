@@ -455,6 +455,24 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
           <title>{nft.name}</title>
         )}
         <meta name="description" content={nft.description} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content={`${nft.name ?? 'NFT'} - ${
+            !!collection && collection.name ? collection.name : 'Collection'
+          } | ${t('header.title', {
+            ns: 'common',
+          })}`}
+        />
+        <meta
+          property="og:url"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/nfts/${nft.mintAddress}`}
+        />
+        <meta property="og:image" content={`${nft.image}`} />
+        <meta property="og:description" content={`${nft.description}`} />
+        <meta property="og:site_name" content={`${t('header.title', { ns: 'common' })}`} />
+
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Overview.Media>
