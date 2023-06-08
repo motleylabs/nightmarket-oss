@@ -87,6 +87,7 @@ export type Nft = {
   name: string;
   owner: string | null;
   projectId: string;
+  projectName: string | null;
   sellerFeeBasisPoints: number;
   symbol: string;
   tokenStandard: string;

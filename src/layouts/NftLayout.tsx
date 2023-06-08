@@ -459,11 +459,12 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content={`${nft.name ?? 'NFT'} - ${
-            !!collection && collection.name ? collection.name : 'Collection'
-          } | ${t('header.title', {
-            ns: 'common',
-          })}`}
+          content={`${nft.name ?? 'NFT'} - ${!!nft.projectName ? nft.projectName : 'NFT'} | ${t(
+            'header.title',
+            {
+              ns: 'common',
+            }
+          )}`}
         />
         <meta
           property="og:url"

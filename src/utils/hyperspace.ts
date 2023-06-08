@@ -27,7 +27,7 @@ export const getBuyNowTransaction = async (
         mint: tokenAddress,
       },
       {
-        validateStatus: function (status) {
+        validateStatus: function (state) {
           return true;
         },
       }
