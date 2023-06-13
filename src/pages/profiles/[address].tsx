@@ -161,6 +161,7 @@ export default function ProfileCollected({ offers }: Props) {
           open={open}
           onChange={toggleSidebar}
           show={Boolean(collectionsData && collectionsData?.length > 0)}
+          isLoading={isLoading}
         />
       </Toolbar>
       <Sidebar.Page open={open}>

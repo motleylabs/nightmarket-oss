@@ -2,6 +2,7 @@
 import { useWindowWidth } from '@react-hook/window-size';
 
 import clsx from 'clsx';
+import { useTranslation } from 'next-i18next';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { SetStateAction, Dispatch } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -64,6 +65,7 @@ export function List<T>({
   orderBy,
   setOrderBy,
 }: ListProps<T>): JSX.Element {
+  const { t } = useTranslation(['profile']);
   const windowWidth = useWindowWidth();
   const Skeleton = skeleton;
   const [activeGridSize, setActiveGridSize] = useState(0);
@@ -260,31 +262,33 @@ export function List<T>({
             data?.map(render)
           )}
         </InfiniteScroll>
+      ) : loading ? (
+        <>
+          {cardType.includes('list') ? (
+            <div className="flex flex-col gap-4 pt-4">
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+              <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
+            </div>
+          ) : (
+            <div
+              className={clsx(
+                `grid gap-4 pt-4 md:gap-${gap}`,
+                expanded ? openClassNames : closedClassNames,
+                className
+              )}
+            >
+              {[...Array(activeGridSize * 2)].map((_, index) => (
+                <Skeleton key={index} />
+              ))}
+            </div>
+          )}
+        </>
       ) : (
-        loading && (
-          <>
-            {cardType.includes('list') ? (
-              <div className="flex flex-col gap-4 pt-4">
-                <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-                <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-                <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-                <div className="h-16 animate-pulse rounded-[10px] bg-gray-800" />
-              </div>
-            ) : (
-              <div
-                className={clsx(
-                  `grid gap-4 pt-4 md:gap-${gap}`,
-                  expanded ? openClassNames : closedClassNames,
-                  className
-                )}
-              >
-                {[...Array(activeGridSize * 2)].map((_, index) => (
-                  <Skeleton key={index} />
-                ))}
-              </div>
-            )}
-          </>
-        )
+        <div className="text-gray-200 w-full text-center mt-[75px]">
+          {t('noNFTs', { ns: 'profile' })}
+        </div>
       )}
     </>
   );
