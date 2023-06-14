@@ -188,7 +188,8 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
             <div className="space-y-4 md:mt-2">
               <div className="flex w-full justify-center md:justify-start">
                 <Overview.Title>{collection.name}</Overview.Title>
-                <VerifiedBadge isVerified={true} />
+                <VerifiedBadge isVerified={collection.isVerified} />
+                {!collection.isVerified && <>&nbsp;&nbsp;&nbsp;</>}
                 <EnforcedBadge isEnforced={metadata?.tokenStandard === 4} />
               </div>
               {(!!collection.twitter || !!collection.website || !!collection.discord) && (
