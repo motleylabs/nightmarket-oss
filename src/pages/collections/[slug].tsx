@@ -41,9 +41,15 @@ import { Sidebar } from '../../components/Sidebar';
 import { Toggle } from '../../components/Toggle';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
+import { useAction } from '../../hooks/useAction';
 import { api } from '../../infrastructure/api';
 import CollectionLayout from '../../layouts/CollectionLayout';
-import type { Collection, CollectionNftsData } from '../../typings';
+import type {
+  AttributeStat,
+  Collection,
+  CollectionAttribute,
+  CollectionNftsData,
+} from '../../typings';
 import type { Nft } from '../../typings';
 
 const PAGE_LIMIT = 24;
@@ -227,6 +233,20 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const [orderBy, setOrderBy] = useState<string>('asc');
   const [lastSortBy, setLastSortBy] = useState<string>('price');
   const [lastOrderBy, setLastOrderBy] = useState<string>('asc');
+  const { on, off } = useAction();
+
+  const refreshCollection = () => {
+    setValue('attributes', {});
+    setListingOnly(true);
+    setNightmarketOnly(false);
+    setCardType('grid-small');
+    setSortBy('price');
+    setOrderBy('asc');
+    setLastSortBy('price');
+    setLastOrderBy('asc');
+    clearPriceFilter();
+    setNftName('');
+  };
 
   const selectedAttributes: PillItem[] = useMemo(() => {
     const pillItems = Object.entries(attributes)
@@ -376,11 +396,45 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     [attributes, clearPriceFilter, setValue]
   );
 
+  const onSelectAttributes = (group: CollectionAttribute, valueItem: AttributeStat) => {
+    if (attributes[group.name]?.values?.includes(valueItem.value)) {
+      const filtered = attributes[group.name]?.values?.filter((a) => a !== valueItem.value);
+      if (filtered.length > 0) {
+        setValue('attributes', {
+          ...attributes,
+          [group.name]: {
+            type: group.type,
+            values: filtered,
+          },
+        });
+      } else {
+        delete attributes[group.name];
+        setValue('attributes', { ...attributes });
+      }
+    } else {
+      setValue('attributes', {
+        ...attributes,
+        [group.name]: {
+          type: group.type,
+          values: [...(attributes[group.name]?.values ?? []), valueItem.value],
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     setNFTs(data?.flatMap((pageData) => pageData.nfts) ?? []);
   }, [data]);
 
   const isNotFound = useMemo(() => nfts.length === 0 && !isLoading, [isLoading, nfts.length]);
+
+  useEffect(() => {
+    on('refresh-collection', refreshCollection);
+
+    return () => {
+      off('refresh-collection', refreshCollection);
+    };
+  });
 
   return (
     <>
@@ -604,24 +658,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                                         selected={attributes[group.name]?.values?.includes(
                                           valueItem.value
                                         )}
-                                        onClick={() => {
-                                          setValue('attributes', {
-                                            ...attributes,
-                                            [group.name]: {
-                                              type: group.type,
-                                              values: attributes[group.name]?.values?.includes(
-                                                valueItem.value
-                                              )
-                                                ? attributes[group.name]?.values?.filter(
-                                                    (a) => a !== valueItem.value
-                                                  )
-                                                : [
-                                                    ...(attributes[group.name]?.values ?? []),
-                                                    valueItem.value,
-                                                  ],
-                                            },
-                                          });
-                                        }}
+                                        onClick={() => onSelectAttributes(group, valueItem)}
                                       />
                                     ))}
                                   </Disclosure.Panel>

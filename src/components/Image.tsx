@@ -25,9 +25,12 @@ function Img({
 }: ImgProps): JSX.Element {
   const [hideImage, setHideImage] = useState(true);
   const [hasImageError, setImageError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src);
+  const [currentSrc, setCurrentSrc] = useState<string>('');
 
   useEffect(() => {
+    setHideImage(true);
+    setCurrentSrc(src as string);
+
     const image = new Image();
     image.decoding = 'async';
     image.onload = () => {

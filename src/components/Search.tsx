@@ -12,6 +12,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import { DebounceInput } from 'react-debounce-input';
 
 import { SearchMode } from '../hooks/globalsearch';
+import { useAction } from '../hooks/useAction';
 import { VerifiedBadge } from '../layouts/CollectionLayout';
 import { shortenAddress } from '../modules/address';
 import type { Nft, StatSearch } from '../typings';
@@ -267,12 +268,14 @@ type SearchResultProps = {
 
 function CollectionSearchResult({ name, image, value, slug, isVerified }: SearchResultProps) {
   const { push } = useRouter();
+  const { trigger } = useAction();
 
   return (
     <Combobox.Option
       key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
+        trigger('refresh-collection');
         push(`/collections/${slug}`);
       }, [slug, push])}
     >
