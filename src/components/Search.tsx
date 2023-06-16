@@ -17,6 +17,7 @@ import { shortenAddress } from '../modules/address';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
+import { useAction } from '../hooks/useAction';
 
 type Input = FC;
 type Group = FC;
@@ -267,12 +268,14 @@ type SearchResultProps = {
 
 function CollectionSearchResult({ name, image, value, slug, isVerified }: SearchResultProps) {
   const { push } = useRouter();
+  const { trigger } = useAction();
 
   return (
     <Combobox.Option
       key={`collection-${slug}`}
       value={value}
       onClick={useCallback(() => {
+        trigger('refresh-collection');
         push(`/collections/${slug}`);
       }, [slug, push])}
     >
