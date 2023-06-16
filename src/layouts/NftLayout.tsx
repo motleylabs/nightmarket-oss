@@ -59,6 +59,10 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
   const { data: offers, isLoading, isValidating, mutate } = useOffers(nft.mintAddress);
   const { on, off, trigger } = useAction();
 
+  useEffect(() => {
+    setNft(serverNft);
+  }, [serverNft.mintAddress]);
+
   const addOffer = (event: Event) => {
     const newOfferEvent: OfferEvent = (event as CustomEvent).detail;
 
@@ -444,6 +448,8 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
 
   const activeForm = makeOffer || listNft || updateListing || buy || updateOffer;
 
+  const nftImageURL = useMemo(() => getAssetURL(nft.image, AssetSize.Large), [nft.image]);
+
   return (
     <Overview>
       <Head>
@@ -479,17 +485,19 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
       <Overview.Media>
         <Lightbox.Container>
           <Image
-            src={getAssetURL(nft.image, AssetSize.Large)}
+            src={nftImageURL}
             alt="nft image"
             className="w-full rounded-lg object-cover"
             backdrop={ImgBackdrop.Cell}
+            key={`original-${nftImageURL}`}
           />
           <Lightbox.Show onClick={() => setExpanded(true)} />
         </Lightbox.Container>
       </Overview.Media>
       <Lightbox show={expanded} onDismiss={() => setExpanded(false)}>
         <Image
-          src={getAssetURL(nft.image, AssetSize.Large)}
+          src={nftImageURL}
+          key={`expanded-${nftImageURL}`}
           className="aspect-auto h-full w-full rounded-lg"
           alt={`${nft.name} image`}
         />
