@@ -41,6 +41,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { Toggle } from '../../components/Toggle';
 import { Toolbar } from '../../components/Toolbar';
 import useSidebar from '../../hooks/sidebar';
+import { useAction } from '../../hooks/useAction';
 import { api } from '../../infrastructure/api';
 import CollectionLayout from '../../layouts/CollectionLayout';
 import type {
@@ -50,7 +51,6 @@ import type {
   CollectionNftsData,
 } from '../../typings';
 import type { Nft } from '../../typings';
-import { useAction } from '../../hooks/useAction';
 
 const PAGE_LIMIT = 24;
 
@@ -246,7 +246,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     setLastOrderBy('asc');
     clearPriceFilter();
     setNftName('');
-  }
+  };
 
   const selectedAttributes: PillItem[] = useMemo(() => {
     const pillItems = Object.entries(attributes)

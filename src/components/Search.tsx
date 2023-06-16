@@ -12,12 +12,12 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import { DebounceInput } from 'react-debounce-input';
 
 import { SearchMode } from '../hooks/globalsearch';
+import { useAction } from '../hooks/useAction';
 import { VerifiedBadge } from '../layouts/CollectionLayout';
 import { shortenAddress } from '../modules/address';
 import type { Nft, StatSearch } from '../typings';
 import { AssetSize, getAssetURL } from '../utils/assets';
 import Img from './Image';
-import { useAction } from '../hooks/useAction';
 
 type Input = FC;
 type Group = FC;
