@@ -16,7 +16,7 @@ const VALID_IMAGE_SIZES = [
   AssetSize.Large,
 ];
 
-const ASSET_BASE = 'https://assets.nightmarket.io/';
+const ASSET_BASE = 'https://cdn.helius.services/';
 
 export function getImgOptAssetURL(url: string | undefined, size: AssetSize): string {
   if (!url) {
