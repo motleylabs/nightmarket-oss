@@ -96,6 +96,7 @@ export default function ListingItem({
             validate: (value) =>
               !disabled ? Boolean(+value) && Boolean(value.match(NUMBER_REGEX)?.length) : true,
           })}
+          autoComplete="off"
           icon={<Icon.Sol defaultColor={!disabled ? '#A8A8A8' : 'rgba(100,100,100,0.3)'} />}
           disabled={disabled}
         />

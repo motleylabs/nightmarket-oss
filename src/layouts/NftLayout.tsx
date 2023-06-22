@@ -807,6 +807,7 @@ export default function NftLayout({ children, nft: serverNft }: NftLayoutProps) 
               <Form.Input
                 icon={<Icon.Sol />}
                 error={updateListingState.errors.amount}
+                autoComplete="off"
                 autoFocus
                 {...registerUpdateListing('amount', {
                   required: true,
