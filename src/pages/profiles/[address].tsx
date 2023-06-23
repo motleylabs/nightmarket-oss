@@ -7,7 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useSWR from 'swr';
@@ -23,6 +23,7 @@ import useSidebar from '../../hooks/sidebar';
 import { useAction } from '../../hooks/useAction';
 import { api } from '../../infrastructure/api';
 import ProfileLayout from '../../layouts/ProfileLayout';
+import { useBulkListContext } from '../../providers/BulkListProvider';
 import { useWalletContext } from '../../providers/WalletContextProvider';
 import type { UserNfts, Offer, UserOffersData, MiniCollection, ActivityEvent } from '../../typings';
 import { getSolFromLamports } from '../../utils/price';
@@ -57,9 +58,9 @@ type Props = {
 export default function ProfileCollected({ offers }: Props) {
   const { t } = useTranslation(['collection', 'common']);
   const { query } = useRouter();
-  const [showDrawer, setShowDrawer] = useState(false);
 
   const { data, isValidating } = useSWR<UserNfts>(`/users/nfts?address=${query.address}`);
+  const { selected } = useBulkListContext();
 
   const { nfts: nftsData, collections: collectionsData } = data || {};
 
@@ -148,10 +149,6 @@ export default function ProfileCollected({ offers }: Props) {
       ),
     [pillItems, setValue]
   );
-
-  useEffect(() => {
-    setShowDrawer(Boolean(selectedCollections.length) && address === query.address);
-  }, [selectedCollections, address, query.address]);
 
   return (
     <>
@@ -259,7 +256,6 @@ export default function ProfileCollected({ offers }: Props) {
                             onBuy={() => buyNow(nft, miniCollection(nft.projectId))}
                             nft={nft}
                             offers={offers}
-                            onSelect={setShowDrawer}
                             bulkSelectEnabled={true}
                           />
                         )}
@@ -272,7 +268,7 @@ export default function ProfileCollected({ offers }: Props) {
           </>
         </Sidebar.Content>
       </Sidebar.Page>
-      <BulkListBottomDrawer ownedNfts={nftsData} openDrawer={showDrawer} />
+      <BulkListBottomDrawer ownedNfts={nftsData} openDrawer={selected.length > 0} />
     </>
   );
 }

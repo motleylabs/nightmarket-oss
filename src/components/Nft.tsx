@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { FormEventHandler } from 'react';
 import React from 'react';
 import { useState } from 'react';
@@ -35,7 +35,6 @@ interface PreviewProps {
   bulkSelectEnabled: boolean;
   onMakeOffer: () => void;
   onBuy: () => void;
-  onSelect?: (val: boolean) => void;
   onCancel?: () => void;
 }
 
@@ -47,7 +46,6 @@ export function Preview({
   cardType,
   bulkSelectEnabled,
   onBuy,
-  onSelect,
   onCancel,
 }: PreviewProps): JSX.Element {
   const { t } = useTranslation(['common', 'home']);
@@ -118,10 +116,6 @@ export function Preview({
   };
 
   const isBulkSelected = selected.includes(nft);
-
-  useEffect(() => {
-    onSelect?.(isBulkSelected);
-  }, [isBulkSelected, onSelect]);
 
   return (
     <>

@@ -59,20 +59,20 @@ function BulkListBottomDrawer({ ownedNfts = [], openDrawer }: BulkListBottomDraw
         </div>
       </div>
       <div className="h-12 w-full bg-black" />
-      <div className="sm:px=[2.5] relative flex h-[4.5rem] items-center justify-between rounded-t-xl border-t border-gray-600/50 bg-gray-700 py-[1.5rem] px-[1.5rem]">
+      <div className="sm:px=[2.5] relative flex h-[4.5rem] items-center justify-between rounded-t-xl border-t border-gray-600/50 bg-gray-700 px-[1.5rem]">
         <div className="absolute left-0 top-1 w-full ">
           <div className="m-auto h-1 w-10 rounded-full bg-gray-600" />
         </div>
         {selected.length ? (
           <>
-            <div className="relative flex w-[60%] items-center gap-1 overflow-hidden">
+            <div className="relative flex w-[60%] items-center gap-2 overflow-hidden">
               {selected.map((nft) => (
                 <Img
                   key={nft.mintAddress}
                   fallbackSrc="/images/moon.svg"
                   src={getAssetURL(nft.image, AssetSize.XSmall)}
                   alt={nft.name}
-                  className="image-fit h-[1.5rem] w-[1.5rem] rounded-md"
+                  className="image-fit h-[3rem] w-[3rem] rounded-md"
                 />
               ))}
               <div className="top-inherit absolute right-0 h-[1.5rem] w-1/6 bg-gradient-to-l from-gray-700 to-transparent" />
