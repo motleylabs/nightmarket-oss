@@ -121,7 +121,7 @@ export default function handler(request: NextRequest) {
             <span
               style={{
                 color: 'white',
-                width: '150px',
+                width: '180px',
               }}
             >
               {getExtendedSolFromLamports(volume)} SOL
@@ -137,7 +137,7 @@ export default function handler(request: NextRequest) {
           >
             <span
               style={{
-                color: 'white',
+                color: '#ccc',
                 width: '120px',
               }}
             >
@@ -145,7 +145,7 @@ export default function handler(request: NextRequest) {
             </span>
             <span
               style={{
-                color: 'white',
+                color: '#ccc',
                 width: '150px',
               }}
             >
@@ -153,7 +153,7 @@ export default function handler(request: NextRequest) {
             </span>
             <span
               style={{
-                color: 'white',
+                color: '#ccc',
                 width: '180px',
               }}
             >
@@ -161,8 +161,8 @@ export default function handler(request: NextRequest) {
             </span>
             <span
               style={{
-                color: 'white',
-                width: '150px',
+                color: '#ccc',
+                width: '180px',
               }}
             >
               24H volume
