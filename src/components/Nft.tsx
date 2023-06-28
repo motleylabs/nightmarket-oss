@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { FormEventHandler } from 'react';
 import React from 'react';
 import { useState } from 'react';
@@ -55,6 +55,10 @@ export function Preview({
   const { auctionHouse } = useAuctionHouseContext();
   const [nft, setNft] = useState<Nft>(previewNft);
   const isOwner = address === nft.owner;
+
+  useEffect(() => {
+    setNft(previewNft);
+  }, [previewNft]);
 
   const listing: ActionInfo | null = useMemo(() => nft.latestListing, [nft.latestListing]);
   const marketplace: Marketplace | undefined = useMemo(() => {

@@ -7,11 +7,12 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useSWR from 'swr';
 
+import config from '../../app.config';
 import BulkListBottomDrawer from '../../components/BulkListing/BottomDrawer';
 import { Buyable } from '../../components/Buyable';
 import { Preview } from '../../components/Nft';
@@ -25,7 +26,14 @@ import { api } from '../../infrastructure/api';
 import ProfileLayout from '../../layouts/ProfileLayout';
 import { useBulkListContext } from '../../providers/BulkListProvider';
 import { useWalletContext } from '../../providers/WalletContextProvider';
-import type { UserNfts, Offer, UserOffersData, MiniCollection, ActivityEvent } from '../../typings';
+import type {
+  UserNfts,
+  Offer,
+  UserOffersData,
+  MiniCollection,
+  ActivityEvent,
+  Nft,
+} from '../../typings';
 import { getSolFromLamports } from '../../utils/price';
 import { Collection } from './../../components/Collection';
 import { List, ListGridSize } from './../../components/List';
@@ -72,6 +80,14 @@ export default function ProfileCollected({ offers }: Props) {
 
   const { nfts: nftsData, collections: collectionsData } = data || {};
 
+  const [nftList, setNFTList] = useState<Nft[]>([]);
+
+  useEffect(() => {
+    if (!!nftsData) {
+      setNFTList(nftsData);
+    }
+  }, [nftsData]);
+
   const isLoading = !data && isValidating;
 
   const { watch, control, setValue } = useForm<{ collections: string[] }>({
@@ -86,18 +102,28 @@ export default function ProfileCollected({ offers }: Props) {
     const newActivityEvent: ActivityEvent = (event as CustomEvent).detail;
 
     if (newActivityEvent.activity.activityType === 'LISTING') {
-      if (!isLoading && !!nftsData) {
-        const nftIndex = nftsData.findIndex((nft) => nft.mintAddress === newActivityEvent.mint);
-        if (nftIndex > -1) {
-          nftsData[nftIndex].latestListing = {
-            userAddress: newActivityEvent.activity.seller ?? '',
-            price: newActivityEvent.activity.price,
-            signature: '',
-            blockTimestamp: newActivityEvent.activity.blockTimestamp,
-            auctionHouseProgram: '',
-            auctionHouseAddress: '',
-          };
-        }
+      if (!isLoading) {
+        setNFTList((prevList) => {
+          const newList = prevList.map((nftItem) => {
+            if (nftItem.mintAddress === newActivityEvent.mint) {
+              return {
+                ...nftItem,
+                latestListing: {
+                  userAddress: newActivityEvent.activity.seller ?? '',
+                  price: newActivityEvent.activity.price,
+                  signature: '',
+                  blockTimestamp: newActivityEvent.activity.blockTimestamp,
+                  auctionHouseProgram: '',
+                  auctionHouseAddress: config.auctionHouse,
+                },
+              };
+            } else {
+              return nftItem;
+            }
+          });
+
+          return newList;
+        });
       }
     }
   };
@@ -156,6 +182,22 @@ export default function ProfileCollected({ offers }: Props) {
         pillItems.filter((p) => p.key !== item.key).map((c) => c.key)
       ),
     [pillItems, setValue]
+  );
+
+  const removeLatestListing = (mintAddress: string) => {
+    const nftIndex = nftList.findIndex((nftItem) => nftItem.mintAddress === mintAddress);
+    if (nftIndex > -1) {
+      nftList[nftIndex].latestListing = null;
+      setNFTList([...nftList]);
+    }
+  };
+
+  const filteredNfts = useMemo(
+    () =>
+      selectedCollections.length
+        ? nftList?.filter((nft) => selectedCollections.includes(nft.projectId))
+        : nftList,
+    [nftList, selectedCollections]
   );
 
   return (
@@ -234,10 +276,6 @@ export default function ProfileCollected({ offers }: Props) {
               {({ makeOffer }) => (
                 <Buyable connected={Boolean(address)}>
                   {({ buyNow }) => {
-                    const filteredNfts = selectedCollections.length
-                      ? nftsData?.filter((nft) => selectedCollections.includes(nft.projectId))
-                      : nftsData;
-
                     return (
                       <List
                         cardType="grid"
@@ -265,6 +303,7 @@ export default function ProfileCollected({ offers }: Props) {
                             nft={nft}
                             offers={offers}
                             bulkSelectEnabled={true}
+                            onCancel={() => removeLatestListing(nft.mintAddress)}
                           />
                         )}
                       />
@@ -276,7 +315,7 @@ export default function ProfileCollected({ offers }: Props) {
           </>
         </Sidebar.Content>
       </Sidebar.Page>
-      <BulkListBottomDrawer ownedNfts={nftsData} openDrawer={selected.length > 0} />
+      <BulkListBottomDrawer ownedNfts={nftList} openDrawer={selected.length > 0} />
     </>
   );
 }
