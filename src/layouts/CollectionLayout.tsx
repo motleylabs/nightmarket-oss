@@ -169,7 +169,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           property="og:url"
           content={`${process.env.NEXT_PUBLIC_BASE_URL}/collections/${collection.slug}`}
         />
-        <meta property="og:image" content={`${collection.image}`} />
+        <meta
+          property="og:image"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/og/collections/${collection.slug}`}
+        />
         <meta property="og:description" content={`${collection.description}`} />
         <meta property="og:site_name" content={`${t('header.title', { ns: 'common' })}`} />
         <link rel="icon" href="/favicon.ico" />
