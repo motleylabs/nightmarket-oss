@@ -89,4 +89,5 @@ input[type='search']::-webkit-search-cancel-button {
   text-fill-color: transparent;
 }
 
-@import 'collection.css'
+@import 'collection.css';
+@import 'error.css';

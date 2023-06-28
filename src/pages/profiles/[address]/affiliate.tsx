@@ -25,22 +25,30 @@ import { useWalletContext } from '../../../providers/WalletContextProvider';
 import type { UserNfts } from '../../../typings';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
+  try {
+    const i18n = await serverSideTranslations(locale as string, ['common', 'profile', 'referrals']);
 
-  const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
+    const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
 
-  if (data == null) {
+    if (data == null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        ...data,
+        ...i18n,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/`,
+      },
     };
   }
-
-  return {
-    props: {
-      ...data,
-      ...i18n,
-    },
-  };
 }
 
 const CLAIM_TAB = 'CLAIM_TAB';

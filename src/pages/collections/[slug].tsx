@@ -65,48 +65,56 @@ type PriceFilter = {
 };
 
 export async function getServerSideProps({ locale, params, res }: GetServerSidePropsContext) {
-  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
+  try {
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate');
 
-  const start1 = Date.now();
-  const i18n = await serverSideTranslations(locale as string, [
-    'common',
-    'collection',
-    'nft',
-    'buyable',
-    'analytics',
-  ]);
-  console.log('i18n', Date.now() - start1);
+    const start1 = Date.now();
+    const i18n = await serverSideTranslations(locale as string, [
+      'common',
+      'collection',
+      'nft',
+      'buyable',
+      'analytics',
+    ]);
+    console.log('i18n', Date.now() - start1);
 
-  const start2 = Date.now();
-  console.log('api', Date.now() - start2);
+    const start2 = Date.now();
+    console.log('api', Date.now() - start2);
 
-  const start3 = Date.now();
-  const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
-  console.log('data', Date.now() - start3);
+    const start3 = Date.now();
+    const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
+    console.log('data', Date.now() - start3);
 
-  if (data == null) {
+    if (data == null) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const start4 = Date.now();
+    data.attributes?.map((attribute) => {
+      if (attribute.values.length > 0) {
+        const total = attribute.values.reduce((acc, item) => acc + item.counts, 0);
+        attribute.values.map((valueItem) => {
+          valueItem.percent = Math.round((valueItem.counts / total) * 10000) / 100;
+        });
+      }
+    });
+    console.log('data.attributes', Date.now() - start4);
+
     return {
-      notFound: true,
+      props: {
+        collection: data,
+        ...i18n,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/`,
+      },
     };
   }
-
-  const start4 = Date.now();
-  data.attributes?.map((attribute) => {
-    if (attribute.values.length > 0) {
-      const total = attribute.values.reduce((acc, item) => acc + item.counts, 0);
-      attribute.values.map((valueItem) => {
-        valueItem.percent = Math.round((valueItem.counts / total) * 10000) / 100;
-      });
-    }
-  });
-  console.log('data.attributes', Date.now() - start4);
-
-  return {
-    props: {
-      collection: data,
-      ...i18n,
-    },
-  };
 }
 
 enum SortType {

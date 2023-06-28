@@ -31,24 +31,32 @@ import { Collection } from './../../components/Collection';
 import { List, ListGridSize } from './../../components/List';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, [
-    'common',
-    'profile',
-    'collection',
-    'nft',
-    'buyable',
-  ]);
+  try {
+    const i18n = await serverSideTranslations(locale as string, [
+      'common',
+      'profile',
+      'collection',
+      'nft',
+      'buyable',
+    ]);
 
-  const { data: offersData } = await api.get<UserOffersData>(
-    `/users/offers?address=${params?.address}&limit=100&offset=0`
-  );
+    const { data: offersData } = await api.get<UserOffersData>(
+      `/users/offers?address=${params?.address}&limit=100&offset=0`
+    );
 
-  return {
-    props: {
-      ...i18n,
-      offers: offersData.activities ?? null,
-    },
-  };
+    return {
+      props: {
+        ...i18n,
+        offers: offersData.activities ?? null,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/`,
+      },
+    };
+  }
 }
 
 type Props = {

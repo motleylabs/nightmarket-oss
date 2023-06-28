@@ -20,22 +20,30 @@ import type { UserActivitiesData, UserNfts } from '../../../typings';
 import { getActivityTypes } from '../../../utils/activity';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
+  try {
+    const i18n = await serverSideTranslations(locale as string, ['common', 'profile']);
 
-  const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
+    const { data } = await api.get<UserNfts>(`/users/nfts?address=${params?.address}`);
 
-  if (data == null) {
+    if (data == null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        ...data,
+        ...i18n,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/`,
+      },
     };
   }
-
-  return {
-    props: {
-      ...data,
-      ...i18n,
-    },
-  };
 }
 
 const PAGE_LIMIT = 24;

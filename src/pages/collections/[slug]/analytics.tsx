@@ -18,26 +18,34 @@ import { CollectionDateRange } from '../../../typings/index.d';
 import type { Collection } from '../../../typings/index.d';
 
 export async function getServerSideProps({ locale, params }: GetServerSidePropsContext) {
-  const i18n = await serverSideTranslations(locale as string, [
-    'collection',
-    'common',
-    'analytics',
-  ]);
+  try {
+    const i18n = await serverSideTranslations(locale as string, [
+      'collection',
+      'common',
+      'analytics',
+    ]);
 
-  const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
+    const { data } = await api.get<Collection>(`/collections/${params?.slug}`);
 
-  if (data === null) {
+    if (data === null) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        collection: data,
+        ...i18n,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: `/`,
+      },
     };
   }
-
-  return {
-    props: {
-      collection: data,
-      ...i18n,
-    },
-  };
 }
 
 const roundFloat = (value: number, decimals = 2): number => {

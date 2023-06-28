@@ -31,7 +31,11 @@ export async function getServerSideProps({ locale, params }: GetServerSidePropsC
       },
     };
   } catch (err) {
-    throw err;
+    return {
+      redirect: {
+        destination: `/`,
+      },
+    };
   }
 }
 
