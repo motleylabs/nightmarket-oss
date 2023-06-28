@@ -166,6 +166,10 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           content={`${collection.name} - Collection | ${t('header.title', { ns: 'common' })}`}
         />
         <meta
+          property="twitter:title"
+          content={`${collection.name} - Collection | ${t('header.title', { ns: 'common' })}`}
+        />
+        <meta
           property="og:url"
           content={`${process.env.NEXT_PUBLIC_BASE_URL}/collections/${collection.slug}`}
         />
@@ -173,6 +177,15 @@ function CollectionLayout({ children, collection }: CollectionLayoutProps): JSX.
           property="og:image"
           content={`${process.env.NEXT_PUBLIC_BASE_URL}/og/collections/${collection.slug}`}
         />
+        <meta
+          property="twitter:image"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/og/collections/${collection.slug}`}
+        />
+        <meta
+          property="twitter:cta"
+          content={`${t('view', { ns: 'nft', market: t('header.title', { ns: 'common' }) })}`}
+        />
+        <meta property="twitter:card" content="summary_large_image" />
         <meta property="og:description" content={`${collection.description}`} />
         <meta property="og:site_name" content={`${t('header.title', { ns: 'common' })}`} />
         <link rel="icon" href="/favicon.ico" />
