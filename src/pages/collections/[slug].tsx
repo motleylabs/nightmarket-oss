@@ -232,7 +232,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
 
   const { query } = useRouter();
   const { open, toggleSidebar } = useSidebar();
-  const [isLive, setIsLive] = useState<boolean>(false);
+  const [isLive, setIsLive] = useState<boolean>(true);
   const [nftName, setNftName] = useState<string>('');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>({ min: '', max: '' });
   const {
