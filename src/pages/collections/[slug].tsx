@@ -14,6 +14,7 @@ import type { ReactElement } from 'react';
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { useForm, Controller } from 'react-hook-form';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import useSWRInfinite from 'swr/infinite';
 
 import cardGridLargeActiveIcon from '../../../public/images/card-grid-large-active.svg';
@@ -44,6 +45,7 @@ import useSidebar from '../../hooks/sidebar';
 import { useAction } from '../../hooks/useAction';
 import { api } from '../../infrastructure/api';
 import CollectionLayout from '../../layouts/CollectionLayout';
+import { toLamports } from '../../modules/sol';
 import type {
   AttributeStat,
   Collection,
@@ -62,6 +64,12 @@ type PriceFilterForm = {
 type PriceFilter = {
   min: string;
   max: string;
+};
+
+type LiveDataResponse = {
+  mintAddress: string;
+  actionType: string;
+  price: number | null;
 };
 
 export async function getServerSideProps({ locale, params, res }: GetServerSidePropsContext) {
@@ -137,6 +145,20 @@ interface SortOption {
 type CollectionNftsProps = {
   collection: Collection;
 };
+
+export enum AnimationType {
+  TRANSACTION = 'animate-fade-out',
+  DELISTING = 'animate-fade-out-1.5s',
+  LISTING = 'animate-draw-border-3s',
+  NONE = '',
+}
+
+enum AnimationTimeout {
+  TRANSACTION = 3500,
+  DELISTING = 1500,
+  LISTING = 3000,
+  NONE = 0,
+}
 
 export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { t } = useTranslation(['collection', 'common']);
@@ -221,6 +243,78 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     getValues,
   } = useForm<PriceFilterForm>();
 
+  const [animatedNFTs, setAnimatedNFTs] = useState<Map<string, AnimationType | undefined>>(
+    new Map()
+  );
+
+  const clearAnimatedNFTs = () => {
+    animatedNFTs.clear();
+    setAnimatedNFTs(animatedNFTs);
+  };
+
+  const onLiveData = (message: MessageEvent<string>) => {
+    const updatedData: LiveDataResponse = JSON.parse(message.data);
+    let updatedItem: { tokenAddress: string; animation: AnimationType } | null = null;
+
+    setNFTs(
+      nfts.map((nft) => {
+        if (nft.mintAddress === updatedData?.mintAddress) {
+          updatedItem = {
+            tokenAddress: nft.mintAddress,
+            animation: getAnimationType(updatedData.actionType),
+          };
+
+          if (updatedData.actionType === 'LISTING' && !!updatedData.price) {
+            if (!!nft.latestListing) {
+              nft.latestListing.price = `${toLamports(updatedData.price)}`;
+            }
+          }
+
+          setAnimatedNFTs(
+            new Map(animatedNFTs?.set(updatedData.mintAddress, updatedItem?.animation))
+          );
+
+          setTimeout(() => {
+            setAnimatedNFTs(new Map(animatedNFTs?.set(nft.mintAddress, AnimationType.NONE)));
+          }, getAnimationTimeout(updatedItem.animation));
+        }
+        return nft;
+      })
+    );
+
+    if (updatedData.actionType.toLowerCase() === 'listing' || !!updatedItem) {
+      setTimeout(() => {
+        mutate();
+      }, 3500);
+    }
+  };
+
+  const getAnimationType = (type: string): AnimationType => {
+    switch (type) {
+      case 'LISTING':
+        return AnimationType.LISTING;
+      case 'DELISTING':
+        return AnimationType.DELISTING;
+      case 'TRANSACTION':
+        return AnimationType.TRANSACTION;
+      default:
+        return AnimationType.NONE;
+    }
+  };
+
+  const getAnimationTimeout = (type: AnimationType): number => {
+    switch (type) {
+      case AnimationType.LISTING:
+        return AnimationTimeout.LISTING;
+      case AnimationType.DELISTING:
+        return AnimationTimeout.DELISTING;
+      case AnimationType.TRANSACTION:
+        return AnimationTimeout.TRANSACTION;
+      default:
+        return AnimationTimeout.NONE;
+    }
+  };
+
   const handlePriceFilter = async (form: PriceFilterForm) => {
     const updatedFilter = {
       min: '',
@@ -257,6 +351,8 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   };
 
   const selectedAttributes: PillItem[] = useMemo(() => {
+    clearAnimatedNFTs();
+
     const pillItems = Object.entries(attributes)
       .map(([group, attributes]) =>
         attributes.values?.map((a) => {
@@ -315,6 +411,29 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     }`;
   };
 
+  const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey);
+
+  const { readyState } = useWebSocket(
+    `${process.env.NEXT_PUBLIC_WEBSOCKET_ENDPOINT}/ws?collection_id=${query.slug}`,
+    {
+      onClose: clearAnimatedNFTs,
+      onMessage: onLiveData,
+    },
+    isLive
+  );
+
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
+
+  useEffect(() => {
+    console.log(connectionStatus);
+  }, [connectionStatus]);
+
   const sortBySelectCallback = useCallback(
     (value: string) => {
       if (value === 'last_update') {
@@ -344,8 +463,6 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
       }
     }
   }, [sortBy, orderBy]);
-
-  const { data, setSize, isValidating, mutate } = useSWRInfinite<CollectionNftsData>(getKey);
 
   const isLoading = useMemo(() => !data && isValidating, [data, isValidating]);
   const hasNextPage = useMemo(() => Boolean(data?.every((d) => d.hasNextPage)), [data]);
@@ -723,6 +840,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
                         onLoadMore={onShowMoreNfts}
                         render={(nft, i) => (
                           <Preview
+                            animationType={animatedNFTs?.get(nft.mintAddress) ?? AnimationType.NONE}
                             cardType={cardType}
                             key={`${nft.mintAddress}-${i}`}
                             link={`/nfts/${nft.mintAddress}`}
