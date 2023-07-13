@@ -8,7 +8,7 @@
     "serve": "next build && next start",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write ./src/**/*.{ts,tsx}"
+    "format": "prettier --write ./src/**/*.{ts,tsx,json} ./public/locales/**/*.json"
   },
   "lint-staged": {
     "*.ts": "prettier --write",
