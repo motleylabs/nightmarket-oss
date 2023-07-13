@@ -25,6 +25,25 @@ html {
   @apply bg-black;
 }
 
+.preload-bulb-images::after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  z-index: -1;
+  content: url(/images/animated/gem/1.svg) url(/images/animated/bulb/1.svg)
+    url(/images/animated/bulb/2.svg) url(/images/animated/bulb/3.svg)
+    url(/images/animated/bulb/4.svg) url(/images/animated/bulb/5.svg)
+    url(/images/animated/bulb/6.svg) url(/images/animated/bulb/7.svg)
+    url(/images/animated/bulb/8.svg) url(/images/animated/bulb/9.svg)
+    url(/images/animated/bulb/10.svg) url(/images/animated/bulb/11.svg)
+    url(/images/animated/bulb/12.svg) url(/images/animated/bulb/13.svg)
+    url(/images/animated/bulb/14.svg) url(/images/animated/bulb/15.svg)
+    url(/images/animated/bulb/16.svg) url(/images/animated/bulb/17.svg)
+    url(/images/animated/bulb/18.svg) url(/images/animated/bulb/19.svg)
+    url(/images/animated/bulb/20.svg) url(/images/animated/bulb/21.svg);
+}
+
 .input {
   @apply rounded-md border border-gray-700;
 }
@@ -59,30 +78,34 @@ input[type='search']::-webkit-search-cancel-button {
   stroke-opacity: 0;
 }
 
-
-.fade-enter div{
+.fade-enter div {
   opacity: 0;
   /* transform: translateY(-100%); */
 }
-.fade-exit div{
+.fade-exit div {
   opacity: 1;
   /* transform: translateY(0%); */
 }
-.fade-enter-active div{
+.fade-enter-active div {
   opacity: 1;
   /* transform: translateY(0%); */
 }
-.fade-exit-active div{
+.fade-exit-active div {
   opacity: 0;
   /* transform: translateY(100%); */
 }
 .fade-enter-active div,
-.fade-exit-active div{
+.fade-exit-active div {
   transition: opacity 250ms, transform 250ms;
 }
 
-.faded-gradient-text{
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) -13.46%, rgba(255, 255, 255, 0.568842) 20.3%, #FFFFFF 100%);
+.faded-gradient-text {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) -13.46%,
+    rgba(255, 255, 255, 0.568842) 20.3%,
+    #ffffff 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

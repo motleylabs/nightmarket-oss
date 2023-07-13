@@ -33,6 +33,7 @@ import { SWRConfig, useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
 import nextI18NextConfig from '../../next-i18next.config.js';
+import Bulb from '../components/Bulb';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
 import Img from '../components/Image';
@@ -348,7 +349,11 @@ function NavigationBar() {
             </Search>
           </div>
           {/* Connect and Mobile Menu */}
-          <div className="flex items-center justify-end space-x-6">
+          <div className="flex items-center justify-end space-x-6 relative ">
+            <div className="preload-bulb-images"></div>
+            <div className="flex col justify-end items-center w-full h-full relative overflow-visible bg-red">
+              <Bulb t={t} searchExpanded={searchExpanded} />
+            </div>
             <button
               type="button"
               className={clsx(
