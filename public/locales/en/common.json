@@ -82,5 +82,9 @@
   "viewProfile": "View Profile",
   "switchWallet": "Switch Wallet",
   "disconnectWallet": "Disconnect Wallet",
-  "clear": "Clear"
+  "clear": "Clear",
+  "bulbTooltip": {
+    "title": "Rewarding your actions",
+    "description": "Throughout the bustling alleyways of Night Market, your actions turn into points. Happy earning!"
+  }
 }
