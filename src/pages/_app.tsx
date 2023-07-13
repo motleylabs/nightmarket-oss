@@ -47,7 +47,6 @@ import { fetcher } from '../infrastructure/api/fetcher';
 import { start } from '../modules/bugsnag';
 import { AuctionHouseContextProvider } from '../providers/AuctionHouseProvider';
 import BulkListProvider from '../providers/BulkListProvider';
-import CurrencyProvider from '../providers/CurrencyProvider';
 import { WalletContextProvider, useWalletContext } from '../providers/WalletContextProvider';
 import type { OverallStat, RPCReport, StatSearch } from '../typings/index.js';
 import { getCookie, setCookie } from '../utils/cookies';
@@ -728,17 +727,15 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
               className={`${BriceFont.variable} ${HauoraFont.variable} wallet-modal-theme font-sans`}
             >
               <WalletContextProvider>
-                <CurrencyProvider>
-                  <BulkListProvider>
-                    <AuctionHouseContextProvider>
-                      <NavigationBar />
-                      <PageLayout {...pageProps}>
-                        <Component {...pageProps} />
-                      </PageLayout>
-                      <Footer links={links} />
-                    </AuctionHouseContextProvider>
-                  </BulkListProvider>
-                </CurrencyProvider>
+                <BulkListProvider>
+                  <AuctionHouseContextProvider>
+                    <NavigationBar />
+                    <PageLayout {...pageProps}>
+                      <Component {...pageProps} />
+                    </PageLayout>
+                    <Footer links={links} />
+                  </AuctionHouseContextProvider>
+                </BulkListProvider>
               </WalletContextProvider>
             </WalletModalProvider>
           </WalletProvider>

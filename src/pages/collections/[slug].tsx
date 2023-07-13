@@ -148,15 +148,15 @@ type CollectionNftsProps = {
 
 export enum AnimationType {
   TRANSACTION = 'animate-fade-out',
-  DELISTING = 'animate-fade-out-1.5s',
-  LISTING = 'animate-draw-border-3s',
+  DELISTING = 'animate-fade-out-1s',
+  LISTING = 'animate-draw-border-1s',
   NONE = '',
 }
 
 enum AnimationTimeout {
   TRANSACTION = 3500,
-  DELISTING = 1500,
-  LISTING = 3000,
+  DELISTING = 1000,
+  LISTING = 1000,
   NONE = 0,
 }
 
@@ -283,9 +283,11 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
     );
 
     if (updatedData.actionType.toLowerCase() === 'listing' || !!updatedItem) {
+      const mutateTimeout = !updatedItem ? AnimationTimeout.LISTING  : getAnimationTimeout(getAnimationType(updatedData.actionType));
+
       setTimeout(() => {
         mutate();
-      }, 3500);
+      }, mutateTimeout - 200);
     }
   };
 
@@ -416,6 +418,7 @@ export default function CollectionNfts({ collection }: CollectionNftsProps) {
   const { readyState } = useWebSocket(
     `${process.env.NEXT_PUBLIC_WEBSOCKET_ENDPOINT}/ws?collection_id=${query.slug}`,
     {
+      shouldReconnect: (closeEvent) => isLive,
       onClose: clearAnimatedNFTs,
       onMessage: onLiveData,
     },

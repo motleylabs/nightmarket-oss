@@ -137,10 +137,11 @@ module.exports = {
         refresh: 'refresh 1s ease-in-out',
         'pulse-it': 'heartbeat 1.5s linear',
         'draw-border': 'draw .5s',
+        'draw-border-1s': 'draw-primary 1s',
         'draw-border-3s': 'draw-primary 3s',
         'fade-out': 'fadeOut 3s linear 1500ms',
         'fade-out-black': 'fadeOutBlack 3s linear 1500ms',
-        'fade-out-1.5s': 'fadeOut 1.5s linear 500ms',
+        'fade-out-1s': 'fadeOut 1s linear 333ms',
         'fade-out-1.5s-black': 'fadeOutBlack 1.5s linear 500ms',
       },
       transitionProperty: {
