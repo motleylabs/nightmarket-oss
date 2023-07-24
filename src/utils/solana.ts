@@ -63,7 +63,7 @@ export function parseTransactionAccounts<T extends Message | VersionedMessage>(
  * @returns TransactionInstruction
  */
 export function compiledInstructionToInstruction<
-  Ix extends CompiledInstruction | MessageCompiledInstruction
+  Ix extends CompiledInstruction | MessageCompiledInstruction,
 >(compiledInstruction: Ix, parsedAccounts: AccountMeta[]): TransactionInstruction {
   if (typeof compiledInstruction.data === 'string') {
     const ci = compiledInstruction as CompiledInstruction;

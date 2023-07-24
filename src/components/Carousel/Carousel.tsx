@@ -1,9 +1,9 @@
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 import { useRef, useState, useEffect } from 'react';
-import { Navigation, Grid } from 'swiper';
 import type { SwiperProps } from 'swiper/react';
 import { Swiper } from 'swiper/react';
+import { Navigation, Grid } from 'swiper/modules';
 
 const useSwiperRef = <T extends HTMLElement>(): [T | null, React.Ref<T>] => {
   const [wrapper, setWrapper] = useState<T | null>(null);
