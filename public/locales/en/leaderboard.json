@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "title": "Leaderboard",
+    "description": "Join the Night Market point system."
+  },
+  "connectWallet": "Connect Wallet",
+  "openNftMarketplace": "Open NFT Marketplace",
+  "exploreNightMarket": "Explore Night Market",
+  "tooltip": {
+    "diamond": {
+      "title": "We're keeping score",
+      "content": "We are keeping track of your activity on the platform. All aboard!"
+    },
+    "bonus": "Bonus points are earned when you interact with Bonus collections (they have a special icon) on the Marketplace"
+  },
+  "banner": {
+    "season": "Season",
+    "leaderboard": "Leaderboard",
+    "description.1": "During Season 1, users who buy, sell, and list NFTs on Night Market will be rewarded with Tickets. Tickets will be redeemable for [REDACTED] at the end of the Season. 👀",
+    "description.2": "The more you earn, the better the prizes will be. Happy Trading!",
+    "howToEarn": "How to earn points?"
+  },
+  "table": {
+    "position": "Position",
+    "name": "Name",
+    "bonus": "Bonus",
+    "tickerTickets": "24h Tickets",
+    "totalTickets": "Total Tickets",
+    "you":"You",
+    "loadMore": "Load more"
+  },
+  "info": {
+    "totalEarnedPoints": "Total earned points",
+    "earnedPointsIn24h": "Earned points in 24h",
+    "totalParticipants": "Total participants",
+    "participantsIn24h": "Participants in 24h"
+  },
+  "popup": {
+    "howToEarn": "How to Earn points?",
+    "open": "Open",
+    "nftMarketplace": "NFT Marketplace",
+    "buySome": "Buy some NFT or Sell it. Participate in various activities such as auctions.",
+    "youWill": "You will receive points for each such action."
+  }
+}

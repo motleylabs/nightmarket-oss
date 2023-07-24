@@ -33,11 +33,11 @@ import { SWRConfig, useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
 import nextI18NextConfig from '../../next-i18next.config.js';
-import Bulb from '../components/Bulb';
 import Button, { ButtonBackground, ButtonBorder, ButtonColor } from '../components/Button';
 import Icon from '../components/Icon';
 import Img from '../components/Image';
 import Search from '../components/Search';
+import TicketPoints from '../components/TicketPoints';
 import { BriceFont, HauoraFont } from '../fonts';
 import useGlobalSearch from '../hooks/globalsearch';
 import useLogin from '../hooks/login';
@@ -49,6 +49,7 @@ import { start } from '../modules/bugsnag';
 import { AuctionHouseContextProvider } from '../providers/AuctionHouseProvider';
 import BulkListProvider from '../providers/BulkListProvider';
 import CurrencyProvider from '../providers/CurrencyProvider';
+import { PointsContextProvider, usePointContext } from '../providers/PointsProvider';
 import { WalletContextProvider, useWalletContext } from '../providers/WalletContextProvider';
 import type { OverallStat, RPCReport, StatSearch } from '../typings/index.js';
 import { getCookie, setCookie } from '../utils/cookies';
@@ -156,6 +157,7 @@ function NavigationBar() {
 
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
   const [showMode, setShowMode] = useState<string>('collection');
+  const { push: routerPush, pathname } = useRouter();
 
   const expandedSearchRef = useRef<HTMLDivElement | null>(null);
   useOutsideAlert(
@@ -168,6 +170,7 @@ function NavigationBar() {
   const onLogin = useLogin();
 
   const { publicKey, connecting } = useWalletContext();
+  const { points } = usePointContext();
 
   const { t } = useTranslation('common');
 
@@ -181,7 +184,7 @@ function NavigationBar() {
         <div
           className={clsx(
             'sticky top-0 z-30 w-full px-4 py-2 backdrop-blur-sm md:px-8 md:py-4',
-            'grid grid-cols-4',
+            'flex flex-row mt-1',
             'h-14 md:h-20',
             'bg-black bg-opacity-90'
           )}
@@ -205,7 +208,7 @@ function NavigationBar() {
             </Link>
           </div>
           {/* Search */}
-          <div className="col-span-2 flex justify-center">
+          <div className="flex flex-1 justify-center md:max-w-[50%] md:mx-auto">
             <button
               type="button"
               className={clsx(
@@ -350,15 +353,19 @@ function NavigationBar() {
             </Search>
           </div>
           {/* Connect and Mobile Menu */}
-          <div className="flex items-center justify-end space-x-6 relative ">
-            <div className="preload-bulb-images"></div>
-            <div className="flex col justify-end items-center w-full h-full relative overflow-visible bg-red">
-              <Bulb t={t} searchExpanded={searchExpanded} />
-            </div>
+          <div
+            className={clsx(
+              'flex items-center justify-start md:space-x-6 relative -mr-[8px] md:mr-0 w-min'
+            )}
+          >
+            <div className="preload-ticket-animation-images"></div>
+
+            <TicketPoints searchExpanded={searchExpanded} />
+
             <button
               type="button"
               className={clsx(
-                'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden',
+                'rounded-full bg-transparent p-3 shadow-lg transition hover:bg-gray-800 md:hidden !ml-0 sm:ml-auto',
                 searchExpanded && 'hidden'
               )}
               onClick={useCallback(() => {
@@ -406,8 +413,8 @@ function ProfilePopover() {
   if (!address) return null;
 
   return (
-    <Popover className={'relative'}>
-      <Popover.Button>
+    <Popover className={'relative hidden md:flex'}>
+      <Popover.Button className="hidden md:flex h-10 w-10">
         <Img
           src={DEFAULT_IMAGE}
           className={clsx(
@@ -726,24 +733,26 @@ function AppPage({ Component, pageProps }: AppPropsWithLayout): JSX.Element {
     <div className={`${BriceFont.variable} ${HauoraFont.variable} font-sans `}>
       <Script defer data-domain="nightmarket.io" src="https://plausible.io/js/script.js"></Script>
       <SWRConfig value={{ fetcher }}>
-        <ToastContainer theme="dark" />
+        <ToastContainer className="md:top-32" bodyClassName="font-sans" theme="dark" />
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider
               className={`${BriceFont.variable} ${HauoraFont.variable} wallet-modal-theme font-sans`}
             >
               <WalletContextProvider>
-                <CurrencyProvider>
-                  <BulkListProvider>
-                    <AuctionHouseContextProvider>
-                      <NavigationBar />
-                      <PageLayout {...pageProps}>
-                        <Component {...pageProps} />
-                      </PageLayout>
-                      <Footer links={links} />
-                    </AuctionHouseContextProvider>
-                  </BulkListProvider>
-                </CurrencyProvider>
+                <PointsContextProvider>
+                  <CurrencyProvider>
+                    <BulkListProvider>
+                      <AuctionHouseContextProvider>
+                        <NavigationBar />
+                        <PageLayout {...pageProps}>
+                          <Component {...pageProps} />
+                        </PageLayout>
+                        <Footer links={links} />
+                      </AuctionHouseContextProvider>
+                    </BulkListProvider>
+                  </CurrencyProvider>
+                </PointsContextProvider>
               </WalletContextProvider>
             </WalletModalProvider>
           </WalletProvider>

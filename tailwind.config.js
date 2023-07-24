@@ -68,6 +68,18 @@ module.exports = {
           800: '#EC9D08', // secondary gradient finishes here
           900: '#F85C04', // both gradients starts here
         },
+        bronze: {
+          500: '#84665D20',
+          600: '#84665D',
+        },
+        silver: {
+          500: '#98989820',
+          600: '#989898',
+        },
+        gold: {
+          500: '#FFC600',
+          600: '#F3C31A',
+        },
         green: {
           100: '#6CE9A6',
           200: '#4AC282',
@@ -80,6 +92,7 @@ module.exports = {
           100: '#E0E0E0',
           200: '#BDBDBD',
           300: '#8B8B8E',
+          450: '#4C4C4C',
           600: '#4C4C4C',
           700: '#27262E',
           750: '#282828',
@@ -135,80 +148,61 @@ module.exports = {
             border: 'width 0.25s ease-out 0.5s, height 0.25s ease-out 0.75s',
           },
         },
-        bulb: {
+        ticket: {
           '0%': {
-            backgroundImage: "url('/images/animated/bulb/1.svg')",
+            backgroundImage: "url('/images/animated/ticket/1.svg')",
           },
-          '20%': {
-            backgroundImage: "url('/images/animated/bulb/2.svg')",
+          '18%': {
+            backgroundImage: "url('/images/animated/ticket/2.svg')",
           },
-          '40%': {
-            backgroundImage: "url('/images/animated/bulb/3.svg')",
+          '36%': {
+            backgroundImage: "url('/images/animated/ticket/3.svg')",
           },
-          '60%': {
-            backgroundImage: "url('/images/animated/bulb/4.svg')",
+          '54%': {
+            backgroundImage: "url('/images/animated/ticket/4.svg')",
           },
-          '80%': {
-            backgroundImage: "url('/images/animated/bulb/5.svg')",
+          '72%': {
+            backgroundImage: "url('/images/animated/ticket/5.svg')",
+          },
+          '90%': {
+            backgroundImage: "url('/images/animated/ticket/6.svg')",
           },
           '100%': {
-            backgroundImage: "url('/images/animated/bulb/6.svg')",
+            backgroundImage: "url('/images/animated/ticket/7.svg')",
           },
         },
-        bulbAfter: {
+        'ticket-reverse': {
           '0%': {
-            backgroundImage: "url('/images/animated/bulb/7.svg')",
+            backgroundImage: "url('/images/animated/ticket/7.svg')",
           },
-          '7%': {
-            backgroundImage: "url('/images/animated/bulb/8.svg')",
+          '18%': {
+            backgroundImage: "url('/images/animated/ticket/6.svg')",
           },
-          '14%': {
-            backgroundImage: "url('/images/animated/bulb/9.svg')",
+          '36%': {
+            backgroundImage: "url('/images/animated/ticket/5.svg')",
           },
-          '21%': {
-            backgroundImage: "url('/images/animated/bulb/10.svg')",
+          '54%': {
+            backgroundImage: "url('/images/animated/ticket/4.svg')",
           },
-          '28%': {
-            backgroundImage: "url('/images/animated/bulb/11.svg')",
+          '72%': {
+            backgroundImage: "url('/images/animated/ticket/3.svg')",
           },
-          '35%': {
-            backgroundImage: "url('/images/animated/bulb/12.svg')",
-          },
-          '42%': {
-            backgroundImage: "url('/images/animated/bulb/13.svg')",
-          },
-          '49%': {
-            backgroundImage: "url('/images/animated/bulb/14.svg')",
-          },
-          '56%': {
-            backgroundImage: "url('/images/animated/bulb/15.svg')",
-          },
-          '63%': {
-            backgroundImage: "url('/images/animated/bulb/16.svg')",
-          },
-          '70%': {
-            backgroundImage: "url('/images/animated/bulb/17.svg')",
-          },
-          '77%': {
-            backgroundImage: "url('/images/animated/bulb/18.svg')",
-          },
-          '84%': {
-            backgroundImage: "url('/images/animated/bulb/19.svg')",
-          },
-          '91%': {
-            backgroundImage: "url('/images/animated/bulb/20.svg')",
+          '90%': {
+            backgroundImage: "url('/images/animated/ticket/2.svg')",
           },
           '100%': {
-            backgroundImage: "url('/images/animated/bulb/21.svg')",
+            backgroundImage: "url('/images/animated/ticket/1.svg')",
           },
         },
         'score-badge-tooltip': {
-          '0%': { top: '52px', opacity: '0' },
+          '0%': { top: '53px', opacity: '0' },
           '100%': { top: '52px', opacity: '1' },
         },
       },
       animation: {
         refresh: 'refresh 1s ease-in-out',
+        ticket: 'ticket .15s linear',
+        'ticket-reverse': 'ticket-reverse .15s linear',
         'pulse-it': 'heartbeat 1.5s linear',
         'draw-border': 'draw .5s',
         'draw-border-1s': 'draw-primary 1s',
@@ -216,10 +210,8 @@ module.exports = {
         'fade-out': 'fadeOut 3s linear 1500ms',
         'fade-out-black': 'fadeOutBlack 3s linear 1500ms',
         'fade-out-1s': 'fadeOut 1s linear 333ms',
-        'fade-out-1.5s-black': 'fadeOutBlack 1.5s linear 500ms',
-        'score-badge-tooltip': 'score-badge-tooltip 0.6s linear ',
-        bulb: 'bulb .2s ease-in',
-        'bulb-after': 'bulbAfter 1s ease-in',
+        'fade-out-1.5s-black': 'fadeOutBlack 1.5s linear 0.0001s',
+        'score-badge-tooltip': 'score-badge-tooltip 0.4s linear',
       },
       transitionProperty: {
         width: 'width',
@@ -228,6 +220,7 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
+    require('tailwind-clip-path'),
     plugin(function ({ addUtilities }) {
       addUtilities({
         /* Hide scrollbar for Chrome, Safari and Opera */
