@@ -15,9 +15,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  transpilePackages: [
-    'react-hotjar'
-  ]
+  transpilePackages: ['react-hotjar'],
+  webpack: (config) => {
+    let modularizeImports = null;
+    config.module.rules.some((rule) =>
+      rule.oneOf?.some((oneOf) => {
+        modularizeImports = oneOf?.use?.options?.nextConfig?.modularizeImports;
+        return modularizeImports;
+      })
+    );
+    if (modularizeImports?.['ahooks']) delete modularizeImports['ahooks'];
+    return config;
+  },
 };
 
 module.exports = nextConfig;
