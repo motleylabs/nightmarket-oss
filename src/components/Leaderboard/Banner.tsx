@@ -48,7 +48,7 @@ export default function LeaderboardBanner({ t }: LeaderboardBannerProps) {
   return (
     <div className="flex relative items-center md:flex-row w-full mx-auto md:justify-start md:items-start lg:items-start md:mt-[98px] mt-12 md:gap-x-4 lg:gap-x-6">
       <div className="flex relative z-10 flex-col justify-start md:items-start max-w-[209px] md:max-w-[408px] text-start md:text-start lg:text-start">
-        <div className="leading-8 md:text-[40px] text-[24px] font-semibold text-white">
+        <div className="leading-8 md:text-[40px] text-[24px] font-semibold text-[#e8fdeb] font-serif">
           {t('banner.leaderboard', { ns: leaderboardNS })}
         </div>
 

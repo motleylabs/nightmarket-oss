@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "Leaderboard",
-    "description": "Join the Night Market point system."
+    "title": "The Arcade",
+    "description": "Join the Night Market arcade."
   },
   "connectWallet": "Connect Wallet",
   "openNftMarketplace": "Open NFT Marketplace",
@@ -15,7 +15,7 @@
   },
   "banner": {
     "season": "Season",
-    "leaderboard": "Leaderboard",
+    "leaderboard": "The Arcade",
     "description.1": "During Season 1, users who buy, sell, and list NFTs on Night Market will be rewarded with Tickets. Tickets will be redeemable for [REDACTED] at the end of the Season. 👀",
     "description.2": "The more you earn, the better the prizes will be. Happy Trading!",
     "howToEarn": "How to earn points?"
