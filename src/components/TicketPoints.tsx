@@ -26,7 +26,7 @@ function TicketPoints({ searchExpanded }: { searchExpanded: boolean }) {
   return (
     <div
       onClick={() => {
-        !isMobile && !pathname.includes('leaderboard') && routerPush('leaderboard');
+        !isMobile && !pathname.includes('/leaderboard') && routerPush('/leaderboard');
 
         if (tooltipClass === '') {
           setTooltipClass('group-hover/ticket:animate-score-badge-tooltip group-hover/ticket:flex');
@@ -61,7 +61,7 @@ function TicketPoints({ searchExpanded }: { searchExpanded: boolean }) {
         <div
           onClick={(e) => {
             e.stopPropagation();
-            !pathname.includes('leaderboard') && routerPush('leaderboard');
+            !pathname.includes('/leaderboard') && routerPush('/leaderboard');
           }}
           className={clsx(
             tooltipClass,
@@ -90,7 +90,7 @@ function TicketPoints({ searchExpanded }: { searchExpanded: boolean }) {
       <div
         onClick={(e) => {
           e.stopPropagation();
-          !pathname.includes('leaderboard') && routerPush('leaderboard');
+          !pathname.includes('/leaderboard') && routerPush('/leaderboard');
         }}
         className={clsx(
           'relative text-white font-bold text-base ml-[10px]',
