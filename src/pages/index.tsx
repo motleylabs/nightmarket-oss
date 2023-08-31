@@ -303,10 +303,12 @@ const Home: NextPage = () => {
               launchDate={addDays(new Date(), 3)}
               title="Motley Friends"
               description={t('drops.motley', { ns: 'home' })}
-              price={'TBD'}
-              supply={10000}
+              price={''}
+              supply={5909}
               image={'/images/launchpad/motley-launchpad-nft.png'}
-              link={'/launchpad/test'}
+              link={
+                'https://launchpad.nightmarket.io/m/GZYYxFGfUgwofuzbVUBkxr98UK9s3rsskxmqZKjwTM8k'
+              }
             />
             <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
               <h4 className="text-xl font-semibold">
