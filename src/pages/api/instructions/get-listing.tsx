@@ -21,13 +21,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const nightmarketClient = new NightmarketClient(process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
 
-      const listings: Listing | null = await nightmarketClient.GetListing(mintPublicKey);
+      const listing: Listing | null = await nightmarketClient.GetListing(mintPublicKey);
 
-      if (!listings) {
+      if (!listing) {
         return res.status(404).json({ error: 'There is no listing.' });
       }
 
-      res.status(200).json({ tx: listings });
+      res.status(200).json({ listing: listing });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ error: error });
