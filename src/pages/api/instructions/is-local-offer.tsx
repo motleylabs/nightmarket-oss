@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      buyerPublicKey = new PublicKey(seller as string);
+      buyerPublicKey = new PublicKey(buyer as string);
       if (seller) sellerPublicKey = new PublicKey(seller as string);
     } catch (error) {
       return res.status(400).json({ error: 'Invalid buyer or seller public key' });
