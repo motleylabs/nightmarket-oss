@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'There is no offer.' });
       }
 
-      res.status(200).json({ tx: offers });
+      res.status(200).json({ offers: offers });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ error: error });
