@@ -42,7 +42,12 @@ function TicketPoints({ searchExpanded }: { searchExpanded: boolean }) {
         }
         setTimeout(() => setTicketImage("bg-[url('/images/animated/ticket/1.svg')]"), 150);
       }}
-      className="group/ticket-points flex flex-row justify-center items-center w-[84px] h-full relative overflow-visible cursor-pointer bg-[#100F14] hover:bg-[#17161D] rounded-[50px] py-1 pl-3 pr-4"
+      className={clsx(
+        'group/ticket-points flex flex-row justify-center items-center w-[84px] h-full relative overflow-visible cursor-pointer bg-[#100F14] hover:bg-[#17161D] rounded-[50px] py-1 pl-3 pr-4',
+        {
+          '!hidden': searchExpanded,
+        }
+      )}
     >
       {/* TICKET  */}
       <div
@@ -51,10 +56,7 @@ function TicketPoints({ searchExpanded }: { searchExpanded: boolean }) {
           'group-hover/ticket-points:md:bg-[#17161D] !top-0 relative w-[42px] -mr-2 group/ticket',
           'h-full cursor-pointer bg-center bg-no-repeat overflow-visible !z-10 bg-contain !opacity-100',
           ticketClass,
-          ticketImage,
-          {
-            '!hidden': searchExpanded,
-          }
+          ticketImage
         )}
       >
         {/* Tooltip */}

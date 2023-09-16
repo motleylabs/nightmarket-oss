@@ -157,7 +157,6 @@ function NavigationBar() {
 
   const { searchExpanded, setSearchExpanded } = useMobileSearch();
   const [showMode, setShowMode] = useState<string>('collection');
-  const { push: routerPush, pathname } = useRouter();
 
   const expandedSearchRef = useRef<HTMLDivElement | null>(null);
   useOutsideAlert(
