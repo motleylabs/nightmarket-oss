@@ -102,6 +102,14 @@ const Home: NextPage = () => {
     }
   };
 
+  const onViewAnnouncementClick = () => {
+    window.location.href = 'https://twitter.com/nightmarketio';
+  };
+
+  const onGithubClick = () => {
+    window.location.href = 'https://github.com/motleylabs';
+  };
+
   const handleFiltersChange = (value: `${CollectionInterval}`) => {
     setSelectedTimeFrame(value);
     if (size > 1) {
@@ -113,6 +121,8 @@ const Home: NextPage = () => {
     () => (data ? data.flatMap((pageData) => pageData.trends) : []),
     [data]
   );
+
+  const isNightMarketShutdown = true;
 
   return (
     <>
@@ -128,16 +138,38 @@ const Home: NextPage = () => {
       <main className="container mx-auto px-4 xl:px-24">
         <Hero>
           <Hero.Main>
-            <Hero.Title>{t('hero.title', { ns: 'home' })}</Hero.Title>
-            <Hero.SubTitle>{t('hero.subtitle', { ns: 'home' })}</Hero.SubTitle>
+            <Hero.Title>Closure of Night Market &amp; Motley Friends</Hero.Title>
+            <Hero.SubTitle>
+              To our friends &amp; community,
+              <br />
+              <br />
+              After long consideration, we’ve made the decision to begin winding down the Night
+              Market &amp; Motley projects.
+              <br />
+              <br />
+              All Night Market code is open-source, so anyone looking to leverage NFT marketplace
+              functionality is free to deploy for their own use. Our{' '}
+              <a href="https://github.com/motleylabs">repos on GitHub</a> will remain intact.
+              To-date, Night Market is still the only fully open-source NFT marketplace & SDK on
+              Solana, and we are firm believers that the right builders will find novel ways to
+              create value from crypto-based applications.
+              <br />
+              <br />A more detailed announcement is available on{' '}
+              <a href="https://twitter.com/nightmarketio">Twitter</a>.
+              <br />
+              <br />
+              Warm regards,
+              <br />
+              The MotleyDAO Team
+            </Hero.SubTitle>
             <Hero.Actions>
               <Button
                 className="w-full md:w-auto"
                 color={ButtonColor.White}
                 background={ButtonBackground.Gradient}
-                onClick={onExploreNftsClick}
+                onClick={onViewAnnouncementClick}
               >
-                {t('hero.exploreNfts', { ns: 'home' })}
+                View Announcement
               </Button>
               <Button
                 className="w-full md:w-auto"
@@ -145,15 +177,15 @@ const Home: NextPage = () => {
                 background={ButtonBackground.Black}
                 border={ButtonBorder.Gradient}
                 color={ButtonColor.Gradient}
-                onClick={onSellNftsClick}
+                onClick={onGithubClick}
               >
-                {t('hero.sellNfts', { ns: 'home' })}
+                Visit GitHub
               </Button>
             </Hero.Actions>
           </Hero.Main>
           <Hero.Image>
             <Image
-              className="rounded-tl-2xl rounded-tr-2xl md:rounded-tr-2xl md:rounded-br-2xl"
+              className="hidden rounded-tl-2xl rounded-tr-2xl md:rounded-tr-2xl md:rounded-br-2xl"
               src={OpenAllNight.src}
               alt="Open All Night"
               width={1280}
@@ -162,176 +194,180 @@ const Home: NextPage = () => {
           </Hero.Image>
         </Hero>
 
-        <section>
-          <Banner />
-        </section>
-        <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
-          <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
-            <h1 className="m-0 font-serif text-2xl">
-              {t('trendingCollections.title', { ns: 'home' })}
-            </h1>
-            <div className="flex flex-row items-center gap-4">
-              <Controller
-                control={control}
-                name="filter"
-                render={() => (
-                  <ButtonGroup value={selectedTimeFrame} onChange={handleFiltersChange}>
-                    <ButtonGroup.Option value={CollectionInterval.OneHour}>
-                      {t('timeInterval.hour', { ns: 'collection' })}
-                    </ButtonGroup.Option>
-                    <ButtonGroup.Option value={CollectionInterval.OneDay}>
-                      {t('timeInterval.day', { ns: 'collection' })}
-                    </ButtonGroup.Option>
-                    <ButtonGroup.Option value={CollectionInterval.SevenDay}>
-                      {t('timeInterval.week', { ns: 'collection' })}
-                    </ButtonGroup.Option>
-                  </ButtonGroup>
-                )}
-              />
-            </div>
-          </header>
-          <Collection.List>
-            {isLoading ? (
-              <>
-                <Collection.List.Loading />
-                <Collection.List.Loading />
-                <Collection.List.Loading />
-                <Collection.List.Loading />
-                <Collection.List.Loading />
-                <Collection.List.Loading />
-              </>
-            ) : (
-              trends.map((trend) => {
-                let selectedTrend: SelectedTrend = {
-                  listedCount: undefined,
-                  listedCountChange: undefined,
-                  volume: undefined,
-                  volumeChange: undefined,
-                  floorPrice: undefined,
-                  floorPriceChange: undefined,
-                };
-
-                let volumeLabel = '';
-
-                switch (selectedTimeFrame) {
-                  case CollectionInterval.OneDay:
-                    selectedTrend = {
-                      floorPrice: trend.floor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.volume1d,
-                      volumeChange: trend.changeVolume1d,
-                      listedCount: trend.listed1d,
-                      listedCountChange: trend.changeListed1d,
-                    };
-                    volumeLabel = t('24hVolume', { ns: 'collection' });
-                    break;
-                  case CollectionInterval.SevenDay:
-                    selectedTrend = {
-                      floorPrice: trend.floor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.volume7d,
-                      volumeChange: trend.changeVolume7d,
-                      listedCount: trend.listed1d,
-                      listedCountChange: trend.changeListed1d,
-                    };
-                    volumeLabel = t('7dVolume', { ns: 'collection' });
-                    break;
-                  case CollectionInterval.OneHour:
-                    selectedTrend = {
-                      floorPrice: trend.floor1d,
-                      floorPriceChange: trend.changeFloor1d,
-                      volume: trend.volume1h,
-                      volumeChange: trend.changeVolume1h,
-                      listedCount: trend.listed1d,
-                      listedCountChange: trend.changeListed1d,
-                    };
-                    volumeLabel = t('1hVolume', { ns: 'collection' });
-                    break;
-                }
-
-                return (
-                  <Collection.List.Row key={trend.collection?.slug}>
-                    <Link
-                      className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
-                      href={`/collections/[slug]`}
-                      as={`/collections/${trend.collection?.slug}`}
-                    >
-                      <Collection.List.Col className="flex-none">
-                        <Img
-                          fallbackSrc="/images/moon.svg"
-                          src={getAssetURL(trend.collection?.image, AssetSize.XSmall)}
-                          alt={trend.collection?.name}
-                          className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
-                        />
-                      </Collection.List.Col>
-                      <Collection.List.Stats
-                        name={trend.collection.name}
-                        slug={trend.collection.slug}
-                        trend={selectedTrend}
-                        volumeLabel={volumeLabel}
-                        period={selectedTimeFrame}
-                      />
-                    </Link>
-                    {trend.collection.id && (
-                      <Collection.List.Col className="flex w-full gap-2 md:w-auto lg:gap-4">
-                        <Collection.List.NftPreview collectionSlug={trend.collection.slug} />
-                      </Collection.List.Col>
+        {!isNightMarketShutdown && (
+          <>
+            <section>
+              <Banner />
+            </section>
+            <section className="mt-28 scroll-mt-20" ref={trendingCollectionsRef}>
+              <header className="mb-10 flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
+                <h1 className="m-0 font-serif text-2xl">
+                  {t('trendingCollections.title', { ns: 'home' })}
+                </h1>
+                <div className="flex flex-row items-center gap-4">
+                  <Controller
+                    control={control}
+                    name="filter"
+                    render={() => (
+                      <ButtonGroup value={selectedTimeFrame} onChange={handleFiltersChange}>
+                        <ButtonGroup.Option value={CollectionInterval.OneHour}>
+                          {t('timeInterval.hour', { ns: 'collection' })}
+                        </ButtonGroup.Option>
+                        <ButtonGroup.Option value={CollectionInterval.OneDay}>
+                          {t('timeInterval.day', { ns: 'collection' })}
+                        </ButtonGroup.Option>
+                        <ButtonGroup.Option value={CollectionInterval.SevenDay}>
+                          {t('timeInterval.week', { ns: 'collection' })}
+                        </ButtonGroup.Option>
+                      </ButtonGroup>
                     )}
-                  </Collection.List.Row>
-                );
-              })
-            )}
-          </Collection.List>
-          <Button
-            className="mx-auto mt-8"
-            onClick={onShowMoreTrends}
-            background={ButtonBackground.Black}
-            border={ButtonBorder.Gradient}
-            color={ButtonColor.Gradient}
-            loading={isValidating}
-            disabled={isValidating}
-          >
-            {t('showMoreCollections', { ns: 'collection' })}
-          </Button>
-        </section>
-        <section className="mt-16 scroll-mt-20 md:mt-28">
-          <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
-            <h1 className="m-0 font-serif text-2xl">{t('drops.title', { ns: 'home' })}</h1>
-          </header>
-          <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
-            <Drop
-              launchDate={addDays(new Date(), 3)}
-              title="Motley Friends"
-              description={t('drops.motley', { ns: 'home' })}
-              price={''}
-              supply={5909}
-              image={'/images/launchpad/motley-launchpad-nft.png'}
-              link={
-                'https://launchpad.nightmarket.io/m/GZYYxFGfUgwofuzbVUBkxr98UK9s3rsskxmqZKjwTM8k'
-              }
-            />
-            <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-              <h4 className="text-xl font-semibold">
-                {t('drops.moreLaunchesTitle', { ns: 'home' })}
-              </h4>
-              <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
-              <Link
-                href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
-                target={'_blank'}
-                rel="noreferrer"
+                  />
+                </div>
+              </header>
+              <Collection.List>
+                {isLoading ? (
+                  <>
+                    <Collection.List.Loading />
+                    <Collection.List.Loading />
+                    <Collection.List.Loading />
+                    <Collection.List.Loading />
+                    <Collection.List.Loading />
+                    <Collection.List.Loading />
+                  </>
+                ) : (
+                  trends.map((trend) => {
+                    let selectedTrend: SelectedTrend = {
+                      listedCount: undefined,
+                      listedCountChange: undefined,
+                      volume: undefined,
+                      volumeChange: undefined,
+                      floorPrice: undefined,
+                      floorPriceChange: undefined,
+                    };
+
+                    let volumeLabel = '';
+
+                    switch (selectedTimeFrame) {
+                      case CollectionInterval.OneDay:
+                        selectedTrend = {
+                          floorPrice: trend.floor1d,
+                          floorPriceChange: trend.changeFloor1d,
+                          volume: trend.volume1d,
+                          volumeChange: trend.changeVolume1d,
+                          listedCount: trend.listed1d,
+                          listedCountChange: trend.changeListed1d,
+                        };
+                        volumeLabel = t('24hVolume', { ns: 'collection' });
+                        break;
+                      case CollectionInterval.SevenDay:
+                        selectedTrend = {
+                          floorPrice: trend.floor1d,
+                          floorPriceChange: trend.changeFloor1d,
+                          volume: trend.volume7d,
+                          volumeChange: trend.changeVolume7d,
+                          listedCount: trend.listed1d,
+                          listedCountChange: trend.changeListed1d,
+                        };
+                        volumeLabel = t('7dVolume', { ns: 'collection' });
+                        break;
+                      case CollectionInterval.OneHour:
+                        selectedTrend = {
+                          floorPrice: trend.floor1d,
+                          floorPriceChange: trend.changeFloor1d,
+                          volume: trend.volume1h,
+                          volumeChange: trend.changeVolume1h,
+                          listedCount: trend.listed1d,
+                          listedCountChange: trend.changeListed1d,
+                        };
+                        volumeLabel = t('1hVolume', { ns: 'collection' });
+                        break;
+                    }
+
+                    return (
+                      <Collection.List.Row key={trend.collection?.slug}>
+                        <Link
+                          className="flex w-full items-center justify-start gap-4 rounded-2xl xl:gap-8"
+                          href={`/collections/[slug]`}
+                          as={`/collections/${trend.collection?.slug}`}
+                        >
+                          <Collection.List.Col className="flex-none">
+                            <Img
+                              fallbackSrc="/images/moon.svg"
+                              src={getAssetURL(trend.collection?.image, AssetSize.XSmall)}
+                              alt={trend.collection?.name}
+                              className="relative aspect-square w-16 rounded-lg object-cover md:w-20"
+                            />
+                          </Collection.List.Col>
+                          <Collection.List.Stats
+                            name={trend.collection.name}
+                            slug={trend.collection.slug}
+                            trend={selectedTrend}
+                            volumeLabel={volumeLabel}
+                            period={selectedTimeFrame}
+                          />
+                        </Link>
+                        {trend.collection.id && (
+                          <Collection.List.Col className="flex w-full gap-2 md:w-auto lg:gap-4">
+                            <Collection.List.NftPreview collectionSlug={trend.collection.slug} />
+                          </Collection.List.Col>
+                        )}
+                      </Collection.List.Row>
+                    );
+                  })
+                )}
+              </Collection.List>
+              <Button
+                className="mx-auto mt-8"
+                onClick={onShowMoreTrends}
+                background={ButtonBackground.Black}
+                border={ButtonBorder.Gradient}
+                color={ButtonColor.Gradient}
+                loading={isValidating}
+                disabled={isValidating}
               >
-                <Button
-                  background={ButtonBackground.Black}
-                  border={ButtonBorder.Gradient}
-                  size={ButtonSize.Large}
-                  color={ButtonColor.Gradient}
-                >
-                  {t('drops.launchButton', { ns: 'home' })}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+                {t('showMoreCollections', { ns: 'collection' })}
+              </Button>
+            </section>
+            <section className="mt-16 scroll-mt-20 md:mt-28">
+              <header className="mb-4 flex w-full flex-row justify-between gap-4 md:mb-12">
+                <h1 className="m-0 font-serif text-2xl">{t('drops.title', { ns: 'home' })}</h1>
+              </header>
+              <div className="flex flex-col items-center justify-start gap-12 lg:flex-row">
+                <Drop
+                  launchDate={addDays(new Date(), 3)}
+                  title="Motley Friends"
+                  description={t('drops.motley', { ns: 'home' })}
+                  price={''}
+                  supply={5909}
+                  image={'/images/launchpad/motley-launchpad-nft.png'}
+                  link={
+                    'https://launchpad.nightmarket.io/m/GZYYxFGfUgwofuzbVUBkxr98UK9s3rsskxmqZKjwTM8k'
+                  }
+                />
+                <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
+                  <h4 className="text-xl font-semibold">
+                    {t('drops.moreLaunchesTitle', { ns: 'home' })}
+                  </h4>
+                  <p>{t('drops.moreLaunchesDescription', { ns: 'home' })}</p>
+                  <Link
+                    href="https://form.asana.com/?k=mgC3AlQRa_n7LjlmpIBF1w&d=1202851511866932"
+                    target={'_blank'}
+                    rel="noreferrer"
+                  >
+                    <Button
+                      background={ButtonBackground.Black}
+                      border={ButtonBorder.Gradient}
+                      size={ButtonSize.Large}
+                      color={ButtonColor.Gradient}
+                    >
+                      {t('drops.launchButton', { ns: 'home' })}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
       </main>
     </>
   );
