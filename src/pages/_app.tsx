@@ -549,7 +549,7 @@ function MobileNavMenu({
           showNav ? 'block' : 'hidden'
         )}
       >
-        <div className="flex w-full flex-row items-center justify-between px-4 md:hidden">
+        <div className="flex w-full flex-row items-center justify-between px-4 md:hidden mt-[2px]">
           <Link className="flex flex-row gap-2 whitespace-nowrap text-2xl font-bold" href="/">
             <img
               src="/images/nightmarket-stacked-beta.svg"
